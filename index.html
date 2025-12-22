@@ -11,15 +11,18 @@
       padding: 0;
       background-color: #f4f4f4;
       color: #333;
-      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
     header {
       background-color: #003366;
       color: white;
-      padding: 15px;
+      padding: 15px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-shrink: 0;
     }
     .logo {
       font-size: 1.5em;
@@ -28,20 +31,24 @@
     .date {
       font-size: 0.9em;
     }
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
     h1 {
-      margin: 40px 0 10px;
+      margin: 0 0 10px;
       font-size: 2.5em;
+      text-align: center;
     }
     .subtitle {
       font-size: 1.2em;
-      margin-bottom: 40px;
-    }
-    .container {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      flex-wrap: wrap;
-      padding: 0 20px;
+      margin-bottom: 30px;
+      max-width: 800px;
+      text-align: center;
     }
     .card {
       background-color: white;
@@ -50,6 +57,7 @@
       width: 340px;
       padding: 40px 30px;
       transition: transform 0.3s;
+      text-align: center;
     }
     .card:hover {
       transform: translateY(-5px);
@@ -76,12 +84,12 @@
     <div class="date">Senin, 22 Desember 2025 | 09:35:45</div>
   </header>
 
-  <h1>Checklist Monitoring Tooling Support</h1>
-  <p class="subtitle">
-    Sistem dashboard digital untuk pencatatan dan monitoring checklist harian tooling support produksi.
-  </p>
+  <div class="main-content">
+    <h1>Checklist Monitoring Tooling Support</h1>
+    <p class="subtitle">
+      Sistem dashboard digital untuk pencatatan dan monitoring checklist harian tooling support produksi.
+    </p>
 
-  <div class="container">
     <div class="card blue">
       <h2>Form Checklist</h2>
       <p>Form Pengisian</p>
