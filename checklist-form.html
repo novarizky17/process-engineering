@@ -3,27 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Form Checklist Tooling Support</title>
+  <title>Form Checklist Tooling Injection</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
     header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
     .logo { font-size: 1.5em; font-weight: bold; }
     .back-btn { background-color: #004085; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; }
     .back-btn:hover { background-color: #003366; }
-    .main-content { flex: 1; padding: 20px; max-width: 900px; margin: 0 auto; }
-    h1, h2 { text-align: center; margin-bottom: 20px; }
-    .form-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .section { margin-bottom: 40px; }
-    .section h3 { margin-bottom: 10px; color: #004085; font-size: 1.4em; }
-    .section h4 { margin-bottom: 15px; color: #155724; font-size: 1.3em; }
-    .item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 10px 0; border-bottom: 1px solid #eee; }
-    .item-label { flex: 1; font-size: 1.1em; font-weight: bold; }
-    .status-group { display: flex; gap: 30px; align-items: center; }
-    .status-group label { display: flex; align-items: center; gap: 5px; font-size: 1.1em; font-weight: bold; cursor: pointer; }
-    input[type="radio"] { transform: scale(1.5); cursor: pointer; }
-    .keterangan { display: none; margin-top: 12px; padding-left: 20px; }
-    .keterangan textarea { width: 100%; height: 70px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em; resize: vertical; }
-    button.submit { background-color: #155724; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1em; display: block; margin: 30px auto 0; }
+    .main-content { flex: 1; padding: 20px; } /* Tanpa max-width, full lebar layar */
+    h1 { text-align: center; margin-bottom: 20px; }
+    .info { text-align: center; font-size: 1.2em; margin-bottom: 30px; }
+    .form-container { background: white; padding: 40px 60px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin: 0 auto; max-width: 95%; } /* Hampir full width */
+    .section { margin-bottom: 50px; text-align: left; }
+    .section h3 { margin-bottom: 10px; color: #004085; font-size: 1.6em; }
+    .section h4 { margin-bottom: 15px; color: #155724; font-size: 1.4em; }
+    .item { display: flex; align-items: center; justify-content: flex-start; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #eee; }
+    .item-label { flex: 1; font-size: 1.3em; font-weight: bold; text-align: left; min-width: 300px; } /* Label lebih panjang */
+    .status-group { display: flex; gap: 60px; align-items: center; margin-left: 40px; }
+    .status-group label { display: flex; align-items: center; gap: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; }
+    input[type="radio"] { transform: scale(1.6); cursor: pointer; }
+    .keterangan { display: none; margin-top: 15px; width: 100%; }
+    .keterangan textarea { width: 100%; height: 90px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1.1em; resize: vertical; }
+    button.submit { background-color: #155724; color: white; padding: 16px 50px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.3em; display: block; margin: 50px auto 0; }
     button.submit:hover { background-color: #0f4422; }
   </style>
 </head>
@@ -36,8 +38,8 @@
 
   <div class="main-content">
     <h1>Form Checklist Tooling Injection</h1>
-    <p style="text-align: center; font-size: 1.1em;">
-      Pelaksana: <strong id="pelaksanaNama"></strong> | Tanggal: <strong id="tanggalChecklist"></strong>
+    <p class="info">
+      Pelaksana: <strong id="pelaksanaNama">Memuat...</strong> | Tanggal: <strong id="tanggalChecklist">Memuat...</strong>
     </p>
 
     <div class="form-container">
@@ -97,17 +99,41 @@
   </div>
 
   <script>
-    // Ambil data dari localStorage
-    document.getElementById('pelaksanaNama').textContent = localStorage.getItem('pelaksana') || 'Tidak ada data';
-    document.getElementById('tanggalChecklist').textContent = localStorage.getItem('tanggal') || new Date().toLocaleDateString('id-ID');
+    const supabaseUrl = 'https://YOUR_PROJECT_REF.supabase.co';
+    const supabaseKey = 'YOUR_ANON_PUBLIC_KEY';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Fungsi untuk menampilkan/menyembunyikan keterangan NG
+    async function loadPelaksana() {
+      const pelaksanaId = localStorage.getItem('pelaksana_id');
+      if (!pelaksanaId) {
+        alert('Data pelaksana tidak ditemukan. Silakan isi ulang.');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('pelaksana')
+        .select('nama_pelaksana, tanggal_checklist')
+        .eq('id', pelaksanaId)
+        .single();
+
+      if (error || !data) {
+        alert('Gagal memuat data pelaksana: ' + (error?.message || 'Data tidak ditemukan'));
+        return;
+      }
+
+      document.getElementById('pelaksanaNama').textContent = data.nama_pelaksana;
+      document.getElementById('tanggalChecklist').textContent = new Date(data.tanggal_checklist).toLocaleDateString('id-ID');
+    }
+
+    loadPelaksana();
+
     function toggleKeterangan(id) {
       const elem = document.getElementById(id);
       elem.style.display = (event.target.value === 'NG') ? 'block' : 'none';
     }
 
-    function simpanChecklist() {
+    async function simpanChecklist() {
       let adaError = false;
       const ngItems = ['wiring', 'komponen', 'kerapihan', 'sensor'];
       ngItems.forEach(item => {
@@ -128,10 +154,32 @@
         return;
       }
 
-      alert('Checklist berhasil disimpan!');
-      window.location.href = 'index.html';
+      const pelaksanaId = localStorage.getItem('pelaksana_id');
+
+      const checklistData = {
+        pelaksana_id: pelaksanaId,
+        wiring: document.querySelector('input[name="wiring"]:checked').value,
+        wiring_keterangan: document.getElementById('keterangan-wiring').querySelector('textarea')?.value || null,
+        komponen: document.querySelector('input[name="komponen"]:checked').value,
+        komponen_keterangan: document.getElementById('keterangan-komponen').querySelector('textarea')?.value || null,
+        kerapihan: document.querySelector('input[name="kerapihan"]:checked').value,
+        kerapihan_keterangan: document.getElementById('keterangan-kerapihan').querySelector('textarea')?.value || null,
+        sensor: document.querySelector('input[name="sensor"]:checked').value,
+        sensor_keterangan: document.getElementById('keterangan-sensor').querySelector('textarea')?.value || null
+      };
+
+      try {
+        const { error } = await supabase.from('checklist').insert([checklistData]);
+        if (error) throw error;
+
+        alert('Checklist berhasil disimpan ke database!');
+        localStorage.removeItem('pelaksana_id');
+        window.location.href = 'index.html';
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Gagal menyimpan checklist: ' + error.message);
+      }
     }
   </script>
-
 </body>
 </html>
