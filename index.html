@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Checklist Monitoring Tooling Support</title>
-  <!-- Supabase Client -->
+  <!-- Supabase Client (untuk simpan data pelaksana) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
@@ -35,6 +35,7 @@
   </style>
 </head>
 <body>
+
   <header>
     <div class="logo">TOOLING SUPPORT</div>
     <div class="date-time" id="realTime">Memuat waktu...</div>
@@ -90,9 +91,11 @@
     const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
 
     function showSection(sectionId) {
+      // Sembunyikan semua section main-content
       document.querySelectorAll('.main-content').forEach(el => {
         el.classList.add('hidden');
       });
+      // Tampilkan section yang dipilih
       const target = document.getElementById(sectionId);
       if (target) target.classList.remove('hidden');
     }
@@ -110,7 +113,7 @@
       }
 
       try {
-        // SIMPAN KE SUPABASE SAAT KLIK "LANJUT"
+        // SIMPAN KE SUPABASE
         const { data, error } = await supabase
           .from('pelaksana')
           .insert([{ nama_pelaksana: nama, tanggal_checklist: tanggal }])
@@ -125,12 +128,12 @@
         // Redirect ke form checklist
         window.location.href = 'checklist-form.html';
       } catch (error) {
-        console.error('Error:', error);
-        alert('Gagal menyimpan data ke database. Silakan cek koneksi atau kredensial Supabase.');
+        console.error('Error menyimpan ke Supabase:', error);
+        alert('Gagal menyimpan data ke database. Cek koneksi atau kredensial Supabase.');
       }
     }
 
-    // Jam real-time
+    // Jam real-time (langsung update saat load)
     function updateTime() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
