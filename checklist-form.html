@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Form Checklist Tooling Support</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
+    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.5em; font-weight: bold; }
+    .back-btn { background-color: #004085; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; }
+    .back-btn:hover { background-color: #003366; }
+    .main-content { flex: 1; padding: 20px; max-width: 900px; margin: 0 auto; }
+    h1, h2 { text-align: center; margin-bottom: 20px; }
+    .form-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .section { margin-bottom: 40px; }
+    .section h3 { margin-bottom: 15px; color: #004085; }
+    .item { margin-bottom: 10px; }
+    label { display: flex; align-items: center; gap: 10px; font-size: 1.1em; }
+    input[type="checkbox"] { transform: scale(1.3); }
+    textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-top: 10px; }
+    button.submit { background-color: #155724; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1em; display: block; margin: 30px auto 0; }
+    button.submit:hover { background-color: #0f4422; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">TOOLING SUPPORT - CHECKLIST</div>
+    <a href="index.html" class="back-btn">Kembali ke Dashboard</a>
+  </header>
+
+  <div class="main-content">
+    <h1>Form Checklist Tooling Injection</h1>
+    <p style="text-align: center; font-size: 1.1em;">
+      Pelaksana: <strong id="pelaksanaNama"></strong> | Tanggal: <strong id="tanggalChecklist"></strong>
+    </p>
+
+    <div class="form-container">
+
+      <!-- 1. Stand Label -->
+      <div class="section">
+        <h3>1. Stand Label</h3>
+        <div class="item"><label><input type="checkbox"> Wiring, temporan, keawasan</label></div>
+        <div class="item"><label><input type="checkbox"> Electrical Wiring, temporan, keawasan</label></div>
+        <div class="item"><label><input type="checkbox"> Lo Sensor</label></div>
+        <div class="item"><label><input type="checkbox"> Motion Training belt, Pulley, Servo motor, linear bearing</label></div>
+        <div class="item"><label><input type="checkbox"> Rotary actuator</label></div>
+        <div class="item"><label><input type="checkbox"> Pneumatic: Solenoid valve, Vacuum Ejector, Gripper</label></div>
+        <div class="item"><label><input type="checkbox"> Pickup Pad, Nozzle, Vacuum Pad</label></div>
+        <div class="item"><label><input type="checkbox"> Pickup Pad, Nozzle, Vacuum Pad</label></div>
+        <div class="item"><label><input type="checkbox"> Pickup Pad, Nozzle, Vacuum Pad</label></div>
+      </div>
+
+      <!-- 2. Conveyor -->
+      <div class="section">
+        <h3>2. Conveyor</h3>
+        <div class="item"><label><input type="checkbox"> Belt</label></div>
+        <div class="item"><label><input type="checkbox"> Motor</label></div>
+        <div class="item"><label><input type="checkbox"> Rantai / Coupling</label></div>
+        <div class="item"><label><input type="checkbox"> Pulley</label></div>
+        <div class="item"><label><input type="checkbox"> Sensor / Electrical</label></div>
+      </div>
+
+      <!-- 3. Dosing & Sawing -->
+      <div class="section">
+        <h3>3. Dosing & Sawing</h3>
+        <div class="item"><label><input type="checkbox"> Motor / Linear & Sensor</div>
+        <div class="item"><label><input type="checkbox"> Cek Alarm</label></div>
+        <div class="item"><label><input type="checkbox"> Pengaturan Setting</label></div>
+      </div>
+
+      <!-- 4. Stacking -->
+      <div class="section">
+        <h3>4. Stacking</h3>
+        <div class="item"><label><input type="checkbox"> Electrical Wiring & Sensor</label></div>
+        <div class="item"><label><input type="checkbox"> Motion & Linear & Pneumatic Cylinder, Pneumatic</label></div>
+      </div>
+
+      <!-- 5. Dummy -->
+      <div class="section">
+        <h3>5. Dummy</h3>
+        <div class="item"><label><input type="checkbox"> Vacuum Dummy</label></div>
+        <div class="item"><label><input type="checkbox"> Sensor</label></div>
+        <div class="item"><label><input type="checkbox"> Static</label></div>
+        <div class="item"><label><input type="checkbox"> Flange & Tubing</label></div>
+        <div class="item"><label><input type="checkbox"> Instalasi, Flange</label></div>
+      </div>
+
+      <!-- Catatan Tambahan -->
+      <div class="section">
+        <h3>Catatan Tambahan / Kerusakan</h3>
+        <textarea placeholder="Tulis catatan atau kerusakan yang ditemukan..."></textarea>
+      </div>
+
+      <button class="submit" onclick="simpanChecklist()">Simpan Checklist</button>
+    </div>
+  </div>
+
+  <script>
+    // Ambil data dari localStorage
+    document.getElementById('pelaksanaNama').textContent = localStorage.getItem('pelaksana') || 'Tidak ada data';
+    document.getElementById('tanggalChecklist').textContent = localStorage.getItem('tanggal') || new Date().toLocaleDateString('id-ID');
+
+    function simpanChecklist() {
+      alert('Checklist berhasil disimpan!');
+      // Di sini nanti bisa tambah logika simpan ke localStorage atau kirim ke server
+      // Contoh: localStorage.setItem('checklistData', JSON.stringify({...}));
+      window.location.href = 'index.html';
+    }
+  </script>
+
+</body>
+</html>
