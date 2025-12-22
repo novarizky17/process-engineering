@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Checklist Monitoring Tooling Support</title>
+  <!-- Supabase JavaScript Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
     header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
@@ -45,23 +47,19 @@
     <p class="subtitle">
       Sistem dashboard digital untuk pencatatan dan monitoring checklist harian tooling support produksi.
     </p>
-
     <div class="grid">
       <div class="card blue" onclick="showSection('pelaksana')">
         <h2>Pelaksana</h2>
         <p>Input data pelaksana dan tim checklist</p>
       </div>
-
       <div class="card green" onclick="alert('Menu Jadwal Mingguan akan dibuka');">
         <h2>Jadwal Mingguan</h2>
         <p>Lihat dan atur jadwal checklist mingguan</p>
       </div>
-
       <div class="card orange" onclick="alert('Menu Superintendent akan dibuka');">
         <h2>Superintendent</h2>
         <p>Approval dan catatan superintendent</p>
       </div>
-
       <div class="card purple" onclick="alert('Menu History akan dibuka');">
         <h2>History</h2>
         <p>Riwayat pengisian checklist sebelumnya</p>
@@ -86,28 +84,51 @@
     <button class="back-btn" onclick="showSection('dashboard')">Kembali ke Dashboard</button>
   </div>
 
-  <!-- JavaScript -->
+  <!-- JavaScript dengan Supabase -->
   <script>
+    // === GANTI DENGAN DATA SUPABASE ANDA ===
+    const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';   // Ganti dengan URL project Anda
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';                  // Ganti dengan anon key
+    const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
+
     function showSection(sectionId) {
       const sections = ['dashboard', 'pelaksana'];
       sections.forEach(id => document.getElementById(id).classList.add('hidden'));
       document.getElementById(sectionId).classList.remove('hidden');
     }
 
+    // Set tanggal default hari ini
     document.getElementById('tanggalChecklist').value = new Date().toISOString().split('T')[0];
 
-    function lanjutKeFormChecklist() {
+    async function lanjutKeFormChecklist() {
       const nama = document.getElementById('namaPelaksana').value.trim();
       const tanggal = document.getElementById('tanggalChecklist').value;
+
       if (!nama || !tanggal) {
         alert('Mohon isi Nama Pelaksana dan Tanggal Checklist!');
         return;
       }
-      // Simpan data sementara ke localStorage
-      localStorage.setItem('pelaksana', nama);
-      localStorage.setItem('tanggal', tanggal);
-      // Arahkan ke halaman form checklist terpisah
-      window.location.href = 'checklist-form.html';
+
+      try {
+        const { data, error } = await supabase
+          .from('pelaksana')
+          .insert([
+            { nama_pelaksana: nama, tanggal_checklist: tanggal }
+          ])
+          .select('id')
+          .single();
+
+        if (error) throw error;
+
+        // Simpan ID pelaksana ke localStorage agar bisa diambil di checklist-form.html
+        localStorage.setItem('pelaksana_id', data.id);
+
+        // Arahkan ke halaman checklist
+        window.location.href = 'checklist-form.html';
+      } catch (error) {
+        console.error('Error menyimpan ke Supabase:', error);
+        alert('Gagal menyimpan data ke database. Cek koneksi atau kredensial Supabase.');
+      }
     }
 
     // Jam real-time
@@ -120,6 +141,5 @@
     updateTime();
     setInterval(updateTime, 1000);
   </script>
-
 </body>
 </html>
