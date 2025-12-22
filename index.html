@@ -1,194 +1,99 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklist Harian Mesin</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        .date {
-            text-align: center;
-            font-size: 1.2em;
-            margin-bottom: 20px;
-            color: #555;
-        }
-        .mesin {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .mesin h2 {
-            margin-top: 0;
-            color: #2c3e50;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 15px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        input[type="checkbox"] {
-            transform: scale(1.3);
-            cursor: pointer;
-        }
-        .catatan {
-            width: 100%;
-            padding: 8px;
-            margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .submit-btn {
-            display: block;
-            width: 200px;
-            margin: 30px auto;
-            padding: 12px;
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1.1em;
-            cursor: pointer;
-        }
-        .submit-btn:hover {
-            background-color: #219653;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checklist Monitoring Tooling Support</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+      text-align: center;
+    }
+    header {
+      background-color: #003366;
+      color: white;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+    .date {
+      font-size: 0.9em;
+    }
+    h1 {
+      margin: 40px 0 10px;
+      font-size: 2.5em;
+    }
+    .subtitle {
+      font-size: 1.2em;
+      margin-bottom: 40px;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      padding: 0 20px;
+    }
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 340px;
+      padding: 40px 30px;
+      transition: transform 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .card h2 {
+      margin: 0 0 15px;
+      font-size: 1.6em;
+    }
+    .card p {
+      margin: 0;
+      font-size: 1.1em;
+      color: #555;
+    }
+    .blue {
+      background-color: #004085;
+      color: white;
+    }
+  </style>
 </head>
 <body>
-    <h1>Checklist Harian Mesin</h1>
-    <div class="date" id="tanggal"></div>
 
-    <form id="checklistForm">
-        <!-- Mesin 1 -->
-        <div class="mesin">
-            <h2>Mesin 1</h2>
-            <table>
-                <tr>
-                    <th>Pemeriksaan</th>
-                    <th>Status</th>
-                    <th>Catatan</th>
-                </tr>
-                <tr>
-                    <td>Visual check (kebocoran, kerusakan)</td>
-                    <td><input type="checkbox" name="mesin1_visual"></td>
-                    <td><input type="text" class="catatan" name="mesin1_visual_catatan"></td>
-                </tr>
-                <tr>
-                    <td>Cek oli mesin</td>
-                    <td><input type="checkbox" name="mesin1_oli"></td>
-                    <td><input type="text" class="catatan" name="mesin1_oli_catatan"></td>
-                </tr>
-                <tr>
-                    <td>Cek suhu mesin</td>
-                    <td><input type="checkbox" name="mesin1_suhu"></td>
-                    <td><input type="text" class="catatan" name="mesin1_suhu_catatan"></td>
-                </tr>
-                <tr>
-                    <td>Cek tekanan udara</td>
-                    <td><input type="checkbox" name="mesin1_tekanan"></td>
-                    <td><input type="text" class="catatan" name="mesin1_tekanan_catatan"></td>
-                </tr>
-            </table>
-        </div>
+  <header>
+    <div class="logo">TOOLING SUPPORT</div>
+    <div class="date">Senin, 22 Desember 2025 | 09:35:45</div>
+  </header>
 
-        <!-- Mesin 2 -->
-        <div class="mesin">
-            <h2>Mesin 2</h2>
-            <table>
-                <tr>
-                    <th>Pemeriksaan</th>
-                    <th>Status</th>
-                    <th>Catatan</th>
-                </tr>
-                <tr>
-                    <td>Visual check (kebocoran, kerusakan)</td>
-                    <td><input type="checkbox" name="mesin2_visual"></td>
-                    <td><input type="text" class="catatan" name="mesin2_visual_catatan"></td>
-                </tr>
-                <tr>
-                    <td>Cek oli mesin</td>
-                    <td><input type="checkbox" name="mesin2_oli"></td>
-                    <td><input type="text" class="catatan" name="mesin2_oli_catatan"></td>
-                </tr>
-                <tr>
-                    <td>Cek suhu mesin</td>
-                    <td><input type="checkbox" name="mesin2_suhu"></td>
-                    <td><input type="text" class="catatan" name="mesin2_suhu_catatan"></td>
-                </tr>
-                <tr>
-                    <td>Cek tekanan udara</td>
-                    <td><input type="checkbox" name="mesin2_tekanan"></td>
-                    <td><input type="text" class="catatan" name="mesin2_tekanan_catatan"></td>
-                </tr>
-            </table>
-        </div>
+  <h1>Checklist Monitoring Tooling Support</h1>
+  <p class="subtitle">
+    Sistem dashboard digital untuk pencatatan dan monitoring checklist harian tooling support produksi.
+  </p>
 
-        <button type="submit" class="submit-btn">Simpan Checklist</button>
-    </form>
+  <div class="container">
+    <div class="card blue">
+      <h2>Form Checklist</h2>
+      <p>Form Pengisian</p>
+    </div>
+  </div>
 
-    <script>
-        // Tampilkan tanggal hari ini
-        const today = new Date();
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('tanggal').textContent = today.toLocaleDateString('id-ID', options);
+  <!-- Optional: Tanggal dinamis -->
+  <script>
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    document.querySelector('.date').textContent = now.toLocaleDateString('id-ID', options).replace(/,/g, '');
+  </script>
 
-        // Key untuk localStorage berdasarkan tanggal
-        const storageKey = 'checklist_' + today.toISOString().split('T')[0];
-
-        // Muat data yang sudah disimpan (jika ada)
-        const savedData = JSON.parse(localStorage.getItem(storageKey)) || {};
-
-        // Isi form dengan data yang tersimpan
-        for (const [key, value] of Object.entries(savedData)) {
-            const element = document.querySelector(`[name="${key}"]`);
-            if (element) {
-                if (element.type === 'checkbox') {
-                    element.checked = value;
-                } else {
-                    element.value = value;
-                }
-            }
-        }
-
-        // Simpan saat submit
-        document.getElementById('checklistForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new Form7Data(this);
-            const data = {};
-            
-            // Simpan semua checkbox dan input teks
-            document.querySelectorAll('input').forEach(input => {
-                if (input.type === 'checkbox') {
-                    data[input.name] = input.checked;
-                } else {
-                    data[input.name] = input.value;
-                }
-            });
-
-            localStorage.setItem(storageKey, JSON.stringify(data));
-            alert('Checklist harian berhasil disimpan!');
-        });
-    </script>
 </body>
 </html>
