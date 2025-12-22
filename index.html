@@ -51,14 +51,22 @@
       max-width: 800px;
       text-align: center;
     }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      max-width: 1200px;
+      width: 100%;
+      padding: 0 20px;
+    }
     .card {
       background-color: white;
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 340px;
-      padding: 40px 30px;
-      transition: transform 0.3s;
+      padding: 35px 25px;
       text-align: center;
+      transition: transform 0.3s;
+      cursor: pointer;
     }
     .card:hover {
       transform: translateY(-5px);
@@ -72,9 +80,23 @@
       font-size: 1.1em;
       color: #555;
     }
-    .blue {
+    .blue { background-color: #004085; color: white; }
+    .green { background-color: #155724; color: white; }
+    .orange { background-color: #c85000; color: white; }
+    .purple { background-color: #6f42c1; color: white; }
+    .hidden { display: none; }
+    .back-btn {
       background-color: #004085;
       color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1em;
+      margin-top: 20px;
+    }
+    .back-btn:hover {
+      background-color: #003366;
     }
   </style>
 </head>
@@ -85,20 +107,61 @@
     <div class="date-time" id="realTime">Memuat waktu...</div>
   </header>
 
-  <div class="main-content">
+  <!-- Halaman Dashboard Awal -->
+  <div id="dashboard" class="main-content">
     <h1>Checklist Monitoring Tooling Support</h1>
     <p class="subtitle">
       SISTEM DASHBOAR UNTUK PEMANTAUAN TOOLING.
     </p>
 
-    <div class="card blue">
+    <div class="card blue" onclick="showSection('checklist')">
       <h2>Form Checklist</h2>
       <p>Form Pengisian</p>
     </div>
   </div>
 
-  <!-- JavaScript untuk jam real-time -->
+  <!-- Halaman Checklist Menu -->
+  <div id="checklist" class="main-content hidden">
+    <h1>Dashboard Checklist Harian</h1>
+    <p class="subtitle">
+      Pilih menu berikut untuk mengisi atau melihat data checklist tooling support.
+    </p>
+
+    <div class="grid">
+      <div class="card blue" onclick="alert('Menu Pelaksana akan dibuka');">
+        <h2>Pelaksana</h2>
+        <p>Input data pelaksana dan tim checklist</p>
+      </div>
+
+      <div class="card green" onclick="alert('Menu Jadwal Mingguan akan dibuka');">
+        <h2>Jadwal Mingguan</h2>
+        <p>Lihat dan atur jadwal checklist mingguan</p>
+      </div>
+
+      <div class="card orange" onclick="alert('Menu Superintendent akan dibuka');">
+        <h2>Superintendent</h2>
+        <p>Approval dan catatan superintendent</p>
+      </div>
+
+      <div class="card purple" onclick="alert('Menu History akan dibuka');">
+        <h2>History</h2>
+        <p>Riwayat pengisian checklist sebelumnya</p>
+      </div>
+    </div>
+
+    <button class="back-btn" onclick="showSection('dashboard')">Kembali ke Dashboard</button>
+  </div>
+
+  <!-- JavaScript untuk jam real-time dan navigasi section -->
   <script>
+    // Fungsi untuk menampilkan section tertentu
+    function showSection(sectionId) {
+      document.getElementById('dashboard').classList.add('hidden');
+      document.getElementById('checklist').classList.add('hidden');
+      document.getElementById(sectionId).classList.remove('hidden');
+    }
+
+    // Jam real-time
     function updateTime() {
       const now = new Date();
       const options = {
@@ -117,8 +180,6 @@
       
       document.getElementById('realTime').textContent = formattedDate;
     }
-
-    // Update setiap detik
     updateTime();
     setInterval(updateTime, 1000);
   </script>
