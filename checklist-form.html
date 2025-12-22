@@ -6,45 +6,43 @@
   <title>Form Checklist Tooling Injection</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
     header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-    .logo { font-size: 1.5em; font-weight: bold; }
-    .back-btn { background-color: #004085; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; }
-    .back-btn:hover { background-color: #003366; }
-    .main-content { flex: 1; padding: 20px; max-width: 1400px; margin: 0 auto; }
-    h1 { text-align: center; margin-bottom: 20px; }
-    .info { text-align: center; font-size: 1.2em; margin-bottom: 30px; }
-    .form-container { background: white; padding: 60px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
-    .section { margin-bottom: 50px; text-align: left; }
-    .section h3 { margin-bottom: 10px; color: #004085; font-size: 1.6em; }
-    .section h4 { margin-bottom: 15px; color: #155724; font-size: 1.4em; }
-    .item { display: flex; align-items: center; justify-content: flex-start; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #eee; }
-    .item-label { flex: 3; font-size: 1.4em; font-weight: bold; text-align: left; }
-    .status-group { display: flex; gap: 60px; align-items: center; margin-left: 40px; }
-    .status-group label { display: flex; align-items: center; gap: 10px; font-size: 1.3em; font-weight: bold; cursor: pointer; }
-    input[type="radio"] { transform: scale(1.7); cursor: pointer; }
-    .keterangan { display: none; margin-top: 15px; padding-left: 0; width: 100%; }
-    .keterangan textarea { width: 100%; height: 90px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1.1em; resize: vertical; }
-    button.submit { background-color: #155724; color: white; padding: 16px 50px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.4em; display: block; margin: 50px auto 0; }
-    button.submit:hover { background-color: #0f4422; }
+    .logo { font-size: 1.2em; font-weight: bold; }
+    .back-btn { background-color: #004085; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.9em; }
+    .main-content { flex: 1; padding: 20px; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+    h1 { text-align: center; color: #003366; margin-bottom: 10px; }
+    .info { text-align: center; background: #e9ecef; padding: 10px; border-radius: 8px; margin-bottom: 30px; border-left: 5px solid #003366; }
+    .form-container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .section h3 { border-bottom: 2px solid #003366; padding-bottom: 5px; color: #003366; }
+    .section h4 { color: #28a745; margin-top: 5px; }
+    .item { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #eee; }
+    .item-label { font-weight: 600; font-size: 1em; }
+    .status-group { display: flex; gap: 20px; }
+    .status-group label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: bold; }
+    input[type="radio"] { width: 18px; height: 18px; cursor: pointer; }
+    .keterangan { display: none; margin-top: 10px; background: #fff4f4; padding: 10px; border-radius: 6px; }
+    .keterangan textarea { width: 100%; height: 60px; padding: 10px; border: 1px solid #dc3545; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
+    button.submit { background-color: #28a745; color: white; padding: 15px 40px; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1em; font-weight: bold; display: block; margin: 30px auto 0; width: 100%; transition: 0.3s; }
+    button.submit:hover { background-color: #218838; }
+    button.submit:disabled { background-color: #ccc; }
   </style>
 </head>
 <body>
 
   <header>
     <div class="logo">TOOLING SUPPORT - CHECKLIST</div>
-    <a href="index.html" class="back-btn">Kembali ke Dashboard</a>
+    <a href="index.html" class="back-btn">Batal</a>
   </header>
 
   <div class="main-content">
-    <h1>Form Checklist Tooling Injection</h1>
-    <p class="info">
-      Pelaksana: <strong id="pelaksanaNama">Memuat...</strong> | Tanggal: <strong id="tanggalChecklist">Memuat...</strong>
-    </p>
+    <h1>Checklist Injection</h1>
+    <div class="info">
+      Pelaksana: <strong id="pelaksanaNama">...</strong> | 
+      Tanggal: <strong id="tanggalChecklist">...</strong>
+    </div>
 
     <div class="form-container">
-
-      <!-- 1. STAND LABEL -->
       <div class="section">
         <h3>1. STAND LABEL</h3>
         <h4>ELECTRICAL</h4>
@@ -52,138 +50,138 @@
         <div class="item">
           <span class="item-label">WIRING</span>
           <div class="status-group">
-            <label><input type="radio" name="wiring" value="OK" checked> OK</label>
-            <label><input type="radio" name="wiring" value="NG" onclick="toggleKeterangan('keterangan-wiring')"> NG</label>
+            <label><input type="radio" name="wiring" value="OK" checked onclick="toggleKeterangan('wiring')"> OK</label>
+            <label><input type="radio" name="wiring" value="NG" onclick="toggleKeterangan('wiring')"> NG</label>
           </div>
         </div>
         <div id="keterangan-wiring" class="keterangan">
-          <textarea placeholder="Keterangan NG (wajib diisi jika NG)..."></textarea>
+          <textarea id="text-wiring" placeholder="Jelaskan detail kerusakan wiring..."></textarea>
         </div>
 
         <div class="item">
           <span class="item-label">KOMPONEN</span>
           <div class="status-group">
-            <label><input type="radio" name="komponen" value="OK" checked> OK</label>
-            <label><input type="radio" name="komponen" value="NG" onclick="toggleKeterangan('keterangan-komponen')"> NG</label>
+            <label><input type="radio" name="komponen" value="OK" checked onclick="toggleKeterangan('komponen')"> OK</label>
+            <label><input type="radio" name="komponen" value="NG" onclick="toggleKeterangan('komponen')"> NG</label>
           </div>
         </div>
         <div id="keterangan-komponen" class="keterangan">
-          <textarea placeholder="Keterangan NG (wajib diisi jika NG)..."></textarea>
+          <textarea id="text-komponen" placeholder="Jelaskan komponen yang bermasalah..."></textarea>
         </div>
 
         <div class="item">
           <span class="item-label">KERAPIHAN</span>
           <div class="status-group">
-            <label><input type="radio" name="kerapihan" value="OK" checked> OK</label>
-            <label><input type="radio" name="kerapihan" value="NG" onclick="toggleKeterangan('keterangan-kerapihan')"> NG</label>
+            <label><input type="radio" name="kerapihan" value="OK" checked onclick="toggleKeterangan('kerapihan')"> OK</label>
+            <label><input type="radio" name="kerapihan" value="NG" onclick="toggleKeterangan('kerapihan')"> NG</label>
           </div>
         </div>
         <div id="keterangan-kerapihan" class="keterangan">
-          <textarea placeholder="Keterangan NG (wajib diisi jika NG)..."></textarea>
+          <textarea id="text-kerapihan" placeholder="Jelaskan bagian yang tidak rapi..."></textarea>
         </div>
 
         <div class="item">
           <span class="item-label">SENSOR</span>
           <div class="status-group">
-            <label><input type="radio" name="sensor" value="OK" checked> OK</label>
-            <label><input type="radio" name="sensor" value="NG" onclick="toggleKeterangan('keterangan-sensor')"> NG</label>
+            <label><input type="radio" name="sensor" value="OK" checked onclick="toggleKeterangan('sensor')"> OK</label>
+            <label><input type="radio" name="sensor" value="NG" onclick="toggleKeterangan('sensor')"> NG</label>
           </div>
         </div>
         <div id="keterangan-sensor" class="keterangan">
-          <textarea placeholder="Keterangan NG (wajib diisi jika NG)..."></textarea>
+          <textarea id="text-sensor" placeholder="Jelaskan sensor yang bermasalah..."></textarea>
         </div>
       </div>
 
-      <button class="submit" onclick="simpanChecklist()">Simpan Checklist</button>
+      <button class="submit" id="btnSimpan" onclick="simpanChecklist()">Kirim Data Checklist</button>
     </div>
   </div>
 
   <script>
-    const supabaseUrl = 'https://YOUR_PROJECT_REF.supabase.co';
-    const supabaseKey = 'YOUR_ANON_PUBLIC_KEY';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    // Konfigurasi
+    const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
+    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    async function loadPelaksana() {
+    // Ambil info dari localStorage dan Supabase saat halaman dimuat
+    async function loadInfo() {
       const pelaksanaId = localStorage.getItem('pelaksana_id');
       if (!pelaksanaId) {
-        alert('Data pelaksana tidak ditemukan. Silakan isi ulang.');
+        alert('ID Pelaksana tidak ditemukan. Kembali ke awal.');
         window.location.href = 'index.html';
         return;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await _supabase
         .from('pelaksana')
         .select('nama_pelaksana, tanggal_checklist')
         .eq('id', pelaksanaId)
         .single();
 
       if (error || !data) {
-        alert('Gagal memuat data pelaksana: ' + (error?.message || 'Data tidak ditemukan'));
+        alert('Gagal mengambil data pelaksana.');
         return;
       }
 
       document.getElementById('pelaksanaNama').textContent = data.nama_pelaksana;
-      document.getElementById('tanggalChecklist').textContent = new Date(data.tanggal_checklist).toLocaleDateString('id-ID');
+      document.getElementById('tanggalChecklist').textContent = data.tanggal_checklist;
     }
 
-    loadPelaksana();
+    loadInfo();
 
-    function toggleKeterangan(id) {
-      const elem = document.getElementById(id);
-      elem.style.display = (event.target.value === 'NG') ? 'block' : 'none';
+    // Fungsi Toggle Keterangan NG
+    function toggleKeterangan(name) {
+      const status = document.querySelector(`input[name="${name}"]:checked`).value;
+      const container = document.getElementById(`keterangan-${name}`);
+      const textarea = document.getElementById(`text-${name}`);
+      
+      if (status === 'NG') {
+        container.style.display = 'block';
+      } else {
+        container.style.display = 'none';
+        textarea.value = ''; // Reset isi jika kembali ke OK
+      }
     }
 
+    // Fungsi Simpan ke Supabase
     async function simpanChecklist() {
-      let adaError = false;
-      const ngItems = [
-        { name: 'wiring', keteranganId: 'keterangan-wiring' },
-        { name: 'komponen', keteranganId: 'keterangan-komponen' },
-        { name: 'kerapihan', keteranganId: 'keterangan-kerapihan' },
-        { name: 'sensor', keteranganId: 'keterangan-sensor' }
-      ];
+      const pelaksanaId = localStorage.getItem('pelaksana_id');
+      const items = ['wiring', 'komponen', 'kerapihan', 'sensor'];
+      const btn = document.getElementById('btnSimpan');
+      
+      let payload = { pelaksana_id: pelaksanaId };
+      let valid = true;
 
-      ngItems.forEach(item => {
-        const ngRadio = document.querySelector(`input[name="${item.name}"][value="NG"]:checked`);
-        if (ngRadio) {
-          const keterangan = document.getElementById(item.keteranganId).querySelector('textarea');
-          if (!keterangan.value.trim()) {
-            adaError = true;
-            keterangan.style.border = '2px solid red';
-          } else {
-            keterangan.style.border = '1px solid #ccc';
-          }
+      // Ambil data dan validasi NG
+      items.forEach(item => {
+        const val = document.querySelector(`input[name="${item}"]:checked`).value;
+        const ket = document.getElementById(`text-${item}`).value.trim();
+
+        if (val === 'NG' && !ket) {
+          alert(`Keterangan untuk ${item.toUpperCase()} wajib diisi jika NG!`);
+          valid = false;
         }
+
+        payload[item] = val;
+        payload[`${item}_keterangan`] = ket || null;
       });
 
-      if (adaError) {
-        alert('Semua item yang NG wajib diisi keterangannya terlebih dahulu!');
-        return;
-      }
+      if (!valid) return;
 
-      const pelaksanaId = localStorage.getItem('pelaksana_id');
-
-      const checklistData = {
-        pelaksana_id: pelaksanaId,
-        wiring: document.querySelector('input[name="wiring"]:checked').value,
-        wiring_keterangan: document.getElementById('keterangan-wiring').querySelector('textarea')?.value || null,
-        komponen: document.querySelector('input[name="komponen"]:checked').value,
-        komponen_keterangan: document.getElementById('keterangan-komponen').querySelector('textarea')?.value || null,
-        kerapihan: document.querySelector('input[name="kerapihan"]:checked').value,
-        kerapihan_keterangan: document.getElementById('keterangan-kerapihan').querySelector('textarea')?.value || null,
-        sensor: document.querySelector('input[name="sensor"]:checked').value,
-        sensor_keterangan: document.getElementById('keterangan-sensor').querySelector('textarea')?.value || null
-      };
+      // Proses Simpan
+      btn.disabled = true;
+      btn.textContent = 'Mengirim...';
 
       try {
-        const { error } = await supabase.from('checklist').insert([checklistData]);
+        const { error } = await _supabase.from('checklist').insert([payload]);
         if (error) throw error;
 
-        alert('Checklist berhasil disimpan ke database!');
-        localStorage.removeItem('pelaksana_id');
-        window.location.href = 'index.html';
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Gagal menyimpan checklist: ' + error.message);
+        alert('Berhasil! Checklist telah tersimpan.');
+        localStorage.removeItem('pelaksana_id'); // Bersihkan session
+        window.location.href = 'index.html'; // Kembali ke menu utama
+      } catch (err) {
+        alert('Terjadi kesalahan: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = 'Kirim Data Checklist';
       }
     }
   </script>
