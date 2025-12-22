@@ -40,9 +40,8 @@
       align-items: center;
       padding: 20px;
     }
-    h1 {
-      margin: 0 0 10px;
-      font-size: 2.5em;
+    h1, h2 {
+      margin: 0 0 15px;
       text-align: center;
     }
     .subtitle {
@@ -98,6 +97,46 @@
     .back-btn:hover {
       background-color: #003366;
     }
+    .form-container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 600px;
+      text-align: left;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="date"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    .checklist-item {
+      margin-bottom: 15px;
+    }
+    button.submit {
+      background-color: #155724;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1em;
+      margin-top: 20px;
+    }
+    button.submit:hover {
+      background-color: #0f4422;
+    }
   </style>
 </head>
 <body>
@@ -111,7 +150,7 @@
   <div id="dashboard" class="main-content">
     <h1>Checklist Monitoring Tooling Support</h1>
     <p class="subtitle">
-      SISTEM DASHBOAR UNTUK PEMANTAUAN TOOLING.
+      Sistem dashboard digital untuk pencatatan dan monitoring checklist harian tooling support produksi.
     </p>
 
     <div class="card blue" onclick="showSection('checklist')">
@@ -120,7 +159,7 @@
     </div>
   </div>
 
-  <!-- Halaman Checklist Menu -->
+  <!-- Halaman Menu Checklist -->
   <div id="checklist" class="main-content hidden">
     <h1>Dashboard Checklist Harian</h1>
     <p class="subtitle">
@@ -128,7 +167,7 @@
     </p>
 
     <div class="grid">
-      <div class="card blue" onclick="alert('Menu Pelaksana akan dibuka');">
+      <div class="card blue" onclick="showSection('pelaksana')">
         <h2>Pelaksana</h2>
         <p>Input data pelaksana dan tim checklist</p>
       </div>
@@ -152,13 +191,73 @@
     <button class="back-btn" onclick="showSection('dashboard')">Kembali ke Dashboard</button>
   </div>
 
-  <!-- JavaScript untuk jam real-time dan navigasi section -->
+  <!-- Section Pelaksana -->
+  <div id="pelaksana" class="main-content hidden">
+    <h1>Data Pelaksana Checklist</h1>
+    <div class="form-container">
+      <div class="form-group">
+        <label for="namaPelaksana">Nama Pelaksana</label>
+        <input type="text" id="namaPelaksana" placeholder="Masukkan nama lengkap">
+      </div>
+      <div class="form-group">
+        <label for="tanggalChecklist">Tanggal Checklist</label>
+        <input type="date" id="tanggalChecklist">
+      </div>
+      <button class="submit" onclick="lanjutKeFormChecklist()">Lanjut ke Form Checklist</button>
+    </div>
+    <button class="back-btn" onclick="showSection('checklist')">Kembali ke Menu</button>
+  </div>
+
+  <!-- Section Form Checklist (contoh sederhana) -->
+  <div id="formChecklist" class="main-content hidden">
+    <h1>Form Checklist Tooling Injection</h1>
+    <div class="form-container">
+      <h2>Checklist Harian</h2>
+      <div class="checklist-item">
+        <input type="checkbox" id="item1"> <label for="item1">Pemeriksaan kebersihan tooling</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="item2"> <label for="item2">Cek kondisi nozzle dan heater</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="item3"> <label for="item3">Lubrication pada moving parts</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="item4"> <label for="item4">Cek tekanan udara/hidrolik</label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="item5"> <label for="item5">Catatan tambahan / kerusakan</label>
+      </div>
+      <textarea placeholder="Catatan tambahan..." rows="4" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;"></textarea>
+      <button class="submit" onclick="alert('Checklist berhasil disimpan!')">Simpan Checklist</button>
+    </div>
+    <button class="back-btn" onclick="showSection('pelaksana')">Kembali ke Data Pelaksana</button>
+  </div>
+
+  <!-- JavaScript -->
   <script>
-    // Fungsi untuk menampilkan section tertentu
+    // Navigasi section
     function showSection(sectionId) {
-      document.getElementById('dashboard').classList.add('hidden');
-      document.getElementById('checklist').classList.add('hidden');
+      const sections = ['dashboard', 'checklist', 'pelaksana', 'formChecklist'];
+      sections.forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
       document.getElementById(sectionId).classList.remove('hidden');
+    }
+
+    // Set tanggal default ke hari ini
+    document.getElementById('tanggalChecklist').value = new Date().toISOString().split('T')[0];
+
+    // Lanjut ke form checklist
+    function lanjutKeFormChecklist() {
+      const nama = document.getElementById('namaPelaksana').value.trim();
+      const tanggal = document.getElementById('tanggalChecklist').value;
+      if (!nama || !tanggal) {
+        alert('Mohon isi Nama Pelaksana dan Tanggal Checklist!');
+        return;
+      }
+      alert(`Data disimpan:\nNama: ${nama}\nTanggal: ${tanggal}`);
+      showSection('formChecklist');
     }
 
     // Jam real-time
@@ -174,11 +273,10 @@
         second: '2-digit',
         hour12: false
       };
-      const formattedDate = now.toLocaleDateString('id-ID', options)
+      const formatted = now.toLocaleDateString('id-ID', options)
         .replace(/,/g, '')
         .replace(' pukul ', ' | ');
-      
-      document.getElementById('realTime').textContent = formattedDate;
+      document.getElementById('realTime').textContent = formatted;
     }
     updateTime();
     setInterval(updateTime, 1000);
