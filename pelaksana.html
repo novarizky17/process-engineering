@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Data Pelaksana Checklist</title>
-  <!-- Supabase Client -->
+  <!-- Hanya satu script Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
@@ -47,10 +47,10 @@
   <script>
     // === GANTI DENGAN DATA SUPABASE ANDA ===
     const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';      // Ganti dengan URL project Supabase Anda
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';                       // Ganti dengan anon key dari Supabase Dashboard
-    const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';                       // Ganti dengan anon key
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Set tanggal default ke hari ini
+    // Set tanggal default hari ini
     document.getElementById('tanggalChecklist').value = new Date().toISOString().split('T')[0];
 
     async function simpanDanLanjut() {
@@ -63,7 +63,6 @@
       }
 
       try {
-        // SIMPAN DATA KE SUPABASE
         const { data, error } = await supabase
           .from('pelaksana')
           .insert([{ nama_pelaksana: nama, tanggal_checklist: tanggal }])
@@ -72,16 +71,12 @@
 
         if (error) throw error;
 
-        // Simpan ID record untuk digunakan di halaman checklist-form.html
         localStorage.setItem('pelaksana_id', data.id);
-
         alert('Data pelaksana berhasil disimpan!');
-
-        // Redirect ke halaman form checklist
         window.location.href = 'checklist-form.html';
       } catch (error) {
-        console.error('Error menyimpan ke Supabase:', error);
-        alert('Gagal menyimpan data ke database. Pastikan kredensial Supabase benar dan tabel "pelaksana" sudah ada.');
+        console.error('Error:', error);
+        alert('Gagal menyimpan data ke database. Cek koneksi atau kredensial Supabase.');
       }
     }
   </script>
