@@ -4,18 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Checklist Monitoring Tooling Support</title>
-  <!-- Supabase Client (untuk simpan data pelaksana) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
-    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
     .logo { font-size: 1.5em; font-weight: bold; }
     .date-time { font-size: 1em; font-weight: 500; }
     .main-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
-    h1, h2 { margin: 0 0 15px; text-align: center; }
+    h1 { margin: 0 0 10px; font-size: 2.5em; text-align: center; }
     .subtitle { font-size: 1.2em; margin-bottom: 30px; max-width: 800px; text-align: center; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; width: 100%; padding: 0 20px; }
-    .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 35px 25px; text-align: center; transition: transform 0.3s; cursor: pointer; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 35px 25px; text-align: center; transition: transform 0.3s; cursor: pointer; }
     .card:hover { transform: translateY(-5px); }
     .card h2 { margin: 0 0 15px; font-size: 1.6em; }
     .card p { margin: 0; font-size: 1.1em; color: #555; }
@@ -23,15 +21,6 @@
     .green { background-color: #155724; color: white; }
     .orange { background-color: #c85000; color: white; }
     .purple { background-color: #6f42c1; color: white; }
-    .hidden { display: none; }
-    .back-btn { background-color: #004085; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 1em; margin-top: 20px; }
-    .back-btn:hover { background-color: #003366; }
-    .form-container { background-color: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 600px; text-align: left; }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 8px; font-weight: bold; }
-    input[type="text"], input[type="date"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-    button.submit { background-color: #155724; color: white; padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1em; margin-top: 20px; }
-    button.submit:hover { background-color: #0f4422; }
   </style>
 </head>
 <body>
@@ -41,14 +30,13 @@
     <div class="date-time" id="realTime">Memuat waktu...</div>
   </header>
 
-  <!-- Dashboard Utama -->
-  <div id="dashboard" class="main-content">
+  <div class="main-content">
     <h1>Checklist Monitoring Tooling Support</h1>
     <p class="subtitle">
       Sistem dashboard digital untuk pencatatan dan monitoring checklist harian tooling support produksi.
     </p>
     <div class="grid">
-      <div class="card blue" onclick="showSection('pelaksana')">
+      <div class="card blue" onclick="window.location.href='pelaksana.html'">
         <h2>Pelaksana</h2>
         <p>Input data pelaksana dan tim checklist</p>
       </div>
@@ -67,78 +55,12 @@
     </div>
   </div>
 
-  <!-- Section Pelaksana -->
-  <div id="pelaksana" class="main-content hidden">
-    <h1>Data Pelaksana Checklist</h1>
-    <div class="form-container">
-      <div class="form-group">
-        <label for="namaPelaksana">Nama Pelaksana</label>
-        <input type="text" id="namaPelaksana" placeholder="Masukkan nama lengkap">
-      </div>
-      <div class="form-group">
-        <label for="tanggalChecklist">Tanggal Checklist</label>
-        <input type="date" id="tanggalChecklist">
-      </div>
-      <button class="submit" onclick="lanjutKeFormChecklist()">Lanjut ke Form Checklist</button>
-    </div>
-    <button class="back-btn" onclick="showSection('dashboard')">Kembali ke Dashboard</button>
-  </div>
-
   <script>
-    // === GANTI DENGAN DATA SUPABASE ANDA ===
-    const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';  // Ganti dengan URL project Anda
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';                   // Ganti dengan anon key
-    const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
-
-    function showSection(sectionId) {
-      // Sembunyikan semua section main-content
-      document.querySelectorAll('.main-content').forEach(el => {
-        el.classList.add('hidden');
-      });
-      // Tampilkan section yang dipilih
-      const target = document.getElementById(sectionId);
-      if (target) target.classList.remove('hidden');
-    }
-
-    // Set tanggal default hari ini
-    document.getElementById('tanggalChecklist').value = new Date().toISOString().split('T')[0];
-
-    async function lanjutKeFormChecklist() {
-      const nama = document.getElementById('namaPelaksana').value.trim();
-      const tanggal = document.getElementById('tanggalChecklist').value;
-
-      if (!nama || !tanggal) {
-        alert('Mohon isi Nama Pelaksana dan Tanggal Checklist!');
-        return;
-      }
-
-      try {
-        // SIMPAN KE SUPABASE
-        const { data, error } = await supabase
-          .from('pelaksana')
-          .insert([{ nama_pelaksana: nama, tanggal_checklist: tanggal }])
-          .select('id')
-          .single();
-
-        if (error) throw error;
-
-        // Simpan ID untuk digunakan di checklist-form.html
-        localStorage.setItem('pelaksana_id', data.id);
-
-        // Redirect ke form checklist
-        window.location.href = 'checklist-form.html';
-      } catch (error) {
-        console.error('Error menyimpan ke Supabase:', error);
-        alert('Gagal menyimpan data ke database. Cek koneksi atau kredensial Supabase.');
-      }
-    }
-
-    // Jam real-time (langsung update saat load)
+    // Jam real-time
     function updateTime() {
       const now = new Date();
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-      const formatted = now.toLocaleDateString('id-ID', options).replace(/,/g, '').replace(' pukul ', ' | ');
-      document.getElementById('realTime').textContent = formatted;
+      document.getElementById('realTime').textContent = now.toLocaleDateString('id-ID', options).replace(/,/g, '').replace(' pukul ', ' | ');
     }
     updateTime();
     setInterval(updateTime, 1000);
