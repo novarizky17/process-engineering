@@ -11,21 +11,21 @@
     .logo { font-size: 1.5em; font-weight: bold; }
     .back-btn { background-color: #004085; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; }
     .back-btn:hover { background-color: #003366; }
-    .main-content { flex: 1; padding: 20px; } /* Tanpa max-width, full lebar layar */
+    .main-content { flex: 1; padding: 20px; max-width: 1400px; margin: 0 auto; }
     h1 { text-align: center; margin-bottom: 20px; }
     .info { text-align: center; font-size: 1.2em; margin-bottom: 30px; }
-    .form-container { background: white; padding: 40px 60px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin: 0 auto; max-width: 95%; } /* Hampir full width */
+    .form-container { background: white; padding: 60px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
     .section { margin-bottom: 50px; text-align: left; }
     .section h3 { margin-bottom: 10px; color: #004085; font-size: 1.6em; }
     .section h4 { margin-bottom: 15px; color: #155724; font-size: 1.4em; }
     .item { display: flex; align-items: center; justify-content: flex-start; margin-bottom: 25px; padding: 15px 0; border-bottom: 1px solid #eee; }
-    .item-label { flex: 1; font-size: 1.3em; font-weight: bold; text-align: left; min-width: 300px; } /* Label lebih panjang */
+    .item-label { flex: 3; font-size: 1.4em; font-weight: bold; text-align: left; }
     .status-group { display: flex; gap: 60px; align-items: center; margin-left: 40px; }
-    .status-group label { display: flex; align-items: center; gap: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; }
-    input[type="radio"] { transform: scale(1.6); cursor: pointer; }
-    .keterangan { display: none; margin-top: 15px; width: 100%; }
+    .status-group label { display: flex; align-items: center; gap: 10px; font-size: 1.3em; font-weight: bold; cursor: pointer; }
+    input[type="radio"] { transform: scale(1.7); cursor: pointer; }
+    .keterangan { display: none; margin-top: 15px; padding-left: 0; width: 100%; }
     .keterangan textarea { width: 100%; height: 90px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1.1em; resize: vertical; }
-    button.submit { background-color: #155724; color: white; padding: 16px 50px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.3em; display: block; margin: 50px auto 0; }
+    button.submit { background-color: #155724; color: white; padding: 16px 50px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.4em; display: block; margin: 50px auto 0; }
     button.submit:hover { background-color: #0f4422; }
   </style>
 </head>
@@ -68,7 +68,7 @@
           </div>
         </div>
         <div id="keterangan-komponen" class="keterangan">
-          <textarea placeholder="Keterangan NG..."></textarea>
+          <textarea placeholder="Keterangan NG (wajib diisi jika NG)..."></textarea>
         </div>
 
         <div class="item">
@@ -79,7 +79,7 @@
           </div>
         </div>
         <div id="keterangan-kerapihan" class="keterangan">
-          <textarea placeholder="Keterangan NG..."></textarea>
+          <textarea placeholder="Keterangan NG (wajib diisi jika NG)..."></textarea>
         </div>
 
         <div class="item">
@@ -90,7 +90,7 @@
           </div>
         </div>
         <div id="keterangan-sensor" class="keterangan">
-          <textarea placeholder="Keterangan NG..."></textarea>
+          <textarea placeholder="Keterangan NG (wajib diisi jika NG)..."></textarea>
         </div>
       </div>
 
@@ -135,11 +135,17 @@
 
     async function simpanChecklist() {
       let adaError = false;
-      const ngItems = ['wiring', 'komponen', 'kerapihan', 'sensor'];
+      const ngItems = [
+        { name: 'wiring', keteranganId: 'keterangan-wiring' },
+        { name: 'komponen', keteranganId: 'keterangan-komponen' },
+        { name: 'kerapihan', keteranganId: 'keterangan-kerapihan' },
+        { name: 'sensor', keteranganId: 'keterangan-sensor' }
+      ];
+
       ngItems.forEach(item => {
-        const ngRadio = document.querySelector(`input[name="${item}"][value="NG"]:checked`);
+        const ngRadio = document.querySelector(`input[name="${item.name}"][value="NG"]:checked`);
         if (ngRadio) {
-          const keterangan = document.getElementById(`keterangan-${item}`).querySelector('textarea');
+          const keterangan = document.getElementById(item.keteranganId).querySelector('textarea');
           if (!keterangan.value.trim()) {
             adaError = true;
             keterangan.style.border = '2px solid red';
@@ -150,7 +156,7 @@
       });
 
       if (adaError) {
-        alert('Semua item NG wajib diisi keterangannya!');
+        alert('Semua item yang NG wajib diisi keterangannya terlebih dahulu!');
         return;
       }
 
