@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Data Pelaksana Checklist</title>
-  <!-- Hanya SATU script Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
@@ -48,11 +47,11 @@
 
   <script>
     // HANYA SATU deklarasi supabase
-    const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';      // GANTI DENGAN URL ANDA
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';                       // GANTI DENGAN ANON KEY
+    const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';  // Ganti dengan URL project Supabase Anda
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';                  // Ganti dengan anon key
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Tanggal default hari ini
+    // Set tanggal default hari ini
     document.getElementById('tanggalChecklist').value = new Date().toISOString().split('T')[0];
 
     // Jam real-time
@@ -88,7 +87,7 @@
         window.location.href = 'checklist-form.html';
       } catch (error) {
         console.error('Error:', error);
-        alert('Gagal menyimpan: ' + error.message);
+        alert('Gagal menyimpan data ke Supabase. Cek koneksi atau kredensial.');
       }
     }
   </script>
