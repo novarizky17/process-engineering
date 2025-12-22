@@ -28,8 +28,9 @@
       font-size: 1.5em;
       font-weight: bold;
     }
-    .date {
-      font-size: 0.9em;
+    .date-time {
+      font-size: 1em;
+      font-weight: 500;
     }
     .main-content {
       flex: 1;
@@ -81,13 +82,13 @@
 
   <header>
     <div class="logo">TOOLING SUPPORT</div>
-    <div class="date">Senin, 22 Desember 2025 | 09:35:45</div>
+    <div class="date-time" id="realTime">Memuat waktu...</div>
   </header>
 
   <div class="main-content">
     <h1>Checklist Monitoring Tooling Support</h1>
     <p class="subtitle">
-      SISTEM DASHBOARD UNTUK PEMANTAUAN TOOLING. 
+      SISTEM DASHBOAR UNTUK PEMANTAUAN TOOLING.
     </p>
 
     <div class="card blue">
@@ -96,11 +97,30 @@
     </div>
   </div>
 
-  <!-- Optional: Tanggal dinamis -->
+  <!-- JavaScript untuk jam real-time -->
   <script>
-    const now = new Date();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    document.querySelector('.date').textContent = now.toLocaleDateString('id-ID', options).replace(/,/g, '');
+    function updateTime() {
+      const now = new Date();
+      const options = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      };
+      const formattedDate = now.toLocaleDateString('id-ID', options)
+        .replace(/,/g, '')
+        .replace(' pukul ', ' | ');
+      
+      document.getElementById('realTime').textContent = formattedDate;
+    }
+
+    // Update setiap detik
+    updateTime();
+    setInterval(updateTime, 1000);
   </script>
 
 </body>
