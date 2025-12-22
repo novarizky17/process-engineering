@@ -14,11 +14,15 @@
     h1, h2 { text-align: center; margin-bottom: 20px; }
     .form-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .section { margin-bottom: 40px; }
-    .section h3 { margin-bottom: 15px; color: #004085; }
-    .item { margin-bottom: 10px; }
-    label { display: flex; align-items: center; gap: 10px; font-size: 1.1em; }
-    input[type="checkbox"] { transform: scale(1.3); }
-    textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-top: 10px; }
+    .section h3 { margin-bottom: 10px; color: #004085; font-size: 1.4em; }
+    .section h4 { margin-bottom: 15px; color: #155724; font-size: 1.3em; }
+    .item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 10px 0; border-bottom: 1px solid #eee; }
+    .item-label { flex: 1; font-size: 1.1em; font-weight: bold; }
+    .status-group { display: flex; gap: 30px; align-items: center; }
+    .status-group label { display: flex; align-items: center; gap: 5px; font-size: 1.1em; font-weight: bold; cursor: pointer; }
+    input[type="radio"] { transform: scale(1.5); cursor: pointer; }
+    .keterangan { display: none; margin-top: 12px; padding-left: 20px; }
+    .keterangan textarea { width: 100%; height: 70px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em; resize: vertical; }
     button.submit { background-color: #155724; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1em; display: block; margin: 30px auto 0; }
     button.submit:hover { background-color: #0f4422; }
   </style>
@@ -38,59 +42,54 @@
 
     <div class="form-container">
 
-      <!-- 1. Stand Label -->
+      <!-- 1. STAND LABEL -->
       <div class="section">
-        <h3>1. Stand Label</h3>
-        <div class="item"><label><input type="checkbox"> Wiring, temporan, keawasan</label></div>
-        <div class="item"><label><input type="checkbox"> Electrical Wiring, temporan, keawasan</label></div>
-        <div class="item"><label><input type="checkbox"> Lo Sensor</label></div>
-        <div class="item"><label><input type="checkbox"> Motion Training belt, Pulley, Servo motor, linear bearing</label></div>
-        <div class="item"><label><input type="checkbox"> Rotary actuator</label></div>
-        <div class="item"><label><input type="checkbox"> Pneumatic: Solenoid valve, Vacuum Ejector, Gripper</label></div>
-        <div class="item"><label><input type="checkbox"> Pickup Pad, Nozzle, Vacuum Pad</label></div>
-        <div class="item"><label><input type="checkbox"> Pickup Pad, Nozzle, Vacuum Pad</label></div>
-        <div class="item"><label><input type="checkbox"> Pickup Pad, Nozzle, Vacuum Pad</label></div>
-      </div>
+        <h3>1. STAND LABEL</h3>
+        <h4>ELECTRICAL</h4>
 
-      <!-- 2. Conveyor -->
-      <div class="section">
-        <h3>2. Conveyor</h3>
-        <div class="item"><label><input type="checkbox"> Belt</label></div>
-        <div class="item"><label><input type="checkbox"> Motor</label></div>
-        <div class="item"><label><input type="checkbox"> Rantai / Coupling</label></div>
-        <div class="item"><label><input type="checkbox"> Pulley</label></div>
-        <div class="item"><label><input type="checkbox"> Sensor / Electrical</label></div>
-      </div>
+        <div class="item">
+          <span class="item-label">WIRING</span>
+          <div class="status-group">
+            <label><input type="radio" name="wiring" value="OK" checked> OK</label>
+            <label><input type="radio" name="wiring" value="NG" onclick="toggleKeterangan('keterangan-wiring')"> NG</label>
+          </div>
+        </div>
+        <div id="keterangan-wiring" class="keterangan">
+          <textarea placeholder="Keterangan NG (wajib diisi jika NG)..."></textarea>
+        </div>
 
-      <!-- 3. Dosing & Sawing -->
-      <div class="section">
-        <h3>3. Dosing & Sawing</h3>
-        <div class="item"><label><input type="checkbox"> Motor / Linear & Sensor</div>
-        <div class="item"><label><input type="checkbox"> Cek Alarm</label></div>
-        <div class="item"><label><input type="checkbox"> Pengaturan Setting</label></div>
-      </div>
+        <div class="item">
+          <span class="item-label">KOMPONEN</span>
+          <div class="status-group">
+            <label><input type="radio" name="komponen" value="OK" checked> OK</label>
+            <label><input type="radio" name="komponen" value="NG" onclick="toggleKeterangan('keterangan-komponen')"> NG</label>
+          </div>
+        </div>
+        <div id="keterangan-komponen" class="keterangan">
+          <textarea placeholder="Keterangan NG..."></textarea>
+        </div>
 
-      <!-- 4. Stacking -->
-      <div class="section">
-        <h3>4. Stacking</h3>
-        <div class="item"><label><input type="checkbox"> Electrical Wiring & Sensor</label></div>
-        <div class="item"><label><input type="checkbox"> Motion & Linear & Pneumatic Cylinder, Pneumatic</label></div>
-      </div>
+        <div class="item">
+          <span class="item-label">KERAPIHAN</span>
+          <div class="status-group">
+            <label><input type="radio" name="kerapihan" value="OK" checked> OK</label>
+            <label><input type="radio" name="kerapihan" value="NG" onclick="toggleKeterangan('keterangan-kerapihan')"> NG</label>
+          </div>
+        </div>
+        <div id="keterangan-kerapihan" class="keterangan">
+          <textarea placeholder="Keterangan NG..."></textarea>
+        </div>
 
-      <!-- 5. Dummy -->
-      <div class="section">
-        <h3>5. Dummy</h3>
-        <div class="item"><label><input type="checkbox"> Vacuum Dummy</label></div>
-        <div class="item"><label><input type="checkbox"> Sensor</label></div>
-        <div class="item"><label><input type="checkbox"> Static</label></div>
-        <div class="item"><label><input type="checkbox"> Flange & Tubing</label></div>
-        <div class="item"><label><input type="checkbox"> Instalasi, Flange</label></div>
-      </div>
-
-      <!-- Catatan Tambahan -->
-      <div class="section">
-        <h3>Catatan Tambahan / Kerusakan</h3>
-        <textarea placeholder="Tulis catatan atau kerusakan yang ditemukan..."></textarea>
+        <div class="item">
+          <span class="item-label">SENSOR</span>
+          <div class="status-group">
+            <label><input type="radio" name="sensor" value="OK" checked> OK</label>
+            <label><input type="radio" name="sensor" value="NG" onclick="toggleKeterangan('keterangan-sensor')"> NG</label>
+          </div>
+        </div>
+        <div id="keterangan-sensor" class="keterangan">
+          <textarea placeholder="Keterangan NG..."></textarea>
+        </div>
       </div>
 
       <button class="submit" onclick="simpanChecklist()">Simpan Checklist</button>
@@ -102,10 +101,34 @@
     document.getElementById('pelaksanaNama').textContent = localStorage.getItem('pelaksana') || 'Tidak ada data';
     document.getElementById('tanggalChecklist').textContent = localStorage.getItem('tanggal') || new Date().toLocaleDateString('id-ID');
 
+    // Fungsi untuk menampilkan/menyembunyikan keterangan NG
+    function toggleKeterangan(id) {
+      const elem = document.getElementById(id);
+      elem.style.display = (event.target.value === 'NG') ? 'block' : 'none';
+    }
+
     function simpanChecklist() {
+      let adaError = false;
+      const ngItems = ['wiring', 'komponen', 'kerapihan', 'sensor'];
+      ngItems.forEach(item => {
+        const ngRadio = document.querySelector(`input[name="${item}"][value="NG"]:checked`);
+        if (ngRadio) {
+          const keterangan = document.getElementById(`keterangan-${item}`).querySelector('textarea');
+          if (!keterangan.value.trim()) {
+            adaError = true;
+            keterangan.style.border = '2px solid red';
+          } else {
+            keterangan.style.border = '1px solid #ccc';
+          }
+        }
+      });
+
+      if (adaError) {
+        alert('Semua item NG wajib diisi keterangannya!');
+        return;
+      }
+
       alert('Checklist berhasil disimpan!');
-      // Di sini nanti bisa tambah logika simpan ke localStorage atau kirim ke server
-      // Contoh: localStorage.setItem('checklistData', JSON.stringify({...}));
       window.location.href = 'index.html';
     }
   </script>
