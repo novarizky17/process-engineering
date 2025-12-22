@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Checklist Monitoring Tooling Support</title>
-  <!-- Supabase JavaScript Client -->
+  <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
@@ -35,7 +35,6 @@
   </style>
 </head>
 <body>
-
   <header>
     <div class="logo">TOOLING SUPPORT</div>
     <div class="date-time" id="realTime">Memuat waktu...</div>
@@ -84,17 +83,18 @@
     <button class="back-btn" onclick="showSection('dashboard')">Kembali ke Dashboard</button>
   </div>
 
-  <!-- JavaScript dengan Supabase -->
   <script>
     // === GANTI DENGAN DATA SUPABASE ANDA ===
-    const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';   // Ganti dengan URL project Anda
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';                  // Ganti dengan anon key
+    const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';  // Ganti dengan URL project Anda
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';                   // Ganti dengan anon key
     const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
 
     function showSection(sectionId) {
-      const sections = ['dashboard', 'pelaksana'];
-      sections.forEach(id => document.getElementById(id).classList.add('hidden'));
-      document.getElementById(sectionId).classList.remove('hidden');
+      document.querySelectorAll('.main-content').forEach(el => {
+        el.classList.add('hidden');
+      });
+      const target = document.getElementById(sectionId);
+      if (target) target.classList.remove('hidden');
     }
 
     // Set tanggal default hari ini
@@ -110,24 +110,23 @@
       }
 
       try {
+        // SIMPAN KE SUPABASE SAAT KLIK "LANJUT"
         const { data, error } = await supabase
           .from('pelaksana')
-          .insert([
-            { nama_pelaksana: nama, tanggal_checklist: tanggal }
-          ])
+          .insert([{ nama_pelaksana: nama, tanggal_checklist: tanggal }])
           .select('id')
           .single();
 
         if (error) throw error;
 
-        // Simpan ID pelaksana ke localStorage agar bisa diambil di checklist-form.html
+        // Simpan ID untuk digunakan di checklist-form.html
         localStorage.setItem('pelaksana_id', data.id);
 
-        // Arahkan ke halaman checklist
+        // Redirect ke form checklist
         window.location.href = 'checklist-form.html';
       } catch (error) {
-        console.error('Error menyimpan ke Supabase:', error);
-        alert('Gagal menyimpan data ke database. Cek koneksi atau kredensial Supabase.');
+        console.error('Error:', error);
+        alert('Gagal menyimpan data ke database. Silakan cek koneksi atau kredensial Supabase.');
       }
     }
 
