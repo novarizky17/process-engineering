@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Data Pelaksana Checklist</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
+    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.5em; font-weight: bold; }
+    .back-btn { background-color: #004085; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; }
+    .back-btn:hover { background-color: #003366; }
+    .main-content { flex: 1; padding: 40px 20px; text-align: center; }
+    .form-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
+    .form-group { margin-bottom: 25px; text-align: left; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; }
+    input[type="text"], input[type="date"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    button.submit { background-color: #155724; color: white; padding: 14px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1em; width: 100%; }
+    button.submit:hover { background-color: #0f4422; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">TOOLING SUPPORT - PELAKSANA</div>
+    <a href="index.html" class="back-btn">Kembali ke Dashboard</a>
+  </header>
+
+  <div class="main-content">
+    <h1>Data Pelaksana Checklist</h1>
+    <div class="form-container">
+      <div class="form-group">
+        <label for="namaPelaksana">Nama Pelaksana</label>
+        <input type="text" id="namaPelaksana" placeholder="Masukkan nama lengkap">
+      </div>
+      <div class="form-group">
+        <label for="tanggalChecklist">Tanggal Checklist</label>
+        <input type="date" id="tanggalChecklist">
+      </div>
+      <button class="submit" onclick="simpanDanLanjut()">Lanjut ke Form Checklist</button>
+    </div>
+  </div>
+
+  <script>
+    // === GANTI DENGAN DATA SUPABASE ANDA ===
+    const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
+    const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Set tanggal default hari ini
+    document.getElementById('tanggalChecklist').value = new Date().toISOString().split('T')[0];
+
+    async function simpanDanLanjut() {
+      const nama = document.getElementById('namaPelaksana').value.trim();
+      const tanggal = document.getElementById('tanggalChecklist').value;
+
+      if (!nama || !tanggal) {
+        alert('Mohon isi Nama Pelaksana dan Tanggal Checklist!');
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('pelaksana')
+          .insert([{ nama_pelaksana: nama, tanggal_checklist: tanggal }])
+          .select('id')
+          .single();
+
+        if (error) throw error;
+
+        localStorage.setItem('pelaksana_id', data.id);
+        window.location.href = 'checklist-form.html';
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Gagal menyimpan data. Cek koneksi atau kredensial Supabase.');
+      }
+    }
+  </script>
+</body>
+</html>
