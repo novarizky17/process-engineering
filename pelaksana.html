@@ -6,85 +6,60 @@
   <title>Data Pelaksana Checklist</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
-    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .logo { font-size: 1.3em; font-weight: bold; letter-spacing: 1px; }
-    .date-time { font-size: 0.9em; font-weight: 500; }
-    .back-btn { background-color: #004085; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.9em; transition: 0.3s; }
-    .back-btn:hover { background-color: #0056b3; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
+    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.5em; font-weight: bold; }
     .main-content { flex: 1; padding: 40px 20px; text-align: center; }
-    h1 { margin-bottom: 30px; color: #003366; }
-    .form-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); max-width: 450px; margin: 0 auto; }
-    .form-group { margin-bottom: 20px; text-align: left; }
-    label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
-    input[type="text"], input[type="date"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1em; outline: none; transition: 0.3s; }
-    input[type="text"]:focus, input[type="date"]:focus { border-color: #003366; box-shadow: 0 0 5px rgba(0,51,102,0.2); }
-    button.submit { background-color: #28a745; color: white; padding: 14px 30px; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1em; width: 100%; margin-top: 10px; font-weight: bold; transition: 0.3s; }
-    button.submit:hover { background-color: #218838; transform: translateY(-2px); }
-    button.submit:disabled { background-color: #ccc; cursor: not-allowed; }
+    .form-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
+    .form-group { margin-bottom: 25px; text-align: left; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; }
+    input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; }
+    button.submit { background-color: #155724; color: white; padding: 14px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1em; width: 100%; margin-top: 20px; }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="logo">TOOLING SUPPORT</div>
-    <div class="date-time" id="realTime">Memuat waktu...</div>
-    <a href="index.html" class="back-btn">Kembali</a>
+    <div class="logo">TOOLING SUPPORT - PELAKSANA</div>
   </header>
 
   <div class="main-content">
     <h1>Data Pelaksana Checklist</h1>
     <div class="form-container">
       <div class="form-group">
-        <label for="namaPelaksana">Nama Pelaksana</label>
-        <input type="text" id="namaPelaksana" placeholder="Contoh: Budi Santoso">
+        <label>Nama Pelaksana</label>
+        <input type="text" id="namaPelaksana" placeholder="Masukkan nama lengkap">
       </div>
       <div class="form-group">
-        <label for="tanggalChecklist">Tanggal Checklist</label>
+        <label>Tanggal Checklist</label>
         <input type="date" id="tanggalChecklist">
       </div>
-      <button class="submit" id="btnSimpan" onclick="simpanDanLanjut()">Lanjut ke Form Checklist</button>
+      <button class="submit" id="btnLanjut" onclick="simpanDanLanjut()">Lanjut ke Form Checklist</button>
     </div>
   </div>
 
   <script>
-    // Konfigurasi Supabase
     const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
-    
-    // Inisialisasi client dengan nama yang berbeda dari library-nya
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Set tanggal default ke hari ini
+    // Set tanggal hari ini secara otomatis
     document.getElementById('tanggalChecklist').value = new Date().toISOString().split('T')[0];
 
-    // Fungsi Jam Real-time
-    function updateTime() {
-      const now = new Date();
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-      document.getElementById('realTime').textContent = now.toLocaleDateString('id-ID', options);
-    }
-    updateTime();
-    setInterval(updateTime, 1000);
-
-    // Fungsi Simpan Data
     async function simpanDanLanjut() {
       const nama = document.getElementById('namaPelaksana').value.trim();
       const tanggal = document.getElementById('tanggalChecklist').value;
-      const btn = document.getElementById('btnSimpan');
+      const btn = document.getElementById('btnLanjut');
 
-      // Validasi Input
       if (!nama || !tanggal) {
-        alert('Silakan lengkapi Nama dan Tanggal!');
+        alert('Mohon isi Nama Pelaksana dan Tanggal!');
         return;
       }
 
-      // Cegah double submit
       btn.disabled = true;
-      btn.textContent = 'Menyimpan...';
+      btn.textContent = "Menyimpan...";
 
       try {
-        // Simpan ke tabel 'pelaksana'
         const { data, error } = await _supabase
           .from('pelaksana')
           .insert([{ nama_pelaksana: nama, tanggal_checklist: tanggal }])
@@ -93,21 +68,17 @@
 
         if (error) throw error;
 
-        // Simpan ID ke localStorage untuk digunakan di halaman berikutnya
+        // Simpan ID pelaksana agar bisa dipakai di halaman checklist
         localStorage.setItem('pelaksana_id', data.id);
-        localStorage.setItem('nama_pelaksana', nama);
-
-        alert('Data pelaksana berhasil dicatat!');
         
-        // Pindah ke halaman form checklist
-        window.location.href = 'checklist-form.html';
+        // --- BAGIAN INI YANG MEMASTIKAN TIDAK NYASAR ---
+        // Ganti 'checklist-form.html' sesuai nama file form checklist Anda
+        window.location.href = 'checklist-form.html'; 
 
       } catch (error) {
-        console.error('Supabase Error:', error.message);
-        alert('Gagal menyimpan ke database: ' + error.message);
-      } finally {
+        alert('Gagal menyimpan pelaksana: ' + error.message);
         btn.disabled = false;
-        btn.textContent = 'Lanjut ke Form Checklist';
+        btn.textContent = "Lanjut ke Form Checklist";
       }
     }
   </script>
