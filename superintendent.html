@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Superintendent - Review Checklist</title>
+  <title>Superintendent - Approval Tanda Tangan</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }
@@ -25,29 +25,23 @@
     .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 900px; }
     .close-modal { float: right; font-size: 28px; cursor: pointer; font-weight: bold; color: #999; }
     
-    /* Layout Bersih Sesuai Checklist */
     .section-header { background: #f1f3f5; padding: 10px 15px; margin: 20px 0 10px 0; font-weight: bold; color: #003366; border-bottom: 2px solid #003366; font-size: 1.2em; }
     .sub-section { color: #155724; font-weight: bold; font-size: 0.95em; margin: 15px 0 8px 5px; text-transform: uppercase; }
     
     .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .review-item { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      padding: 10px 15px; 
-      border: 1px solid #dee2e6; 
-      border-radius: 4px; 
-      background: #fff;
-    }
+    .review-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border: 1px solid #dee2e6; border-radius: 4px; background: #fff; }
     .item-text { font-size: 0.95em; font-weight: 500; }
-    .item-text span { color: #888; margin-right: 10px; font-weight: normal; font-size: 0.9em; }
-    
+    .item-text span { color: #888; margin-right: 10px; font-weight: normal; }
     .val-ok { color: #28a745; font-weight: bold; }
     .val-ng { color: #dc3545; font-weight: bold; }
     
-    .ng-reason { grid-column: span 2; background: #fff1f0; padding: 10px; border-radius: 4px; border-left: 4px solid #dc3545; font-size: 0.85em; margin-bottom: 10px; }
+    /* Signature Area */
+    .signature-container { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; text-align: center; }
+    .signature-pad { border: 2px dashed #ccc; background: #fafafa; border-radius: 8px; cursor: crosshair; touch-action: none; }
+    .signature-label { display: block; margin-bottom: 10px; font-weight: bold; color: #003366; }
+    .btn-clear { background: #6c757d; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; margin-top: 5px; font-size: 0.8em; }
 
-    .footer-btns { margin-top: 30px; display: flex; gap: 15px; border-top: 2px solid #eee; padding-top: 20px; }
+    .footer-btns { margin-top: 20px; display: flex; gap: 15px; }
     .btn-approve { flex: 1; background: #28a745; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .btn-reject { flex: 1; background: #dc3545; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
   </style>
@@ -81,12 +75,22 @@
   <div id="reviewModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal()">&times;</span>
-      <h2 style="margin:0; color:#003366;">Review Hasil Checklist</h2>
+      <h2 style="margin:0; color:#003366;">Review & Tanda Tangan</h2>
       <p id="infoP" style="color:#666; margin-bottom:20px;"></p>
       
       <div id="modalBody"></div>
 
-      <div class="footer-btns" id="actionArea"></div>
+      <div id="approvalSection" class="signature-container">
+        <label class="signature-label">Tanda Tangan Superintendent:</label>
+        <canvas id="sig-canvas" class="signature-pad" width="400" height="150"></canvas>
+        <br>
+        <button class="btn-clear" onclick="clearSignature()">Hapus Tanda Tangan</button>
+        
+        <div class="footer-btns">
+          <button class="btn-approve" onclick="submitApproval()">APPROVE & SIMPAN</button>
+          <button class="btn-reject" onclick="rejData()">REJECT</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -95,7 +99,24 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Struktur Data yang sudah dibersihkan dari teks tambahan (Dosing/Stacking/Dummy)
+    let activeId = null;
+    let isDrawing = false;
+    const canvas = document.getElementById('sig-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Setup Drawing
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e.touches[0]); });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
+    canvas.addEventListener('touchend', endDraw);
+
+    function startDraw(e) { isDrawing = true; ctx.beginPath(); ctx.moveTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); }
+    function draw(e) { if (!isDrawing) return; ctx.lineTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); ctx.stroke(); }
+    function endDraw() { isDrawing = false; }
+    function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
     const masterStructure = [
       { section: "1. STAND LABEL", groups: [
         { label: "ELECTRICAL", fields: ["wiring", "komponen", "kerapihan", "sensor"], display: ["WIRING", "KOMPONEN", "KERAPIHAN", "SENSOR"] },
@@ -120,81 +141,61 @@
     ];
 
     async function loadChecklists() {
-      const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
-      if (error) return;
+      const { data } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
       data.forEach(row => {
         const tr = document.createElement('tr');
         const sClass = row.status === 'Approved' ? 'status-approved' : row.status === 'Rejected' ? 'status-rejected' : 'status-pending';
-        tr.innerHTML = `
-          <td><strong>${row.pelaksana?.nama_pelaksana}</strong></td>
-          <td>${row.pelaksana?.tanggal_checklist}</td>
-          <td><span class="status-badge ${sClass}">${row.status}</span></td>
-          <td><button class="view-btn" onclick='openReview(${JSON.stringify(row)})'>REVIEW</button></td>
-        `;
+        tr.innerHTML = `<td><strong>${row.pelaksana?.nama_pelaksana}</strong></td><td>${row.pelaksana?.tanggal_checklist}</td><td><span class="status-badge ${sClass}">${row.status}</span></td><td><button class="view-btn" onclick='openReview(${JSON.stringify(row)})'>REVIEW</button></td>`;
         tbody.appendChild(tr);
       });
     }
 
     function openReview(row) {
+      activeId = row.id;
       const body = document.getElementById('modalBody');
       body.innerHTML = '';
       document.getElementById('infoP').innerHTML = `Pelaksana: <b>${row.pelaksana.nama_pelaksana}</b> | Tanggal: <b>${row.pelaksana.tanggal_checklist}</b>`;
+      clearSignature();
 
       let num = 1;
       masterStructure.forEach(sec => {
-        const h3 = document.createElement('div');
-        h3.className = 'section-header';
-        h3.textContent = sec.section;
-        body.appendChild(h3);
-
+        const h3 = document.createElement('div'); h3.className = 'section-header'; h3.textContent = sec.section; body.appendChild(h3);
         sec.groups.forEach(grp => {
-          const h4 = document.createElement('div');
-          h4.className = 'sub-section';
-          h4.textContent = grp.label;
-          body.appendChild(h4);
-
-          const grid = document.createElement('div');
-          grid.className = 'review-grid';
-
+          const h4 = document.createElement('div'); h4.className = 'sub-section'; h4.textContent = grp.label; body.appendChild(h4);
+          const grid = document.createElement('div'); grid.className = 'review-grid';
           grp.fields.forEach((field, idx) => {
             const status = row[field];
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'review-item';
-            itemDiv.innerHTML = `
-              <div class="item-text"><span>${num}.</span> ${grp.display[idx]}</div>
-              <div class="${status === 'OK' ? 'val-ok' : 'val-ng'}">${status}</div>
-            `;
+            const itemDiv = document.createElement('div'); itemDiv.className = 'review-item';
+            itemDiv.innerHTML = `<div class="item-text"><span>${num}.</span> ${grp.display[idx]}</div><div class="${status === 'OK' ? 'val-ok' : 'val-ng'}">${status}</div>`;
             grid.appendChild(itemDiv);
-
-            if (status === 'NG') {
-              const ngDiv = document.createElement('div');
-              ngDiv.className = 'ng-reason';
-              ngDiv.innerHTML = `<b>Keterangan NG ${num}:</b> ${row[field + '_keterangan'] || '-'}`;
-              grid.appendChild(ngDiv);
-            }
             num++;
           });
           body.appendChild(grid);
         });
       });
 
-      const area = document.getElementById('actionArea');
-      if (row.status === 'Pending') {
-        area.innerHTML = `<button class="btn-approve" onclick="upStatus('${row.id}', 'Approved')">APPROVE</button><button class="btn-reject" onclick="rejData('${row.id}')">REJECT</button>`;
-      } else {
-        area.innerHTML = `<div style="width:100%; text-align:center; padding:15px; background:#f0f0f0; border-radius:8px;">Status: <b>${row.status}</b></div>`;
-      }
+      document.getElementById('approvalSection').style.display = (row.status === 'Pending') ? 'block' : 'none';
       document.getElementById('reviewModal').style.display = 'block';
     }
 
-    function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
-    async function upStatus(id, s, r = null) {
-      await _supabase.from('checklist').update({ status: s, reject_reason: r }).eq('id', id);
-      closeModal(); loadChecklists();
+    async function submitApproval() {
+      // Validasi tanda tangan (opsional: cek apakah canvas kosong)
+      const sigData = canvas.toDataURL(); // Simpan sebagai string Base64 jika perlu disimpan ke DB
+      
+      const { error } = await _supabase.from('checklist').update({ 
+        status: 'Approved', 
+        approved_at: new Date().toISOString()
+        // signature: sigData // Jika Anda menambahkan kolom signature di database
+      }).eq('id', activeId);
+
+      if (!error) { alert('Checklist Approved dengan Tanda Tangan!'); closeModal(); loadChecklists(); }
     }
-    function rejData(id) { const r = prompt("Alasan:"); if (r) upStatus(id, 'Rejected', r); }
+
+    function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
+    function rejData() { const r = prompt("Alasan:"); if (r) updateReject(activeId, r); }
+    async function updateReject(id, reason) { await _supabase.from('checklist').update({ status: 'Rejected', reject_reason: reason }).eq('id', id); closeModal(); loadChecklists(); }
 
     loadChecklists();
   </script>
