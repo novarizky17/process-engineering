@@ -32,15 +32,19 @@
     .val-ok { color: #28a745; font-weight: bold; }
     .val-ng { color: #dc3545; font-weight: bold; }
 
-    /* Signature & Reject Area */
-    .signature-container { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; text-align: center; }
+    /* Area Approval & Tanda Tangan */
+    .approval-box { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; text-align: center; }
     .signature-pad { border: 2px dashed #ccc; background: #fafafa; border-radius: 8px; cursor: crosshair; touch-action: none; }
-    .signature-display { border: 1px solid #eee; background: #fff; border-radius: 8px; max-width: 300px; margin: 10px auto; }
-    .reject-info-box { background: #fff1f0; color: #cf1322; padding: 15px; border-radius: 8px; border: 1px solid #ffa39e; margin-top: 20px; text-align: left; }
+    .signature-display { border: 1px solid #eee; background: #fff; border-radius: 8px; max-width: 300px; margin: 10px auto; display: block; }
+    
+    /* Kolom Input Reject Langsung */
+    .reject-input-container { display: none; margin-top: 15px; background: #fff1f0; padding: 15px; border-radius: 8px; border: 1px solid #ffa39e; text-align: left; }
+    .reject-textarea { width: 100%; height: 80px; padding: 10px; border-radius: 6px; border: 1px solid #dc3545; box-sizing: border-box; margin-top: 8px; font-family: inherit; }
 
     .footer-btns { margin-top: 20px; display: flex; gap: 15px; }
     .btn-approve { flex: 1; background: #28a745; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .btn-reject { flex: 1; background: #dc3545; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-reject-trigger { flex: 1; background: #dc3545; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-send-reject { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; width: 100%; }
     .btn-clear { background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 5px; font-size: 0.8em; }
   </style>
 </head>
@@ -52,7 +56,7 @@
   </header>
 
   <div class="main-content">
-    <h1>Approval Checklist</h1>
+    <h1>Approval Monitoring</h1>
     <div class="table-container">
       <table>
         <thead>
@@ -71,31 +75,38 @@
   <div id="reviewModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal()">&times;</span>
-      <h2 style="margin:0; color:#003366;">Detail Review Checklist</h2>
+      <h2 style="margin:0; color:#003366;">Review Checklist</h2>
       <p id="infoP" style="color:#666; margin-bottom:20px;"></p>
       
       <div id="modalBody"></div>
 
-      <div id="approvalSection" class="signature-container">
-        <div id="sign-input-area">
-          <label style="display:block; margin-bottom:10px; font-weight:bold;">Bubuhkan Tanda Tangan:</label>
+      <div class="approval-box">
+        <div id="action-pending" style="display:none;">
+          <label style="display:block; margin-bottom:10px; font-weight:bold;">Bubuhkan Tanda Tangan Untuk Approve:</label>
           <canvas id="sig-canvas" class="signature-pad" width="400" height="150"></canvas>
           <br>
           <button class="btn-clear" onclick="clearSignature()">Ulangi Tanda Tangan</button>
+          
           <div class="footer-btns">
             <button class="btn-approve" onclick="submitApproval()">APPROVE & SIMPAN</button>
-            <button class="btn-reject" onclick="rejData()">REJECT / TOLAK</button>
+            <button class="btn-reject-trigger" onclick="showRejectInput()">REJECT / TOLAK</button>
+          </div>
+
+          <div id="reject-input-box" class="reject-input-container">
+            <strong>Alasan Penolakan:</strong>
+            <textarea id="reject-reason-input" class="reject-textarea" placeholder="Tulis alasan mengapa data ditolak..."></textarea>
+            <button class="btn-send-reject" onclick="submitReject()">Kirim Penolakan</button>
           </div>
         </div>
 
-        <div id="sign-view-area" style="display:none;">
+        <div id="action-approved" style="display:none;">
           <label style="display:block; margin-bottom:10px; font-weight:bold; color:#28a745;">Disetujui Oleh Superintendent:</label>
           <img id="signature-img" class="signature-display" src="" alt="Tanda Tangan">
         </div>
 
-        <div id="reject-view-area" style="display:none;" class="reject-info-box">
-          <strong>Alasan Penolakan:</strong>
-          <p id="reject-reason-text" style="margin: 5px 0 0 0;"></p>
+        <div id="action-rejected" style="display:none;" class="reject-input-container" style="display:block !important;">
+          <strong style="color:#dc3545;">Data Telah Ditolak</strong>
+          <p id="reject-display-text" style="margin: 8px 0 0 0; color:#333;"></p>
         </div>
       </div>
     </div>
@@ -111,7 +122,7 @@
     const canvas = document.getElementById('sig-canvas');
     const ctx = canvas.getContext('2d');
 
-    // Drawing Logic
+    // Canvas Drawing Logic
     canvas.addEventListener('mousedown', startDraw);
     canvas.addEventListener('mousemove', draw);
     canvas.addEventListener('mouseup', endDraw);
@@ -124,7 +135,6 @@
     function endDraw() { isDrawing = false; }
     function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-    // Struktur data sama seperti sebelumnya
     const masterStructure = [
       { section: "1. STAND LABEL", groups: [
         { label: "ELECTRICAL", fields: ["wiring", "komponen", "kerapihan", "sensor"], display: ["WIRING", "KOMPONEN", "KERAPIHAN", "SENSOR"] },
@@ -166,8 +176,9 @@
       body.innerHTML = '';
       document.getElementById('infoP').innerHTML = `Pelaksana: <b>${row.pelaksana.nama_pelaksana}</b> | Tanggal: <b>${row.pelaksana.tanggal_checklist}</b>`;
       clearSignature();
+      document.getElementById('reject-input-box').style.display = 'none';
+      document.getElementById('reject-reason-input').value = '';
 
-      // Generate Checklist Items
       let num = 1;
       masterStructure.forEach(sec => {
         const h3 = document.createElement('div'); h3.className = 'section-header'; h3.textContent = sec.section; body.appendChild(h3);
@@ -190,26 +201,36 @@
         });
       });
 
-      // Tampilkan Tanda Tangan atau Alasan Reject berdasarkan Status
-      document.getElementById('sign-input-area').style.display = 'none';
-      document.getElementById('sign-view-area').style.display = 'none';
-      document.getElementById('reject-view-area').style.display = 'none';
+      // Kontrol Tampilan Footer
+      document.getElementById('action-pending').style.display = (row.status === 'Pending') ? 'block' : 'none';
+      document.getElementById('action-approved').style.display = (row.status === 'Approved') ? 'block' : 'none';
+      document.getElementById('action-rejected').style.display = (row.status === 'Rejected') ? 'block' : 'none';
 
-      if (row.status === 'Pending') {
-        document.getElementById('sign-input-area').style.display = 'block';
-      } else if (row.status === 'Approved') {
-        document.getElementById('sign-view-area').style.display = 'block';
-        document.getElementById('signature-img').src = row.signature || '';
-      } else if (row.status === 'Rejected') {
-        document.getElementById('reject-view-area').style.display = 'block';
-        document.getElementById('reject-reason-text').textContent = row.reject_reason || '-';
-      }
+      if (row.status === 'Approved') document.getElementById('signature-img').src = row.signature || '';
+      if (row.status === 'Rejected') document.getElementById('reject-display-text').textContent = row.reject_reason || '-';
 
       document.getElementById('reviewModal').style.display = 'block';
     }
 
+    // Fungsi Reject Tanpa Prompt Google
+    function showRejectInput() {
+      document.getElementById('reject-input-box').style.display = 'block';
+      document.getElementById('reject-reason-input').focus();
+    }
+
+    async function submitReject() {
+      const reason = document.getElementById('reject-reason-input').value.trim();
+      if (!reason) { alert('Harap isi alasan penolakan!'); return; }
+      
+      const { error } = await _supabase.from('checklist').update({ 
+        status: 'Rejected', 
+        reject_reason: reason 
+      }).eq('id', activeId);
+
+      if (!error) { alert('Data Ditolak!'); closeModal(); loadChecklists(); }
+    }
+
     async function submitApproval() {
-      // Cek apakah canvas kosong (validasi sederhana)
       const sigData = canvas.toDataURL(); 
       const { error } = await _supabase.from('checklist').update({ 
         status: 'Approved', 
@@ -218,14 +239,6 @@
       }).eq('id', activeId);
 
       if (!error) { alert('Disetujui!'); closeModal(); loadChecklists(); }
-    }
-
-    async function rejData() { 
-      const r = prompt("Masukkan alasan penolakan:"); 
-      if (r) {
-        const { error } = await _supabase.from('checklist').update({ status: 'Rejected', reject_reason: r }).eq('id', activeId);
-        if (!error) { alert('Ditolak!'); closeModal(); loadChecklists(); }
-      }
     }
 
     function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
