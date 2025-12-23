@@ -41,7 +41,10 @@
   <div class="main-content">
     <h1>Form Checklist Tooling Injection</h1>
     <p class="info">
-      Pelaksana: <strong id="pelaksanaNama">Memuat...</strong> | Tanggal: <strong id="tanggalChecklist">Memuat...</strong>
+      Pelaksana: <strong id="pelaksanaNama">Memuat...</strong> | 
+      Tanggal: <strong id="tanggalChecklist">Memuat...</strong> | 
+      Merk Mesin: <strong id="merkMesin">Memuat...</strong> | 
+      Tonage: <strong id="tonageMesin">Memuat...</strong>
     </p>
 
     <div class="form-container">
@@ -455,6 +458,8 @@
       if (data) {
         document.getElementById('pelaksanaNama').textContent = data.nama_pelaksana;
         document.getElementById('tanggalChecklist').textContent = data.tanggal_checklist;
+        document.getElementById('merkMesin').textContent = data.merk_mesin;
+        document.getElementById('tonageMesin').textContent = data.tonage;
       }
     }
     init();
