@@ -28,18 +28,16 @@
     .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 1000px; }
     .close-modal { float: right; font-size: 28px; cursor: pointer; font-weight: bold; color: #aaa; }
     
-    /* Style Kategori & Grid agar mirip gambar */
-    .section-header { background: #e9ecef; padding: 10px 15px; margin: 20px 0 10px 0; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
-    .review-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; margin-bottom: 20px; }
+    .section-header { background: #e9ecef; padding: 10px 15px; margin: 20px 0 10px 0; font-weight: bold; color: #003366; border-left: 5px solid #003366; text-transform: uppercase; }
+    .review-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; margin-bottom: 20px; }
     .review-item { padding: 12px; border: 1px solid #dee2e6; border-radius: 8px; background: #fff; display: flex; justify-content: space-between; align-items: center; }
     
-    .item-label { font-size: 0.9em; font-weight: 500; color: #333; }
-    .val-ok { color: #28a745; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; border: 1px solid #c3e6cb; }
-    .val-ng { color: #dc3545; background: #ffebee; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; border: 1px solid #f5c6cb; }
+    .item-label { font-size: 0.85em; font-weight: 500; color: #444; }
+    .val-ok { color: #28a745; background: #e8f5e9; padding: 2px 10px; border-radius: 4px; font-weight: bold; font-size: 0.8em; border: 1px solid #c3e6cb; }
+    .val-ng { color: #dc3545; background: #ffebee; padding: 2px 10px; border-radius: 4px; font-weight: bold; font-size: 0.8em; border: 1px solid #f5c6cb; }
 
     .signature-pad { border: 2px dashed #003366; background: #fafafa; border-radius: 8px; width: 100%; max-width: 400px; display: block; margin: 10px auto; }
     .footer-actions { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; text-align: center; }
-    
     textarea { width: 100%; height: 80px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; resize: none; margin-top: 10px; }
   </style>
 </head>
@@ -47,7 +45,7 @@
 
   <header>
     <div class="logo">TOOLING SUPPORT - SUPERINTENDENT</div>
-    <a href="javascript:location.reload()" class="nav-link">Refresh</a>
+    <a href="javascript:location.reload()" class="nav-link">Refresh Data</a>
   </header>
 
   <div class="main-content">
@@ -73,7 +71,7 @@
   <div id="reviewModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal()">&times;</span>
-      <h2 style="margin:0; color:#003366;">Review Checklist</h2>
+      <h2 style="margin:0; color:#003366;">Review Detail Checklist</h2>
       <p id="infoP" style="color:#666; margin-bottom:10px; border-bottom: 1px solid #eee; padding-bottom: 10px;"></p>
       
       <div id="modalBody"></div>
@@ -82,34 +80,38 @@
         <div id="action-pending" style="display:none;">
           <label style="font-weight:bold;">Tanda Tangan Superintendent:</label>
           <canvas id="sig-canvas" class="signature-pad" width="400" height="150"></canvas>
-          <button onclick="clearSignature()" style="background:#6c757d; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Hapus</button>
+          <button onclick="clearSignature()" style="background:#6c757d; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-bottom: 10px;">Bersihkan</button>
           
-          <div style="margin-top:20px;">
-            <button class="view-btn" style="background:#28a745; padding: 10px 30px;" onclick="submitApproval()">APPROVE</button>
-            <button class="view-btn" style="background:#dc3545; padding: 10px 30px;" onclick="showRejectInput()">REJECT</button>
+          <div style="margin-top:10px;">
+            <button class="view-btn" style="background:#28a745; padding: 12px 40px;" onclick="submitApproval()">APPROVE</button>
+            <button class="view-btn" style="background:#dc3545; padding: 12px 40px;" onclick="showRejectInput()">REJECT</button>
           </div>
 
           <div id="reject-box" style="display:none; margin-top:15px; text-align:left;">
             <strong>Alasan Penolakan:</strong>
-            <textarea id="reject-reason-input"></textarea>
+            <textarea id="reject-reason-input" placeholder="Tulis alasan mengapa data ditolak..."></textarea>
             <button class="view-btn" style="background:#dc3545; width:100%; margin-top:10px;" onclick="submitReject()">Kirim Penolakan</button>
           </div>
         </div>
 
         <div id="action-approved" style="display:none;">
-          <strong style="color:#28a745;">✓ TELAH DISETUJUI</strong>
-          <img id="signature-img" style="max-width:250px; display:block; margin:10px auto; border:1px solid #eee;">
+          <strong style="color:#28a745; font-size: 1.2em;">✓ TELAH DISETUJUI</strong>
+          <p>Tanda Tangan Digital:</p>
+          <img id="signature-img" style="max-width:250px; display:block; margin:10px auto; border:1px solid #eee; background: #fff;">
         </div>
 
         <div id="action-rejected" style="display:none;">
-          <strong style="color:#dc3545;">✘ DATA DITOLAK</strong>
-          <p id="reject-display-text" style="background:#fff1f0; padding:10px; border-radius:8px;"></p>
+          <strong style="color:#dc3545; font-size: 1.2em;">✘ DATA DITOLAK</strong>
+          <div style="margin-top:10px; background:#fff1f0; padding:15px; border-radius:8px; display:inline-block; min-width: 300px;">
+            <strong>Alasan:</strong> <span id="reject-display-text"></span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
+    // Konfigurasi Supabase
     const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -119,7 +121,31 @@
     const canvas = document.getElementById('sig-canvas');
     const ctx = canvas.getContext('2d');
 
-    // Canvas Logic
+    // Master Structure Sesuai Permintaan Anda
+    const masterStructure = [
+      { section: "1. STAND LABEL", groups: [
+        { label: "ELECTRICAL", fields: ["wiring", "komponen", "kerapihan", "sensor"], display: ["WIRING", "KOMPONEN", "KERAPIHAN", "SENSOR"] },
+        { label: "MOTION", fields: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"], display: ["TIMING BELT", "PULLY", "SERVO MOTOR", "LINEAR BEARING", "ROTARY ACTUATOR"] },
+        { label: "PNEUMATIC", fields: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"], display: ["SELENOID VALVE", "VACUUM EJECTOR", "SILINDER PNEUMATIC", "NAPPLE", "VACUUM PAD"] },
+        { label: "TAKE OUT PRODUK", fields: ["flange", "vacuum_pad_takeout"], display: ["FLANGE", "VACUUM PAD TAKEOUT"] }
+      ]},
+      { section: "2. STACKING", groups: [
+        { label: "ELECTRICAL", fields: ["stacking_wiring", "stacking_sensor"], display: ["WIRING", "SENSOR"] },
+        { label: "MOTION", fields: ["stacking_linier", "stacking_mechanical_part"], display: ["LINIER", "MECHANICAL PART"] },
+        { label: "PNEUMATIC", fields: ["stacking_cylinder", "stacking_pneumatic"], display: ["CYLINDER", "PNEUMATIC"] }
+      ]},
+      { section: "3. CONVEYOR", groups: [
+        { label: "GENERAL", fields: ["conveyor_belt", "conveyor_motor", "conveyor_rantai", "conveyor_frame", "conveyor_inverter"], display: ["BELT", "MOTOR", "RANTAI / COUPLING", "FRAME", "INVERTER / ELECTRICAL"] }
+      ]},
+      { section: "4. DOSING", groups: [
+        { label: "GENERAL", fields: ["dosing_alarm", "dosing_setting"], display: ["CEK ALARM", "KESESUAIAN SETTING"] }
+      ]},
+      { section: "5. DUMMY", groups: [
+        { label: "GENERAL", fields: ["dummy_vacuum", "dummy_condition", "dummy_flange", "dummy_instalasi", "dummy_tubbing"], display: ["VACUUM", "KONDISI DUMMY", "FLANGE", "INSTALASI", "TUBBING"] }
+      ]}
+    ];
+
+    // Logika Canvas Tanda Tangan
     function getPos(e) {
       const rect = canvas.getBoundingClientRect();
       return { x: (e.clientX || e.touches[0].clientX) - rect.left, y: (e.clientY || e.touches[0].clientY) - rect.top };
@@ -128,20 +154,21 @@
     function moveDraw(e) { if (!isDrawing) return; e.preventDefault(); const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }
     canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', moveDraw); window.addEventListener('mouseup', () => isDrawing = false);
     canvas.addEventListener('touchstart', startDraw); canvas.addEventListener('touchmove', moveDraw); canvas.addEventListener('touchend', () => isDrawing = false);
-    ctx.lineWidth = 2; function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    ctx.lineWidth = 2; ctx.strokeStyle = "#000"; function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
+    // Load Data dari Supabase
     async function loadChecklists() {
       const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
-      if (error) return;
+      if (error) { console.error(error); return; }
       const tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
       data.forEach(row => {
         const sClass = row.status === 'Approved' ? 'status-approved' : row.status === 'Rejected' ? 'status-rejected' : 'status-pending';
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><strong>${row.pelaksana?.nama_pelaksana}</strong></td>
-          <td>${row.pelaksana?.merk_mesin} / ${row.pelaksana?.tonage}</td>
-          <td>${row.pelaksana?.tanggal_checklist}</td>
+          <td><strong>${row.pelaksana?.nama_pelaksana || 'Unknown'}</strong></td>
+          <td>${row.pelaksana?.merk_mesin || '-'} / ${row.pelaksana?.tonage || '-'}</td>
+          <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
           <td><span class="status-badge ${sClass}">${row.status}</span></td>
           <td><button class="view-btn" onclick='openReview(${JSON.stringify(row)})'>REVIEW</button></td>
         `;
@@ -149,6 +176,7 @@
       });
     }
 
+    // Fungsi Render Modal Review
     function openReview(row) {
       activeId = row.id;
       document.getElementById('infoP').innerHTML = `Pelaksana: <b>${row.pelaksana?.nama_pelaksana}</b> | Mesin: <b>${row.pelaksana?.merk_mesin}</b> | Tanggal: <b>${row.pelaksana?.tanggal_checklist}</b>`;
@@ -156,31 +184,32 @@
       const modalBody = document.getElementById('modalBody');
       modalBody.innerHTML = '';
 
-      // Daftar Kategori & Item sesuai Form Pelaksana
-      const groups = [
-        { title: "1. STAND LABEL", items: ['wiring', 'komponen', 'kerapihan', 'sensor', 'timing_belt', 'pully', 'servo_motor', 'linear_bearing', 'rotary_actuator', 'selenoid_valve', 'vacuum_ejector', 'silinder_pneumatic', 'napple', 'vacuum_pad', 'flange', 'vacuum_pad_takeout'] },
-        { title: "2. STACKING", items: ['wiring', 'sensor', 'linier', 'mechanical_part', 'cylinder', 'pneumatic'] },
-        { title: "3. CONVEYOR", items: ['belt', 'motor', 'rantai', 'frame', 'inverter'] },
-        { title: "4. DOSING", items: ['cek_alarm', 'kesesuain_setting'] },
-        { title: "5. DUMMY", items: ['vacuum', 'kondisi_dummy', 'flange', 'instalasi', 'tubbing'] }
-      ];
-
-      groups.forEach(group => {
-        let html = `<div class="section-header">${group.title}</div><div class="review-grid">`;
-        group.items.forEach((item, idx) => {
-          const val = row[item];
-          const label = item.toUpperCase().replace(/_/g, ' ');
-          html += `<div class="review-item"><span class="item-label">${idx+1}. ${label}</span><span class="${val === 'OK' ? 'val-ok' : 'val-ng'}">${val || '-'}</span></div>`;
+      masterStructure.forEach(sec => {
+        let html = `<div class="section-header">${sec.section}</div><div class="review-grid">`;
+        let counter = 1;
+        sec.groups.forEach(group => {
+          group.fields.forEach((fieldName, idx) => {
+            const val = row[fieldName] || '-';
+            const labelStr = group.display[idx];
+            const statusClass = val === 'OK' ? 'val-ok' : 'val-ng';
+            html += `
+              <div class="review-item">
+                <span class="item-label">${counter}. ${labelStr}</span>
+                <span class="${statusClass}">${val}</span>
+              </div>`;
+            counter++;
+          });
         });
         html += `</div>`;
         modalBody.innerHTML += html;
       });
 
-      // Tampilkan Tanda Tangan Pelaksana jika ada
+      // Tanda Tangan Pelaksana
       if (row.signature_pelaksana) {
-        modalBody.innerHTML += `<div class="section-header">Tanda Tangan Pelaksana</div><div style="text-align:center;"><img src="${row.signature_pelaksana}" style="max-width:200px; border:1px solid #eee;"></div>`;
+        modalBody.innerHTML += `<div class="section-header">Tanda Tangan Pelaksana</div><div style="text-align:center;"><img src="${row.signature_pelaksana}" style="max-width:200px; border:1px solid #eee; background:#fff; padding:5px;"></div>`;
       }
 
+      // Atur Visibilitas Aksi Berdasarkan Status
       document.getElementById('action-pending').style.display = row.status === 'Pending' ? 'block' : 'none';
       document.getElementById('action-approved').style.display = row.status === 'Approved' ? 'block' : 'none';
       document.getElementById('action-rejected').style.display = row.status === 'Rejected' ? 'block' : 'none';
@@ -189,6 +218,7 @@
       if (row.status === 'Rejected') document.getElementById('reject-display-text').textContent = row.reject_reason || '-';
       
       document.getElementById('reviewModal').style.display = 'block';
+      document.getElementById('reject-box').style.display = 'none';
       clearSignature();
     }
 
@@ -197,14 +227,30 @@
 
     async function submitApproval() {
       const sig = canvas.toDataURL();
-      const { error } = await _supabase.from('checklist').update({ status: 'Approved', signature: sig, approved_at: new Date() }).eq('id', activeId);
-      if (!error) { alert('Approved'); closeModal(); loadChecklists(); }
+      // Validasi apakah sudah tanda tangan
+      const blank = document.createElement('canvas');
+      blank.width = canvas.width; blank.height = canvas.height;
+      if (canvas.toDataURL() === blank.toDataURL()) { alert("Silakan tanda tangan terlebih dahulu!"); return; }
+
+      const { error } = await _supabase.from('checklist').update({ 
+        status: 'Approved', 
+        signature: sig, 
+        approved_at: new Date() 
+      }).eq('id', activeId);
+
+      if (!error) { alert('Berhasil Disetujui'); closeModal(); loadChecklists(); }
     }
 
     async function submitReject() {
       const reason = document.getElementById('reject-reason-input').value;
-      const { error } = await _supabase.from('checklist').update({ status: 'Rejected', reject_reason: reason }).eq('id', activeId);
-      if (!error) { alert('Rejected'); closeModal(); loadChecklists(); }
+      if (!reason) { alert("Alasan penolakan harus diisi!"); return; }
+
+      const { error } = await _supabase.from('checklist').update({ 
+        status: 'Rejected', 
+        reject_reason: reason 
+      }).eq('id', activeId);
+
+      if (!error) { alert('Data Telah Ditolak'); closeModal(); loadChecklists(); }
     }
 
     window.onload = loadChecklists;
