@@ -12,9 +12,9 @@
             .no-print { display: none !important; }
             .document-page { box-shadow: none; border: none; width: 100%; max-width: none; margin: 0; padding: 5px; }
         }
-      
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
         .document-page { background: white; width: 1150px; margin: 0 auto; padding: 15px; border: 1px solid #000; box-sizing: border-box; }
+        
         /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
@@ -23,73 +23,57 @@
         .logo-area img { width: 130px; height: auto; display: block; margin: 0 auto; }
         .title-area { text-align: center; font-size: 16pt; font-weight: bold; padding: 10px; text-transform: uppercase; }
         .meta-area { width: 280px; font-size: 9pt; padding: 5px; }
-        /* INFO DATA */
-        .meta-info {
-            display: flex;
-            justify-content: space-between;
-            margin: 8px 0;
-            font-weight: bold;
-            font-size: 10pt;
-            align-items: flex-end;
-        }
+        
+        /* META INFO */
+        .meta-info { display: flex; justify-content: space-between; margin: 8px 0; font-weight: bold; font-size: 10pt; align-items: flex-end; }
         .meta-info-left { display: flex; flex-direction: column; gap: 5px; }
         .meta-info-right { display: flex; flex-direction: column; }
-      
         .info-row { display: flex; align-items: flex-end; }
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
-        /* TABLE BODY */
+        
+        /* TABLE OFFICIAL */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; }
         .table-official th, .table-official td { border: 1px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
-      
         .col-no { width: 25px; }
         .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
         .col-tgl { width: 24px; font-size: 7pt; }
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; text-transform: uppercase; }
-        /* TANDA TANGAN */
-        .sig-td { padding: 0 !important; height: 50px; overflow: hidden; }
-        .sig-cell-img { height: 100%; width: 100%; object-fit: contain; mix-blend-mode: multiply; display: block; }
-        /* FOOTER */
-        .footer-flex { display: flex; justify-content: space-between; margin-top: 15px; }
-        .keterangan { font-size: 8.5pt; width: 60%; line-height: 1.4; }
-        .diketahui-box { width: 220px; text-align: center; }
-        .sig-frame { border: 1px solid black; width: 160px; height: 80px; margin: 5px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .name-line { border-top: 1.5px solid black; width: 180px; margin: 0 auto; padding-top: 3px; font-weight: bold; text-transform: uppercase; }
-        /* CONTROL PANEL */
+        
+        /* FOOTER ROW FOR PARAF */
+        .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: right !important; padding-right: 10px !important; font-size: 7pt; }
+        .sig-td { height: 35px; background-color: #fff; }
+
+        /* BUTTONS & CONTROLS */
         .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .no-print input, .no-print select { padding: 6px; border: 1px solid #ccc; border-radius: 4px; }
         .back-link { background: #6c757d; color: white; text-decoration: none; padding: 6px 15px; border-radius: 4px; font-size: 14px; display: flex; align-items: center; }
         .btn-action { border: none; padding: 6px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        
+        /* FOOTER SIGNATURE */
+        .footer-flex { display: flex; justify-content: space-between; margin-top: 20px; }
+        .keterangan { font-size: 8.5pt; width: 60%; line-height: 1.4; }
+        .diketahui-box { width: 30%; text-align: center; margin-left: auto; }
+        .sig-frame { border: 1px solid black; width: 160px; height: 80px; margin: 5px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .name-line { border-top: 1.5px solid black; width: 180px; margin: 0 auto; padding-top: 3px; font-weight: bold; text-transform: uppercase; }
     </style>
 </head>
 <body>
+
     <div class="no-print">
         <a href="dashboard.html" class="back-link">← Kembali ke Dashboard</a>
-      
         <input type="text" id="input-merk" placeholder="Input Merk Mesin..." style="width: 150px;">
         <input type="text" id="input-tonage" placeholder="Input Tonage..." style="width: 100px;">
-      
         <select id="filter-bulan">
-            <option value="01">Januari</option>
-            <option value="02">Februari</option>
-            <option value="03">Maret</option>
-            <option value="04">April</option>
-            <option value="05">Mei</option>
-            <option value="06">Juni</option>
-            <option value="07">Juli</option>
-            <option value="08">Agustus</option>
-            <option value="09">September</option>
-            <option value="10">Oktober</option>
-            <option value="11">November</option>
-            <option value="12">Desember</option>
+            <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
+            <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
+            <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
+            <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
         </select>
-      
         <select id="filter-tahun">
-            <option value="2024">2024</option>
-            <option value="2025" selected>2025</option>
+            <option value="2024">2024</option><option value="2025" selected>2025</option>
         </select>
-      
         <button onclick="renderReport()" class="btn-action" style="background: #003366; color: white;">TAMPILKAN REKAP</button>
         <button onclick="window.print()" class="btn-action" style="background: #222; color: white;">PRINT PDF</button>
     </div>
@@ -136,9 +120,14 @@
                 <tr id="date-row"></tr>
             </thead>
             <tbody id="table-content"></tbody>
-            <tfoot>
-                <tr id="row-paraf-superintendent">
-                    <td colspan="2" style="text-align: right; font-weight: bold; padding-right: 10px;">PARAF SUPERINTENDENT</td>
+            <tfoot id="table-footer">
+                <!-- Baris Paraf Pelaksana -->
+                <tr id="row-paraf-pelaksana">
+                    <td colspan="2" class="row-title-footer">PARAF PELAKSANA</td>
+                </tr>
+                <!-- Baris Paraf Pengecek -->
+                <tr id="row-paraf-pengecek">
+                    <td colspan="2" class="row-title-footer">PARAF PENGECEK</td>
                 </tr>
             </tfoot>
         </table>
@@ -162,7 +151,7 @@
     <script>
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
-        const supabase = supabase.createClient(SB_URL, SB_KEY);
+        const _sb = supabase.createClient(SB_URL, SB_KEY);
 
         const checklistStructure = [
             { header: "1. STAND LABEL", type: 'head' },
@@ -182,7 +171,6 @@
             { name: "VACUUM PAD", field: "vacuum_pad" },
             { name: "FLANGE", field: "flange" },
             { name: "VACUUM PAD TAKEOUT", field: "vacuum_pad_takeout" },
-          
             { header: "2. STACKING", type: 'head' },
             { name: "WIRING", field: "stacking_wiring" },
             { name: "SENSOR", field: "stacking_sensor" },
@@ -207,20 +195,23 @@
             { name: "TUBBING", field: "dummy_tubbing" }
         ];
 
-        async function init() {
+        function init() {
             const dateRow = document.getElementById('date-row');
+            dateRow.innerHTML = '';
             for(let i=1; i<=31; i++) dateRow.innerHTML += `<th class="col-tgl">${i}</th>`;
+            
             const currentMonth = ("0" + (new Date().getMonth() + 1)).slice(-2);
             document.getElementById('filter-bulan').value = currentMonth;
             renderReport();
         }
 
-        async function renderReport() {
+        function renderReport() {
             const bln = document.getElementById('filter-bulan').value;
             const thn = document.getElementById('filter-tahun').value;
             const merkInput = document.getElementById('input-merk').value || "-";
             const tonageInput = document.getElementById('input-tonage').value || "-";
             const monthText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text;
+
             document.getElementById('label-bulan').innerText = monthText + " " + thn;
             document.getElementById('label-merk').innerText = merkInput.toUpperCase();
             document.getElementById('label-tonage').innerText = tonageInput.toUpperCase();
@@ -232,7 +223,7 @@
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
                     let headRow = `<tr><td colspan="2" class="section-header">${item.header}</td>`;
-                    for(let t=1; t<=31; t++) headRow += `<td style="background:#eee"></td>`;
+                    for(let t=1; t<=31; t++) headRow += `<td></td>`;
                     tbody.innerHTML += headRow + `</tr>`;
                 } else {
                     let rowHtml = `<tr><td>${itemCounter++}</td><td class="col-item">${item.name}</td>`;
@@ -243,13 +234,22 @@
                 }
             });
 
-            // Paraf Superintendent kosong
-            const rowParafSuper = document.getElementById('row-paraf-superintendent');
-            while(rowParafSuper.cells.length > 1) rowParafSuper.deleteCell(1);
+            // Handle Baris Paraf (Pelaksana & Pengecek)
+            const rowParafPelaksana = document.getElementById('row-paraf-pelaksana');
+            const rowParafPengecek = document.getElementById('row-paraf-pengecek');
+            
+            // Bersihkan kolom tanggal lama jika ada
+            while(rowParafPelaksana.cells.length > 1) rowParafPelaksana.deleteCell(1);
+            while(rowParafPengecek.cells.length > 1) rowParafPengecek.deleteCell(1);
+
             for(let t=1; t<=31; t++) {
-                const cell = rowParafSuper.insertCell();
-                cell.className = "sig-td";
-                cell.innerHTML = "";
+                const cellPel = rowParafPelaksana.insertCell();
+                cellPel.className = "sig-td";
+                cellPel.innerHTML = "";
+
+                const cellPen = rowParafPengecek.insertCell();
+                cellPen.className = "sig-td";
+                cellPen.innerHTML = "";
             }
         }
 
