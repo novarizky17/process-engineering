@@ -9,7 +9,6 @@
     body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }
     header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
     .main-content { padding: 20px; max-width: 1200px; margin: 0 auto; }
-    
     .table-container { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
@@ -21,34 +20,34 @@
     .status-rejected { background-color: #f8d7da; color: #721c24; }
     .view-btn { background-color: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
-    /* Modal Styling */
+    /* Modal Review */
     .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
-    .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 900px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 900px; }
     .close-modal { float: right; font-size: 28px; cursor: pointer; font-weight: bold; color: #999; }
     
-    /* Layout Review Mirip Gambar */
-    .section-title { background: #e9ecef; padding: 8px 15px; margin: 20px 0 10px 0; font-weight: bold; color: #003366; border-left: 5px solid #003366; text-transform: uppercase; }
-    .sub-title { color: #155724; font-weight: bold; font-size: 0.9em; margin: 10px 0 5px 5px; }
+    /* Layout Bersih Sesuai Checklist */
+    .section-header { background: #f1f3f5; padding: 10px 15px; margin: 20px 0 10px 0; font-weight: bold; color: #003366; border-bottom: 2px solid #003366; font-size: 1.2em; }
+    .sub-section { color: #155724; font-weight: bold; font-size: 0.95em; margin: 15px 0 8px 5px; text-transform: uppercase; }
     
-    .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .review-card { 
+    .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .review-item { 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
       padding: 10px 15px; 
-      border: 1px solid #e0e0e0; 
-      border-radius: 8px; 
+      border: 1px solid #dee2e6; 
+      border-radius: 4px; 
       background: #fff;
     }
-    .item-info { font-size: 0.9em; font-weight: 600; color: #444; }
-    .item-info span { color: #888; margin-right: 8px; font-weight: normal; }
+    .item-text { font-size: 0.95em; font-weight: 500; }
+    .item-text span { color: #888; margin-right: 10px; font-weight: normal; font-size: 0.9em; }
     
-    .val-ok { color: #28a745; font-weight: 800; font-size: 1em; }
-    .val-ng { color: #dc3545; font-weight: 800; font-size: 1em; }
+    .val-ok { color: #28a745; font-weight: bold; }
+    .val-ng { color: #dc3545; font-weight: bold; }
     
-    .ng-box { grid-column: span 2; background: #fff1f0; padding: 10px; border-radius: 6px; border-left: 4px solid #dc3545; font-size: 0.85em; margin-bottom: 5px; }
+    .ng-reason { grid-column: span 2; background: #fff1f0; padding: 10px; border-radius: 4px; border-left: 4px solid #dc3545; font-size: 0.85em; margin-bottom: 10px; }
 
-    .footer-actions { margin-top: 30px; display: flex; gap: 15px; border-top: 2px solid #eee; padding-top: 20px; }
+    .footer-btns { margin-top: 30px; display: flex; gap: 15px; border-top: 2px solid #eee; padding-top: 20px; }
     .btn-approve { flex: 1; background: #28a745; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .btn-reject { flex: 1; background: #dc3545; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
   </style>
@@ -61,7 +60,7 @@
   </header>
 
   <div class="main-content">
-    <h1>Approval Monitoring</h1>
+    <h1>Approval Checklist</h1>
     <div class="table-container">
       <table>
         <thead>
@@ -82,13 +81,12 @@
   <div id="reviewModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal()">&times;</span>
-      <h2 style="color:#003366; margin:0;">Review Hasil Checklist</h2>
-      <p id="headerInfo" style="color:#666; margin-bottom:20px; border-bottom: 1px solid #eee; padding-bottom: 10px;"></p>
+      <h2 style="margin:0; color:#003366;">Review Hasil Checklist</h2>
+      <p id="infoP" style="color:#666; margin-bottom:20px;"></p>
       
-      <div id="reviewContent">
-        </div>
+      <div id="modalBody"></div>
 
-      <div class="footer-actions" id="actionButtons"></div>
+      <div class="footer-btns" id="actionArea"></div>
     </div>
   </div>
 
@@ -97,27 +95,27 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Struktur Data Sesuai Gambar Anda
-    const structure = [
-      { section: "1. STAND LABEL", subs: [
-        { title: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] },
-        { title: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] },
-        { title: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] },
-        { title: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] }
+    // Struktur Data yang sudah dibersihkan dari teks tambahan (Dosing/Stacking/Dummy)
+    const masterStructure = [
+      { section: "1. STAND LABEL", groups: [
+        { label: "ELECTRICAL", fields: ["wiring", "komponen", "kerapihan", "sensor"], display: ["WIRING", "KOMPONEN", "KERAPIHAN", "SENSOR"] },
+        { label: "MOTION", fields: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"], display: ["TIMING BELT", "PULLY", "SERVO MOTOR", "LINEAR BEARING", "ROTARY ACTUATOR"] },
+        { label: "PNEUMATIC", fields: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"], display: ["SELENOID VALVE", "VACUUM EJECTOR", "SILINDER PNEUMATIC", "NAPPLE", "VACUUM PAD"] },
+        { label: "TAKE OUT PRODUK", fields: ["flange", "vacuum_pad_takeout"], display: ["FLANGE", "VACUUM PAD"] }
       ]},
-      { section: "2. STACKING", subs: [
-        { title: "ELECTRICAL", items: ["stacking_wiring", "stacking_sensor"] },
-        { title: "MOTION", items: ["stacking_linier", "stacking_mechanical_part"] },
-        { title: "PNEUMATIC", items: ["stacking_cylinder", "stacking_pneumatic"] }
+      { section: "2. STACKING", groups: [
+        { label: "ELECTRICAL", fields: ["stacking_wiring", "stacking_sensor"], display: ["WIRING", "SENSOR"] },
+        { label: "MOTION", fields: ["stacking_linier", "stacking_mechanical_part"], display: ["LINIER", "MECHANICAL PART"] },
+        { label: "PNEUMATIC", fields: ["stacking_cylinder", "stacking_pneumatic"], display: ["CYLINDER", "PNEUMATIC"] }
       ]},
-      { section: "3. CONVEYOR", subs: [
-        { title: "GENERAL", items: ["conveyor_belt", "conveyor_motor", "conveyor_rantai", "conveyor_frame", "conveyor_inverter"] }
+      { section: "3. CONVEYOR", groups: [
+        { label: "GENERAL", fields: ["conveyor_belt", "conveyor_motor", "conveyor_rantai", "conveyor_frame", "conveyor_inverter"], display: ["BELT", "MOTOR", "RANTAI / COUPLING", "FRAME", "INVERTER / ELECTRICAL"] }
       ]},
-      { section: "4. DOSING", subs: [
-        { title: "GENERAL", items: ["dosing_alarm", "dosing_setting"] }
+      { section: "4. DOSING", groups: [
+        { label: "GENERAL", fields: ["dosing_alarm", "dosing_setting"], display: ["CEK ALARM", "KESESUAIAN SETTING"] }
       ]},
-      { section: "5. DUMMY", subs: [
-        { title: "GENERAL", items: ["dummy_vacuum", "dummy_condition", "dummy_flange", "dummy_instalasi", "dummy_tubbing"] }
+      { section: "5. DUMMY", groups: [
+        { label: "GENERAL", fields: ["dummy_vacuum", "dummy_condition", "dummy_flange", "dummy_instalasi", "dummy_tubbing"], display: ["VACCUM", "KONDISI DUMMY", "FLANGE", "INSTALASI", "TUBBING"] }
       ]}
     ];
 
@@ -140,73 +138,63 @@
     }
 
     function openReview(row) {
-      const content = document.getElementById('reviewContent');
-      content.innerHTML = '';
-      document.getElementById('headerInfo').innerHTML = `Pelaksana: <b>${row.pelaksana.nama_pelaksana}</b> | Tanggal: <b>${row.pelaksana.tanggal_checklist}</b>`;
+      const body = document.getElementById('modalBody');
+      body.innerHTML = '';
+      document.getElementById('infoP').innerHTML = `Pelaksana: <b>${row.pelaksana.nama_pelaksana}</b> | Tanggal: <b>${row.pelaksana.tanggal_checklist}</b>`;
 
-      let counter = 1;
-      structure.forEach(sec => {
-        const secTitle = document.createElement('div');
-        secTitle.className = 'section-title';
-        secTitle.textContent = sec.section;
-        content.appendChild(secTitle);
+      let num = 1;
+      masterStructure.forEach(sec => {
+        const h3 = document.createElement('div');
+        h3.className = 'section-header';
+        h3.textContent = sec.section;
+        body.appendChild(h3);
 
-        sec.subs.forEach(sub => {
-          const subTitle = document.createElement('div');
-          subTitle.className = 'sub-title';
-          subTitle.textContent = sub.title;
-          content.appendChild(subTitle);
+        sec.groups.forEach(grp => {
+          const h4 = document.createElement('div');
+          h4.className = 'sub-section';
+          h4.textContent = grp.label;
+          body.appendChild(h4);
 
           const grid = document.createElement('div');
           grid.className = 'review-grid';
 
-          sub.items.forEach(key => {
-            const val = row[key];
-            const ket = row[`${key}_keterangan`];
-            const card = document.createElement('div');
-            card.className = 'review-card';
-            card.innerHTML = `
-              <div class="item-info"><span>${counter}.</span> ${key.replace(/_/g, ' ').toUpperCase()}</div>
-              <div class="${val === 'OK' ? 'val-ok' : 'val-ng'}">${val}</div>
+          grp.fields.forEach((field, idx) => {
+            const status = row[field];
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'review-item';
+            itemDiv.innerHTML = `
+              <div class="item-text"><span>${num}.</span> ${grp.display[idx]}</div>
+              <div class="${status === 'OK' ? 'val-ok' : 'val-ng'}">${status}</div>
             `;
-            grid.appendChild(card);
-            
-            if (val === 'NG') {
-              const ngBox = document.createElement('div');
-              ngBox.className = 'ng-box';
-              ngBox.innerHTML = `<b>Alasan NG:</b> ${ket || 'Tidak ada keterangan'}`;
-              grid.appendChild(ngBox);
+            grid.appendChild(itemDiv);
+
+            if (status === 'NG') {
+              const ngDiv = document.createElement('div');
+              ngDiv.className = 'ng-reason';
+              ngDiv.innerHTML = `<b>Keterangan NG ${num}:</b> ${row[field + '_keterangan'] || '-'}`;
+              grid.appendChild(ngDiv);
             }
-            counter++;
+            num++;
           });
-          content.appendChild(grid);
+          body.appendChild(grid);
         });
       });
 
-      const actions = document.getElementById('actionButtons');
+      const area = document.getElementById('actionArea');
       if (row.status === 'Pending') {
-        actions.innerHTML = `
-          <button class="btn-approve" onclick="updateStatus('${row.id}', 'Approved')">APPROVE CHECKLIST</button>
-          <button class="btn-reject" onclick="rejectData('${row.id}')">REJECT / TOLAK</button>
-        `;
+        area.innerHTML = `<button class="btn-approve" onclick="upStatus('${row.id}', 'Approved')">APPROVE</button><button class="btn-reject" onclick="rejData('${row.id}')">REJECT</button>`;
       } else {
-        actions.innerHTML = `<div style="width:100%; text-align:center; padding:15px; background:#f0f0f0; border-radius:8px;">Status Akhir: <b>${row.status}</b></div>`;
+        area.innerHTML = `<div style="width:100%; text-align:center; padding:15px; background:#f0f0f0; border-radius:8px;">Status: <b>${row.status}</b></div>`;
       }
-
       document.getElementById('reviewModal').style.display = 'block';
     }
 
     function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
-
-    async function updateStatus(id, status, reason = null) {
-      const { error } = await _supabase.from('checklist').update({ status, reject_reason: reason }).eq('id', id);
-      if (!error) { alert('Berhasil!'); closeModal(); loadChecklists(); }
+    async function upStatus(id, s, r = null) {
+      await _supabase.from('checklist').update({ status: s, reject_reason: r }).eq('id', id);
+      closeModal(); loadChecklists();
     }
-
-    function rejectData(id) {
-      const reason = prompt("Masukkan alasan penolakan:");
-      if (reason) updateStatus(id, 'Rejected', reason);
-    }
+    function rejData(id) { const r = prompt("Alasan:"); if (r) upStatus(id, 'Rejected', r); }
 
     loadChecklists();
   </script>
