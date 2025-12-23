@@ -6,15 +6,65 @@
   <title>Data Pelaksana Checklist</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
-    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    body { 
+        font-family: Arial, sans-serif; 
+        margin: 0; 
+        padding: 0; 
+        background-color: #f4f4f4; 
+        color: #333; 
+        min-height: 100vh; 
+        display: flex; 
+        flex-direction: column; 
+    }
+    header { 
+        background-color: #003366; 
+        color: white; 
+        padding: 15px 20px; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+    }
     .logo { font-size: 1.5em; font-weight: bold; }
     .main-content { flex: 1; padding: 40px 20px; text-align: center; }
-    .form-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
-    .form-group { margin-bottom: 25px; text-align: left; }
-    label { display: block; margin-bottom: 8px; font-weight: bold; }
-    input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; }
-    button.submit { background-color: #155724; color: white; padding: 14px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1em; width: 100%; margin-top: 20px; }
+    .form-container { 
+        background: white; 
+        padding: 40px; 
+        border-radius: 12px; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+        max-width: 500px; 
+        margin: 0 auto; 
+    }
+    .form-group { margin-bottom: 20px; text-align: left; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+    input { 
+        width: 100%; 
+        padding: 12px; 
+        border: 1px solid #ccc; 
+        border-radius: 6px; 
+        box-sizing: border-box; 
+        font-size: 1em; 
+        transition: border-color 0.3s;
+    }
+    input:focus {
+        border-color: #003366;
+        outline: none;
+    }
+    button.submit { 
+        background-color: #155724; 
+        color: white; 
+        padding: 14px 30px; 
+        border: none; 
+        border-radius: 6px; 
+        cursor: pointer; 
+        font-size: 1.1em; 
+        width: 100%; 
+        margin-top: 10px; 
+        font-weight: bold;
+    }
+    button.submit:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -30,10 +80,22 @@
         <label>Nama Pelaksana</label>
         <input type="text" id="namaPelaksana" placeholder="Masukkan nama lengkap">
       </div>
+      
+      <div class="form-group">
+        <label>Merk Mesin</label>
+        <input type="text" id="merkMesin" placeholder="Contoh: Haitian, Nissei, dll">
+      </div>
+
+      <div class="form-group">
+        <label>Tonage</label>
+        <input type="text" id="tonage" placeholder="Contoh: 120T, 250T, dll">
+      </div>
+
       <div class="form-group">
         <label>Tanggal Checklist</label>
         <input type="date" id="tanggalChecklist">
       </div>
+
       <button class="submit" id="btnLanjut" onclick="simpanDanLanjut()">Lanjut ke Form Checklist</button>
     </div>
   </div>
@@ -48,11 +110,14 @@
 
     async function simpanDanLanjut() {
       const nama = document.getElementById('namaPelaksana').value.trim();
+      const merk = document.getElementById('merkMesin').value.trim();
+      const tonage = document.getElementById('tonage').value.trim();
       const tanggal = document.getElementById('tanggalChecklist').value;
       const btn = document.getElementById('btnLanjut');
 
-      if (!nama || !tanggal) {
-        alert('Mohon isi Nama Pelaksana dan Tanggal!');
+      // Validasi sederhana
+      if (!nama || !merk || !tonage || !tanggal) {
+        alert('Mohon lengkapi semua data: Nama, Merk Mesin, Tonage, dan Tanggal!');
         return;
       }
 
@@ -60,23 +125,32 @@
       btn.textContent = "Menyimpan...";
 
       try {
+        // Simpan ke tabel 'pelaksana' (Pastikan kolom merk_mesin dan tonage sudah ada di tabel Supabase Anda)
         const { data, error } = await _supabase
           .from('pelaksana')
-          .insert([{ nama_pelaksana: nama, tanggal_checklist: tanggal }])
+          .insert([{ 
+              nama_pelaksana: nama, 
+              merk_mesin: merk, 
+              tonage: tonage, 
+              tanggal_checklist: tanggal 
+          }])
           .select('id')
           .single();
 
         if (error) throw error;
 
-        // Simpan ID pelaksana agar bisa dipakai di halaman checklist
+        // Simpan informasi ke localStorage agar bisa ditampilkan di header form selanjutnya
         localStorage.setItem('pelaksana_id', data.id);
+        localStorage.setItem('pelaksana_nama', nama);
+        localStorage.setItem('mesin_merk', merk);
+        localStorage.setItem('mesin_tonage', tonage);
+        localStorage.setItem('checklist_tanggal', tanggal);
         
-        // --- BAGIAN INI YANG MEMASTIKAN TIDAK NYASAR ---
-        // Ganti 'checklist-form.html' sesuai nama file form checklist Anda
+        // Pindah ke halaman form checklist
         window.location.href = 'checklist-form.html'; 
 
       } catch (error) {
-        alert('Gagal menyimpan pelaksana: ' + error.message);
+        alert('Gagal menyimpan data: ' + error.message);
         btn.disabled = false;
         btn.textContent = "Lanjut ke Form Checklist";
       }
