@@ -1,115 +1,249 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulir Modern</title>
-    <style>
-        /* Reset Dasar */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Superintendent - Approval & Signature</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }
+    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.2em; font-weight: bold; }
+    
+    /* Tombol Dashboard sesuai permintaan */
+    .nav-link { color: white; text-decoration: none; font-weight: bold; background: #004085; padding: 8px 15px; border-radius: 6px; transition: 0.3s; }
+    .nav-link:hover { background: #0056b3; }
+    
+    .main-content { padding: 20px; max-width: 1200px; margin: 0 auto; }
+    .table-container { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+    th { background-color: #f8f9fa; color: #555; font-size: 0.85em; text-transform: uppercase; }
 
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+    .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
+    .status-pending { background-color: #fff3cd; color: #856404; }
+    .status-approved { background-color: #d4edda; color: #155724; }
+    .status-rejected { background-color: #f8d7da; color: #721c24; }
+    .view-btn { background-color: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
-        /* Container Utama */
-        .form-container {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 400px;
-        }
+    /* Modal Review */
+    .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
+    .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 900px; }
+    .close-modal { float: right; font-size: 28px; cursor: pointer; font-weight: bold; }
+    
+    /* Layout Checklist Bersih Tanpa Teks Tambahan */
+    .section-header { background: #f1f3f5; padding: 10px 15px; margin: 20px 0 10px 0; font-weight: bold; color: #003366; border-bottom: 2px solid #003366; }
+    .sub-section { color: #155724; font-weight: bold; font-size: 0.95em; margin: 15px 0 8px 5px; text-transform: uppercase; }
+    .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .review-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border: 1px solid #dee2e6; border-radius: 4px; background: #fff; }
+    .val-ok { color: #28a745; font-weight: bold; }
+    .val-ng { color: #dc3545; font-weight: bold; }
 
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 25px;
-            font-weight: 600;
-        }
+    /* Signature & Reject Area */
+    .approval-box { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; text-align: center; }
+    .signature-pad { border: 2px dashed #ccc; background: #fafafa; border-radius: 8px; cursor: crosshair; touch-action: none; }
+    .signature-display { border: 1px solid #eee; background: #fff; border-radius: 8px; max-width: 300px; margin: 10px auto; display: block; }
+    
+    /* Reject Input Box Langsung di Modal */
+    .reject-input-container { display: none; margin-top: 15px; background: #fff1f0; padding: 15px; border-radius: 8px; border: 1px solid #ffa39e; text-align: left; }
+    .reject-textarea { width: 100%; height: 80px; padding: 10px; border-radius: 6px; border: 1px solid #dc3545; box-sizing: border-box; margin-top: 8px; font-family: inherit; resize: none; }
 
-        /* Grouping Input */
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #666;
-            font-size: 14px;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #eee;
-            border-radius: 8px;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        .input-group input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
-        }
-
-        /* Tombol Submit */
-        .btn-submit {
-            width: 100%;
-            padding: 12px;
-            background: #667eea;
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .btn-submit:hover {
-            background: #5a6fd6;
-        }
-
-        .footer-text {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 13px;
-            color: #888;
-        }
-    </style>
+    .footer-btns { margin-top: 20px; display: flex; gap: 15px; }
+    .btn-approve { flex: 1; background: #28a745; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-reject-trigger { flex: 1; background: #dc3545; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-send-reject { background: #dc3545; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; width: 100%; }
+    .btn-clear { background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 5px; font-size: 0.8em; }
+  </style>
 </head>
 <body>
 
-    <div class="form-container">
-        <h2>Selamat Datang</h2>
-        <form action="#">
-            <div class="input-group">
-                <label for="email">Alamat Email</label>
-                <input type="email" id="email" placeholder="contoh@mail.com" required>
-            </div>
-            
-            <div class="input-group">
-                <label for="password">Kata Sandi</label>
-                <input type="password" id="password" placeholder="Masukkan password" required>
-            </div>
+  <header>
+    <div class="logo">TOOLING SUPPORT - SUPERINTENDENT</div>
+    <a href="dashboard.html" class="nav-link">Dashboard</a>
+  </header>
 
-            <button type="submit" class="btn-submit">Masuk Sekarang</button>
-            
-            <p class="footer-text">Belum punya akun? <a href="#" style="color: #667eea; text-decoration: none;">Daftar di sini</a></p>
-        </form>
+  <div class="main-content">
+    <h1>Approval Monitoring</h1>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Pelaksana</th>
+            <th>Tanggal</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr>
+        </tbody>
+      </table>
     </div>
+  </div>
 
+  <div id="reviewModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <h2 style="margin:0; color:#003366;">Review & Approval</h2>
+      <p id="infoP" style="color:#666; margin-bottom:20px; border-bottom: 1px solid #eee; padding-bottom: 10px;"></p>
+      
+      <div id="modalBody"></div>
+
+      <div class="approval-box">
+        <div id="action-pending" style="display:none;">
+          <label style="display:block; margin-bottom:10px; font-weight:bold;">Tanda Tangan Superintendent:</label>
+          <canvas id="sig-canvas" class="signature-pad" width="400" height="150"></canvas>
+          <br>
+          <button class="btn-clear" onclick="clearSignature()">Hapus Tanda Tangan</button>
+          
+          <div class="footer-btns">
+            <button class="btn-approve" onclick="submitApproval()">APPROVE & SIMPAN</button>
+            <button class="btn-reject-trigger" onclick="showRejectInput()">REJECT / TOLAK</button>
+          </div>
+
+          <div id="reject-input-box" class="reject-input-container">
+            <strong>Alasan Penolakan:</strong>
+            <textarea id="reject-reason-input" class="reject-textarea" placeholder="Tulis alasan mengapa data ditolak..."></textarea>
+            <button class="btn-send-reject" onclick="submitReject()">Kirim Penolakan</button>
+          </div>
+        </div>
+
+        <div id="action-approved" style="display:none;">
+          <label style="display:block; margin-bottom:10px; font-weight:bold; color:#28a745;">Disetujui Oleh Superintendent:</label>
+          <img id="signature-img" class="signature-display" src="" alt="Tanda Tangan">
+        </div>
+
+        <div id="action-rejected" style="display:none;" class="reject-input-container" style="display:block !important;">
+          <strong style="color:#dc3545;">Data Ditolak</strong>
+          <p id="reject-display-text" style="margin: 8px 0 0 0; color:#333;"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
+    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    let activeId = null;
+    let isDrawing = false;
+    const canvas = document.getElementById('sig-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Tanda Tangan Logic
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e.touches[0]); });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
+    canvas.addEventListener('touchend', endDraw);
+
+    function startDraw(e) { isDrawing = true; ctx.beginPath(); ctx.lineWidth = 2; ctx.moveTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); }
+    function draw(e) { if (!isDrawing) return; ctx.lineTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); ctx.stroke(); }
+    function endDraw() { isDrawing = false; }
+    function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+    // Struktur Penamaan Normal Sesuai Checklist
+    const masterStructure = [
+      { section: "1. STAND LABEL", groups: [
+        { label: "ELECTRICAL", fields: ["wiring", "komponen", "kerapihan", "sensor"], display: ["WIRING", "KOMPONEN", "KERAPIHAN", "SENSOR"] },
+        { label: "MOTION", fields: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"], display: ["TIMING BELT", "PULLY", "SERVO MOTOR", "LINEAR BEARING", "ROTARY ACTUATOR"] },
+        { label: "PNEUMATIC", fields: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"], display: ["SELENOID VALVE", "VACUUM EJECTOR", "SILINDER PNEUMATIC", "NAPPLE", "VACUUM PAD"] },
+        { label: "TAKE OUT PRODUK", fields: ["flange", "vacuum_pad_takeout"], display: ["FLANGE", "VACUUM PAD"] }
+      ]},
+      { section: "2. STACKING", groups: [
+        { label: "ELECTRICAL", fields: ["stacking_wiring", "stacking_sensor"], display: ["WIRING", "SENSOR"] },
+        { label: "MOTION", fields: ["stacking_linier", "stacking_mechanical_part"], display: ["LINIER", "MECHANICAL PART"] },
+        { label: "PNEUMATIC", fields: ["stacking_cylinder", "stacking_pneumatic"], display: ["CYLINDER", "PNEUMATIC"] }
+      ]},
+      { section: "3. CONVEYOR", groups: [
+        { label: "GENERAL", fields: ["conveyor_belt", "conveyor_motor", "conveyor_rantai", "conveyor_frame", "conveyor_inverter"], display: ["BELT", "MOTOR", "RANTAI / COUPLING", "FRAME", "INVERTER / ELECTRICAL"] }
+      ]},
+      { section: "4. DOSING", groups: [
+        { label: "GENERAL", fields: ["dosing_alarm", "dosing_setting"], display: ["CEK ALARM", "KESESUAIAN SETTING"] }
+      ]},
+      { section: "5. DUMMY", groups: [
+        { label: "GENERAL", fields: ["dummy_vacuum", "dummy_condition", "dummy_flange", "dummy_instalasi", "dummy_tubbing"], display: ["VACCUM", "KONDISI DUMMY", "FLANGE", "INSTALASI", "TUBBING"] }
+      ]}
+    ];
+
+    async function loadChecklists() {
+      const { data } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      if(data) {
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          const sClass = row.status === 'Approved' ? 'status-approved' : row.status === 'Rejected' ? 'status-rejected' : 'status-pending';
+          tr.innerHTML = `<td><strong>${row.pelaksana?.nama_pelaksana}</strong></td><td>${row.pelaksana?.tanggal_checklist}</td><td><span class="status-badge ${sClass}">${row.status}</span></td><td><button class="view-btn" onclick='openReview(${JSON.stringify(row)})'>REVIEW</button></td>`;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    function openReview(row) {
+      activeId = row.id;
+      const body = document.getElementById('modalBody');
+      body.innerHTML = '';
+      document.getElementById('infoP').innerHTML = `Pelaksana: <b>${row.pelaksana.nama_pelaksana}</b> | Tanggal: <b>${row.pelaksana.tanggal_checklist}</b>`;
+      clearSignature();
+      document.getElementById('reject-input-box').style.display = 'none';
+
+      let num = 1;
+      masterStructure.forEach(sec => {
+        const h3 = document.createElement('div'); h3.className = 'section-header'; h3.textContent = sec.section; body.appendChild(h3);
+        sec.groups.forEach(grp => {
+          const h4 = document.createElement('div'); h4.className = 'sub-section'; h4.textContent = grp.label; body.appendChild(h4);
+          const grid = document.createElement('div'); grid.className = 'review-grid';
+          grp.fields.forEach((field, idx) => {
+            const status = row[field];
+            const itemDiv = document.createElement('div'); itemDiv.className = 'review-item';
+            itemDiv.innerHTML = `<div class="item-text"><span>${num}.</span> ${grp.display[idx]}</div><div class="${status === 'OK' ? 'val-ok' : 'val-ng'}">${status}</div>`;
+            grid.appendChild(itemDiv);
+            if (status === 'NG') {
+               const ngDiv = document.createElement('div'); ngDiv.style.gridColumn = "span 2"; ngDiv.style.fontSize="0.85em"; ngDiv.style.background="#f9f9f9"; ngDiv.style.padding="8px"; ngDiv.style.marginBottom="5px";
+               ngDiv.innerHTML = `<b>Alasan NG:</b> ${row[field+'_keterangan'] || '-'}`;
+               grid.appendChild(ngDiv);
+            }
+            num++;
+          });
+          body.appendChild(grid);
+        });
+      });
+
+      // Kontrol Footer Berdasarkan Status
+      document.getElementById('action-pending').style.display = (row.status === 'Pending') ? 'block' : 'none';
+      document.getElementById('action-approved').style.display = (row.status === 'Approved') ? 'block' : 'none';
+      document.getElementById('action-rejected').style.display = (row.status === 'Rejected') ? 'block' : 'none';
+
+      if (row.status === 'Approved') document.getElementById('signature-img').src = row.signature || '';
+      if (row.status === 'Rejected') document.getElementById('reject-display-text').textContent = row.reject_reason || '-';
+
+      document.getElementById('reviewModal').style.display = 'block';
+    }
+
+    function showRejectInput() { document.getElementById('reject-input-box').style.display = 'block'; }
+
+    async function submitReject() {
+      const r = document.getElementById('reject-reason-input').value.trim();
+      if (!r) { alert('Harap isi alasan penolakan!'); return; }
+      const { error } = await _supabase.from('checklist').update({ status: 'Rejected', reject_reason: r }).eq('id', activeId);
+      if(!error) { alert('Berhasil Menolak Data'); closeModal(); loadChecklists(); }
+    }
+
+    async function submitApproval() {
+      const sigData = canvas.toDataURL(); 
+      const { error } = await _supabase.from('checklist').update({ 
+        status: 'Approved', 
+        approved_at: new Date().toISOString(),
+        signature: sigData 
+      }).eq('id', activeId);
+      if (!error) { alert('Checklist Berhasil Disetujui!'); closeModal(); loadChecklists(); }
+    }
+
+    function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
+    loadChecklists();
+  </script>
 </body>
 </html>
