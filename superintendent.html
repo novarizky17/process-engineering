@@ -1,444 +1,249 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Final - AF.SP 05.08.Rev-00</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        /* ====================== BASE & LAYOUT ====================== */
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #525659;
-            margin: 0;
-            padding: 20px;
-            color: #000;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Superintendent - Approval & Signature</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }
+    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.2em; font-weight: bold; }
+    
+    /* Tombol Dashboard sesuai permintaan */
+    .nav-link { color: white; text-decoration: none; font-weight: bold; background: #004085; padding: 8px 15px; border-radius: 6px; transition: 0.3s; }
+    .nav-link:hover { background: #0056b3; }
+    
+    .main-content { padding: 20px; max-width: 1200px; margin: 0 auto; }
+    .table-container { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+    th { background-color: #f8f9fa; color: #555; font-size: 0.85em; text-transform: uppercase; }
 
-        .no-print {
-            max-width: 900px;
-            margin: 0 auto 20px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
+    .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
+    .status-pending { background-color: #fff3cd; color: #856404; }
+    .status-approved { background-color: #d4edda; color: #155724; }
+    .status-rejected { background-color: #f8d7da; color: #721c24; }
+    .view-btn { background-color: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
-        .filter-group {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr auto;
-            gap: 12px;
-            align-items: end;
-        }
+    /* Modal Review */
+    .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
+    .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 900px; }
+    .close-modal { float: right; font-size: 28px; cursor: pointer; font-weight: bold; }
+    
+    /* Layout Checklist Bersih Tanpa Teks Tambahan */
+    .section-header { background: #f1f3f5; padding: 10px 15px; margin: 20px 0 10px 0; font-weight: bold; color: #003366; border-bottom: 2px solid #003366; }
+    .sub-section { color: #155724; font-weight: bold; font-size: 0.95em; margin: 15px 0 8px 5px; text-transform: uppercase; }
+    .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .review-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border: 1px solid #dee2e6; border-radius: 4px; background: #fff; }
+    .val-ok { color: #28a745; font-weight: bold; }
+    .val-ng { color: #dc3545; font-weight: bold; }
 
-        .filter-group label {
-            display: block;
-            font-size: 11px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
+    /* Signature & Reject Area */
+    .approval-box { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; text-align: center; }
+    .signature-pad { border: 2px dashed #ccc; background: #fafafa; border-radius: 8px; cursor: crosshair; touch-action: none; }
+    .signature-display { border: 1px solid #eee; background: #fff; border-radius: 8px; max-width: 300px; margin: 10px auto; display: block; }
+    
+    /* Reject Input Box Langsung di Modal */
+    .reject-input-container { display: none; margin-top: 15px; background: #fff1f0; padding: 15px; border-radius: 8px; border: 1px solid #ffa39e; text-align: left; }
+    .reject-textarea { width: 100%; height: 80px; padding: 10px; border-radius: 6px; border: 1px solid #dc3545; box-sizing: border-box; margin-top: 8px; font-family: inherit; resize: none; }
 
-        select, button {
-            padding: 8px 10px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        select { width: 100%; border: 1px solid #ccc; }
-        .btn-view { background: #003366; color: white; border: none; cursor: pointer; font-weight: bold; }
-        .btn-print { background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
-        .btn-view:hover { background: #002244; }
-        .btn-print:hover { background: #218838; }
-
-        /* ====================== REPORT PAGE (A4 LANDSCAPE) ====================== */
-        .page {
-            width: 297mm;
-            min-height: 210mm;
-            padding: 10mm 12mm;
-            margin: 20px auto;
-            background: white;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5);
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        td, th {
-            border: 1px solid black;
-            padding: 4px 6px;
-            font-size: 9.5px;
-            line-height: 1.3;
-            vertical-align: middle;
-            word-wrap: break-word;
-        }
-
-        /* Header */
-        .logo-box { width: 70px; text-align: center; }
-        .title-box { text-align: center; font-size: 13px; font-weight: bold; }
-        .meta-text { font-size: 8.5px; text-align: left; }
-
-        /* Info Mesin */
-        .label-bg { background-color: #f0f0f0; font-weight: bold; width: 18%; text-align: center; }
-        .value-center { text-align: center; }
-
-        /* Checklist Table */
-        .th-bg { background-color: #d9d9d9; text-align: center; font-weight: bold; height: 28px; }
-        /* ITEM CHECK KATEGORI RAPAT KIRI */
-        .cat-bg { 
-            background-color: #ececec; 
-            font-weight: bold; 
-            font-size: 10.5px; 
-            text-align: left; 
-            padding-left: 12px; 
-        }
-        .center { text-align: center; }
-
-        /* Kolom Lebar */
-        #content-body th:nth-child(1), #content-body td:nth-child(1) { width: 5%; }   /* NO */
-        #content-body th:nth-child(2), #content-body td:nth-child(2) { width: 18%; }  /* ITEM */
-        #content-body th:nth-child(3), #content-body td:nth-child(3) { width: 20%; }  /* STANDARD */
-        #content-body th:nth-child(4), #content-body td:nth-child(4) { width: 6%; }   /* P1 */
-        #content-body th:nth-child(5), #content-body td:nth-child(5) { width: 6%; }   /* P2 */
-        #content-body th:nth-child(6), #content-body td:nth-child(6) { width: 45%; }  /* KETERANGAN */
-
-        /* Note */
-        .note-footer {
-            font-size: 8.5px;
-            margin-top: 8px;
-            border: 1px solid black;
-            padding: 8px;
-            line-height: 1.4;
-            text-align: justify;
-        }
-
-        /* Approval */
-        .approval-table { margin-top: 12px; width: 100%; }
-        .approval-table td {
-            height: 100px;
-            vertical-align: top;
-            text-align: center;
-            font-size: 10px;
-            padding: 10px;
-        }
-
-        .approval-title {
-            font-weight: bold;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .sig-container {
-            height: 55px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            margin: 8px 0;
-        }
-
-        .sig-img {
-            max-height: 55px;
-            max-width: 140px;
-            object-fit: contain;
-            mix-blend-mode: multiply;
-        }
-
-        .name-under {
-            font-weight: bold;
-            text-decoration: underline;
-            display: block;
-            margin-top: 4px;
-        }
-
-        #empty-state {
-            text-align: center;
-            color: white;
-            padding: 100px 20px;
-        }
-
-        /* ====================== PRINT STYLES ====================== */
-        @media print {
-            @page {
-                size: A4 landscape;
-                margin: 0;
-            }
-            body { background: none; padding: 0; margin: 0; }
-            .no-print, #empty-state { display: none !important; }
-            .page {
-                margin: 0;
-                padding: 10mm 12mm;
-                box-shadow: none;
-                width: 100%;
-                height: auto;
-            }
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                color-adjust: exact !important;
-            }
-            .sig-img { filter: contrast(1.4) brightness(1.1); }
-        }
-    </style>
+    .footer-btns { margin-top: 20px; display: flex; gap: 15px; }
+    .btn-approve { flex: 1; background: #28a745; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-reject-trigger { flex: 1; background: #dc3545; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    .btn-send-reject { background: #dc3545; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; width: 100%; }
+    .btn-clear { background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 5px; font-size: 0.8em; }
+  </style>
 </head>
 <body>
 
-    <!-- FILTER AREA -->
-    <div class="no-print">
-        <div class="filter-group">
-            <div>
-                <label>PILIH MESIN</label>
-                <select id="f-mesin">
-                    <option value="">-- Memuat Mesin... --</option>
-                </select>
-            </div>
-            <div>
-                <label>BULAN</label>
-                <select id="f-bulan">
-                    <option value="1">Januari</option>
-                    <option value="2">Februari</option>
-                    <option value="3">Maret</option>
-                    <option value="4">April</option>
-                    <option value="5">Mei</option>
-                    <option value="6">Juni</option>
-                    <option value="7">Juli</option>
-                    <option value="8">Agustus</option>
-                    <option value="9">September</option>
-                    <option value="10">Oktober</option>
-                    <option value="11">November</option>
-                    <option value="12" selected>Desember</option>
-                </select>
-            </div>
-            <div>
-                <label>TAHUN</label>
-                <select id="f-tahun">
-                    <option value="2024">2024</option>
-                    <option value="2025" selected>2025</option>
-                    <option value="2026">2026</option>
-                </select>
-            </div>
-            <div style="display:flex; gap:8px;">
-                <button class="btn-view" onclick="searchReport()">TAMPILKAN</button>
-                <button class="btn-print" onclick="window.print()">CETAK PDF</button>
-            </div>
-        </div>
+  <header>
+    <div class="logo">TOOLING SUPPORT - SUPERINTENDENT</div>
+    <a href="dashboard.html" class="nav-link">Dashboard</a>
+  </header>
+
+  <div class="main-content">
+    <h1>Approval Monitoring</h1>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Pelaksana</th>
+            <th>Tanggal</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr>
+        </tbody>
+      </table>
     </div>
+  </div>
 
-    <!-- REPORT CONTENT -->
-    <div class="page" id="report-view" style="display:none;">
-        <!-- Header -->
-        <table>
-            <tr>
-                <td rowspan="4" class="logo-box">
-                    <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" width="60" alt="Logo">
-                </td>
-                <td rowspan="4" class="title-box">PREVENTIF ROBOT & STAND LABEL BULANAN</td>
-                <td class="meta-text">No. Dokumen</td>
-                <td class="meta-text">: AF.SP 05.08.Rev-00</td>
-            </tr>
-            <tr><td class="meta-text">Tanggal Terbit</td><td class="meta-text">: 02 Agustus 2024</td></tr>
-            <tr><td class="meta-text">Halaman</td><td class="meta-text">: 1/1</td></tr>
-            <tr><td class="meta-text">Tanggal Revisi</td><td class="meta-text">: -</td></tr>
-        </table>
+  <div id="reviewModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <h2 style="margin:0; color:#003366;">Review & Approval</h2>
+      <p id="infoP" style="color:#666; margin-bottom:20px; border-bottom: 1px solid #eee; padding-bottom: 10px;"></p>
+      
+      <div id="modalBody"></div>
 
-        <div style="height:12px;"></div>
+      <div class="approval-box">
+        <div id="action-pending" style="display:none;">
+          <label style="display:block; margin-bottom:10px; font-weight:bold;">Tanda Tangan Superintendent:</label>
+          <canvas id="sig-canvas" class="signature-pad" width="400" height="150"></canvas>
+          <br>
+          <button class="btn-clear" onclick="clearSignature()">Hapus Tanda Tangan</button>
+          
+          <div class="footer-btns">
+            <button class="btn-approve" onclick="submitApproval()">APPROVE & SIMPAN</button>
+            <button class="btn-reject-trigger" onclick="showRejectInput()">REJECT / TOLAK</button>
+          </div>
 
-        <!-- Info Mesin -->
-        <table>
-            <tr>
-                <td class="label-bg">MERK MESIN</td>
-                <td id="m-merk" class="value-center">: </td>
-                <td class="label-bg">TARGET SELESAI</td>
-                <td class="value-center">: </td>
-            </tr>
-            <tr>
-                <td class="label-bg">TONAGE</td>
-                <td id="m-tonage" class="value-center">: </td>
-                <td class="label-bg">START JAM</td>
-                <td class="value-center">: </td>
-            </tr>
-            <tr>
-                <td class="label-bg">TANGGAL</td>
-                <td id="m-tgl" class="value-center">: </td>
-                <td class="label-bg">FINISH JAM</td>
-                <td class="value-center">: </td>
-            </tr>
-            <tr>
-                <td class="label-bg">TAHUN</td>
-                <td id="m-thn" class="value-center">: </td>
-                <td class="label-bg">RUNNING HOURS</td>
-                <td class="value-center">: </td>
-            </tr>
-        </table>
-
-        <div style="height:12px;"></div>
-
-        <!-- Checklist Table -->
-        <div style="flex-grow:1;">
-            <table>
-                <thead>
-                    <tr class="th-bg">
-                        <th>NO</th>
-                        <th>ITEM</th>
-                        <th>STANDARD</th>
-                        <th>P1</th>
-                        <th>P2</th>
-                        <th>KETERANGAN SPAREPART</th>
-                    </tr>
-                </thead>
-                <tbody id="content-body"></tbody>
-            </table>
+          <div id="reject-input-box" class="reject-input-container">
+            <strong>Alasan Penolakan:</strong>
+            <textarea id="reject-reason-input" class="reject-textarea" placeholder="Tulis alasan mengapa data ditolak..."></textarea>
+            <button class="btn-send-reject" onclick="submitReject()">Kirim Penolakan</button>
+          </div>
         </div>
 
-        <!-- Note -->
-        <div class="note-footer">
-            <b>Note :</b> P1 = Pelaksana (Teknisi) | P2 = Verifikasi (Kasie/Kabag) | OK = Sesuai (✓) | NG = Bermasalah (Lihat Keterangan)
+        <div id="action-approved" style="display:none;">
+          <label style="display:block; margin-bottom:10px; font-weight:bold; color:#28a745;">Disetujui Oleh Superintendent:</label>
+          <img id="signature-img" class="signature-display" src="" alt="Tanda Tangan">
         </div>
 
-        <!-- Approval -->
-        <table class="approval-table">
-            <tr>
-                <td>
-                    <span class="approval-title">Dibuat Oleh (P1)</span>
-                    <div class="sig-container"><img id="s1" class="sig-img" style="display:none;"></div>
-                    <span id="n1" class="name-under"></span>
-                </td>
-                <td>
-                    <span class="approval-title">Diperiksa Oleh (P2)</span>
-                    <div class="sig-container"><img id="s2" class="sig-img" style="display:none;"></div>
-                    <span id="n2" class="name-under"></span>
-                </td>
-                <td>
-                    <span class="approval-title">Disetujui Oleh</span>
-                    <div class="sig-container"><img id="s3" class="sig-img" style="display:none;"></div>
-                    <span id="n3" class="name-under"></span>
-                </td>
-            </tr>
-        </table>
+        <div id="action-rejected" style="display:none;" class="reject-input-container" style="display:block !important;">
+          <strong style="color:#dc3545;">Data Ditolak</strong>
+          <p id="reject-display-text" style="margin: 8px 0 0 0; color:#333;"></p>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div id="empty-state">
-        <h3>Sistem Laporan Digital PT AKG</h3>
-        <p>Gunakan filter di atas untuk menampilkan laporan.</p>
-    </div>
+  <script>
+    const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
+    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    <script>
-        const SB_URL = "https://dsyvlavphvrdidmodokd.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzeXZsYXZwaHZyZGlkbW9kb2tkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYyNzI5NjMsImV4cCI6MjA4MTg0ODk2M30.mLmyZMUPtCaQl5Vck-Y7nImDFQuVWN_Mk6PrE-miP2E";
-        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+    let activeId = null;
+    let isDrawing = false;
+    const canvas = document.getElementById('sig-canvas');
+    const ctx = canvas.getContext('2d');
 
-        async function loadFilter() {
-            const { data, error } = await supabaseClient
-                .from('prslb_mesin')
-                .select('id, qr_code_id')
-                .order('qr_code_id');
+    // Tanda Tangan Logic
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e.touches[0]); });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
+    canvas.addEventListener('touchend', endDraw);
 
-            const select = document.getElementById('f-mesin');
-            select.innerHTML = '<option value="">-- Pilih Mesin --</option>';
+    function startDraw(e) { isDrawing = true; ctx.beginPath(); ctx.lineWidth = 2; ctx.moveTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); }
+    function draw(e) { if (!isDrawing) return; ctx.lineTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); ctx.stroke(); }
+    function endDraw() { isDrawing = false; }
+    function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-            if (error || !data) {
-                select.innerHTML += '<option value="">Gagal memuat mesin</option>';
-                return;
+    // Struktur Penamaan Normal Sesuai Checklist
+    const masterStructure = [
+      { section: "1. STAND LABEL", groups: [
+        { label: "ELECTRICAL", fields: ["wiring", "komponen", "kerapihan", "sensor"], display: ["WIRING", "KOMPONEN", "KERAPIHAN", "SENSOR"] },
+        { label: "MOTION", fields: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"], display: ["TIMING BELT", "PULLY", "SERVO MOTOR", "LINEAR BEARING", "ROTARY ACTUATOR"] },
+        { label: "PNEUMATIC", fields: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"], display: ["SELENOID VALVE", "VACUUM EJECTOR", "SILINDER PNEUMATIC", "NAPPLE", "VACUUM PAD"] },
+        { label: "TAKE OUT PRODUK", fields: ["flange", "vacuum_pad_takeout"], display: ["FLANGE", "VACUUM PAD"] }
+      ]},
+      { section: "2. STACKING", groups: [
+        { label: "ELECTRICAL", fields: ["stacking_wiring", "stacking_sensor"], display: ["WIRING", "SENSOR"] },
+        { label: "MOTION", fields: ["stacking_linier", "stacking_mechanical_part"], display: ["LINIER", "MECHANICAL PART"] },
+        { label: "PNEUMATIC", fields: ["stacking_cylinder", "stacking_pneumatic"], display: ["CYLINDER", "PNEUMATIC"] }
+      ]},
+      { section: "3. CONVEYOR", groups: [
+        { label: "GENERAL", fields: ["conveyor_belt", "conveyor_motor", "conveyor_rantai", "conveyor_frame", "conveyor_inverter"], display: ["BELT", "MOTOR", "RANTAI / COUPLING", "FRAME", "INVERTER / ELECTRICAL"] }
+      ]},
+      { section: "4. DOSING", groups: [
+        { label: "GENERAL", fields: ["dosing_alarm", "dosing_setting"], display: ["CEK ALARM", "KESESUAIAN SETTING"] }
+      ]},
+      { section: "5. DUMMY", groups: [
+        { label: "GENERAL", fields: ["dummy_vacuum", "dummy_condition", "dummy_flange", "dummy_instalasi", "dummy_tubbing"], display: ["VACCUM", "KONDISI DUMMY", "FLANGE", "INSTALASI", "TUBBING"] }
+      ]}
+    ];
+
+    async function loadChecklists() {
+      const { data } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      if(data) {
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          const sClass = row.status === 'Approved' ? 'status-approved' : row.status === 'Rejected' ? 'status-rejected' : 'status-pending';
+          tr.innerHTML = `<td><strong>${row.pelaksana?.nama_pelaksana}</strong></td><td>${row.pelaksana?.tanggal_checklist}</td><td><span class="status-badge ${sClass}">${row.status}</span></td><td><button class="view-btn" onclick='openReview(${JSON.stringify(row)})'>REVIEW</button></td>`;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    function openReview(row) {
+      activeId = row.id;
+      const body = document.getElementById('modalBody');
+      body.innerHTML = '';
+      document.getElementById('infoP').innerHTML = `Pelaksana: <b>${row.pelaksana.nama_pelaksana}</b> | Tanggal: <b>${row.pelaksana.tanggal_checklist}</b>`;
+      clearSignature();
+      document.getElementById('reject-input-box').style.display = 'none';
+
+      let num = 1;
+      masterStructure.forEach(sec => {
+        const h3 = document.createElement('div'); h3.className = 'section-header'; h3.textContent = sec.section; body.appendChild(h3);
+        sec.groups.forEach(grp => {
+          const h4 = document.createElement('div'); h4.className = 'sub-section'; h4.textContent = grp.label; body.appendChild(h4);
+          const grid = document.createElement('div'); grid.className = 'review-grid';
+          grp.fields.forEach((field, idx) => {
+            const status = row[field];
+            const itemDiv = document.createElement('div'); itemDiv.className = 'review-item';
+            itemDiv.innerHTML = `<div class="item-text"><span>${num}.</span> ${grp.display[idx]}</div><div class="${status === 'OK' ? 'val-ok' : 'val-ng'}">${status}</div>`;
+            grid.appendChild(itemDiv);
+            if (status === 'NG') {
+               const ngDiv = document.createElement('div'); ngDiv.style.gridColumn = "span 2"; ngDiv.style.fontSize="0.85em"; ngDiv.style.background="#f9f9f9"; ngDiv.style.padding="8px"; ngDiv.style.marginBottom="5px";
+               ngDiv.innerHTML = `<b>Alasan NG:</b> ${row[field+'_keterangan'] || '-'}`;
+               grid.appendChild(ngDiv);
             }
+            num++;
+          });
+          body.appendChild(grid);
+        });
+      });
 
-            data.forEach(m => {
-                select.innerHTML += `<option value="${m.id}">${m.qr_code_id}</option>`;
-            });
-        }
+      // Kontrol Footer Berdasarkan Status
+      document.getElementById('action-pending').style.display = (row.status === 'Pending') ? 'block' : 'none';
+      document.getElementById('action-approved').style.display = (row.status === 'Approved') ? 'block' : 'none';
+      document.getElementById('action-rejected').style.display = (row.status === 'Rejected') ? 'block' : 'none';
 
-        async function searchReport() {
-            const mesinId = document.getElementById('f-mesin').value;
-            const bulan = document.getElementById('f-bulan').value.padStart(2, '0');
-            const tahun = document.getElementById('f-tahun').value;
+      if (row.status === 'Approved') document.getElementById('signature-img').src = row.signature || '';
+      if (row.status === 'Rejected') document.getElementById('reject-display-text').textContent = row.reject_reason || '-';
 
-            if (!mesinId) {
-                alert("Silakan pilih mesin terlebih dahulu!");
-                return;
-            }
+      document.getElementById('reviewModal').style.display = 'block';
+    }
 
-            const lastDay = new Date(tahun, bulan, 0).getDate();
-            const start = `${tahun}-${bulan}-01T00:00:00`;
-            const end   = `${tahun}-${bulan}-${lastDay}T23:59:59`;
+    function showRejectInput() { document.getElementById('reject-input-box').style.display = 'block'; }
 
-            const { data: logs, error } = await supabaseClient
-                .from('prslb_log')
-                .select('*, prslb_mesin(*), prslb_result(*, prslb_items(*))')
-                .eq('mesin_id', mesinId)
-                .gte('created_at', start)
-                .lte('created_at', end)
-                .order('created_at', { ascending: false })
-                .limit(1);
+    async function submitReject() {
+      const r = document.getElementById('reject-reason-input').value.trim();
+      if (!r) { alert('Harap isi alasan penolakan!'); return; }
+      const { error } = await _supabase.from('checklist').update({ status: 'Rejected', reject_reason: r }).eq('id', activeId);
+      if(!error) { alert('Berhasil Menolak Data'); closeModal(); loadChecklists(); }
+    }
 
-            if (error || !logs || logs.length === 0) {
-                alert("Data laporan tidak ditemukan untuk periode ini.");
-                return;
-            }
+    async function submitApproval() {
+      const sigData = canvas.toDataURL(); 
+      const { error } = await _supabase.from('checklist').update({ 
+        status: 'Approved', 
+        approved_at: new Date().toISOString(),
+        signature: sigData 
+      }).eq('id', activeId);
+      if (!error) { alert('Checklist Berhasil Disetujui!'); closeModal(); loadChecklists(); }
+    }
 
-            renderReport(logs[0]);
-        }
-
-        function renderReport(log) {
-            const d = new Date(log.created_at);
-
-            document.getElementById('m-merk').innerHTML   = ": " + (log.prslb_mesin?.merk_mesin || "-");
-            document.getElementById('m-tonage').innerHTML = ": " + (log.prslb_mesin?.tonage || "-");
-            document.getElementById('m-tgl').innerHTML    = ": " + d.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-            document.getElementById('m-thn').innerHTML    = ": " + d.getFullYear();
-
-            const body = document.getElementById('content-body');
-            body.innerHTML = "";
-            let currentCat = "";
-            let no = 1;
-
-            const results = [...log.prslb_result].sort((a, b) => 
-                a.prslb_items.sort_order - b.prslb_items.sort_order
-            );
-
-            results.forEach(r => {
-                const item = r.prslb_items;
-                if (item.kategori !== currentCat) {
-                    currentCat = item.kategori;
-                    body.innerHTML += `<tr class="cat-bg"><td colspan="6">ITEM CHECK ${currentCat}</td></tr>`;
-                }
-
-                body.innerHTML += `
-                    <tr>
-                        <td class="center">${no++}</td>
-                        <td>${item.item_name}</td>
-                        <td>${item.standard || ""}</td>
-                        <td class="center">${r.status === 'OK' ? '✓' : 'NG'}</td>
-                        <td class="center">${log.status_verifikasi ? '✓' : ''}</td>
-                        <td>${r.keterangan || ""}</td>
-                    </tr>`;
-            });
-
-            const showSig = (imgEl, url) => {
-                if (url) {
-                    imgEl.src = url;
-                    imgEl.style.display = 'block';
-                } else {
-                    imgEl.style.display = 'none';
-                }
-            };
-
-            showSig(document.getElementById('s1'), log.signature_pelaksana);
-            showSig(document.getElementById('s2'), log.signature_koordinator);
-            showSig(document.getElementById('s3'), log.signature_superintendent);
-
-            document.getElementById('n1').innerText = log.pelaksana_nama || "";
-            document.getElementById('n2').innerText = log.koordinator_nama || "(....................)";
-            document.getElementById('n3').innerText = log.superintendent_nama || "(....................)";
-
-            document.getElementById('empty-state').style.display = 'none';
-            document.getElementById('report-view').style.display = 'block';
-        }
-
-        window.onload = loadFilter;
-    </script>
+    function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
+    loadChecklists();
+  </script>
 </body>
 </html>
