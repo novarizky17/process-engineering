@@ -7,13 +7,13 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }
-    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
     .logo { font-size: 1.2em; font-weight: bold; }
     .nav-link { color: white; text-decoration: none; font-weight: bold; background: #004085; padding: 8px 15px; border-radius: 6px; transition: 0.3s; }
     .nav-link:hover { background: #0056b3; }
     
     .main-content { padding: 20px; max-width: 1200px; margin: 0 auto; }
-    .table-container { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow-x: auto; }
+    .table-container { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden; margin-top: 20px; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
     th { background-color: #f8f9fa; color: #555; font-size: 0.85em; text-transform: uppercase; }
@@ -22,31 +22,38 @@
     .status-pending { background-color: #fff3cd; color: #856404; }
     .status-approved { background-color: #d4edda; color: #155724; }
     .status-rejected { background-color: #f8d7da; color: #721c24; }
+    
     .view-btn { background-color: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .view-btn:hover { opacity: 0.9; }
 
+    /* Modal Styling */
     .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
     .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 900px; }
-    .close-modal { float: right; font-size: 28px; cursor: pointer; font-weight: bold; }
+    .close-modal { float: right; font-size: 28px; cursor: pointer; font-weight: bold; color: #aaa; }
+    .close-modal:hover { color: #000; }
     
-    .section-header { background: #f1f3f5; padding: 10px 15px; margin: 20px 0 10px 0; font-weight: bold; color: #003366; border-bottom: 2px solid #003366; }
-    .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .review-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border: 1px solid #dee2e6; border-radius: 4px; background: #fff; }
-    .val-ok { color: #28a745; font-weight: bold; }
-    .val-ng { color: #dc3545; font-weight: bold; }
+    .section-header { background: #003366; padding: 10px 15px; margin: 20px 0 10px 0; font-weight: bold; color: #fff; border-radius: 4px; }
+    .review-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+    .review-item { padding: 10px; border: 1px solid #eee; border-radius: 6px; background: #fff; display: flex; flex-direction: column; }
+    .item-top { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 4px; }
+    .val-ok { color: #28a745; }
+    .val-ng { color: #dc3545; }
+    .item-ket { font-size: 0.8em; color: #666; font-style: italic; border-top: 1px dashed #ddd; padding-top: 4px; }
 
-    .approval-box { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; text-align: center; }
-    .signature-pad { border: 2px dashed #ccc; background: #fafafa; border-radius: 8px; cursor: crosshair; }
+    .signature-pad { border: 2px dashed #003366; background: #fafafa; border-radius: 8px; cursor: crosshair; touch-action: none; width: 100%; max-width: 400px; display: block; margin: 10px auto; }
     .signature-display { border: 1px solid #eee; background: #fff; border-radius: 8px; max-width: 300px; margin: 10px auto; display: block; }
     
-    .reject-input-container { display: none; margin-top: 15px; background: #fff1f0; padding: 15px; border-radius: 8px; border: 1px solid #ffa39e; text-align: left; }
-    .reject-textarea { width: 100%; height: 80px; padding: 10px; border-radius: 6px; border: 1px solid #dc3545; box-sizing: border-box; resize: none; }
+    .reject-input-container { display: none; margin-top: 15px; background: #fff1f0; padding: 15px; border-radius: 8px; border: 1px solid #ffa39e; }
+    .reject-textarea { width: 100%; height: 80px; padding: 10px; border-radius: 6px; border: 1px solid #dc3545; box-sizing: border-box; resize: none; margin-top: 5px; }
+    
+    .footer-actions { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; text-align: center; }
   </style>
 </head>
 <body>
 
   <header>
     <div class="logo">TOOLING SUPPORT - SUPERINTENDENT</div>
-    <a href="dashboard.html" class="nav-link">Dashboard</a>
+    <a href="index.html" class="nav-link">Log Out</a>
   </header>
 
   <div class="main-content">
@@ -72,36 +79,41 @@
   <div id="reviewModal" class="modal">
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal()">&times;</span>
-      <h2 style="margin:0; color:#003366;">Review & Approval</h2>
+      <h2 style="margin:0; color:#003366;">Review Checklist</h2>
       <p id="infoP" style="color:#666; margin-bottom:20px; border-bottom: 1px solid #eee; padding-bottom: 10px;"></p>
       
-      <div id="modalBody"></div>
+      <div id="modalBody">
+        </div>
 
-      <div class="approval-box">
+      <div class="footer-actions">
         <div id="action-pending" style="display:none;">
-          <label style="display:block; margin-bottom:10px; font-weight:bold;">Tanda Tangan Superintendent:</label>
+          <label style="font-weight:bold;">Tanda Tangan Superintendent:</label>
           <canvas id="sig-canvas" class="signature-pad" width="400" height="150"></canvas>
-          <br>
-          <button onclick="clearSignature()">Hapus</button>
-          <div style="margin-top:20px;">
-            <button class="view-btn" style="background:#28a745;" onclick="submitApproval()">APPROVE</button>
-            <button class="view-btn" style="background:#dc3545;" onclick="showRejectInput()">REJECT</button>
+          <button onclick="clearSignature()" style="background:#6c757d; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Hapus</button>
+          
+          <div style="margin-top:20px; display: flex; gap: 10px; justify-content: center;">
+            <button class="view-btn" style="background:#28a745; padding: 12px 30px;" onclick="submitApproval()">APPROVE</button>
+            <button class="view-btn" style="background:#dc3545; padding: 12px 30px;" onclick="showRejectInput()">REJECT</button>
           </div>
+
           <div id="reject-input-box" class="reject-input-container">
             <strong>Alasan Penolakan:</strong>
-            <textarea id="reject-reason-input" class="reject-textarea"></textarea>
+            <textarea id="reject-reason-input" class="reject-textarea" placeholder="Tulis alasan kenapa checklist ditolak..."></textarea>
             <button class="view-btn" style="background:#dc3545; width:100%; margin-top:10px;" onclick="submitReject()">Kirim Penolakan</button>
           </div>
         </div>
 
         <div id="action-approved" style="display:none;">
-          <label style="color:#28a745; font-weight:bold;">Telah Disetujui:</label>
+          <strong style="color:#28a745; font-size: 1.2em;">✓ TELAH DISETUJUI</strong>
           <img id="signature-img" class="signature-display" src="">
+          <p id="approved-date" style="font-size: 0.8em; color: #666;"></p>
         </div>
 
         <div id="action-rejected" style="display:none;">
-          <strong style="color:#dc3545;">Data Ditolak:</strong>
-          <p id="reject-display-text"></p>
+          <strong style="color:#dc3545; font-size: 1.2em;">✘ DATA DITOLAK</strong>
+          <div style="background: #fff1f0; border: 1px solid #ffa39e; padding: 10px; border-radius: 8px; margin-top: 10px;">
+            <strong>Alasan:</strong> <span id="reject-display-text"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -117,18 +129,40 @@
     const canvas = document.getElementById('sig-canvas');
     const ctx = canvas.getContext('2d');
 
-    canvas.addEventListener('mousedown', () => isDrawing = true);
-    canvas.addEventListener('mouseup', () => isDrawing = false);
-    canvas.addEventListener('mousemove', (e) => {
-        if (!isDrawing) return;
-        ctx.lineTo(e.offsetX, e.offsetY);
-        ctx.stroke();
-    });
-    ctx.lineWidth = 2;
-    function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.beginPath(); }
+    // Logic Tanda Tangan
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: (e.clientX || e.touches[0].clientX) - rect.left,
+        y: (e.clientY || e.touches[0].clientY) - rect.top
+      };
+    }
 
+    function startDrawing(e) { isDrawing = true; ctx.beginPath(); const pos = getPos(e); ctx.moveTo(pos.x, pos.y); }
+    function draw(e) { 
+      if (!isDrawing) return; 
+      e.preventDefault();
+      const pos = getPos(e); 
+      ctx.lineTo(pos.x, pos.y); 
+      ctx.stroke(); 
+    }
+    function stopDrawing() { isDrawing = false; }
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('touchstart', startDrawing);
+    canvas.addEventListener('touchmove', draw);
+    canvas.addEventListener('touchend', stopDrawing);
+
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#000';
+
+    function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+    // Load Data Checklist
     async function loadChecklists() {
-      // Mengambil data checklist beserta data pelaksana (JOIN)
       const { data, error } = await _supabase
         .from('checklist')
         .select('*, pelaksana(*)')
@@ -140,7 +174,7 @@
       tbody.innerHTML = '';
       
       if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data checklist yang masuk.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data checklist.</td></tr>';
         return;
       }
 
@@ -148,7 +182,7 @@
         const tr = document.createElement('tr');
         const sClass = row.status === 'Approved' ? 'status-approved' : row.status === 'Rejected' ? 'status-rejected' : 'status-pending';
         tr.innerHTML = `
-          <td><strong>${row.pelaksana?.nama_pelaksana || 'Unknown'}</strong></td>
+          <td><strong>${row.pelaksana?.nama_pelaksana || 'N/A'}</strong></td>
           <td>${row.pelaksana?.merk_mesin || '-'} / ${row.pelaksana?.tonage || '-'}</td>
           <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
           <td><span class="status-badge ${sClass}">${row.status}</span></td>
@@ -162,18 +196,64 @@
       activeId = row.id;
       document.getElementById('infoP').innerHTML = `Pelaksana: <b>${row.pelaksana?.nama_pelaksana}</b> | Mesin: <b>${row.pelaksana?.merk_mesin}</b> | Tanggal: <b>${row.pelaksana?.tanggal_checklist}</b>`;
       
-      // Render detail data checklist (pilih kolom yang relevan)
       const modalBody = document.getElementById('modalBody');
-      modalBody.innerHTML = '<div class="section-header">DATA DETAIL</div><p>Fitur review detail sedang memuat data dari kolom database...</p>';
+      modalBody.innerHTML = '';
 
+      const items = [
+        'wiring', 'komponen', 'kerapihan', 'sensor', 'timing_belt', 'pully', 'servo_motor', 
+        'linear_bearing', 'rotary_actuator', 'selenoid_valve', 'vacuum_ejector', 
+        'silinder_pneumatic', 'napple', 'vacuum_pad', 'flange', 'vacuum_pad_takeout',
+        'stacking_wiring', 'stacking_sensor', 'stacking_linier', 'stacking_mechanical_part', 
+        'stacking_cylinder', 'stacking_pneumatic', 'conveyor_belt', 'conveyor_motor', 
+        'conveyor_rantai', 'conveyor_frame', 'conveyor_inverter', 'dosing_alarm', 
+        'dosing_setting', 'dummy_vacuum', 'dummy_condition', 'dummy_flange', 
+        'dummy_instalasi', 'dummy_tubbing'
+      ];
+
+      let htmlContent = '<div class="section-header">DETAIL HASIL INSPEKSI</div><div class="review-grid">';
+      
+      items.forEach(item => {
+        const status = row[item];
+        const ket = row[`${item}_keterangan`];
+        const sClass = status === 'OK' ? 'val-ok' : 'val-ng';
+        const label = item.toUpperCase().replace(/_/g, ' ');
+
+        htmlContent += `
+          <div class="review-item">
+            <div class="item-top">
+              <span>${label}</span>
+              <span class="${sClass}">${status || '-'}</span>
+            </div>
+            ${status === 'NG' ? `<div class="item-ket">Ket: ${ket || 'Tidak ada keterangan'}</div>` : ''}
+          </div>
+        `;
+      });
+      htmlContent += '</div>';
+
+      // Tampilkan Tanda Tangan Pelaksana
+      if (row.signature_pelaksana) {
+        htmlContent += `
+          <div class="section-header">TANDA TANGAN PELAKSANA</div>
+          <div style="text-align:center;"><img src="${row.signature_pelaksana}" style="max-width:200px; border:1px solid #eee;"></div>
+        `;
+      }
+
+      modalBody.innerHTML = htmlContent;
+
+      // Atur Visibilitas Tombol Berdasarkan Status
       document.getElementById('action-pending').style.display = (row.status === 'Pending') ? 'block' : 'none';
       document.getElementById('action-approved').style.display = (row.status === 'Approved') ? 'block' : 'none';
       document.getElementById('action-rejected').style.display = (row.status === 'Rejected') ? 'block' : 'none';
+      document.getElementById('reject-input-box').style.display = 'none';
 
-      if (row.status === 'Approved') document.getElementById('signature-img').src = row.signature || '';
+      if (row.status === 'Approved') {
+          document.getElementById('signature-img').src = row.signature || '';
+          document.getElementById('approved-date').textContent = "Disetujui pada: " + new Date(row.approved_at).toLocaleString('id-ID');
+      }
       if (row.status === 'Rejected') document.getElementById('reject-display-text').textContent = row.reject_reason || '-';
 
       document.getElementById('reviewModal').style.display = 'block';
+      clearSignature();
     }
 
     function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
@@ -181,17 +261,30 @@
 
     async function submitApproval() {
       const sig = canvas.toDataURL();
-      const { error } = await _supabase.from('checklist').update({ status: 'Approved', signature: sig, approved_at: new Date() }).eq('id', activeId);
-      if(!error) { alert('Berhasil Disetujui'); closeModal(); loadChecklists(); }
+      const { error } = await _supabase.from('checklist').update({ 
+          status: 'Approved', 
+          signature: sig, 
+          approved_at: new Date() 
+      }).eq('id', activeId);
+      
+      if(!error) { alert('Checklist Berhasil Disetujui!'); closeModal(); loadChecklists(); }
+      else { alert('Gagal: ' + error.message); }
     }
 
     async function submitReject() {
       const reason = document.getElementById('reject-reason-input').value;
-      const { error } = await _supabase.from('checklist').update({ status: 'Rejected', reject_reason: reason }).eq('id', activeId);
-      if(!error) { alert('Data Ditolak'); closeModal(); loadChecklists(); }
+      if(!reason) return alert('Alasan penolakan wajib diisi!');
+      
+      const { error } = await _supabase.from('checklist').update({ 
+          status: 'Rejected', 
+          reject_reason: reason 
+      }).eq('id', activeId);
+
+      if(!error) { alert('Checklist Telah Ditolak!'); closeModal(); loadChecklists(); }
+      else { alert('Gagal: ' + error.message); }
     }
 
-    loadChecklists();
+    window.onload = loadChecklists;
   </script>
 </body>
 </html>
