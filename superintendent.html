@@ -9,7 +9,10 @@
     body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; }
     header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
     .logo { font-size: 1.2em; font-weight: bold; }
-    .nav-link { color: white; text-decoration: none; font-weight: bold; background: #004085; padding: 8px 15px; border-radius: 6px; }
+    
+    /* Tombol Dashboard sesuai permintaan */
+    .nav-link { color: white; text-decoration: none; font-weight: bold; background: #004085; padding: 8px 15px; border-radius: 6px; transition: 0.3s; }
+    .nav-link:hover { background: #0056b3; }
     
     .main-content { padding: 20px; max-width: 1200px; margin: 0 auto; }
     .table-container { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow-x: auto; }
@@ -23,11 +26,12 @@
     .status-rejected { background-color: #f8d7da; color: #721c24; }
     .view-btn { background-color: #007bff; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
-    /* Modal */
+    /* Modal Review */
     .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
     .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 900px; }
     .close-modal { float: right; font-size: 28px; cursor: pointer; font-weight: bold; }
     
+    /* Layout Checklist Bersih Tanpa Teks Tambahan */
     .section-header { background: #f1f3f5; padding: 10px 15px; margin: 20px 0 10px 0; font-weight: bold; color: #003366; border-bottom: 2px solid #003366; }
     .sub-section { color: #155724; font-weight: bold; font-size: 0.95em; margin: 15px 0 8px 5px; text-transform: uppercase; }
     .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -35,19 +39,19 @@
     .val-ok { color: #28a745; font-weight: bold; }
     .val-ng { color: #dc3545; font-weight: bold; }
 
-    /* Signature Area */
+    /* Signature & Reject Area */
     .approval-box { margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px; text-align: center; }
     .signature-pad { border: 2px dashed #ccc; background: #fafafa; border-radius: 8px; cursor: crosshair; touch-action: none; }
     .signature-display { border: 1px solid #eee; background: #fff; border-radius: 8px; max-width: 300px; margin: 10px auto; display: block; }
     
-    /* Reject Input Box */
+    /* Reject Input Box Langsung di Modal */
     .reject-input-container { display: none; margin-top: 15px; background: #fff1f0; padding: 15px; border-radius: 8px; border: 1px solid #ffa39e; text-align: left; }
-    .reject-textarea { width: 100%; height: 80px; padding: 10px; border-radius: 6px; border: 1px solid #dc3545; box-sizing: border-box; margin-top: 8px; font-family: inherit; }
+    .reject-textarea { width: 100%; height: 80px; padding: 10px; border-radius: 6px; border: 1px solid #dc3545; box-sizing: border-box; margin-top: 8px; font-family: inherit; resize: none; }
 
     .footer-btns { margin-top: 20px; display: flex; gap: 15px; }
     .btn-approve { flex: 1; background: #28a745; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .btn-reject-trigger { flex: 1; background: #dc3545; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-    .btn-send-reject { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; width: 100%; }
+    .btn-send-reject { background: #dc3545; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; width: 100%; }
     .btn-clear { background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-top: 5px; font-size: 0.8em; }
   </style>
 </head>
@@ -81,7 +85,7 @@
     <div class="modal-content">
       <span class="close-modal" onclick="closeModal()">&times;</span>
       <h2 style="margin:0; color:#003366;">Review & Approval</h2>
-      <p id="infoP" style="color:#666; margin-bottom:20px;"></p>
+      <p id="infoP" style="color:#666; margin-bottom:20px; border-bottom: 1px solid #eee; padding-bottom: 10px;"></p>
       
       <div id="modalBody"></div>
 
@@ -99,7 +103,7 @@
 
           <div id="reject-input-box" class="reject-input-container">
             <strong>Alasan Penolakan:</strong>
-            <textarea id="reject-reason-input" class="reject-textarea" placeholder="Tulis alasan mengapa data ini ditolak..."></textarea>
+            <textarea id="reject-reason-input" class="reject-textarea" placeholder="Tulis alasan mengapa data ditolak..."></textarea>
             <button class="btn-send-reject" onclick="submitReject()">Kirim Penolakan</button>
           </div>
         </div>
@@ -109,7 +113,7 @@
           <img id="signature-img" class="signature-display" src="" alt="Tanda Tangan">
         </div>
 
-        <div id="action-rejected" style="display:none;" class="reject-input-container">
+        <div id="action-rejected" style="display:none;" class="reject-input-container" style="display:block !important;">
           <strong style="color:#dc3545;">Data Ditolak</strong>
           <p id="reject-display-text" style="margin: 8px 0 0 0; color:#333;"></p>
         </div>
@@ -127,7 +131,7 @@
     const canvas = document.getElementById('sig-canvas');
     const ctx = canvas.getContext('2d');
 
-    // Drawing Logic
+    // Tanda Tangan Logic
     canvas.addEventListener('mousedown', startDraw);
     canvas.addEventListener('mousemove', draw);
     canvas.addEventListener('mouseup', endDraw);
@@ -140,6 +144,7 @@
     function endDraw() { isDrawing = false; }
     function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
+    // Struktur Penamaan Normal Sesuai Checklist
     const masterStructure = [
       { section: "1. STAND LABEL", groups: [
         { label: "ELECTRICAL", fields: ["wiring", "komponen", "kerapihan", "sensor"], display: ["WIRING", "KOMPONEN", "KERAPIHAN", "SENSOR"] },
@@ -198,7 +203,7 @@
             grid.appendChild(itemDiv);
             if (status === 'NG') {
                const ngDiv = document.createElement('div'); ngDiv.style.gridColumn = "span 2"; ngDiv.style.fontSize="0.85em"; ngDiv.style.background="#f9f9f9"; ngDiv.style.padding="8px"; ngDiv.style.marginBottom="5px";
-               ngDiv.innerHTML = `<b>Alasan Pelaksana:</b> ${row[field+'_keterangan'] || '-'}`;
+               ngDiv.innerHTML = `<b>Alasan NG:</b> ${row[field+'_keterangan'] || '-'}`;
                grid.appendChild(ngDiv);
             }
             num++;
@@ -207,16 +212,13 @@
         });
       });
 
-      // Tampilan Footer Berdasarkan Status
+      // Kontrol Footer Berdasarkan Status
       document.getElementById('action-pending').style.display = (row.status === 'Pending') ? 'block' : 'none';
       document.getElementById('action-approved').style.display = (row.status === 'Approved') ? 'block' : 'none';
       document.getElementById('action-rejected').style.display = (row.status === 'Rejected') ? 'block' : 'none';
 
       if (row.status === 'Approved') document.getElementById('signature-img').src = row.signature || '';
-      if (row.status === 'Rejected') {
-        document.getElementById('action-rejected').style.display = 'block';
-        document.getElementById('reject-display-text').textContent = row.reject_reason || '-';
-      }
+      if (row.status === 'Rejected') document.getElementById('reject-display-text').textContent = row.reject_reason || '-';
 
       document.getElementById('reviewModal').style.display = 'block';
     }
@@ -225,9 +227,9 @@
 
     async function submitReject() {
       const r = document.getElementById('reject-reason-input').value.trim();
-      if (!r) { alert('Isi alasan penolakan!'); return; }
+      if (!r) { alert('Harap isi alasan penolakan!'); return; }
       const { error } = await _supabase.from('checklist').update({ status: 'Rejected', reject_reason: r }).eq('id', activeId);
-      if(!error) { alert('Berhasil Reject'); closeModal(); loadChecklists(); }
+      if(!error) { alert('Berhasil Menolak Data'); closeModal(); loadChecklists(); }
     }
 
     async function submitApproval() {
