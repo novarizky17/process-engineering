@@ -27,7 +27,7 @@
     input[type="radio"] { transform: scale(1.6); cursor: pointer; }
     .keterangan { display: none; margin-top: 15px; }
     .keterangan textarea { width: 100%; height: 90px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1.1em; resize: vertical; box-sizing: border-box; }
-    button.submit { background-color: #155724; color: white; padding: 16px 50px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.3em; display: block; margin: 50px auto 0; width: 100%; font-weight: bold; }
+    button.submit { background-color: #155724; color: white; padding: 18px 50px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.3em; display: block; margin: 50px auto 0; width: 100%; font-weight: bold; }
     button.submit:hover { background-color: #0f4422; }
   </style>
 </head>
@@ -48,7 +48,6 @@
       
       <div class="section">
         <h3 class="with-number">1. STAND LABEL</h3>
-        
         <h4>ELECTRICAL</h4>
         <div class="item">
           <div class="item-row">
@@ -93,8 +92,343 @@
           </div>
           <div id="box-sensor" class="keterangan"><textarea id="text-sensor" placeholder="Keterangan NG..."></textarea></div>
         </div>
-        
+
+        <h3 class="no-number">MOTION</h3>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">TIMING BELT</span>
+            <div class="status-group">
+              <label><input type="radio" name="timing_belt" value="OK" onclick="toggleKet('timing_belt', false)"> OK</label>
+              <label><input type="radio" name="timing_belt" value="NG" onclick="toggleKet('timing_belt', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-timing_belt" class="keterangan"><textarea id="text-timing_belt" placeholder="Keterangan NG..."></textarea></div>
         </div>
+
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">PULLY</span>
+            <div class="status-group">
+              <label><input type="radio" name="pully" value="OK" onclick="toggleKet('pully', false)"> OK</label>
+              <label><input type="radio" name="pully" value="NG" onclick="toggleKet('pully', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-pully" class="keterangan"><textarea id="text-pully" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">SERVO MOTOR</span>
+            <div class="status-group">
+              <label><input type="radio" name="servo_motor" value="OK" onclick="toggleKet('servo_motor', false)"> OK</label>
+              <label><input type="radio" name="servo_motor" value="NG" onclick="toggleKet('servo_motor', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-servo_motor" class="keterangan"><textarea id="text-servo_motor" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">LINEAR BEARING</span>
+            <div class="status-group">
+              <label><input type="radio" name="linear_bearing" value="OK" onclick="toggleKet('linear_bearing', false)"> OK</label>
+              <label><input type="radio" name="linear_bearing" value="NG" onclick="toggleKet('linear_bearing', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-linear_bearing" class="keterangan"><textarea id="text-linear_bearing" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">ROTARY ACTUATOR</span>
+            <div class="status-group">
+              <label><input type="radio" name="rotary_actuator" value="OK" onclick="toggleKet('rotary_actuator', false)"> OK</label>
+              <label><input type="radio" name="rotary_actuator" value="NG" onclick="toggleKet('rotary_actuator', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-rotary_actuator" class="keterangan"><textarea id="text-rotary_actuator" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+
+        <h3 class="no-number">PNEUMATIC</h3>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">SELENOID VALVE</span>
+            <div class="status-group">
+              <label><input type="radio" name="selenoid_valve" value="OK" onclick="toggleKet('selenoid_valve', false)"> OK</label>
+              <label><input type="radio" name="selenoid_valve" value="NG" onclick="toggleKet('selenoid_valve', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-selenoid_valve" class="keterangan"><textarea id="text-selenoid_valve" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">VACCUM EJECTOR</span>
+            <div class="status-group">
+              <label><input type="radio" name="vacuum_ejector" value="OK" onclick="toggleKet('vacuum_ejector', false)"> OK</label>
+              <label><input type="radio" name="vacuum_ejector" value="NG" onclick="toggleKet('vacuum_ejector', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-vacuum_ejector" class="keterangan"><textarea id="text-vacuum_ejector" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">SILINDER PNEUMATIC</span>
+            <div class="status-group">
+              <label><input type="radio" name="silinder_pneumatic" value="OK" onclick="toggleKet('silinder_pneumatic', false)"> OK</label>
+              <label><input type="radio" name="silinder_pneumatic" value="NG" onclick="toggleKet('silinder_pneumatic', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-silinder_pneumatic" class="keterangan"><textarea id="text-silinder_pneumatic" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">NAPPLE</span>
+            <div class="status-group">
+              <label><input type="radio" name="napple" value="OK" onclick="toggleKet('napple', false)"> OK</label>
+              <label><input type="radio" name="napple" value="NG" onclick="toggleKet('napple', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-napple" class="keterangan"><textarea id="text-napple" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">VACCUM PAD</span>
+            <div class="status-group">
+              <label><input type="radio" name="vacuum_pad" value="OK" onclick="toggleKet('vacuum_pad', false)"> OK</label>
+              <label><input type="radio" name="vacuum_pad" value="NG" onclick="toggleKet('vacuum_pad', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-vacuum_pad" class="keterangan"><textarea id="text-vacuum_pad" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+
+        <h3 class="no-number">TAKE OUT PRODUK</h3>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">FLANGE</span>
+            <div class="status-group">
+              <label><input type="radio" name="flange" value="OK" onclick="toggleKet('flange', false)"> OK</label>
+              <label><input type="radio" name="flange" value="NG" onclick="toggleKet('flange', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-flange" class="keterangan"><textarea id="text-flange" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">VACCUM PAD</span>
+            <div class="status-group">
+              <label><input type="radio" name="vacuum_pad_takeout" value="OK" onclick="toggleKet('vacuum_pad_takeout', false)"> OK</label>
+              <label><input type="radio" name="vacuum_pad_takeout" value="NG" onclick="toggleKet('vacuum_pad_takeout', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-vacuum_pad_takeout" class="keterangan"><textarea id="text-vacuum_pad_takeout" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="with-number">2. STACKING</h3>
+        <h4>ELECTRICAL</h4>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">WIRING</span>
+            <div class="status-group">
+              <label><input type="radio" name="stacking_wiring" value="OK" onclick="toggleKet('stacking_wiring', false)"> OK</label>
+              <label><input type="radio" name="stacking_wiring" value="NG" onclick="toggleKet('stacking_wiring', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-stacking_wiring" class="keterangan"><textarea id="text-stacking_wiring" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">SENSOR</span>
+            <div class="status-group">
+              <label><input type="radio" name="stacking_sensor" value="OK" onclick="toggleKet('stacking_sensor', false)"> OK</label>
+              <label><input type="radio" name="stacking_sensor" value="NG" onclick="toggleKet('stacking_sensor', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-stacking_sensor" class="keterangan"><textarea id="text-stacking_sensor" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+
+        <h4>MOTION</h4>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">LINIER</span>
+            <div class="status-group">
+              <label><input type="radio" name="stacking_linier" value="OK" onclick="toggleKet('stacking_linier', false)"> OK</label>
+              <label><input type="radio" name="stacking_linier" value="NG" onclick="toggleKet('stacking_linier', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-stacking_linier" class="keterangan"><textarea id="text-stacking_linier" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">MECHANICAL PART</span>
+            <div class="status-group">
+              <label><input type="radio" name="stacking_mechanical_part" value="OK" onclick="toggleKet('stacking_mechanical_part', false)"> OK</label>
+              <label><input type="radio" name="stacking_mechanical_part" value="NG" onclick="toggleKet('stacking_mechanical_part', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-stacking_mechanical_part" class="keterangan"><textarea id="text-stacking_mechanical_part" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+
+        <h4>PNEUMATIC</h4>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">CYLINDER</span>
+            <div class="status-group">
+              <label><input type="radio" name="stacking_cylinder" value="OK" onclick="toggleKet('stacking_cylinder', false)"> OK</label>
+              <label><input type="radio" name="stacking_cylinder" value="NG" onclick="toggleKet('stacking_cylinder', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-stacking_cylinder" class="keterangan"><textarea id="text-stacking_cylinder" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">PNEUMATIC</span>
+            <div class="status-group">
+              <label><input type="radio" name="stacking_pneumatic" value="OK" onclick="toggleKet('stacking_pneumatic', false)"> OK</label>
+              <label><input type="radio" name="stacking_pneumatic" value="NG" onclick="toggleKet('stacking_pneumatic', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-stacking_pneumatic" class="keterangan"><textarea id="text-stacking_pneumatic" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="with-number">3. CONVEYOR</h3>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">BELT</span>
+            <div class="status-group">
+              <label><input type="radio" name="conveyor_belt" value="OK" onclick="toggleKet('conveyor_belt', false)"> OK</label>
+              <label><input type="radio" name="conveyor_belt" value="NG" onclick="toggleKet('conveyor_belt', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-conveyor_belt" class="keterangan"><textarea id="text-conveyor_belt" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">MOTOR</span>
+            <div class="status-group">
+              <label><input type="radio" name="conveyor_motor" value="OK" onclick="toggleKet('conveyor_motor', false)"> OK</label>
+              <label><input type="radio" name="conveyor_motor" value="NG" onclick="toggleKet('conveyor_motor', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-conveyor_motor" class="keterangan"><textarea id="text-conveyor_motor" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">RANTAI / COUPLING</span>
+            <div class="status-group">
+              <label><input type="radio" name="conveyor_rantai" value="OK" onclick="toggleKet('conveyor_rantai', false)"> OK</label>
+              <label><input type="radio" name="conveyor_rantai" value="NG" onclick="toggleKet('conveyor_rantai', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-conveyor_rantai" class="keterangan"><textarea id="text-conveyor_rantai" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">FRAME</span>
+            <div class="status-group">
+              <label><input type="radio" name="conveyor_frame" value="OK" onclick="toggleKet('conveyor_frame', false)"> OK</label>
+              <label><input type="radio" name="conveyor_frame" value="NG" onclick="toggleKet('conveyor_frame', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-conveyor_frame" class="keterangan"><textarea id="text-conveyor_frame" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">INVERTER / ELECTRICAL</span>
+            <div class="status-group">
+              <label><input type="radio" name="conveyor_inverter" value="OK" onclick="toggleKet('conveyor_inverter', false)"> OK</label>
+              <label><input type="radio" name="conveyor_inverter" value="NG" onclick="toggleKet('conveyor_inverter', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-conveyor_inverter" class="keterangan"><textarea id="text-conveyor_inverter" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="with-number">4. DOSING</h3>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">CEK ALARM</span>
+            <div class="status-group">
+              <label><input type="radio" name="dosing_alarm" value="OK" onclick="toggleKet('dosing_alarm', false)"> OK</label>
+              <label><input type="radio" name="dosing_alarm" value="NG" onclick="toggleKet('dosing_alarm', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-dosing_alarm" class="keterangan"><textarea id="text-dosing_alarm" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">KESESUAIAN SETTING</span>
+            <div class="status-group">
+              <label><input type="radio" name="dosing_setting" value="OK" onclick="toggleKet('dosing_setting', false)"> OK</label>
+              <label><input type="radio" name="dosing_setting" value="NG" onclick="toggleKet('dosing_setting', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-dosing_setting" class="keterangan"><textarea id="text-dosing_setting" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="with-number">5. DUMMY</h3>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">VACCUM</span>
+            <div class="status-group">
+              <label><input type="radio" name="dummy_vacuum" value="OK" onclick="toggleKet('dummy_vacuum', false)"> OK</label>
+              <label><input type="radio" name="dummy_vacuum" value="NG" onclick="toggleKet('dummy_vacuum', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-dummy_vacuum" class="keterangan"><textarea id="text-dummy_vacuum" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">KONDISI DUMMY</span>
+            <div class="status-group">
+              <label><input type="radio" name="dummy_condition" value="OK" onclick="toggleKet('dummy_condition', false)"> OK</label>
+              <label><input type="radio" name="dummy_condition" value="NG" onclick="toggleKet('dummy_condition', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-dummy_condition" class="keterangan"><textarea id="text-dummy_condition" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">FLANGE</span>
+            <div class="status-group">
+              <label><input type="radio" name="dummy_flange" value="OK" onclick="toggleKet('dummy_flange', false)"> OK</label>
+              <label><input type="radio" name="dummy_flange" value="NG" onclick="toggleKet('dummy_flange', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-dummy_flange" class="keterangan"><textarea id="text-dummy_flange" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">INSTALASI</span>
+            <div class="status-group">
+              <label><input type="radio" name="dummy_instalasi" value="OK" onclick="toggleKet('dummy_instalasi', false)"> OK</label>
+              <label><input type="radio" name="dummy_instalasi" value="NG" onclick="toggleKet('dummy_instalasi', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-dummy_instalasi" class="keterangan"><textarea id="text-dummy_instalasi" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+        <div class="item">
+          <div class="item-row">
+            <span class="item-label">TUBBING</span>
+            <div class="status-group">
+              <label><input type="radio" name="dummy_tubbing" value="OK" onclick="toggleKet('dummy_tubbing', false)"> OK</label>
+              <label><input type="radio" name="dummy_tubbing" value="NG" onclick="toggleKet('dummy_tubbing', true)"> NG</label>
+            </div>
+          </div>
+          <div id="box-dummy_tubbing" class="keterangan"><textarea id="text-dummy_tubbing" placeholder="Keterangan NG..."></textarea></div>
+        </div>
+      </div>
 
       <button class="submit" id="btnSimpan" onclick="simpanChecklist()">Simpan Checklist</button>
     </div>
@@ -105,8 +439,14 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Pastikan semua nama item di sini sesuai dengan atribut 'name' di HTML
-    const allItemNames = ['wiring', 'komponen', 'kerapihan', 'sensor']; 
+    const allItemNames = [
+      'wiring', 'komponen', 'kerapihan', 'sensor', 'timing_belt', 'pully', 'servo_motor', 'linear_bearing', 'rotary_actuator',
+      'selenoid_valve', 'vacuum_ejector', 'silinder_pneumatic', 'napple', 'vacuum_pad', 'flange', 'vacuum_pad_takeout',
+      'stacking_wiring', 'stacking_sensor', 'stacking_linier', 'stacking_mechanical_part', 'stacking_cylinder', 'stacking_pneumatic',
+      'conveyor_belt', 'conveyor_motor', 'conveyor_rantai', 'conveyor_frame', 'conveyor_inverter',
+      'dosing_alarm', 'dosing_setting',
+      'dummy_vacuum', 'dummy_condition', 'dummy_flange', 'dummy_instalasi', 'dummy_tubbing'
+    ];
 
     async function init() {
       const pId = localStorage.getItem('pelaksana_id');
@@ -129,19 +469,24 @@
       const btn = document.getElementById('btnSimpan');
       let payload = { pelaksana_id: pId, status: 'Pending' };
 
+      // Validasi: Pastikan semua radio button dipilih
       for (const item of allItemNames) {
         const radioChecked = document.querySelector(`input[name="${item}"]:checked`);
         if (!radioChecked) {
-          alert(`Harap pilih OK atau NG untuk: ${item.toUpperCase()}`);
+          alert(`Harap pilih OK atau NG untuk: ${item.toUpperCase().replace(/_/g, ' ')}`);
           return;
         }
 
         const status = radioChecked.value;
         const ket = document.getElementById(`text-${item}`).value.trim();
+        
+        // Validasi: Jika NG, keterangan wajib diisi
         if (status === 'NG' && !ket) {
-          alert(`Isi keterangan untuk ${item.toUpperCase()} yang NG!`);
+          alert(`Keterangan wajib diisi untuk ${item.toUpperCase().replace(/_/g, ' ')} yang NG!`);
+          document.getElementById(`text-${item}`).focus();
           return;
         }
+        
         payload[item] = status;
         payload[`${item}_keterangan`] = ket || null;
       }
@@ -151,10 +496,11 @@
 
       const { error } = await _supabase.from('checklist').insert([payload]);
       if (error) {
-        alert("Gagal menyimpan: " + error.message);
+        alert("Gagal menyimpan ke database: " + error.message);
         btn.disabled = false;
+        btn.textContent = 'Simpan Checklist';
       } else {
-        alert("Berhasil disimpan!");
+        alert("Checklist Berhasil Disimpan!");
         localStorage.removeItem('pelaksana_id');
         window.location.href = 'index.html';
       }
