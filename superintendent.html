@@ -54,14 +54,14 @@
       <thead>
         <tr>
           <th>Pelaksana</th>
-          <th>Mesin / Tonage</th>
+          <th>Minggu (Week)</th> <th>Mesin / Tonage</th>
           <th>Tanggal</th>
           <th>Status</th>
           <th>Aksi</th>
         </tr>
       </thead>
       <tbody id="mainTable">
-        <tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>
+        <tr><td colspan="6" style="text-align:center;">Memuat data...</td></tr>
       </tbody>
     </table>
   </div>
@@ -71,7 +71,7 @@
   <div class="modal-content">
     <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
     <h2 id="modalTitle" style="color:#003366; margin:0;">Review Detail Checklist</h2>
-    <p id="infoPelaksana" style="color:#666; margin-top:5px;"></p>
+    <p id="infoPelaksana" style="color:#666; margin-top:5px; font-weight: bold;"></p>
     <hr>
     
     <div id="modalBody"></div>
@@ -126,62 +126,28 @@
     { section: "5. DUMMY", prefix: "dummy_", fields: ["vacuum", "condition", "flange", "instalasi", "tubbing"] }
   ];
 
-  // Inisialisasi Ukuran Canvas
   canvas.width = 600; 
   canvas.height = 150;
   ctx.lineWidth = 3; 
   ctx.lineCap = 'round'; 
   ctx.strokeStyle = '#000';
 
-  // Fungsi Koordinat Presisi (Menghilangkan Offset)
   function getPos(e) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    
     const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
     const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
-
-    return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY
-    };
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
   }
 
-  // Event Mouse
-  canvas.onmousedown = (e) => {
-    isDrawing = true;
-    const p = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(p.x, p.y);
-  };
-  canvas.onmousemove = (e) => {
-    if (!isDrawing) return;
-    const p = getPos(e);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-  };
+  canvas.onmousedown = (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+  canvas.onmousemove = (e) => { if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
   window.onmouseup = () => isDrawing = false;
 
-  // Event Touch (Mencegah Layar Geser)
-  canvas.ontouchstart = (e) => {
-    if (e.target === canvas) e.preventDefault();
-    isDrawing = true;
-    const p = getPos(e);
-    ctx.beginPath();
-    ctx.moveTo(p.x, p.y);
-  };
-  canvas.ontouchmove = (e) => {
-    if (e.target === canvas) e.preventDefault();
-    if (!isDrawing) return;
-    const p = getPos(e);
-    ctx.lineTo(p.x, p.y);
-    ctx.stroke();
-  };
-  canvas.ontouchend = (e) => {
-    if (e.target === canvas) e.preventDefault();
-    isDrawing = false;
-  };
+  canvas.ontouchstart = (e) => { if (e.target === canvas) e.preventDefault(); isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+  canvas.ontouchmove = (e) => { if (e.target === canvas) e.preventDefault(); if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+  canvas.ontouchend = (e) => { if (e.target === canvas) e.preventDefault(); isDrawing = false; };
 
   function clearSig() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
@@ -190,12 +156,12 @@
     if(error) return console.error("Error Load:", error);
     
     const tableBody = document.getElementById('mainTable');
-    if (data.length === 0) { tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data checklist.</td></tr>'; return; }
+    if (data.length === 0) { tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data checklist.</td></tr>'; return; }
     
     tableBody.innerHTML = data.map(row => `
       <tr>
         <td><strong>${row.pelaksana?.nama_pelaksana || 'Unknown'}</strong></td>
-        <td>${row.pelaksana?.merk_mesin || '-'} / ${row.pelaksana?.tonage || '-'}</td>
+        <td>W-${row.pelaksana?.week || '-'}</td> <td>${row.pelaksana?.merk_mesin || '-'} / ${row.pelaksana?.tonage || '-'}</td>
         <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
         <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
         <td><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
@@ -205,7 +171,8 @@
 
   function openModal(row) {
     activeId = row.id;
-    document.getElementById('infoPelaksana').innerText = `Pelaksana: ${row.pelaksana?.nama_pelaksana} | Mesin: ${row.pelaksana?.merk_mesin} | Tanggal: ${row.pelaksana?.tanggal_checklist}`;
+    // Info di modal diperbarui dengan Week
+    document.getElementById('infoPelaksana').innerText = `MINGGU: W-${row.pelaksana?.week} | Pelaksana: ${row.pelaksana?.nama_pelaksana} | Mesin: ${row.pelaksana?.merk_mesin} | Tanggal: ${row.pelaksana?.tanggal_checklist}`;
     
     const body = document.getElementById('modalBody');
     body.innerHTML = '';
@@ -233,18 +200,15 @@
 
     if(!isPending) {
       document.getElementById('historyLabel').innerHTML = row.status === 'Approved' ? '<span class="ok" style="font-size:1.5rem">✓ TELAH DISETUJUI</span>' : '<span class="ng" style="font-size:1.5rem">✘ DATA DITOLAK</span>';
-      
       const sigImg = document.getElementById('historySigImg');
       const sigArea = document.getElementById('historySigArea');
       const rejectArea = document.getElementById('historyRejectArea');
 
       if(row.status === 'Approved') {
-        sigArea.style.display = 'block';
-        rejectArea.style.display = 'none';
+        sigArea.style.display = 'block'; rejectArea.style.display = 'none';
         sigImg.src = row.signature || '';
       } else {
-        sigArea.style.display = 'none';
-        rejectArea.style.display = 'block';
+        sigArea.style.display = 'none'; rejectArea.style.display = 'block';
         document.getElementById('historyReason').innerText = row.reject_reason || '-';
       }
     }
