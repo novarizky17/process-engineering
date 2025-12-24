@@ -35,7 +35,7 @@
     .ok { color: #28a745; font-weight: bold; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; }
     .ng { color: #dc3545; font-weight: bold; background: #ffebee; padding: 2px 8px; border-radius: 4px; }
 
-    /* Style khusus Alasan NG */
+    /* Style Alasan NG agar terlihat jelas di bawah Item */
     .ng-reason { display: block; font-size: 11px; color: #dc3545; font-style: italic; margin-top: 4px; font-weight: normal; }
 
     .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
@@ -185,9 +185,9 @@
         const dbField = sec.prefix + f; 
         const val = row[dbField] || '-';
         
-        // Logika Ambil Alasan NG dari kolom _notes
-        const reasonField = dbField + "_notes";
-        const reasonVal = row[reasonField] ? `<span class="ng-reason">Alasan: ${row[reasonField]}</span>` : "";
+        // DISESUAIKAN: Menggunakan akhiran _keterangan agar sinkron dengan database
+        const reasonField = dbField + "_keterangan";
+        const reasonVal = row[reasonField] ? `<span class="ng-reason">Keterangan: ${row[reasonField]}</span>` : "";
         
         const label = f.replace(/_/g, ' ').toUpperCase();
         
