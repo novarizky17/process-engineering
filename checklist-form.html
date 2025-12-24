@@ -12,29 +12,26 @@
     .back-btn { background-color: #004085; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; }
     .main-content { padding: 20px; max-width: 95%; margin: 0 auto; }
     h1 { text-align: center; margin-bottom: 20px; }
-    .info { text-align: center; font-size: 1.2em; margin-bottom: 30px; line-height: 1.6; }
-    .form-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
-    .section { margin-bottom: 50px; }
-    .section h3 { font-size: 1.6em; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-    .section h3.with-number { color: #004085; }
-    .section h3.no-number { color: #155724; font-size: 1.4em; }
-    .section h4 { color: #155724; font-size: 1.4em; margin: 20px 0 10px 0; }
+    .info { text-align: center; font-size: 1.1em; margin-bottom: 30px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .form-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .section { margin-bottom: 40px; border: 1px solid #eee; padding: 20px; border-radius: 10px; }
+    .section h3 { font-size: 1.5em; border-bottom: 2px solid #003366; padding-bottom: 10px; margin-top: 0; color: #003366; }
+    .section h4 { color: #155724; font-size: 1.2em; margin: 20px 0 10px 0; background: #e9f7ef; padding: 5px 10px; border-radius: 4px; }
     .item { border-bottom: 1px solid #eee; padding: 15px 0; }
-    .item-row { display: flex; align-items: center; justify-content: space-between; }
-    .item-label { font-size: 1.2em; font-weight: bold; flex: 1; }
-    .status-group { display: flex; gap: 50px; margin-left: 40px; }
-    .status-group label { display: flex; align-items: center; gap: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; }
-    input[type="radio"] { transform: scale(1.6); cursor: pointer; }
-    .keterangan { display: none; margin-top: 15px; }
-    .keterangan textarea { width: 100%; height: 90px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1.1em; resize: vertical; box-sizing: border-box; }
+    .item-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .item-label { font-size: 1.1em; font-weight: bold; flex: 1; min-width: 200px; }
+    .status-group { display: flex; gap: 30px; }
+    .status-group label { display: flex; align-items: center; gap: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; }
+    input[type="radio"] { transform: scale(1.4); cursor: pointer; }
+    .keterangan { display: none; margin-top: 10px; width: 100%; }
+    .keterangan textarea { width: 100%; height: 70px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; resize: vertical; box-sizing: border-box; }
     
-    .signature-area { margin-top: 40px; padding-top: 20px; border-top: 2px solid #eee; text-align: center; }
-    .sig-pad { border: 2px dashed #003366; background: #fafafa; border-radius: 8px; cursor: crosshair; touch-action: none; width: 100%; max-width: 400px; height: 200px; display: block; margin: 10px auto; }
-    .clear-sig { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-bottom: 20px; }
+    .signature-area { margin-top: 30px; padding: 20px; border: 2px dashed #003366; border-radius: 10px; text-align: center; background: #fafafa; }
+    .sig-pad { background: white; border: 1px solid #ccc; border-radius: 8px; cursor: crosshair; touch-action: none; width: 100%; max-width: 400px; height: 180px; display: block; margin: 10px auto; }
     
-    button.submit { background-color: #155724; color: white; padding: 18px 50px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.3em; display: block; margin: 20px auto 0; width: 100%; font-weight: bold; }
-    button.submit:hover { background-color: #0f4422; }
-    button.submit:disabled { background-color: #ccc; cursor: not-allowed; }
+    .btn-clear { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+    .btn-submit { background-color: #28a745; color: white; padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-size: 1.2em; width: 100%; font-weight: bold; margin-top: 20px; }
+    .btn-submit:disabled { background-color: #ccc; }
   </style>
 </head>
 <body>
@@ -45,76 +42,59 @@
   </header>
 
   <div class="main-content">
-    <h1>Form Checklist Tooling Injection</h1>
-    <p class="info">
-      Pelaksana: <strong id="pelaksanaNama">Memuat...</strong> | 
-      Tanggal: <strong id="tanggalChecklist">Memuat...</strong> | 
-      Merk Mesin: <strong id="merkMesin">Memuat...</strong> | 
-      Tonage: <strong id="tonageMesin">Memuat...</strong>
-    </p>
+    <h1>Checklist Pelaksana</h1>
+    <div class="info">
+      Pelaksana: <strong id="pelaksanaNama">-</strong> | 
+      Mesin: <strong id="merkMesin">-</strong> | 
+      Tanggal: <strong id="tanggalChecklist">-</strong>
+    </div>
 
     <div class="form-container">
+      
       <div class="section">
-        <h3 class="with-number">1. STAND LABEL</h3>
+        <h3>1. STAND LABEL</h3>
         <h4>ELECTRICAL</h4>
-        <div class="item">
-          <div class="item-row">
-            <span class="item-label">WIRING</span>
-            <div class="status-group">
-              <label><input type="radio" name="wiring" value="OK" onclick="toggleKet('wiring', false)"> OK</label>
-              <label><input type="radio" name="wiring" value="NG" onclick="toggleKet('wiring', true)"> NG</label>
-            </div>
-          </div>
-          <div id="box-wiring" class="keterangan"><textarea id="text-wiring" placeholder="Keterangan NG..."></textarea></div>
-        </div>
+        <div id="items-stand-elec"></div>
         <h4>MOTION</h4>
-        <div class="item">
-          <div class="item-row">
-            <span class="item-label">TIMING BELT</span>
-            <div class="status-group">
-              <label><input type="radio" name="timing_belt" value="OK" onclick="toggleKet('timing_belt', false)"> OK</label>
-              <label><input type="radio" name="timing_belt" value="NG" onclick="toggleKet('timing_belt', true)"> NG</label>
-            </div>
-          </div>
-          <div id="box-timing_belt" class="keterangan"><textarea id="text-timing_belt" placeholder="Keterangan NG..."></textarea></div>
-        </div>
-
+        <div id="items-stand-motion"></div>
         <h4>PNEUMATIC</h4>
-        <div class="item">
-          <div class="item-row">
-            <span class="item-label">SELENOID VALVE</span>
-            <div class="status-group">
-              <label><input type="radio" name="selenoid_valve" value="OK" onclick="toggleKet('selenoid_valve', false)"> OK</label>
-              <label><input type="radio" name="selenoid_valve" value="NG" onclick="toggleKet('selenoid_valve', true)"> NG</label>
-            </div>
-          </div>
-          <div id="box-selenoid_valve" class="keterangan"><textarea id="text-selenoid_valve" placeholder="Keterangan NG..."></textarea></div>
-        </div>
+        <div id="items-stand-pneu"></div>
+        <h4>TAKE OUT PRODUK</h4>
+        <div id="items-stand-takeout"></div>
       </div>
 
       <div class="section">
-        <h3 class="with-number">2. STACKING</h3>
+        <h3>2. STACKING</h3>
         <h4>ELECTRICAL</h4>
-        <div class="item">
-          <div class="item-row">
-            <span class="item-label">WIRING</span>
-            <div class="status-group">
-              <label><input type="radio" name="stacking_wiring" value="OK" onclick="toggleKet('stacking_wiring', false)"> OK</label>
-              <label><input type="radio" name="stacking_wiring" value="NG" onclick="toggleKet('stacking_wiring', true)"> NG</label>
-            </div>
-          </div>
-          <div id="box-stacking_wiring" class="keterangan"><textarea id="text-stacking_wiring" placeholder="Keterangan NG..."></textarea></div>
-        </div>
+        <div id="items-stack-elec"></div>
+        <h4>MOTION</h4>
+        <div id="items-stack-motion"></div>
+        <h4>PNEUMATIC</h4>
+        <div id="items-stack-pneu"></div>
+      </div>
+
+      <div class="section">
+        <h3>3. CONVEYOR</h3>
+        <div id="items-conveyor"></div>
+      </div>
+
+      <div class="section">
+        <h3>4. DOSING</h3>
+        <div id="items-dosing"></div>
+      </div>
+
+      <div class="section">
+        <h3>5. DUMMY</h3>
+        <div id="items-dummy"></div>
       </div>
 
       <div class="signature-area">
-        <h3 class="no-number">PENGESAHAN PELAKSANA</h3>
-        <p>Silakan bubuhkan tanda tangan di bawah ini:</p>
+        <strong>Tanda Tangan Pelaksana:</strong>
         <canvas id="canvas-pelaksana" class="sig-pad"></canvas>
-        <button class="clear-sig" onclick="clearSignature()">Hapus Tanda Tangan</button>
+        <button class="btn-clear" onclick="clearSignature()">Bersihkan</button>
       </div>
 
-      <button class="submit" id="btnSimpan" onclick="simpanChecklist()">Simpan Checklist</button>
+      <button class="btn-submit" id="btnSimpan" onclick="simpanChecklist()">SIMPAN DATA CHECKLIST</button>
     </div>
   </div>
 
@@ -123,97 +103,106 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // List Nama Kolom Database sesuai prefix
-    const allItemNames = [
-      'wiring', 'komponen', 'kerapihan', 'sensor', 'timing_belt', 'pully', 'servo_motor', 'linear_bearing', 'rotary_actuator', 'selenoid_valve', 'vacuum_ejector', 'silinder_pneumatic', 'napple', 'vacuum_pad', 'flange', 'vacuum_pad_takeout',
-      'stacking_wiring', 'stacking_sensor', 'stacking_linier', 'stacking_mechanical_part', 'stacking_cylinder', 'stacking_pneumatic',
-      'conveyor_belt', 'conveyor_motor', 'conveyor_rantai', 'conveyor_frame', 'conveyor_inverter',
-      'dosing_alarm', 'dosing_setting',
-      'dummy_vacuum', 'dummy_condition', 'dummy_flange', 'dummy_instalasi', 'dummy_tubbing'
+    // Definisi Item agar konsisten dengan Superintendent
+    const config = [
+      { container: 'items-stand-elec', fields: ['wiring', 'komponen', 'kerapihan', 'sensor'] },
+      { container: 'items-stand-motion', fields: ['timing_belt', 'pully', 'servo_motor', 'linear_bearing', 'rotary_actuator'] },
+      { container: 'items-stand-pneu', fields: ['selenoid_valve', 'vacuum_ejector', 'silinder_pneumatic', 'napple', 'vacuum_pad'] },
+      { container: 'items-stand-takeout', fields: ['flange', 'vacuum_pad_takeout'] },
+      { container: 'items-stack-elec', fields: ['stacking_wiring', 'stacking_sensor'] },
+      { container: 'items-stack-motion', fields: ['stacking_linier', 'stacking_mechanical_part'] },
+      { container: 'items-stack-pneu', fields: ['stacking_cylinder', 'stacking_pneumatic'] },
+      { container: 'items-conveyor', fields: ['conveyor_belt', 'conveyor_motor', 'conveyor_rantai', 'conveyor_frame', 'conveyor_inverter'] },
+      { container: 'items-dosing', fields: ['dosing_alarm', 'dosing_setting'] },
+      { container: 'items-dummy', fields: ['dummy_vacuum', 'dummy_condition', 'dummy_flange', 'dummy_instalasi', 'dummy_tubbing'] }
     ];
 
-    const canvas = document.getElementById('canvas-pelaksana');
-    const ctx = canvas.getContext('2d');
-    let isDrawing = false;
-    let signaturePoints = 0;
-
-    function resizeCanvas() {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width; canvas.height = rect.height;
-      ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
+    // Generate HTML Item secara otomatis
+    function generateItems() {
+      config.forEach(group => {
+        const div = document.getElementById(group.container);
+        group.fields.forEach(f => {
+          const label = f.replace(/stacking_|conveyor_|dosing_|dummy_|_/g, ' ').toUpperCase();
+          div.innerHTML += `
+            <div class="item">
+              <div class="item-row">
+                <span class="item-label">${label}</span>
+                <div class="status-group">
+                  <label><input type="radio" name="${f}" value="OK" onclick="toggleKet('${f}', false)"> OK</label>
+                  <label><input type="radio" name="${f}" value="NG" onclick="toggleKet('${f}', true)"> NG</label>
+                </div>
+              </div>
+              <div id="box-${f}" class="keterangan"><textarea id="text-${f}" placeholder="Alasan NG..."></textarea></div>
+            </div>`;
+        });
+      });
     }
-
-    canvas.addEventListener('mousedown', startDraw);
-    canvas.addEventListener('mousemove', draw);
-    window.addEventListener('mouseup', () => isDrawing = false);
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e.touches[0]); });
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
-
-    function startDraw(e) {
-      isDrawing = true; ctx.beginPath();
-      const rect = canvas.getBoundingClientRect();
-      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-    }
-
-    function draw(e) {
-      if (!isDrawing) return;
-      const rect = canvas.getBoundingClientRect();
-      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-      ctx.stroke(); signaturePoints++;
-    }
-
-    function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); signaturePoints = 0; }
-
-    async function init() {
-      resizeCanvas();
-      const pId = localStorage.getItem('pelaksana_id');
-      if (!pId) return window.location.assign('index.html');
-      const { data } = await _supabase.from('pelaksana').select('*').eq('id', pId).single();
-      if (data) {
-        document.getElementById('pelaksanaNama').textContent = data.nama_pelaksana;
-        document.getElementById('tanggalChecklist').textContent = data.tanggal_checklist;
-        document.getElementById('merkMesin').textContent = data.merk_mesin;
-        document.getElementById('tonageMesin').textContent = data.tonage;
-      }
-    }
-    window.onload = init;
 
     function toggleKet(name, show) {
       document.getElementById(`box-${name}`).style.display = show ? 'block' : 'none';
     }
 
+    // Tanda Tangan
+    const canvas = document.getElementById('canvas-pelaksana');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let points = 0;
+
+    canvas.width = 400; canvas.height = 180;
+    ctx.lineWidth = 2; ctx.lineCap = 'round';
+    function getPos(e) { 
+      const r = canvas.getBoundingClientRect(); 
+      return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top }; 
+    }
+    canvas.onmousedown = (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+    canvas.onmousemove = (e) => { if(!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); points++; };
+    window.onmouseup = () => isDrawing = false;
+    canvas.ontouchstart = (e) => { e.preventDefault(); isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+    canvas.ontouchmove = (e) => { e.preventDefault(); if(!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); points++; };
+    function clearSignature() { ctx.clearRect(0,0,400,180); points = 0; }
+
+    // Init Page
+    async function init() {
+      generateItems();
+      const pId = localStorage.getItem('pelaksana_id');
+      if (!pId) return window.location.assign('index.html');
+      const { data } = await _supabase.from('pelaksana').select('*').eq('id', pId).single();
+      if (data) {
+        document.getElementById('pelaksanaNama').textContent = data.nama_pelaksana;
+        document.getElementById('merkMesin').textContent = data.merk_mesin;
+        document.getElementById('tanggalChecklist').textContent = data.tanggal_checklist;
+      }
+    }
+
     async function simpanChecklist() {
       const pId = localStorage.getItem('pelaksana_id');
-      const btn = document.getElementById('btnSimpan');
-
-      if (signaturePoints < 10) return alert("Harap isi tanda tangan pelaksana!");
+      if (points < 10) return alert("Tanda tangan wajib diisi!");
 
       let payload = { pelaksana_id: pId, status: 'Pending', signature_pelaksana: canvas.toDataURL() };
-
-      for (const item of allItemNames) {
-        const radio = document.querySelector(`input[name="${item}"]:checked`);
-        if (!radio) return alert(`Lengkapi item: ${item.replace(/_/g, ' ').toUpperCase()}`);
-
-        const status = radio.value;
-        const ket = document.getElementById(`text-${item}`) ? document.getElementById(`text-${item}`).value.trim() : "";
-        
-        if (status === 'NG' && !ket) return alert(`Isi keterangan untuk item ${item.toUpperCase()} yang NG!`);
-        
-        payload[item] = status;
+      
+      // Kumpulkan data semua radio
+      const allFields = config.flatMap(g => g.fields);
+      for (const f of allFields) {
+        const radio = document.querySelector(`input[name="${f}"]:checked`);
+        if (!radio) return alert("Mohon lengkapi semua item!");
+        payload[f] = radio.value;
+        const ket = document.getElementById(`text-${f}`).value;
+        if(radio.value === 'NG' && !ket) return alert("NG wajib diisi keterangan!");
       }
 
-      btn.disabled = true; btn.textContent = 'Menyimpan...';
+      document.getElementById('btnSimpan').disabled = true;
       const { error } = await _supabase.from('checklist').insert([payload]);
-
       if (error) {
-        alert("Gagal: " + error.message);
-        btn.disabled = false; btn.textContent = 'Simpan Checklist';
+        alert(error.message);
+        document.getElementById('btnSimpan').disabled = false;
       } else {
-        alert("Checklist Berhasil Disimpan!");
+        alert("Berhasil!");
         localStorage.removeItem('pelaksana_id');
         window.location.assign('index.html');
       }
     }
+
+    window.onload = init;
   </script>
 </body>
 </html>
