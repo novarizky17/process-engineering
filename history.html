@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HISTORY CHECKLIST - TOOLING SUPPORT</title>
+    <title>HISTORY CHECKLIST (WEEKLY) - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @page { size: A4 landscape; margin: 8mm; }
@@ -15,7 +15,6 @@
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
         .document-page { background: white; width: 1150px; margin: 0 auto; padding: 15px; border: 1px solid #000; box-sizing: border-box; }
         
-        /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
@@ -24,26 +23,22 @@
         .title-area { text-align: center; font-size: 16pt; font-weight: bold; padding: 10px; text-transform: uppercase; }
         .meta-area { width: 280px; font-size: 9pt; padding: 5px; text-transform: uppercase; }
         
-        /* META INFO - HURUF KAPITAL */
         .meta-info { display: flex; justify-content: space-between; margin: 8px 0; font-weight: bold; font-size: 10pt; align-items: flex-end; text-transform: uppercase; }
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
-        /* TABLE - HURUF KAPITAL */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; }
-        .table-official th, .table-official td { border: 1px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; }
+        .table-official th, .table-official td { border: 1px solid black; padding: 2px; font-size: 7pt; text-align: center; vertical-align: middle; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
         .col-no { width: 25px; }
         .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
-        .col-tgl { width: 24px; font-size: 7pt; }
+        .col-week { width: 17px; font-size: 6.5pt; } /* Ukuran kolom dikecilkan agar muat 53 week */
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
         
-        /* FOOTER SIGNATURE */
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: right !important; padding-right: 10px !important; font-size: 7pt; }
         .sig-td { height: 35px; background-color: #fff; overflow: hidden; }
-        .sig-td img { height: 30px; width: auto; mix-blend-mode: multiply; }
+        .sig-td img { height: 25px; width: auto; mix-blend-mode: multiply; }
 
-        /* CONTROLS */
         .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .no-print input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
         .no-print select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
@@ -59,18 +54,12 @@
 <body>
 
     <div class="no-print">
-        <input type="text" id="input-merk" placeholder="MERK (CONTOH: IRON MAN)">
-        <input type="text" id="input-tonage" placeholder="TONAGE (CONTOH: 150T)">
-        <select id="filter-bulan">
-            <option value="01">JANUARI</option><option value="02">FEBRUARI</option><option value="03">MARET</option>
-            <option value="04">APRIL</option><option value="05">MEI</option><option value="06">JUNI</option>
-            <option value="07">JULI</option><option value="08">AGUSTUS</option><option value="09">SEPTEMBER</option>
-            <option value="10">OKTOBER</option><option value="11">NOVEMBER</option><option value="12">DESEMBER</option>
-        </select>
+        <input type="text" id="input-merk" placeholder="MERK MESIN...">
+        <input type="text" id="input-tonage" placeholder="TONAGE...">
         <select id="filter-tahun">
             <option value="2024">2024</option><option value="2025" selected>2025</option>
         </select>
-        <button onclick="renderReport()" style="background: #003366; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">TAMPILKAN REKAP</button>
+        <button onclick="renderReport()" style="background: #003366; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">TAMPILKAN REKAP MINGGUAN</button>
         <button onclick="window.print()" style="background: #222; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">PRINT PDF</button>
     </div>
 
@@ -101,7 +90,7 @@
             </div>
             <div class="meta-info-right">
                 <div class="info-row">
-                    <span class="info-label">BULAN</span> : <span class="info-value" id="label-bulan">-</span>
+                    <span class="info-label">TAHUN</span> : <span class="info-value" id="label-tahun">-</span>
                 </div>
             </div>
         </div>
@@ -111,9 +100,9 @@
                 <tr>
                     <th class="col-no" rowspan="2">NO</th>
                     <th class="col-item" rowspan="2">JENIS PENGECEKAN</th>
-                    <th colspan="31">TANGGAL</th>
+                    <th colspan="53">WEEK (MINGGU)</th>
                 </tr>
-                <tr id="date-row"></tr>
+                <tr id="week-row"></tr>
             </thead>
             <tbody id="table-content"></tbody>
             <tfoot>
@@ -187,25 +176,24 @@
         ];
 
         function init() {
-            const dateRow = document.getElementById('date-row');
-            dateRow.innerHTML = '';
-            for(let i=1; i<=31; i++) dateRow.innerHTML += `<th class="col-tgl">${i}</th>`;
+            const weekRow = document.getElementById('week-row');
+            weekRow.innerHTML = '';
+            for(let i=1; i<=53; i++) weekRow.innerHTML += `<th class="col-week">${i}</th>`;
             renderReport();
         }
 
         async function renderReport() {
-            const bln = document.getElementById('filter-bulan').value;
             const thn = document.getElementById('filter-tahun').value;
             const merk = document.getElementById('input-merk').value.trim();
             const tonage = document.getElementById('input-tonage').value.trim();
-            const monthText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text;
 
-            document.getElementById('label-bulan').innerText = monthText.toUpperCase() + " " + thn;
+            document.getElementById('label-tahun').innerText = thn;
             document.getElementById('label-merk').innerText = (merk || "-").toUpperCase();
             document.getElementById('label-tonage').innerText = (tonage || "-").toUpperCase();
 
-            const startDate = `${thn}-${bln}-01`;
-            const endDate = `${thn}-${bln}-31`;
+            // Query data berdasarkan tahun
+            const startDate = `${thn}-01-01`;
+            const endDate = `${thn}-12-31`;
 
             const { data, error } = await _sb
                 .from('checklist')
@@ -216,16 +204,18 @@
 
             if (error) return console.error(error);
 
+            // Filter manual merk/tonage
             const filteredData = data.filter(item => {
-                const matchMerk = merk ? item.pelaksana.merk_mesin.toLowerCase().includes(merk.toLowerCase()) : true;
-                const matchTonage = tonage ? item.pelaksana.tonage.toLowerCase().includes(tonage.toLowerCase()) : true;
-                return matchMerk && matchTonage;
+                const mMerk = merk ? item.pelaksana.merk_mesin.toLowerCase().includes(merk.toLowerCase()) : true;
+                const mTon = tonage ? item.pelaksana.tonage.toLowerCase().includes(tonage.toLowerCase()) : true;
+                return mMerk && mTon;
             });
 
+            // Mapping data berdasarkan kolom "week" di tabel pelaksana
             const dataMap = {};
             filteredData.forEach(item => {
-                const day = parseInt(item.pelaksana.tanggal_checklist.split('-')[2]);
-                dataMap[day] = item;
+                const w = item.pelaksana.week;
+                if(w) dataMap[w] = item;
             });
 
             const tbody = document.getElementById('table-content');
@@ -235,11 +225,11 @@
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
                     let hRow = `<tr><td colspan="2" class="section-header">${item.header}</td>`;
-                    for(let i=1; i<=31; i++) hRow += `<td></td>`;
+                    for(let i=1; i<=53; i++) hRow += `<td></td>`;
                     tbody.innerHTML += hRow + `</tr>`;
                 } else {
                     let rHtml = `<tr><td>${counter++}</td><td class="col-item">${item.name}</td>`;
-                    for(let i=1; i<=31; i++) {
+                    for(let i=1; i<=53; i++) {
                         let sign = "";
                         if (dataMap[i]) {
                             sign = dataMap[i][item.field] === 'OK' ? '√' : 'X';
@@ -250,11 +240,11 @@
                 }
             });
 
-            // Hanya proses Paraf Pelaksana
+            // Paraf Footer (Mingguan)
             const rowPel = document.getElementById('row-paraf-pelaksana');
             while(rowPel.cells.length > 1) rowPel.deleteCell(1);
 
-            for(let i=1; i<=31; i++) {
+            for(let i=1; i<=53; i++) {
                 const cPel = rowPel.insertCell();
                 cPel.className = "sig-td";
                 if(dataMap[i] && dataMap[i].signature_pelaksana) {
