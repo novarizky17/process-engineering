@@ -12,10 +12,9 @@
             .no-print { display: none !important; }
             .document-page { box-shadow: none; border: none; width: 100%; max-width: none; margin: 0; padding: 5px; }
             .check-symbol { color: black !important; -webkit-print-color-adjust: exact; }
-            .ng-note { color: red !important; }
         }
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #000; }
-        .document-page { background: white; width: 1150px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
+        .document-page { background: white; width: 1250px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
         
         /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
@@ -32,38 +31,28 @@
         
         /* TABLE STYLING */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
-        .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 8pt; text-align: center; vertical-align: middle; color: #000; }
+        .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
         
-        .check-symbol { font-weight: 900; font-size: 12pt; color: #000 !important; display: inline-block; line-height: 1; }
-        
-        /* STYLE UNTUK KETERANGAN NG */
-        .ng-note { 
-            display: block; 
-            font-size: 6.5pt; 
-            color: #d32f2f; 
-            font-weight: bold; 
-            margin-top: 2px;
-            line-height: 1.1;
-            word-wrap: break-word;
-            text-transform: uppercase;
-        }
+        .check-symbol { font-weight: bold; font-size: 11pt; color: #000 !important; }
+        .ng-text { font-size: 6.5pt; line-height: 1.1; word-wrap: break-word; color: #d32f2f; font-weight: bold; }
 
-        .col-no { width: 35px; }
-        .col-item { width: 250px; text-align: left !important; padding-left: 8px !important; font-weight: bold; }
-        .col-week { width: 120px; } /* Diperlebar sedikit untuk keterangan */
+        .col-no { width: 30px; }
+        .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
+        .col-week { width: 40px; } /* Kolom Simbol (W1, W2, dst) */
+        .col-ket { width: 85px; }  /* Kolom Keterangan */
+        
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
         
-        /* PARAF PELAKSANA */
-        .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 10pt; height: 80px; }
+        /* FOOTER */
+        .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 80px; }
         .sig-td { height: 80px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
-        .sig-td img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2) brightness(0.6); }
+        .sig-td img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2) brightness(0.5); }
 
         .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .no-print input, .no-print select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
         
-        .footer-flex { display: flex; justify-content: space-between; margin-top: 20px; text-transform: uppercase; }
-        .keterangan { font-size: 9pt; width: 60%; line-height: 1.4; color: #000; font-weight: bold; }
+        .footer-flex { display: flex; justify-content: space-between; margin-top: 15px; text-transform: uppercase; }
         .diketahui-box { width: 30%; text-align: center; margin-left: auto; }
         .sig-frame { border: 1.5px solid black; width: 160px; height: 80px; margin: 5px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
         .sig-frame img { max-height: 75px; width: auto; filter: grayscale(1) contrast(3) brightness(0.4); }
@@ -119,27 +108,29 @@
                 <tr>
                     <th class="col-no" rowspan="2">NO</th>
                     <th class="col-item" rowspan="2">JENIS PENGECEKAN</th>
-                    <th colspan="5">WEEK (MINGGU)</th>
+                    <th colspan="2">WEEK 1</th>
+                    <th colspan="2">WEEK 2</th>
+                    <th colspan="2">WEEK 3</th>
+                    <th colspan="2">WEEK 4</th>
+                    <th colspan="2">WEEK 5</th>
                 </tr>
-                <tr id="week-row">
-                    <th class="col-week">1</th>
-                    <th class="col-week">2</th>
-                    <th class="col-week">3</th>
-                    <th class="col-week">4</th>
-                    <th class="col-week">5</th>
+                <tr>
+                    <th class="col-week">STATUS</th><th class="col-ket">KET</th>
+                    <th class="col-week">STATUS</th><th class="col-ket">KET</th>
+                    <th class="col-week">STATUS</th><th class="col-ket">KET</th>
+                    <th class="col-week">STATUS</th><th class="col-ket">KET</th>
+                    <th class="col-week">STATUS</th><th class="col-ket">KET</th>
                 </tr>
             </thead>
             <tbody id="table-content"></tbody>
             <tfoot>
                 <tr id="row-paraf-pelaksana">
                     <td colspan="2" class="row-title-footer">PARAF PELAKSANA</td>
-                    <td class="sig-td"></td><td class="sig-td"></td><td class="sig-td"></td><td class="sig-td"></td><td class="sig-td"></td>
-                </tr>
+                    </tr>
             </tfoot>
         </table>
 
         <div class="footer-flex">
-            <div class="keterangan"><strong>BERI TANDA :</strong><br>√ : BILA ITEM YANG DIPERIKSA BAIK, SESUAI STANDAR<br>X : BILA TERJADI PENYIMPANGAN / KERUSAKAN PADA ITEM YANG DIPERIKSA.<br>O : BILA MESIN DALAM PROSES PERBAIKAN</div>
             <div class="diketahui-box">
                 <p style="font-weight: bold; margin-bottom: 5px;">DIKETAHUI</p>
                 <div class="sig-frame" id="super-sig"></div>
@@ -212,7 +203,7 @@
             document.getElementById('label-tahun').innerText = thn;
             document.getElementById('label-bulan').innerText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text;
             document.getElementById('label-merk').innerText = merk.toUpperCase();
-            document.getElementById('label-tonage').innerText = tonage ? tonage.toUpperCase() : "-";
+            document.getElementById('label-tonage').innerText = tonage || "-";
 
             const dateFilter = `${thn}-${bln}`;
             const { data, error } = await _sb.from('checklist')
@@ -244,29 +235,24 @@
             const tbody = document.getElementById('table-content');
             tbody.innerHTML = "";
             let alphabetCounter = 1;
+
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
                     alphabetCounter = 1;
-                    tbody.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td></td><td></td><td></td><td></td><td></td></tr>`;
+                    tbody.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td></tr>`;
                 } else {
                     let char = numToChar(alphabetCounter++);
                     let rHtml = `<tr><td>${char}</td><td class="col-item">${item.name}</td>`;
                     for(let w=1; w<=5; w++) {
-                        let cellContent = "";
+                        let symbol = "";
+                        let ket = "";
                         if(dataMap[w]) {
-                            // Cek Simbol OK/NG
                             const status = dataMap[w][item.field];
-                            const symbol = status === 'OK' ? '√' : (status === 'NG' ? 'X' : '');
-                            
-                            // Ambil keterangan dari database (format: fieldname_keterangan)
-                            const ket = dataMap[w][item.field + "_keterangan"] || "";
-                            
-                            cellContent = `<span class="check-symbol">${symbol}</span>`;
-                            if(status === 'NG' && ket) {
-                                cellContent += `<span class="ng-note">${ket}</span>`;
-                            }
+                            symbol = status === 'OK' ? '√' : (status === 'NG' ? 'X' : '');
+                            ket = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
                         }
-                        rHtml += `<td>${cellContent}</td>`;
+                        rHtml += `<td><span class="check-symbol">${symbol}</span></td>`;
+                        rHtml += `<td style="text-align:left; padding-left:3px;"><span class="ng-text">${ket}</span></td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
                 }
@@ -277,10 +263,12 @@
             const rowPel = document.getElementById('row-paraf-pelaksana');
             while(rowPel.cells.length > 1) rowPel.deleteCell(1);
             for(let w=1; w<=5; w++) {
-                const cell = rowPel.insertCell();
-                cell.className = "sig-td";
+                // Tambahkan 2 cell per week (Status & Ket)
+                const cParaf = rowPel.insertCell();
+                cParaf.className = "sig-td";
+                cParaf.colSpan = 2; // Gabungkan kolom status & ket untuk tanda tangan
                 if(dataMap[w] && dataMap[w].signature_pelaksana) {
-                    cell.innerHTML = `<img src="${dataMap[w].signature_pelaksana}">`;
+                    cParaf.innerHTML = `<img src="${dataMap[w].signature_pelaksana}">`;
                 }
             }
         }
