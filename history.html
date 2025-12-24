@@ -12,6 +12,7 @@
             .no-print { display: none !important; }
             .document-page { box-shadow: none; border: none; width: 100%; max-width: none; margin: 0; padding: 5px; }
             .check-symbol { color: black !important; -webkit-print-color-adjust: exact; }
+            .ng-note { color: red !important; }
         }
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #000; }
         .document-page { background: white; width: 1150px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
@@ -34,10 +35,23 @@
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 8pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
         
-        .check-symbol { font-weight: 900; font-size: 14pt; color: #000 !important; display: block; line-height: 1; }
+        .check-symbol { font-weight: 900; font-size: 12pt; color: #000 !important; display: inline-block; line-height: 1; }
+        
+        /* STYLE UNTUK KETERANGAN NG */
+        .ng-note { 
+            display: block; 
+            font-size: 6.5pt; 
+            color: #d32f2f; 
+            font-weight: bold; 
+            margin-top: 2px;
+            line-height: 1.1;
+            word-wrap: break-word;
+            text-transform: uppercase;
+        }
+
         .col-no { width: 35px; }
         .col-item { width: 250px; text-align: left !important; padding-left: 8px !important; font-weight: bold; }
-        .col-week { width: 80px; }
+        .col-week { width: 120px; } /* Diperlebar sedikit untuk keterangan */
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
         
         /* PARAF PELAKSANA */
@@ -200,7 +214,6 @@
             document.getElementById('label-merk').innerText = merk.toUpperCase();
             document.getElementById('label-tonage').innerText = tonage ? tonage.toUpperCase() : "-";
 
-            // Query data berdasarkan Tahun-Bulan (YYYY-MM)
             const dateFilter = `${thn}-${bln}`;
             const { data, error } = await _sb.from('checklist')
                 .select('*, pelaksana(*)')
@@ -209,7 +222,6 @@
 
             if (error) return console.error(error);
 
-            // Filter manual untuk merk dan tonage
             const filteredData = data.filter(item => {
                 if (!item.pelaksana) return false;
                 const mMatch = item.pelaksana.merk_mesin.toLowerCase().includes(merk.toLowerCase());
@@ -217,7 +229,6 @@
                 return mMatch && tMatch;
             });
 
-            // Map data berdasarkan week per bulan (Normalnya week 1-5 di input pelaksana)
             const dataMap = {};
             filteredData.forEach(item => {
                 const w = item.pelaksana ? item.pelaksana.week : null;
@@ -241,8 +252,21 @@
                     let char = numToChar(alphabetCounter++);
                     let rHtml = `<tr><td>${char}</td><td class="col-item">${item.name}</td>`;
                     for(let w=1; w<=5; w++) {
-                        let content = dataMap[w] ? (dataMap[w][item.field] === 'OK' ? '<span class="check-symbol">√</span>' : '<span class="check-symbol">X</span>') : "";
-                        rHtml += `<td>${content}</td>`;
+                        let cellContent = "";
+                        if(dataMap[w]) {
+                            // Cek Simbol OK/NG
+                            const status = dataMap[w][item.field];
+                            const symbol = status === 'OK' ? '√' : (status === 'NG' ? 'X' : '');
+                            
+                            // Ambil keterangan dari database (format: fieldname_keterangan)
+                            const ket = dataMap[w][item.field + "_keterangan"] || "";
+                            
+                            cellContent = `<span class="check-symbol">${symbol}</span>`;
+                            if(status === 'NG' && ket) {
+                                cellContent += `<span class="ng-note">${ket}</span>`;
+                            }
+                        }
+                        rHtml += `<td>${cellContent}</td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
                 }
@@ -273,7 +297,6 @@
             }
         }
 
-        // Jalankan tabel kosong saat awal
         window.onload = () => renderRows({});
     </script>
 </body>
