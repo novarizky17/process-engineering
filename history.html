@@ -16,7 +16,7 @@
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #000; }
         .document-page { background: white; width: 1150px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
         
-        /* HEADER & META INFO */
+        /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
@@ -34,31 +34,33 @@
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 6.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
         
+        /* SIMBOL CHECKLIST (PEKAT) */
         .check-symbol { font-weight: 900; font-size: 11pt; color: #000 !important; display: block; line-height: 1; }
+        
         .col-no { width: 25px; }
         .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
         .col-week { width: 18px; font-size: 6pt; }
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
-        .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: right !important; padding-right: 10px !important; font-size: 7pt; }
         
-        /* FIX POSISI PARAF PELAKSANA */
+        /* FIX: FOOTER PARAF PELAKSANA AGAR SESUAI KOTAK */
+        .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 50px; }
+        
         .sig-td { 
-            height: 45px; 
+            height: 50px; 
             background-color: #fff; 
-            padding: 2px !important; 
+            padding: 0 !important; 
             vertical-align: middle !important; 
-            text-align: left !important; /* RATA KIRI */
-            position: relative;
-            overflow: visible; 
+            text-align: center !important;
+            overflow: hidden;
         }
         .sig-td img { 
-            max-height: 40px; 
+            max-width: 100%;
+            max-height: 45px; 
             width: auto; 
             mix-blend-mode: multiply; 
-            filter: grayscale(1) contrast(2) brightness(0.6); /* Kontras diperbaiki agar tidak blur */
-            display: inline-block; 
-            margin: 0 !important;
-            vertical-align: middle;
+            filter: grayscale(1) contrast(2.5) brightness(0.6); 
+            display: block; 
+            margin: 0 auto;
         }
 
         .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -68,7 +70,7 @@
         .keterangan { font-size: 8.5pt; width: 60%; line-height: 1.4; color: #000; font-weight: bold; }
         .diketahui-box { width: 30%; text-align: center; margin-left: auto; }
         .sig-frame { border: 1.5px solid black; width: 160px; height: 80px; margin: 5px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
-        .sig-frame img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2) brightness(0.6); }
+        .sig-frame img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2.5) brightness(0.6); }
         .name-line { border-top: 1.5px solid black; width: 180px; margin: 0 auto; padding-top: 3px; font-weight: bold; color: #000; }
     </style>
 </head>
@@ -81,9 +83,7 @@
             <option value="2024">2024</option>
             <option value="2025" selected>2025</option>
             <script>
-                for(let y=2026; y<=2050; y++) {
-                    document.write(`<option value="${y}">${y}</option>`);
-                }
+                for(let y=2026; y<=2050; y++) { document.write(`<option value="${y}">${y}</option>`); }
             </script>
         </select>
         <button onclick="renderReport(true)" style="background: #003366; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">CARI DATA</button>
@@ -120,7 +120,9 @@
             </thead>
             <tbody id="table-content"></tbody>
             <tfoot>
-                <tr id="row-paraf-pelaksana"><td colspan="2" class="row-title-footer">PARAF PELAKSANA</td></tr>
+                <tr id="row-paraf-pelaksana">
+                    <td colspan="2" class="row-title-footer">PARAF PELAKSANA</td>
+                    </tr>
             </tfoot>
         </table>
 
@@ -225,7 +227,7 @@
             });
 
             renderRows(dataMap);
-            renderParaf(dataMap);
+            renderParaf(dataMap); // Fungsi ini yang akan mengisi tanda tangan di kotak minggu
             renderSuper(filteredData);
         }
 
@@ -246,6 +248,8 @@
                     tbody.innerHTML += rHtml + `</tr>`;
                 }
             });
+            
+            // Bersihkan paraf
             const rowPel = document.getElementById('row-paraf-pelaksana');
             while(rowPel.cells.length > 1) rowPel.deleteCell(1);
             for(let i=1; i<=53; i++) rowPel.insertCell().className = "sig-td";
@@ -275,10 +279,14 @@
 
         function renderParaf(dataMap) {
             const rowPel = document.getElementById('row-paraf-pelaksana');
+            // Hapus sel minggu lama agar tidak dobel
             while(rowPel.cells.length > 1) rowPel.deleteCell(1);
+
+            // Buat 53 sel kotak minggu untuk tanda tangan
             for(let i=1; i<=53; i++) {
                 const cPel = rowPel.insertCell();
-                cPel.className = "sig-td";
+                cPel.className = "sig-td"; // Kotak kecil sesuai kolom minggu di atas
+                
                 if(dataMap[i] && dataMap[i].signature_pelaksana) {
                     const img = document.createElement('img');
                     img.src = dataMap[i].signature_pelaksana;
