@@ -38,7 +38,6 @@
     
     .btn-clear { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-top: 10px; }
     
-    /* Tombol Simpan yang diperbaiki agar Besar, Hijau, dan di Tengah */
     .btn-submit { 
       background-color: #28a745; 
       color: white; 
@@ -67,6 +66,7 @@
   <div class="main-content">
     <h1>Checklist Pelaksana</h1>
     <div class="info">
+      MINGGU: <strong id="weekChecklist">-</strong> | 
       Pelaksana: <strong id="pelaksanaNama">-</strong> | 
       Mesin: <strong id="merkMesin">-</strong> | 
       Tonage: <strong id="tonageMesin">-</strong> | 
@@ -190,8 +190,10 @@
       const pId = localStorage.getItem('pelaksana_id');
       if (!pId) return window.location.assign('index.html');
       
+      // Mengambil data lengkap termasuk kolom 'week'
       const { data } = await _supabase.from('pelaksana').select('*').eq('id', pId).single();
       if (data) {
+        document.getElementById('weekChecklist').textContent = data.week || '-';
         document.getElementById('pelaksanaNama').textContent = data.nama_pelaksana;
         document.getElementById('merkMesin').textContent = data.merk_mesin;
         document.getElementById('tonageMesin').textContent = data.tonage || '-'; 
@@ -210,7 +212,8 @@
         const radio = document.querySelector(`input[name="${f}"]:checked`);
         if (!radio) return alert("Mohon lengkapi semua item!");
         payload[f] = radio.value;
-        const ket = document.getElementById(`text-${f}`).value;
+        const ketInput = document.getElementById(`text-${f}`);
+        const ket = ketInput ? ketInput.value.trim() : "";
         if(radio.value === 'NG' && !ket) return alert("NG wajib diisi keterangan!");
       }
 
