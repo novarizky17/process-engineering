@@ -36,7 +36,7 @@
     .ng { color: #dc3545; font-weight: bold; background: #ffebee; padding: 2px 8px; border-radius: 4px; }
 
     .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
-    canvas { width: 100%; height: 150px; cursor: crosshair; display: block; }
+    canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
     
     textarea { width: 100%; height: 80px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
   </style>
@@ -109,7 +109,6 @@
 </div>
 
 <script>
-  // Konfigurasi Supabase
   const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
   const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -119,7 +118,6 @@
   const canvas = document.getElementById('sig-canvas');
   const ctx = canvas.getContext('2d');
 
-  // Struktur Master untuk Prefix Otomatis agar sinkron dengan Form Pelaksana
   const masterStructure = [
     { section: "1. STAND LABEL", prefix: "", fields: ["wiring", "komponen", "kerapihan", "sensor", "timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator", "selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad", "flange", "vacuum_pad_takeout"] },
     { section: "2. STACKING", prefix: "stacking_", fields: ["wiring", "sensor", "linier", "mechanical_part", "cylinder", "pneumatic"] },
@@ -128,18 +126,65 @@
     { section: "5. DUMMY", prefix: "dummy_", fields: ["vacuum", "condition", "flange", "instalasi", "tubbing"] }
   ];
 
-  // Logic Tanda Tangan (Canvas)
-  canvas.width = 600; canvas.height = 150;
-  ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
-  function getPos(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top }; }
-  canvas.onmousedown = (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
-  canvas.onmousemove = (e) => { if(!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+  // Inisialisasi Ukuran Canvas
+  canvas.width = 600; 
+  canvas.height = 150;
+  ctx.lineWidth = 3; 
+  ctx.lineCap = 'round'; 
+  ctx.strokeStyle = '#000';
+
+  // Fungsi Koordinat Presisi (Menghilangkan Offset)
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  }
+
+  // Event Mouse
+  canvas.onmousedown = (e) => {
+    isDrawing = true;
+    const p = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  };
+  canvas.onmousemove = (e) => {
+    if (!isDrawing) return;
+    const p = getPos(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  };
   window.onmouseup = () => isDrawing = false;
-  canvas.ontouchstart = (e) => { e.preventDefault(); isDrawing = true; const p = getPos(e.touches[0]); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
-  canvas.ontouchmove = (e) => { e.preventDefault(); if(!isDrawing) return; const p = getPos(e.touches[0]); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+
+  // Event Touch (Mencegah Layar Geser)
+  canvas.ontouchstart = (e) => {
+    if (e.target === canvas) e.preventDefault();
+    isDrawing = true;
+    const p = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  };
+  canvas.ontouchmove = (e) => {
+    if (e.target === canvas) e.preventDefault();
+    if (!isDrawing) return;
+    const p = getPos(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  };
+  canvas.ontouchend = (e) => {
+    if (e.target === canvas) e.preventDefault();
+    isDrawing = false;
+  };
+
   function clearSig() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-  // Load Data Utama
   async function loadData() {
     const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
     if(error) return console.error("Error Load:", error);
@@ -158,7 +203,6 @@
     `).join('');
   }
 
-  // Menampilkan Detail Review
   function openModal(row) {
     activeId = row.id;
     document.getElementById('infoPelaksana').innerText = `Pelaksana: ${row.pelaksana?.nama_pelaksana} | Mesin: ${row.pelaksana?.merk_mesin} | Tanggal: ${row.pelaksana?.tanggal_checklist}`;
@@ -169,7 +213,7 @@
     masterStructure.forEach(sec => {
       let html = `<div class="section-header">${sec.section}</div><div class="grid">`;
       sec.fields.forEach((f, i) => {
-        const dbField = sec.prefix + f; // Gabung prefix
+        const dbField = sec.prefix + f; 
         const val = row[dbField] || '-';
         const label = f.replace(/_/g, ' ').toUpperCase();
         html += `<div class="grid-item"><span>${i+1}. ${label}</span><span class="${val==='OK'?'ok':'ng'}">${val}</span></div>`;
@@ -178,12 +222,10 @@
       body.innerHTML += html;
     });
 
-    // TTD Pelaksana jika ada
     if(row.signature_pelaksana) {
       body.innerHTML += `<div class="section-header">TANDA TANGAN PELAKSANA</div><div style="text-align:center;"><img src="${row.signature_pelaksana}" style="height:120px; border:1px solid #eee; background:#fff; margin-top:10px;"></div>`;
     }
 
-    // Mengatur Tampilan Panel Approval
     const isPending = row.status === 'Pending';
     document.getElementById('pendingSection').style.display = isPending ? 'block' : 'none';
     document.getElementById('historySection').style.display = isPending ? 'none' : 'block';
@@ -211,7 +253,6 @@
     clearSig();
   }
 
-  // Proses Update Status (Approve / Reject)
   async function processStatus(newStatus) {
     const sigBase64 = canvas.toDataURL();
     const reason = document.getElementById('reasonText').value;
@@ -219,7 +260,7 @@
     if(newStatus === 'Approved') {
         const blank = document.createElement('canvas');
         blank.width = canvas.width; blank.height = canvas.height;
-        if(sigBase64 === blank.toDataURL()) return alert("Tanda tangan superintendent wajib diisi untuk approve!");
+        if(sigBase64 === blank.toDataURL()) return alert("Tanda tangan superintendent wajib diisi!");
     }
     
     if(newStatus === 'Rejected' && !reason) return alert("Alasan penolakan wajib diisi!");
@@ -231,17 +272,12 @@
         approved_at: new Date().toISOString() 
     };
 
-    // Update ke Supabase
-    const { data, error } = await _supabase
-        .from('checklist')
-        .update(updateData)
-        .eq('id', activeId)
-        .select();
+    const { error } = await _supabase.from('checklist').update(updateData).eq('id', activeId);
 
     if(error) {
-        alert("Gagal memperbarui status: " + error.message);
+        alert("Gagal: " + error.message);
     } else {
-        alert("Berhasil! Checklist telah " + (newStatus === 'Approved' ? "disetujui." : "ditolak."));
+        alert("Berhasil!");
         closeModal();
         loadData();
     }
@@ -251,6 +287,5 @@
   function closeModal() { document.getElementById('modal').style.display = 'none'; }
   window.onload = loadData;
 </script>
-
 </body>
 </html>
