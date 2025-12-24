@@ -24,12 +24,12 @@
         .title-area { text-align: center; font-size: 16pt; font-weight: bold; padding: 10px; text-transform: uppercase; }
         .meta-area { width: 280px; font-size: 9pt; padding: 5px; text-transform: uppercase; }
         
-        /* META INFO - FORCE UPPERCASE */
+        /* META INFO - HURUF KAPITAL */
         .meta-info { display: flex; justify-content: space-between; margin: 8px 0; font-weight: bold; font-size: 10pt; align-items: flex-end; text-transform: uppercase; }
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
-        /* TABLE - FORCE UPPERCASE */
+        /* TABLE - HURUF KAPITAL */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; }
         .table-official th, .table-official td { border: 1px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
@@ -120,9 +120,6 @@
                 <tr id="row-paraf-pelaksana">
                     <td colspan="2" class="row-title-footer">PARAF PELAKSANA</td>
                 </tr>
-                <tr id="row-paraf-pengecek">
-                    <td colspan="2" class="row-title-footer">PARAF PENGECEK</td>
-                </tr>
             </tfoot>
         </table>
 
@@ -203,7 +200,6 @@
             const tonage = document.getElementById('input-tonage').value.trim();
             const monthText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text;
 
-            // Display UpperCase labels
             document.getElementById('label-bulan').innerText = monthText.toUpperCase() + " " + thn;
             document.getElementById('label-merk').innerText = (merk || "-").toUpperCase();
             document.getElementById('label-tonage').innerText = (tonage || "-").toUpperCase();
@@ -211,7 +207,6 @@
             const startDate = `${thn}-${bln}-01`;
             const endDate = `${thn}-${bln}-31`;
 
-            // Query with date range based on pelaksana table date
             const { data, error } = await _sb
                 .from('checklist')
                 .select('*, pelaksana(*)')
@@ -221,14 +216,12 @@
 
             if (error) return console.error(error);
 
-            // Filter by merk and tonage locally
             const filteredData = data.filter(item => {
                 const matchMerk = merk ? item.pelaksana.merk_mesin.toLowerCase().includes(merk.toLowerCase()) : true;
                 const matchTonage = tonage ? item.pelaksana.tonage.toLowerCase().includes(tonage.toLowerCase()) : true;
                 return matchMerk && matchTonage;
             });
 
-            // Map data to Day of month
             const dataMap = {};
             filteredData.forEach(item => {
                 const day = parseInt(item.pelaksana.tanggal_checklist.split('-')[2]);
@@ -249,7 +242,6 @@
                     for(let i=1; i<=31; i++) {
                         let sign = "";
                         if (dataMap[i]) {
-                            // Display checkmark or X
                             sign = dataMap[i][item.field] === 'OK' ? '√' : 'X';
                         }
                         rHtml += `<td>${sign}</td>`;
@@ -258,12 +250,9 @@
                 }
             });
 
-            // Paraf Handling
+            // Hanya proses Paraf Pelaksana
             const rowPel = document.getElementById('row-paraf-pelaksana');
-            const rowPen = document.getElementById('row-paraf-pengecek');
-            
             while(rowPel.cells.length > 1) rowPel.deleteCell(1);
-            while(rowPen.cells.length > 1) rowPen.deleteCell(1);
 
             for(let i=1; i<=31; i++) {
                 const cPel = rowPel.insertCell();
@@ -271,15 +260,8 @@
                 if(dataMap[i] && dataMap[i].signature_pelaksana) {
                     cPel.innerHTML = `<img src="${dataMap[i].signature_pelaksana}">`;
                 }
-
-                const cPen = rowPen.insertCell();
-                cPen.className = "sig-td";
-                if(dataMap[i] && dataMap[i].signature) {
-                    cPen.innerHTML = `<img src="${dataMap[i].signature}">`;
-                }
             }
 
-            // Latest Approved Superintendent Signature
             const latest = filteredData.sort((a,b) => b.id - a.id)[0];
             const sigFrame = document.getElementById('super-sig');
             if(latest && latest.signature) {
