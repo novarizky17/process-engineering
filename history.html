@@ -11,7 +11,7 @@
             body { padding: 0; margin: 0; background: white; }
             .no-print { display: none !important; }
             .document-page { box-shadow: none; border: none; width: 100%; max-width: none; margin: 0; padding: 5px; }
-            .check-symbol { color: black !important; -webkit-print-color-adjust: exact; }
+            .status-text { color: black !important; }
         }
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #000; }
         .document-page { background: white; width: 1250px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
@@ -34,12 +34,13 @@
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
         
-        .check-symbol { font-weight: bold; font-size: 11pt; color: #000 !important; }
-        .ng-text { font-size: 6pt; line-height: 1.1; word-wrap: break-word; color: #d32f2f; font-weight: bold; text-transform: uppercase; }
+        .status-text { font-weight: bold; font-size: 9pt; }
+        .ng-color { color: #d32f2f; } /* Merah untuk NG */
+        .ng-text-desc { font-size: 6pt; line-height: 1.1; word-wrap: break-word; color: #d32f2f; font-weight: bold; }
 
         .col-no { width: 30px; }
         .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
-        .col-status { width: 40px; } /* Kolom Simbol */
+        .col-status { width: 50px; } /* Kolom OK/NG */
         .col-ket { width: 85px; }    /* Kolom Keterangan */
         
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
@@ -115,11 +116,11 @@
                     <th colspan="2">WEEK 5</th>
                 </tr>
                 <tr>
-                    <th class="col-status">S</th><th class="col-ket">KET</th>
-                    <th class="col-status">S</th><th class="col-ket">KET</th>
-                    <th class="col-status">S</th><th class="col-ket">KET</th>
-                    <th class="col-status">S</th><th class="col-ket">KET</th>
-                    <th class="col-status">S</th><th class="col-ket">KET</th>
+                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
+                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
+                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
+                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
+                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
                 </tr>
             </thead>
             <tbody id="table-content"></tbody>
@@ -244,20 +245,24 @@
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
                     alphabetCounter = 1;
-                    tbody.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td></tr>`;
+                    tbody.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="10"></td></tr>`;
                 } else {
                     let char = numToChar(alphabetCounter++);
                     let rHtml = `<tr><td>${char}</td><td class="col-item">${item.name}</td>`;
                     for(let w=1; w<=5; w++) {
-                        let symbol = "";
+                        let statusText = "";
                         let ket = "";
+                        let ngClass = "";
+
                         if(dataMap[w]) {
                             const status = dataMap[w][item.field];
-                            symbol = status === 'OK' ? '√' : (status === 'NG' ? 'X' : '');
+                            statusText = status || "";
+                            ngClass = status === 'NG' ? "ng-color" : "";
                             ket = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
                         }
-                        rHtml += `<td class="col-status"><span class="check-symbol">${symbol}</span></td>`;
-                        rHtml += `<td class="col-ket" style="text-align:left; padding-left:3px;"><span class="ng-text">${ket}</span></td>`;
+                        
+                        rHtml += `<td class="col-status"><span class="status-text ${ngClass}">${statusText}</span></td>`;
+                        rHtml += `<td class="col-ket" style="text-align:left; padding-left:3px;"><span class="ng-text-desc">${ket}</span></td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
                 }
