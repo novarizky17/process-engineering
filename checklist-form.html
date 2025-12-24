@@ -46,6 +46,7 @@
     <div class="info">
       Pelaksana: <strong id="pelaksanaNama">-</strong> | 
       Mesin: <strong id="merkMesin">-</strong> | 
+      Tonage: <strong id="tonageMesin">-</strong> | 
       Tanggal: <strong id="tanggalChecklist">-</strong>
     </div>
 
@@ -94,7 +95,7 @@
         <button class="btn-clear" onclick="clearSignature()">Bersihkan</button>
       </div>
 
-      <button class="btn-submit" id="btnSimpan" onclick="simpanChecklist()">SIMPAN DATA CHECKLIST</button>
+      <button class="submit" id="btnSimpan" onclick="simpanChecklist()">SIMPAN DATA CHECKLIST</button>
     </div>
   </div>
 
@@ -103,7 +104,6 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Definisi Item agar konsisten dengan Superintendent
     const config = [
       { container: 'items-stand-elec', fields: ['wiring', 'komponen', 'kerapihan', 'sensor'] },
       { container: 'items-stand-motion', fields: ['timing_belt', 'pully', 'servo_motor', 'linear_bearing', 'rotary_actuator'] },
@@ -117,7 +117,6 @@
       { container: 'items-dummy', fields: ['dummy_vacuum', 'dummy_condition', 'dummy_flange', 'dummy_instalasi', 'dummy_tubbing'] }
     ];
 
-    // Generate HTML Item secara otomatis
     function generateItems() {
       config.forEach(group => {
         const div = document.getElementById(group.container);
@@ -142,34 +141,37 @@
       document.getElementById(`box-${name}`).style.display = show ? 'block' : 'none';
     }
 
-    // Tanda Tangan
     const canvas = document.getElementById('canvas-pelaksana');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
     let points = 0;
 
     canvas.width = 400; canvas.height = 180;
-    ctx.lineWidth = 2; ctx.lineCap = 'round';
-    function getPos(e) { 
-      const r = canvas.getBoundingClientRect(); 
-      return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top }; 
+    ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
+
+    function getPos(e) {
+      const r = canvas.getBoundingClientRect();
+      return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top };
     }
+
     canvas.onmousedown = (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
     canvas.onmousemove = (e) => { if(!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); points++; };
     window.onmouseup = () => isDrawing = false;
     canvas.ontouchstart = (e) => { e.preventDefault(); isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
     canvas.ontouchmove = (e) => { e.preventDefault(); if(!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); points++; };
+
     function clearSignature() { ctx.clearRect(0,0,400,180); points = 0; }
 
-    // Init Page
     async function init() {
       generateItems();
       const pId = localStorage.getItem('pelaksana_id');
       if (!pId) return window.location.assign('index.html');
+      
       const { data } = await _supabase.from('pelaksana').select('*').eq('id', pId).single();
       if (data) {
         document.getElementById('pelaksanaNama').textContent = data.nama_pelaksana;
         document.getElementById('merkMesin').textContent = data.merk_mesin;
+        document.getElementById('tonageMesin').textContent = data.tonage || '-'; 
         document.getElementById('tanggalChecklist').textContent = data.tanggal_checklist;
       }
     }
@@ -180,7 +182,6 @@
 
       let payload = { pelaksana_id: pId, status: 'Pending', signature_pelaksana: canvas.toDataURL() };
       
-      // Kumpulkan data semua radio
       const allFields = config.flatMap(g => g.fields);
       for (const f of allFields) {
         const radio = document.querySelector(`input[name="${f}"]:checked`);
@@ -193,7 +194,7 @@
       document.getElementById('btnSimpan').disabled = true;
       const { error } = await _supabase.from('checklist').insert([payload]);
       if (error) {
-        alert(error.message);
+        alert("Error: " + error.message);
         document.getElementById('btnSimpan').disabled = false;
       } else {
         alert("Berhasil!");
