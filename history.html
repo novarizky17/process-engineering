@@ -28,16 +28,16 @@
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; }
-        .table-official th, .table-official td { border: 1px solid black; padding: 2px; font-size: 7pt; text-align: center; vertical-align: middle; }
+        .table-official th, .table-official td { border: 1px solid black; padding: 2px; font-size: 6.5pt; text-align: center; vertical-align: middle; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
         .col-no { width: 25px; }
         .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
-        .col-week { width: 17px; font-size: 6.5pt; } /* Ukuran kolom dikecilkan agar muat 53 week */
+        .col-week { width: 18px; font-size: 6pt; }
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
         
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: right !important; padding-right: 10px !important; font-size: 7pt; }
         .sig-td { height: 35px; background-color: #fff; overflow: hidden; }
-        .sig-td img { height: 25px; width: auto; mix-blend-mode: multiply; }
+        .sig-td img { height: 28px; width: auto; mix-blend-mode: multiply; }
 
         .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .no-print input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
@@ -54,8 +54,8 @@
 <body>
 
     <div class="no-print">
-        <input type="text" id="input-merk" placeholder="MERK MESIN...">
-        <input type="text" id="input-tonage" placeholder="TONAGE...">
+        <input type="text" id="input-merk" placeholder="MERK MESIN (CONTOH: IRON MAN)">
+        <input type="text" id="input-tonage" placeholder="TONAGE (CONTOH: 150T)">
         <select id="filter-tahun">
             <option value="2024">2024</option><option value="2025" selected>2025</option>
         </select>
@@ -191,33 +191,30 @@
             document.getElementById('label-merk').innerText = (merk || "-").toUpperCase();
             document.getElementById('label-tonage').innerText = (tonage || "-").toUpperCase();
 
-            // Query data berdasarkan tahun
-            const startDate = `${thn}-01-01`;
-            const endDate = `${thn}-12-31`;
-
+            // 1. Query Data Checklist yang sudah APPROVED
             const { data, error } = await _sb
                 .from('checklist')
                 .select('*, pelaksana(*)')
-                .gte('pelaksana.tanggal_checklist', startDate)
-                .lte('pelaksana.tanggal_checklist', endDate)
-                .eq('status', 'Approved');
+                .eq('status', 'Approved'); // Harus Approved baru muncul di history
 
             if (error) return console.error(error);
 
-            // Filter manual merk/tonage
+            // 2. Filter data berdasarkan Tahun, Merk, dan Tonage secara manual
             const filteredData = data.filter(item => {
-                const mMerk = merk ? item.pelaksana.merk_mesin.toLowerCase().includes(merk.toLowerCase()) : true;
-                const mTon = tonage ? item.pelaksana.tonage.toLowerCase().includes(tonage.toLowerCase()) : true;
-                return mMerk && mTon;
+                const yearMatch = item.pelaksana && item.pelaksana.tanggal_checklist && item.pelaksana.tanggal_checklist.startsWith(thn);
+                const merkMatch = merk ? item.pelaksana.merk_mesin.toLowerCase().includes(merk.toLowerCase()) : true;
+                const tonageMatch = tonage ? item.pelaksana.tonage.toLowerCase().includes(tonage.toLowerCase()) : true;
+                return yearMatch && merkMatch && tonageMatch;
             });
 
-            // Mapping data berdasarkan kolom "week" di tabel pelaksana
+            // 3. Mapping data ke kolom WEEK pelaksana
             const dataMap = {};
             filteredData.forEach(item => {
-                const w = item.pelaksana.week;
+                const w = item.pelaksana ? item.pelaksana.week : null;
                 if(w) dataMap[w] = item;
             });
 
+            // 4. Render Isi Tabel
             const tbody = document.getElementById('table-content');
             tbody.innerHTML = "";
             let counter = 1;
@@ -240,7 +237,7 @@
                 }
             });
 
-            // Paraf Footer (Mingguan)
+            // 5. Render Paraf Pelaksana
             const rowPel = document.getElementById('row-paraf-pelaksana');
             while(rowPel.cells.length > 1) rowPel.deleteCell(1);
 
@@ -252,6 +249,7 @@
                 }
             }
 
+            // 6. Tanda Tangan Superintendent (Diketauhi)
             const latest = filteredData.sort((a,b) => b.id - a.id)[0];
             const sigFrame = document.getElementById('super-sig');
             if(latest && latest.signature) {
