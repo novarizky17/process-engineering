@@ -16,7 +16,6 @@
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #000; }
         .document-page { background: white; width: 1150px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
         
-        /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
@@ -29,7 +28,6 @@
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
-        /* TABLE STYLING */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 6.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
@@ -40,25 +38,26 @@
         .col-week { width: 18px; font-size: 6pt; }
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
         
-        /* PERBAIKAN: UKURAN PARAF DIPERBESAR */
-        .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 65px; } /* Tinggi ditambah */
+        /* OPTIMASI PARAF PELAKSANA AGAR TERLIHAT SANGAT BESAR */
+        .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 80px; }
         
         .sig-td { 
-            height: 65px; /* Tinggi kotak ditambah agar TTD bisa besar */
+            height: 80px; 
             background-color: #fff; 
-            padding: 1px !important; 
+            padding: 0 !important; 
             vertical-align: middle !important; 
             text-align: center !important;
             overflow: hidden;
+            width: 18px;
         }
         .sig-td img { 
-            width: 100%; /* Memaksa gambar selebar kotak */
-            height: auto; 
-            max-height: 60px; /* Batas tinggi maksimal */
+            width: 150%; /* Skala diperbesar melewati batas sel untuk membuang margin kosong */
+            height: 100%; 
+            object-fit: contain; /* Memaksa gambar memenuhi kotak sejauh mungkin */
             mix-blend-mode: multiply; 
-            filter: grayscale(1) contrast(2.5) brightness(0.5); 
+            filter: grayscale(1) contrast(3) brightness(0.4); /* Kontras tinggi agar garis pena pekat */
             display: block; 
-            margin: 0 auto;
+            margin-left: -25%; /* Menggeser posisi agar fokus ke tengah tanda tangan */
         }
 
         .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -68,7 +67,7 @@
         .keterangan { font-size: 8.5pt; width: 60%; line-height: 1.4; color: #000; font-weight: bold; }
         .diketahui-box { width: 30%; text-align: center; margin-left: auto; }
         .sig-frame { border: 1.5px solid black; width: 160px; height: 80px; margin: 5px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
-        .sig-frame img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2.5) brightness(0.5); }
+        .sig-frame img { max-height: 75px; width: auto; filter: grayscale(1) contrast(3) brightness(0.4); }
         .name-line { border-top: 1.5px solid black; width: 180px; margin: 0 auto; padding-top: 3px; font-weight: bold; color: #000; }
     </style>
 </head>
@@ -78,10 +77,11 @@
         <input type="text" id="input-merk" placeholder="MERK MESIN">
         <input type="text" id="input-tonage" placeholder="TONAGE">
         <select id="filter-tahun">
-            <option value="2024">2024</option>
-            <option value="2025" selected>2025</option>
             <script>
-                for(let y=2026; y<=2050; y++) { document.write(`<option value="${y}">${y}</option>`); }
+                for(let y=2024; y<=2050; y++) { 
+                    let sel = y === 2025 ? "selected" : "";
+                    document.write(`<option value="${y}" ${sel}>${y}</option>`); 
+                }
             </script>
         </select>
         <button onclick="renderReport(true)" style="background: #003366; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">CARI DATA</button>
@@ -246,7 +246,6 @@
                     tbody.innerHTML += rHtml + `</tr>`;
                 }
             });
-            
             const rowPel = document.getElementById('row-paraf-pelaksana');
             while(rowPel.cells.length > 1) rowPel.deleteCell(1);
             for(let i=1; i<=53; i++) rowPel.insertCell().className = "sig-td";
@@ -277,11 +276,9 @@
         function renderParaf(dataMap) {
             const rowPel = document.getElementById('row-paraf-pelaksana');
             while(rowPel.cells.length > 1) rowPel.deleteCell(1);
-
             for(let i=1; i<=53; i++) {
                 const cPel = rowPel.insertCell();
                 cPel.className = "sig-td";
-                
                 if(dataMap[i] && dataMap[i].signature_pelaksana) {
                     const img = document.createElement('img');
                     img.src = dataMap[i].signature_pelaksana;
