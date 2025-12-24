@@ -3,233 +3,268 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Form Checklist Tooling Injection</title>
+  <title>Superintendent - Approval System</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; }
-    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-    .logo { font-size: 1.5em; font-weight: bold; }
-    .back-btn { background-color: #004085; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
+    header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .container { padding: 20px; max-width: 1100px; margin: 0 auto; }
     
-    .main-content { padding: 20px; max-width: 900px; margin: 0 auto; }
-    h1 { text-align: center; margin-bottom: 20px; }
+    .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
+    td { padding: 15px; border-top: 1px solid #eee; }
     
-    .info { text-align: center; font-size: 1.1em; margin-bottom: 30px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); line-height: 1.6; }
+    .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-approved { background: #d4edda; color: #155724; }
+    .status-rejected { background: #f8d7da; color: #721c24; }
+
+    .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-success { background: #28a745; color: white; width: 45%; }
+    .btn-danger { background: #dc3545; color: white; width: 45%; }
+
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
+    .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 900px; }
     
-    .form-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+    .grid-item { border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
     
-    .section { margin-bottom: 40px; border: 1px solid #eee; padding: 20px; border-radius: 10px; }
-    .section h3 { font-size: 1.5em; border-bottom: 2px solid #003366; padding-bottom: 10px; margin-top: 0; color: #003366; }
-    .section h4 { color: #155724; font-size: 1.2em; margin: 20px 0 10px 0; background: #e9f7ef; padding: 5px 10px; border-radius: 4px; }
+    .ok { color: #28a745; font-weight: bold; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; }
+    .ng { color: #dc3545; font-weight: bold; background: #ffebee; padding: 2px 8px; border-radius: 4px; }
+
+    /* Style untuk keterangan Alasan NG */
+    .ng-reason { display: block; font-size: 11px; color: #dc3545; font-style: italic; margin-top: 4px; font-weight: normal; }
+
+    .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
+    canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
     
-    .item { border-bottom: 1px solid #eee; padding: 15px 0; }
-    .item-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-    .item-label { font-size: 1.1em; font-weight: bold; flex: 1; min-width: 200px; }
-    
-    .status-group { display: flex; gap: 30px; }
-    .status-group label { display: flex; align-items: center; gap: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; }
-    input[type="radio"] { transform: scale(1.4); cursor: pointer; }
-    
-    .keterangan { display: none; margin-top: 10px; width: 100%; }
-    .keterangan textarea { width: 100%; height: 70px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; resize: vertical; box-sizing: border-box; }
-    
-    .signature-area { margin-top: 30px; padding: 20px; border: 2px dashed #003366; border-radius: 10px; text-align: center; background: #fafafa; }
-    .sig-pad { background: white; border: 1px solid #ccc; border-radius: 8px; cursor: crosshair; touch-action: none; width: 100%; max-width: 400px; height: 180px; display: block; margin: 10px auto; }
-    
-    .btn-clear { background: #6c757d; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-top: 10px; }
-    
-    .btn-submit { 
-      background-color: #28a745; 
-      color: white; 
-      padding: 18px 40px; 
-      border: none; 
-      border-radius: 8px; 
-      cursor: pointer; 
-      font-size: 1.3em; 
-      width: 100%; 
-      font-weight: bold; 
-      margin-top: 30px; 
-      display: block;
-      transition: background 0.3s;
-    }
-    .btn-submit:hover { background-color: #218838; }
-    .btn-submit:disabled { background-color: #ccc; cursor: not-allowed; }
+    textarea { width: 100%; height: 80px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo">TOOLING SUPPORT</div>
-    <a href="index.html" class="back-btn">Kembali</a>
-  </header>
+<header>
+  <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
+  <button class="btn btn-primary" onclick="loadData()">Refresh Data</button>
+</header>
 
-  <div class="main-content">
-    <h1>Checklist Pelaksana</h1>
-    <div class="info">
-      MINGGU: <strong id="weekChecklist">-</strong> | 
-      Pelaksana: <strong id="pelaksanaNama">-</strong> | 
-      Mesin: <strong id="merkMesin">-</strong> | 
-      Tonage: <strong id="tonageMesin">-</strong> | 
-      Tanggal: <strong id="tanggalChecklist">-</strong>
-    </div>
+<div class="container">
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Pelaksana</th>
+          <th>Minggu (Week)</th> <th>Mesin / Tonage</th>
+          <th>Tanggal</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="mainTable">
+        <tr><td colspan="6" style="text-align:center;">Memuat data...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-    <div class="form-container">
-      <div class="section">
-        <h3>1. STAND LABEL</h3>
-        <h4>ELECTRICAL</h4>
-        <div id="items-stand-elec"></div>
-        <h4>MOTION</h4>
-        <div id="items-stand-motion"></div>
-        <h4>PNEUMATIC</h4>
-        <div id="items-stand-pneu"></div>
-        <h4>TAKE OUT PRODUK</h4>
-        <div id="items-stand-takeout"></div>
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
+    <h2 id="modalTitle" style="color:#003366; margin:0;">Review Detail Checklist</h2>
+    <p id="infoPelaksana" style="color:#666; margin-top:5px; font-weight: bold;"></p>
+    <hr>
+    
+    <div id="modalBody"></div>
+
+    <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
+      <div id="pendingSection" style="display:none; text-align:center;">
+        <p><strong>Tanda Tangan Superintendent:</strong></p>
+        <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
+        <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
+        <br>
+        <div style="display: flex; justify-content: space-around;">
+          <button class="btn btn-success" onclick="processStatus('Approved')">APPROVE</button>
+          <button class="btn btn-danger" onclick="showRejectInput()">REJECT</button>
+        </div>
+        
+        <div id="rejectInput" style="display:none; margin-top:20px; text-align:left;">
+          <label><strong>Alasan Penolakan:</strong></label>
+          <textarea id="reasonText" placeholder="Berikan alasan mengapa checklist ditolak..."></textarea>
+          <button class="btn btn-danger" style="width:100%;" onclick="processStatus('Rejected')">Kirim Penolakan</button>
+        </div>
       </div>
 
-      <div class="section">
-        <h3>2. STACKING</h3>
-        <h4>ELECTRICAL</h4>
-        <div id="items-stack-elec"></div>
-        <h4>MOTION</h4>
-        <div id="items-stack-motion"></div>
-        <h4>PNEUMATIC</h4>
-        <div id="items-stack-pneu"></div>
+      <div id="historySection" style="display:none; text-align:center;">
+        <h3 id="historyLabel"></h3>
+        <div id="historySigArea">
+           <p>Tanda Tangan Superintendent:</p>
+           <img id="historySigImg" style="max-width:300px; border:1px solid #ddd; padding:5px; background:white;">
+        </div>
+        <div id="historyRejectArea" style="background:#fff1f0; padding:15px; border-radius:8px; display:none;">
+           <strong>Alasan Reject:</strong> <span id="historyReason"></span>
+        </div>
       </div>
-
-      <div class="section">
-        <h3>3. CONVEYOR</h3>
-        <div id="items-conveyor"></div>
-      </div>
-
-      <div class="section">
-        <h3>4. DOSING</h3>
-        <div id="items-dosing"></div>
-      </div>
-
-      <div class="section">
-        <h3>5. DUMMY</h3>
-        <div id="items-dummy"></div>
-      </div>
-
-      <div class="signature-area">
-        <strong>Tanda Tangan Pelaksana:</strong>
-        <canvas id="canvas-pelaksana" class="sig-pad"></canvas>
-        <button class="btn-clear" onclick="clearSignature()">Bersihkan</button>
-      </div>
-
-      <button class="btn-submit" id="btnSimpan" onclick="simpanChecklist()">SIMPAN DATA CHECKLIST</button>
     </div>
   </div>
+</div>
 
-  <script>
-    const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
-    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+<script>
+  const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
+  const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    const config = [
-      { container: 'items-stand-elec', fields: ['wiring', 'komponen', 'kerapihan', 'sensor'] },
-      { container: 'items-stand-motion', fields: ['timing_belt', 'pully', 'servo_motor', 'linear_bearing', 'rotary_actuator'] },
-      { container: 'items-stand-pneu', fields: ['selenoid_valve', 'vacuum_ejector', 'silinder_pneumatic', 'napple', 'vacuum_pad'] },
-      { container: 'items-stand-takeout', fields: ['flange', 'vacuum_pad_takeout'] },
-      { container: 'items-stack-elec', fields: ['stacking_wiring', 'stacking_sensor'] },
-      { container: 'items-stack-motion', fields: ['stacking_linier', 'stacking_mechanical_part'] },
-      { container: 'items-stack-pneu', fields: ['stacking_cylinder', 'stacking_pneumatic'] },
-      { container: 'items-conveyor', fields: ['conveyor_belt', 'conveyor_motor', 'conveyor_rantai', 'conveyor_frame', 'conveyor_inverter'] },
-      { container: 'items-dosing', fields: ['dosing_alarm', 'dosing_setting'] },
-      { container: 'items-dummy', fields: ['dummy_vacuum', 'dummy_condition', 'dummy_flange', 'dummy_instalasi', 'dummy_tubbing'] }
-    ];
+  let activeId = null;
+  let isDrawing = false;
+  const canvas = document.getElementById('sig-canvas');
+  const ctx = canvas.getContext('2d');
 
-    function generateItems() {
-      config.forEach(group => {
-        const div = document.getElementById(group.container);
-        group.fields.forEach(f => {
-          const label = f.replace(/stacking_|conveyor_|dosing_|dummy_|_/g, ' ').toUpperCase();
-          div.innerHTML += `
-            <div class="item">
-              <div class="item-row">
-                <span class="item-label">${label}</span>
-                <div class="status-group">
-                  <label><input type="radio" name="${f}" value="OK" onclick="toggleKet('${f}', false)"> OK</label>
-                  <label><input type="radio" name="${f}" value="NG" onclick="toggleKet('${f}', true)"> NG</label>
-                </div>
-              </div>
-              <div id="box-${f}" class="keterangan"><textarea id="text-${f}" placeholder="Alasan NG..."></textarea></div>
-            </div>`;
-        });
+  const masterStructure = [
+    { section: "1. STAND LABEL", prefix: "", fields: ["wiring", "komponen", "kerapihan", "sensor", "timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator", "selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad", "flange", "vacuum_pad_takeout"] },
+    { section: "2. STACKING", prefix: "stacking_", fields: ["wiring", "sensor", "linier", "mechanical_part", "cylinder", "pneumatic"] },
+    { section: "3. CONVEYOR", prefix: "conveyor_", fields: ["belt", "motor", "rantai", "frame", "inverter"] },
+    { section: "4. DOSING", prefix: "dosing_", fields: ["alarm", "setting"] },
+    { section: "5. DUMMY", prefix: "dummy_", fields: ["vacuum", "condition", "flange", "instalasi", "tubbing"] }
+  ];
+
+  canvas.width = 600; 
+  canvas.height = 150;
+  ctx.lineWidth = 3; 
+  ctx.lineCap = 'round'; 
+  ctx.strokeStyle = '#000';
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+  }
+
+  canvas.onmousedown = (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+  canvas.onmousemove = (e) => { if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+  window.onmouseup = () => isDrawing = false;
+
+  canvas.ontouchstart = (e) => { if (e.target === canvas) e.preventDefault(); isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+  canvas.ontouchmove = (e) => { if (e.target === canvas) e.preventDefault(); if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+  canvas.ontouchend = (e) => { if (e.target === canvas) e.preventDefault(); isDrawing = false; };
+
+  function clearSig() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+  async function loadData() {
+    const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
+    if(error) return console.error("Error Load:", error);
+    
+    const tableBody = document.getElementById('mainTable');
+    if (data.length === 0) { tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data checklist.</td></tr>'; return; }
+    
+    tableBody.innerHTML = data.map(row => `
+      <tr>
+        <td><strong>${row.pelaksana?.nama_pelaksana || 'Unknown'}</strong></td>
+        <td>W-${row.pelaksana?.week || '-'}</td> <td>${row.pelaksana?.merk_mesin || '-'} / ${row.pelaksana?.tonage || '-'}</td>
+        <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
+        <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
+        <td><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
+      </tr>
+    `).join('');
+  }
+
+  function openModal(row) {
+    activeId = row.id;
+    document.getElementById('infoPelaksana').innerText = `MINGGU: W-${row.pelaksana?.week} | Pelaksana: ${row.pelaksana?.nama_pelaksana} | Mesin: ${row.pelaksana?.merk_mesin} | Tanggal: ${row.pelaksana?.tanggal_checklist}`;
+    
+    const body = document.getElementById('modalBody');
+    body.innerHTML = '';
+
+    masterStructure.forEach(sec => {
+      let html = `<div class="section-header">${sec.section}</div><div class="grid">`;
+      sec.fields.forEach((f, i) => {
+        const dbField = sec.prefix + f; 
+        const val = row[dbField] || '-';
+        
+        // Logika untuk menampilkan alasan NG dari kolom pendukung (_notes)
+        const reasonField = dbField + "_notes";
+        const reasonVal = row[reasonField] ? `<span class="ng-reason">Alasan: ${row[reasonField]}</span>` : "";
+        
+        const label = f.replace(/_/g, ' ').toUpperCase();
+        
+        html += `
+          <div class="grid-item">
+            <div>
+              <span>${i+1}. ${label}</span>
+              ${val === 'NG' ? reasonVal : ''}
+            </div>
+            <span class="${val==='OK'?'ok':'ng'}">${val}</span>
+          </div>`;
       });
+      html += `</div>`;
+      body.innerHTML += html;
+    });
+
+    if(row.signature_pelaksana) {
+      body.innerHTML += `<div class="section-header">TANDA TANGAN PELAKSANA</div><div style="text-align:center;"><img src="${row.signature_pelaksana}" style="height:120px; border:1px solid #eee; background:#fff; margin-top:10px;"></div>`;
     }
 
-    function toggleKet(name, show) {
-      document.getElementById(`box-${name}`).style.display = show ? 'block' : 'none';
-    }
+    const isPending = row.status === 'Pending';
+    document.getElementById('pendingSection').style.display = isPending ? 'block' : 'none';
+    document.getElementById('historySection').style.display = isPending ? 'none' : 'block';
+    document.getElementById('rejectInput').style.display = 'none';
 
-    const canvas = document.getElementById('canvas-pelaksana');
-    const ctx = canvas.getContext('2d');
-    let isDrawing = false;
-    let points = 0;
+    if(!isPending) {
+      document.getElementById('historyLabel').innerHTML = row.status === 'Approved' ? '<span class="ok" style="font-size:1.5rem">✓ TELAH DISETUJUI</span>' : '<span class="ng" style="font-size:1.5rem">✘ DATA DITOLAK</span>';
+      const sigImg = document.getElementById('historySigImg');
+      const sigArea = document.getElementById('historySigArea');
+      const rejectArea = document.getElementById('historyRejectArea');
 
-    canvas.width = 400; canvas.height = 180;
-    ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
-
-    function getPos(e) {
-      const r = canvas.getBoundingClientRect();
-      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-      return { x: clientX - r.left, y: clientY - r.top };
-    }
-
-    canvas.onmousedown = (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
-    canvas.onmousemove = (e) => { if(!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); points++; };
-    window.onmouseup = () => isDrawing = false;
-    canvas.ontouchstart = (e) => { e.preventDefault(); isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
-    canvas.ontouchmove = (e) => { e.preventDefault(); if(!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); points++; };
-    function clearSignature() { ctx.clearRect(0,0,canvas.width,canvas.height); points = 0; }
-
-    async function init() {
-      generateItems();
-      const pId = localStorage.getItem('pelaksana_id');
-      if (!pId) return window.location.assign('index.html');
-      
-      // Mengambil data lengkap termasuk kolom 'week'
-      const { data } = await _supabase.from('pelaksana').select('*').eq('id', pId).single();
-      if (data) {
-        document.getElementById('weekChecklist').textContent = data.week || '-';
-        document.getElementById('pelaksanaNama').textContent = data.nama_pelaksana;
-        document.getElementById('merkMesin').textContent = data.merk_mesin;
-        document.getElementById('tonageMesin').textContent = data.tonage || '-'; 
-        document.getElementById('tanggalChecklist').textContent = data.tanggal_checklist;
-      }
-    }
-
-    async function simpanChecklist() {
-      const pId = localStorage.getItem('pelaksana_id');
-      if (points < 10) return alert("Tanda tangan wajib diisi!");
-
-      let payload = { pelaksana_id: pId, status: 'Pending', signature_pelaksana: canvas.toDataURL() };
-      
-      const allFields = config.flatMap(g => g.fields);
-      for (const f of allFields) {
-        const radio = document.querySelector(`input[name="${f}"]:checked`);
-        if (!radio) return alert("Mohon lengkapi semua item!");
-        payload[f] = radio.value;
-        const ketInput = document.getElementById(`text-${f}`);
-        const ket = ketInput ? ketInput.value.trim() : "";
-        if(radio.value === 'NG' && !ket) return alert("NG wajib diisi keterangan!");
-      }
-
-      document.getElementById('btnSimpan').disabled = true;
-      const { error } = await _supabase.from('checklist').insert([payload]);
-      if (error) {
-        alert("Error: " + error.message);
-        document.getElementById('btnSimpan').disabled = false;
+      if(row.status === 'Approved') {
+        sigArea.style.display = 'block'; rejectArea.style.display = 'none';
+        sigImg.src = row.signature || '';
       } else {
-        alert("Berhasil!");
-        localStorage.removeItem('pelaksana_id');
-        window.location.assign('index.html');
+        sigArea.style.display = 'none'; rejectArea.style.display = 'block';
+        document.getElementById('historyReason').innerText = row.reject_reason || '-';
       }
     }
 
-    window.onload = init;
-  </script>
+    document.getElementById('modal').style.display = 'block';
+    clearSig();
+  }
+
+  async function processStatus(newStatus) {
+    const sigBase64 = canvas.toDataURL();
+    const reason = document.getElementById('reasonText').value;
+    
+    if(newStatus === 'Approved') {
+        const blank = document.createElement('canvas');
+        blank.width = canvas.width; blank.height = canvas.height;
+        if(sigBase64 === blank.toDataURL()) return alert("Tanda tangan superintendent wajib diisi!");
+    }
+    
+    if(newStatus === 'Rejected' && !reason) return alert("Alasan penolakan wajib diisi!");
+
+    const updateData = { 
+        status: newStatus, 
+        signature: newStatus === 'Approved' ? sigBase64 : null,
+        reject_reason: newStatus === 'Rejected' ? reason : null,
+        approved_at: new Date().toISOString() 
+    };
+
+    const { error } = await _supabase.from('checklist').update(updateData).eq('id', activeId);
+
+    if(error) {
+        alert("Gagal: " + error.message);
+    } else {
+        alert("Berhasil!");
+        closeModal();
+        loadData();
+    }
+  }
+
+  function showRejectInput() { document.getElementById('rejectInput').style.display = 'block'; }
+  function closeModal() { document.getElementById('modal').style.display = 'none'; }
+  window.onload = loadData;
+</script>
 </body>
 </html>
