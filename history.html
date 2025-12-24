@@ -27,28 +27,44 @@
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
-        .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; }
-        .table-official th, .table-official td { border: 1px solid black; padding: 2px; font-size: 6.5pt; text-align: center; vertical-align: middle; }
+        .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
+        .table-official th, .table-official td { border: 1px solid black; padding: 2px; font-size: 6.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
+        
+        /* Pewarnaan Hitam Pekat untuk Ceklis dan Simbol */
+        .check-symbol { font-weight: 900; font-size: 9pt; color: #000 !important; }
+
         .col-no { width: 25px; }
         .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
         .col-week { width: 18px; font-size: 6pt; }
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
         
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: right !important; padding-right: 10px !important; font-size: 7pt; }
+        
+        /* Filter Tanda Tangan agar lebih Hitam */
         .sig-td { height: 35px; background-color: #fff; overflow: hidden; }
-        .sig-td img { height: 28px; width: auto; mix-blend-mode: multiply; }
+        .sig-td img { 
+            height: 30px; 
+            width: auto; 
+            mix-blend-mode: multiply; 
+            filter: grayscale(1) contrast(2) brightness(0.5); /* Menjadikan TTD Hitam Pekat */
+        }
 
         .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .no-print input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
         .no-print select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
         
         .footer-flex { display: flex; justify-content: space-between; margin-top: 20px; text-transform: uppercase; }
-        .keterangan { font-size: 8.5pt; width: 60%; line-height: 1.4; }
+        .keterangan { font-size: 8.5pt; width: 60%; line-height: 1.4; color: #000; }
         .diketahui-box { width: 30%; text-align: center; margin-left: auto; }
+        
         .sig-frame { border: 1px solid black; width: 160px; height: 80px; margin: 5px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .sig-frame img { max-height: 75px; width: auto; }
-        .name-line { border-top: 1.5px solid black; width: 180px; margin: 0 auto; padding-top: 3px; font-weight: bold; }
+        .sig-frame img { 
+            max-height: 75px; 
+            width: auto; 
+            filter: grayscale(1) contrast(2) brightness(0.5); /* Menjadikan TTD Hitam Pekat */
+        }
+        .name-line { border-top: 1.5px solid black; width: 180px; margin: 0 auto; padding-top: 3px; font-weight: bold; color: #000; }
     </style>
 </head>
 <body>
@@ -179,7 +195,7 @@
             const weekRow = document.getElementById('week-row');
             weekRow.innerHTML = '';
             for(let i=1; i<=53; i++) weekRow.innerHTML += `<th class="col-week">${i}</th>`;
-            renderReport(false); // Jangan tampilkan data saat awal buka
+            renderReport(false);
         }
 
         async function renderReport(isSearching) {
@@ -187,7 +203,6 @@
             const merk = document.getElementById('input-merk').value.trim();
             const tonage = document.getElementById('input-tonage').value.trim();
 
-            // Kunci Utama: Jika tidak sedang mencari (awal buka) atau input kosong, kosongkan tabel
             if (!isSearching || (!merk && !tonage)) {
                 document.getElementById('label-merk').innerText = "-";
                 document.getElementById('label-tonage').innerText = "-";
@@ -200,7 +215,6 @@
             document.getElementById('label-merk').innerText = merk.toUpperCase();
             document.getElementById('label-tonage').innerText = tonage.toUpperCase();
 
-            // 1. Ambil data
             const { data, error } = await _sb
                 .from('checklist')
                 .select('*, pelaksana(*)')
@@ -208,10 +222,8 @@
 
             if (error) return console.error(error);
 
-            // 2. Filter Ketat
             const filteredData = data.filter(item => {
                 const yearMatch = item.pelaksana && item.pelaksana.tanggal_checklist && item.pelaksana.tanggal_checklist.startsWith(thn);
-                // Gunakan pencarian persis atau mendekati
                 const merkMatch = item.pelaksana.merk_mesin.toLowerCase().includes(merk.toLowerCase());
                 const tonageMatch = item.pelaksana.tonage.toLowerCase().includes(tonage.toLowerCase());
                 return yearMatch && merkMatch && tonageMatch;
@@ -245,8 +257,6 @@
             const rowPel = document.getElementById('row-paraf-pelaksana');
             while(rowPel.cells.length > 1) rowPel.deleteCell(1);
             for(let i=1; i<=53; i++) rowPel.insertCell().className = "sig-td";
-            document.getElementById('super-sig').innerHTML = "";
-            document.getElementById('super-name').innerText = "( ........................ )";
         }
 
         function renderRows(dataMap) {
@@ -261,7 +271,12 @@
                 } else {
                     let rHtml = `<tr><td>${counter++}</td><td class="col-item">${item.name}</td>`;
                     for(let i=1; i<=53; i++) {
-                        let sign = dataMap[i] ? (dataMap[i][item.field] === 'OK' ? '√' : 'X') : "";
+                        let sign = "";
+                        if (dataMap[i]) {
+                            // Menambahkan class check-symbol agar hitam pekat
+                            let mark = dataMap[i][item.field] === 'OK' ? '√' : 'X';
+                            sign = `<span class="check-symbol">${mark}</span>`;
+                        }
                         rHtml += `<td>${sign}</td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
