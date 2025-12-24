@@ -16,7 +16,6 @@
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #000; }
         .document-page { background: white; width: 1150px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
         
-        /* HEADER & META INFO */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
@@ -29,7 +28,6 @@
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
-        /* TABLE STYLING */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 6.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
@@ -41,25 +39,24 @@
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: right !important; padding-right: 10px !important; font-size: 7pt; }
         
-        /* FIX: POSISI TANDA TANGAN */
+        /* POSISI TANDA TANGAN PARAF PELAKSANA RATA KIRI */
         .sig-td { 
             height: 45px; 
             background-color: #fff; 
             padding: 0 !important; 
             vertical-align: middle !important; 
-            text-align: center !important;
+            text-align: left !important; /* RATA KIRI */
             position: relative;
-            overflow: visible; /* Biarkan gambar terlihat meski sedikit melewati batas sel */
+            overflow: visible; 
         }
         .sig-td img { 
             max-height: 42px; 
             width: auto; 
-            /* Menghilangkan background transparan agar coretan lebih pekat */
-            mix-blend-mode: darken; 
-            /* Kontras ditingkatkan, kecerahan diseimbangkan agar garis tidak putus */
+            mix-blend-mode: multiply; 
             filter: grayscale(1) contrast(2.5) brightness(0.7); 
             display: inline-block; 
-            margin: 0 auto;
+            margin: 0; /* TANPA MARGIN AGAR KE PINGGIR */
+            vertical-align: middle;
         }
 
         .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
