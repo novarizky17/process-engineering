@@ -6,45 +6,45 @@
   <title>Superintendent - Approval System</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f0f2f5; }
-    header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
+    header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .container { padding: 20px; max-width: 1100px; margin: 0 auto; }
     
-    /* Table Styling */
-    .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
+    .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
     table { width: 100%; border-collapse: collapse; }
-    th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; }
+    th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
     td { padding: 15px; border-top: 1px solid #eee; }
     
-    /* Status Badge */
-    .badge { padding: 5px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+    .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
     .status-pending { background: #fff3cd; color: #856404; }
     .status-approved { background: #d4edda; color: #155724; }
     .status-rejected { background: #f8d7da; color: #721c24; }
 
-    .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
+    .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
     .btn-primary { background: #007bff; color: white; }
-    .btn-success { background: #28a745; color: white; padding: 12px 25px; }
-    .btn-danger { background: #dc3545; color: white; padding: 12px 25px; }
+    .btn-success { background: #28a745; color: white; width: 45%; }
+    .btn-danger { background: #dc3545; color: white; width: 45%; }
 
-    /* Modal Grid */
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); overflow-y: auto; }
-    .modal-content { background: white; margin: 3% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 900px; }
-    .section-header { background: #f1f4f8; padding: 10px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 4px solid #003366; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
-    .grid-item { border: 1px solid #e0e0e0; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; font-size: 14px; }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
+    .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 900px; }
     
-    .ok { color: #28a745; font-weight: bold; }
-    .ng { color: #dc3545; font-weight: bold; }
+    .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+    .grid-item { border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+    
+    .ok { color: #28a745; font-weight: bold; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; }
+    .ng { color: #dc3545; font-weight: bold; background: #ffebee; padding: 2px 8px; border-radius: 4px; }
 
-    .sig-area { border: 2px dashed #ccc; margin: 20px 0; background: #fafafa; }
-    canvas { width: 100%; height: 150px; cursor: crosshair; }
+    .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
+    canvas { width: 100%; height: 150px; cursor: crosshair; display: block; }
+    
+    textarea { width: 100%; height: 80px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
   </style>
 </head>
 <body>
 
 <header>
-  <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT APPROVAL</div>
+  <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
   <button class="btn btn-primary" onclick="loadData()">Refresh Data</button>
 </header>
 
@@ -54,48 +54,62 @@
       <thead>
         <tr>
           <th>Pelaksana</th>
-          <th>Mesin</th>
+          <th>Mesin / Tonage</th>
           <th>Tanggal</th>
           <th>Status</th>
           <th>Aksi</th>
         </tr>
       </thead>
-      <tbody id="mainTable"></tbody>
+      <tbody id="mainTable">
+        <tr><td colspan="5" style="text-align:center;">Memuat data...</td></tr>
+      </tbody>
     </table>
   </div>
 </div>
 
 <div id="modal" class="modal">
   <div class="modal-content">
-    <span style="float:right; cursor:pointer; font-size:24px;" onclick="closeModal()">&times;</span>
-    <h2 id="modalTitle" style="color:#003366; margin-top:0;">Detail Checklist</h2>
+    <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
+    <h2 id="modalTitle" style="color:#003366; margin:0;">Review Detail Checklist</h2>
+    <p id="infoPelaksana" style="color:#666; margin-top:5px;"></p>
     <hr>
+    
     <div id="modalBody"></div>
 
-    <div id="approvalPanel" style="text-align:center; margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
-      <div id="pendingSection">
+    <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
+      <div id="pendingSection" style="display:none; text-align:center;">
         <p><strong>Tanda Tangan Superintendent:</strong></p>
         <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
-        <button onclick="clearSig()" style="margin-bottom:20px;">Hapus Tanda Tangan</button>
+        <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
         <br>
-        <button class="btn btn-success" onclick="updateStatus('Approved')">APPROVE CHECKLIST</button>
-        <button class="btn btn-danger" onclick="showRejectInput()">REJECT</button>
+        <div style="display: flex; justify-content: space-around;">
+          <button class="btn btn-success" onclick="processStatus('Approved')">APPROVE</button>
+          <button class="btn btn-danger" onclick="showRejectInput()">REJECT</button>
+        </div>
         
-        <div id="rejectInput" style="display:none; margin-top:20px;">
-          <textarea id="reason" style="width:100%; height:80px;" placeholder="Tulis alasan penolakan..."></textarea>
-          <button class="btn btn-danger" style="width:100%; margin-top:10px;" onclick="updateStatus('Rejected')">Kirim Penolakan</button>
+        <div id="rejectInput" style="display:none; margin-top:20px; text-align:left;">
+          <label><strong>Alasan Penolakan:</strong></label>
+          <textarea id="reasonText" placeholder="Berikan alasan mengapa checklist ditolak..."></textarea>
+          <button class="btn btn-danger" style="width:100%;" onclick="processStatus('Rejected')">Kirim Penolakan</button>
         </div>
       </div>
 
-      <div id="resultSection" style="display:none;">
-        <h3 id="resultStatus"></h3>
-        <img id="resultSig" style="max-width:250px; border:1px solid #ddd; padding:5px; background:white;">
+      <div id="historySection" style="display:none; text-align:center;">
+        <h3 id="historyLabel"></h3>
+        <div id="historySigArea">
+           <p>Tanda Tangan Superintendent:</p>
+           <img id="historySigImg" style="max-width:300px; border:1px solid #ddd; padding:5px; background:white;">
+        </div>
+        <div id="historyRejectArea" style="background:#fff1f0; padding:15px; border-radius:8px; display:none;">
+           <strong>Alasan Reject:</strong> <span id="historyReason"></span>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+  // Konfigurasi Supabase
   const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
   const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -105,7 +119,7 @@
   const canvas = document.getElementById('sig-canvas');
   const ctx = canvas.getContext('2d');
 
-  // STRUKTUR BERSIH SESUAI KEINGINAN ANDA
+  // Struktur Master untuk Prefix Otomatis agar sinkron dengan Form Pelaksana
   const masterStructure = [
     { section: "1. STAND LABEL", prefix: "", fields: ["wiring", "komponen", "kerapihan", "sensor", "timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator", "selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad", "flange", "vacuum_pad_takeout"] },
     { section: "2. STACKING", prefix: "stacking_", fields: ["wiring", "sensor", "linier", "mechanical_part", "cylinder", "pneumatic"] },
@@ -114,39 +128,48 @@
     { section: "5. DUMMY", prefix: "dummy_", fields: ["vacuum", "condition", "flange", "instalasi", "tubbing"] }
   ];
 
-  // Logic Tanda Tangan
+  // Logic Tanda Tangan (Canvas)
   canvas.width = 600; canvas.height = 150;
   ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
   function getPos(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top }; }
   canvas.onmousedown = (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
   canvas.onmousemove = (e) => { if(!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
   window.onmouseup = () => isDrawing = false;
-  function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+  canvas.ontouchstart = (e) => { e.preventDefault(); isDrawing = true; const p = getPos(e.touches[0]); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+  canvas.ontouchmove = (e) => { e.preventDefault(); if(!isDrawing) return; const p = getPos(e.touches[0]); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+  function clearSig() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
+  // Load Data Utama
   async function loadData() {
     const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
-    if(error) return console.error(error);
+    if(error) return console.error("Error Load:", error);
     
-    document.getElementById('mainTable').innerHTML = data.map(row => `
+    const tableBody = document.getElementById('mainTable');
+    if (data.length === 0) { tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Belum ada data checklist.</td></tr>'; return; }
+    
+    tableBody.innerHTML = data.map(row => `
       <tr>
-        <td><strong>${row.pelaksana?.nama_pelaksana}</strong></td>
-        <td>${row.pelaksana?.merk_mesin}</td>
-        <td>${row.pelaksana?.tanggal_checklist}</td>
+        <td><strong>${row.pelaksana?.nama_pelaksana || 'Unknown'}</strong></td>
+        <td>${row.pelaksana?.merk_mesin || '-'} / ${row.pelaksana?.tonage || '-'}</td>
+        <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
         <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
         <td><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
       </tr>
     `).join('');
   }
 
+  // Menampilkan Detail Review
   function openModal(row) {
     activeId = row.id;
+    document.getElementById('infoPelaksana').innerText = `Pelaksana: ${row.pelaksana?.nama_pelaksana} | Mesin: ${row.pelaksana?.merk_mesin} | Tanggal: ${row.pelaksana?.tanggal_checklist}`;
+    
     const body = document.getElementById('modalBody');
     body.innerHTML = '';
 
     masterStructure.forEach(sec => {
       let html = `<div class="section-header">${sec.section}</div><div class="grid">`;
       sec.fields.forEach((f, i) => {
-        const dbField = sec.prefix + f; // Gabungkan prefix otomatis
+        const dbField = sec.prefix + f; // Gabung prefix
         const val = row[dbField] || '-';
         const label = f.replace(/_/g, ' ').toUpperCase();
         html += `<div class="grid-item"><span>${i+1}. ${label}</span><span class="${val==='OK'?'ok':'ng'}">${val}</span></div>`;
@@ -155,47 +178,73 @@
       body.innerHTML += html;
     });
 
+    // TTD Pelaksana jika ada
     if(row.signature_pelaksana) {
-      body.innerHTML += `<div class="section-header">TTD PELAKSANA</div><div style="text-align:center;"><img src="${row.signature_pelaksana}" style="height:100px; border:1px solid #eee;"></div>`;
+      body.innerHTML += `<div class="section-header">TANDA TANGAN PELAKSANA</div><div style="text-align:center;"><img src="${row.signature_pelaksana}" style="height:120px; border:1px solid #eee; background:#fff; margin-top:10px;"></div>`;
     }
 
+    // Mengatur Tampilan Panel Approval
     const isPending = row.status === 'Pending';
     document.getElementById('pendingSection').style.display = isPending ? 'block' : 'none';
-    document.getElementById('resultSection').style.display = isPending ? 'none' : 'block';
-    
+    document.getElementById('historySection').style.display = isPending ? 'none' : 'block';
+    document.getElementById('rejectInput').style.display = 'none';
+
     if(!isPending) {
-      document.getElementById('resultStatus').innerHTML = row.status === 'Approved' ? '<span class="ok">✓ TELAH DISETUJUI</span>' : '<span class="ng">✘ DITOLAK</span>';
-      document.getElementById('resultSig').src = row.signature || '';
-      if(row.status === 'Rejected') document.getElementById('resultStatus').innerHTML += `<p style="font-size:14px; color:#666;">Alasan: ${row.reject_reason || '-'}</p>`;
+      document.getElementById('historyLabel').innerHTML = row.status === 'Approved' ? '<span class="ok" style="font-size:1.5rem">✓ TELAH DISETUJUI</span>' : '<span class="ng" style="font-size:1.5rem">✘ DATA DITOLAK</span>';
+      
+      const sigImg = document.getElementById('historySigImg');
+      const sigArea = document.getElementById('historySigArea');
+      const rejectArea = document.getElementById('historyRejectArea');
+
+      if(row.status === 'Approved') {
+        sigArea.style.display = 'block';
+        rejectArea.style.display = 'none';
+        sigImg.src = row.signature || '';
+      } else {
+        sigArea.style.display = 'none';
+        rejectArea.style.display = 'block';
+        document.getElementById('historyReason').innerText = row.reject_reason || '-';
+      }
     }
 
     document.getElementById('modal').style.display = 'block';
-    document.getElementById('rejectInput').style.display = 'none';
     clearSig();
   }
 
-  async function updateStatus(newStatus) {
-    const sig = canvas.toDataURL();
-    const reason = document.getElementById('reason').value;
+  // Proses Update Status (Approve / Reject)
+  async function processStatus(newStatus) {
+    const sigBase64 = canvas.toDataURL();
+    const reason = document.getElementById('reasonText').value;
     
     if(newStatus === 'Approved') {
-        // Cek canvas kosong sederhana
         const blank = document.createElement('canvas');
         blank.width = canvas.width; blank.height = canvas.height;
-        if(sig === blank.toDataURL()) return alert("Tanda tangan wajib diisi!");
+        if(sigBase64 === blank.toDataURL()) return alert("Tanda tangan superintendent wajib diisi untuk approve!");
     }
+    
+    if(newStatus === 'Rejected' && !reason) return alert("Alasan penolakan wajib diisi!");
 
     const updateData = { 
         status: newStatus, 
-        signature: newStatus === 'Approved' ? sig : null,
+        signature: newStatus === 'Approved' ? sigBase64 : null,
         reject_reason: newStatus === 'Rejected' ? reason : null,
-        approved_at: new Date() 
+        approved_at: new Date().toISOString() 
     };
 
-    const { error } = await _supabase.from('checklist').update(updateData).eq('id', activeId);
-    
-    if(error) alert("Gagal update: " + error.message);
-    else { alert("Status Berhasil Diperbarui!"); closeModal(); loadData(); }
+    // Update ke Supabase
+    const { data, error } = await _supabase
+        .from('checklist')
+        .update(updateData)
+        .eq('id', activeId)
+        .select();
+
+    if(error) {
+        alert("Gagal memperbarui status: " + error.message);
+    } else {
+        alert("Berhasil! Checklist telah " + (newStatus === 'Approved' ? "disetujui." : "ditolak."));
+        closeModal();
+        loadData();
+    }
   }
 
   function showRejectInput() { document.getElementById('rejectInput').style.display = 'block'; }
