@@ -35,16 +35,16 @@
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
         
         .check-symbol { font-weight: bold; font-size: 11pt; color: #000 !important; }
-        .ng-text { font-size: 6.5pt; line-height: 1.1; word-wrap: break-word; color: #d32f2f; font-weight: bold; }
+        .ng-text { font-size: 6pt; line-height: 1.1; word-wrap: break-word; color: #d32f2f; font-weight: bold; text-transform: uppercase; }
 
         .col-no { width: 30px; }
         .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
-        .col-week { width: 40px; } /* Kolom Simbol (W1, W2, dst) */
-        .col-ket { width: 85px; }  /* Kolom Keterangan */
+        .col-status { width: 40px; } /* Kolom Simbol */
+        .col-ket { width: 85px; }    /* Kolom Keterangan */
         
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
         
-        /* FOOTER */
+        /* FOOTER PARAF */
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 80px; }
         .sig-td { height: 80px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
         .sig-td img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2) brightness(0.5); }
@@ -115,18 +115,23 @@
                     <th colspan="2">WEEK 5</th>
                 </tr>
                 <tr>
-                    <th class="col-week">STATUS</th><th class="col-ket">KET</th>
-                    <th class="col-week">STATUS</th><th class="col-ket">KET</th>
-                    <th class="col-week">STATUS</th><th class="col-ket">KET</th>
-                    <th class="col-week">STATUS</th><th class="col-ket">KET</th>
-                    <th class="col-week">STATUS</th><th class="col-ket">KET</th>
+                    <th class="col-status">S</th><th class="col-ket">KET</th>
+                    <th class="col-status">S</th><th class="col-ket">KET</th>
+                    <th class="col-status">S</th><th class="col-ket">KET</th>
+                    <th class="col-status">S</th><th class="col-ket">KET</th>
+                    <th class="col-status">S</th><th class="col-ket">KET</th>
                 </tr>
             </thead>
             <tbody id="table-content"></tbody>
             <tfoot>
                 <tr id="row-paraf-pelaksana">
                     <td colspan="2" class="row-title-footer">PARAF PELAKSANA</td>
-                    </tr>
+                    <td colspan="2" class="sig-td" id="sig-w1"></td>
+                    <td colspan="2" class="sig-td" id="sig-w2"></td>
+                    <td colspan="2" class="sig-td" id="sig-w3"></td>
+                    <td colspan="2" class="sig-td" id="sig-w4"></td>
+                    <td colspan="2" class="sig-td" id="sig-w5"></td>
+                </tr>
             </tfoot>
         </table>
 
@@ -251,8 +256,8 @@
                             symbol = status === 'OK' ? '√' : (status === 'NG' ? 'X' : '');
                             ket = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
                         }
-                        rHtml += `<td><span class="check-symbol">${symbol}</span></td>`;
-                        rHtml += `<td style="text-align:left; padding-left:3px;"><span class="ng-text">${ket}</span></td>`;
+                        rHtml += `<td class="col-status"><span class="check-symbol">${symbol}</span></td>`;
+                        rHtml += `<td class="col-ket" style="text-align:left; padding-left:3px;"><span class="ng-text">${ket}</span></td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
                 }
@@ -260,15 +265,11 @@
         }
 
         function renderParaf(dataMap) {
-            const rowPel = document.getElementById('row-paraf-pelaksana');
-            while(rowPel.cells.length > 1) rowPel.deleteCell(1);
             for(let w=1; w<=5; w++) {
-                // Tambahkan 2 cell per week (Status & Ket)
-                const cParaf = rowPel.insertCell();
-                cParaf.className = "sig-td";
-                cParaf.colSpan = 2; // Gabungkan kolom status & ket untuk tanda tangan
+                const cell = document.getElementById(`sig-w${w}`);
+                cell.innerHTML = "";
                 if(dataMap[w] && dataMap[w].signature_pelaksana) {
-                    cParaf.innerHTML = `<img src="${dataMap[w].signature_pelaksana}">`;
+                    cell.innerHTML = `<img src="${dataMap[w].signature_pelaksana}">`;
                 }
             }
         }
