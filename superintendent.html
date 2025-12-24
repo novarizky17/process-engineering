@@ -3,253 +3,194 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Superintendent - Approval System</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>TOOLING SUPPORT - Login</title>
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
-    header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .container { padding: 20px; max-width: 1100px; margin: 0 auto; }
-    
-    .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
-    table { width: 100%; border-collapse: collapse; }
-    th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
-    td { padding: 15px; border-top: 1px solid #eee; }
-    
-    .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
-    .status-pending { background: #fff3cd; color: #856404; }
-    .status-approved { background: #d4edda; color: #155724; }
-    .status-rejected { background: #f8d7da; color: #721c24; }
-
-    .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
-    .btn-primary { background: #007bff; color: white; }
-    .btn-success { background: #28a745; color: white; width: 45%; }
-    .btn-danger { background: #dc3545; color: white; width: 45%; }
-
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
-    .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 900px; }
-    
-    .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-    .grid-item { border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
-    
-    .ok { color: #28a745; font-weight: bold; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; }
-    .ng { color: #dc3545; font-weight: bold; background: #ffebee; padding: 2px 8px; border-radius: 4px; }
-
-    .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
-    canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
-    
-    textarea { width: 100%; height: 80px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    header {
+      background-color: #003366;
+      color: white;
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      position: fixed;
+      top: 0;
+      z-index: 1000;
+    }
+    .logo {
+      font-size: 2.2em;
+      font-weight: bold;
+    }
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 120px 20px 40px;
+    }
+    h1 {
+      font-size: 3em;
+      margin: 0 0 10px;
+      color: #004085;
+    }
+    p.subtitle {
+      font-size: 1.1em;
+      margin-bottom: 30px;
+      max-width: 500px;
+      color: #555;
+    }
+    .login-box {
+      background: white;
+      padding: 35px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 380px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      font-size: 1em;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #003366;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      font-size: 1em;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+    }
+    .form-group input:focus {
+      border-color: #004085;
+      outline: none;
+    }
+    .btn {
+      background-color: #155724;
+      color: white;
+      width: 100%;
+      padding: 15px;
+      font-size: 1.4em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      font-weight: bold;
+    }
+    .btn:hover {
+      background-color: #0f4422;
+      transform: translateY(-2px);
+    }
+    .error-msg {
+      color: #721c24;
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      display: none;
+      font-size: 0.9em;
+    }
+    /* Style tambahan untuk alasan NG di modal dashboard */
+    .ng-reason {
+      display: block;
+      font-size: 11px;
+      color: #dc3545;
+      font-style: italic;
+      margin-top: 4px;
+      font-weight: normal;
+    }
   </style>
 </head>
 <body>
 
-<header>
-  <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
-  <button class="btn btn-primary" onclick="loadData()">Refresh Data</button>
-</header>
+  <header>
+    <div class="logo">TOOLING SUPPORT</div>
+  </header>
 
-<div class="container">
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th>Pelaksana</th>
-          <th>Minggu (Week)</th> <th>Mesin / Tonage</th>
-          <th>Tanggal</th>
-          <th>Status</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody id="mainTable">
-        <tr><td colspan="6" style="text-align:center;">Memuat data...</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+  <div class="main-content">
+    <h1>Login</h1>
+    <p class="subtitle">Silakan masukkan akun Anda untuk mengakses sistem digital monitoring checklist.</p>
 
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
-    <h2 id="modalTitle" style="color:#003366; margin:0;">Review Detail Checklist</h2>
-    <p id="infoPelaksana" style="color:#666; margin-top:5px; font-weight: bold;"></p>
-    <hr>
-    
-    <div id="modalBody"></div>
+    <div class="login-box">
+      <div id="error-alert" class="error-msg">Username atau Password salah!</div>
 
-    <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
-      <div id="pendingSection" style="display:none; text-align:center;">
-        <p><strong>Tanda Tangan Superintendent:</strong></p>
-        <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
-        <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
-        <br>
-        <div style="display: flex; justify-content: space-around;">
-          <button class="btn btn-success" onclick="processStatus('Approved')">APPROVE</button>
-          <button class="btn btn-danger" onclick="showRejectInput()">REJECT</button>
-        </div>
-        
-        <div id="rejectInput" style="display:none; margin-top:20px; text-align:left;">
-          <label><strong>Alasan Penolakan:</strong></label>
-          <textarea id="reasonText" placeholder="Berikan alasan mengapa checklist ditolak..."></textarea>
-          <button class="btn btn-danger" style="width:100%;" onclick="processStatus('Rejected')">Kirim Penolakan</button>
-        </div>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Masukkan username" autocomplete="off">
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Masukkan password">
       </div>
 
-      <div id="historySection" style="display:none; text-align:center;">
-        <h3 id="historyLabel"></h3>
-        <div id="historySigArea">
-           <p>Tanda Tangan Superintendent:</p>
-           <img id="historySigImg" style="max-width:300px; border:1px solid #ddd; padding:5px; background:white;">
-        </div>
-        <div id="historyRejectArea" style="background:#fff1f0; padding:15px; border-radius:8px; display:none;">
-           <strong>Alasan Reject:</strong> <span id="historyReason"></span>
-        </div>
-      </div>
+      <button type="button" class="btn" onclick="handleLogin()">Masuk</button>
     </div>
   </div>
-</div>
 
-<script>
-  const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
-  const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+  <script>
+    /**
+     * Sistem Login Statis (Simulasi Sementara)
+     * Untuk penggunaan nyata, hubungkan ke Supabase Auth
+     */
+    function handleLogin() {
+      const userField = document.getElementById('username').value;
+      const passField = document.getElementById('password').value;
+      const errorBox = document.getElementById('error-alert');
 
-  let activeId = null;
-  let isDrawing = false;
-  const canvas = document.getElementById('sig-canvas');
-  const ctx = canvas.getContext('2d');
+      // Daftar 4 Akun Akses
+      const users = [
+        { username: "admin", password: "123" },
+        { username: "operator1", password: "456" },
+        { username: "operator2", password: "789" },
+        { username: "supervisor", password: "000" }
+      ];
 
-  const masterStructure = [
-    { section: "1. STAND LABEL", prefix: "", fields: ["wiring", "komponen", "kerapihan", "sensor", "timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator", "selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad", "flange", "vacuum_pad_takeout"] },
-    { section: "2. STACKING", prefix: "stacking_", fields: ["wiring", "sensor", "linier", "mechanical_part", "cylinder", "pneumatic"] },
-    { section: "3. CONVEYOR", prefix: "conveyor_", fields: ["belt", "motor", "rantai", "frame", "inverter"] },
-    { section: "4. DOSING", prefix: "dosing_", fields: ["alarm", "setting"] },
-    { section: "5. DUMMY", prefix: "dummy_", fields: ["vacuum", "condition", "flange", "instalasi", "tubbing"] }
-  ];
+      // Pengecekan Akun
+      const foundUser = users.find(u => u.username === userField && u.password === passField);
 
-  canvas.width = 600; 
-  canvas.height = 150;
-  ctx.lineWidth = 3; 
-  ctx.lineCap = 'round'; 
-  ctx.strokeStyle = '#000';
-
-  function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
-    const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
-    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
-  }
-
-  canvas.onmousedown = (e) => { isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
-  canvas.onmousemove = (e) => { if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
-  window.onmouseup = () => isDrawing = false;
-
-  canvas.ontouchstart = (e) => { if (e.target === canvas) e.preventDefault(); isDrawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
-  canvas.ontouchmove = (e) => { if (e.target === canvas) e.preventDefault(); if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
-  canvas.ontouchend = (e) => { if (e.target === canvas) e.preventDefault(); isDrawing = false; };
-
-  function clearSig() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-
-  async function loadData() {
-    const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
-    if(error) return console.error("Error Load:", error);
-    
-    const tableBody = document.getElementById('mainTable');
-    if (data.length === 0) { tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada data checklist.</td></tr>'; return; }
-    
-    tableBody.innerHTML = data.map(row => `
-      <tr>
-        <td><strong>${row.pelaksana?.nama_pelaksana || 'Unknown'}</strong></td>
-        <td>W-${row.pelaksana?.week || '-'}</td> <td>${row.pelaksana?.merk_mesin || '-'} / ${row.pelaksana?.tonage || '-'}</td>
-        <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
-        <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
-        <td><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
-      </tr>
-    `).join('');
-  }
-
-  function openModal(row) {
-    activeId = row.id;
-    // Info di modal diperbarui dengan Week
-    document.getElementById('infoPelaksana').innerText = `MINGGU: W-${row.pelaksana?.week} | Pelaksana: ${row.pelaksana?.nama_pelaksana} | Mesin: ${row.pelaksana?.merk_mesin} | Tanggal: ${row.pelaksana?.tanggal_checklist}`;
-    
-    const body = document.getElementById('modalBody');
-    body.innerHTML = '';
-
-    masterStructure.forEach(sec => {
-      let html = `<div class="section-header">${sec.section}</div><div class="grid">`;
-      sec.fields.forEach((f, i) => {
-        const dbField = sec.prefix + f; 
-        const val = row[dbField] || '-';
-        const label = f.replace(/_/g, ' ').toUpperCase();
-        html += `<div class="grid-item"><span>${i+1}. ${label}</span><span class="${val==='OK'?'ok':'ng'}">${val}</span></div>`;
-      });
-      html += `</div>`;
-      body.innerHTML += html;
-    });
-
-    if(row.signature_pelaksana) {
-      body.innerHTML += `<div class="section-header">TANDA TANGAN PELAKSANA</div><div style="text-align:center;"><img src="${row.signature_pelaksana}" style="height:120px; border:1px solid #eee; background:#fff; margin-top:10px;"></div>`;
-    }
-
-    const isPending = row.status === 'Pending';
-    document.getElementById('pendingSection').style.display = isPending ? 'block' : 'none';
-    document.getElementById('historySection').style.display = isPending ? 'none' : 'block';
-    document.getElementById('rejectInput').style.display = 'none';
-
-    if(!isPending) {
-      document.getElementById('historyLabel').innerHTML = row.status === 'Approved' ? '<span class="ok" style="font-size:1.5rem">✓ TELAH DISETUJUI</span>' : '<span class="ng" style="font-size:1.5rem">✘ DATA DITOLAK</span>';
-      const sigImg = document.getElementById('historySigImg');
-      const sigArea = document.getElementById('historySigArea');
-      const rejectArea = document.getElementById('historyRejectArea');
-
-      if(row.status === 'Approved') {
-        sigArea.style.display = 'block'; rejectArea.style.display = 'none';
-        sigImg.src = row.signature || '';
+      if (foundUser) {
+        // Simpan session sementara di browser
+        localStorage.setItem("activeUser", foundUser.username);
+        // Pindah ke halaman dashboard
+        window.location.href = 'dashboard.html';
       } else {
-        sigArea.style.display = 'none'; rejectArea.style.display = 'block';
-        document.getElementById('historyReason').innerText = row.reject_reason || '-';
+        // Tampilkan pesan kesalahan jika tidak cocok
+        errorBox.style.display = 'block';
+        setTimeout(() => {
+          errorBox.style.display = 'none';
+        }, 3000);
       }
     }
 
-    document.getElementById('modal').style.display = 'block';
-    clearSig();
-  }
+    // Mendukung login dengan menekan tombol Enter
+    document.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        handleLogin();
+      }
+    });
+  </script>
 
-  async function processStatus(newStatus) {
-    const sigBase64 = canvas.toDataURL();
-    const reason = document.getElementById('reasonText').value;
-    
-    if(newStatus === 'Approved') {
-        const blank = document.createElement('canvas');
-        blank.width = canvas.width; blank.height = canvas.height;
-        if(sigBase64 === blank.toDataURL()) return alert("Tanda tangan superintendent wajib diisi!");
-    }
-    
-    if(newStatus === 'Rejected' && !reason) return alert("Alasan penolakan wajib diisi!");
-
-    const updateData = { 
-        status: newStatus, 
-        signature: newStatus === 'Approved' ? sigBase64 : null,
-        reject_reason: newStatus === 'Rejected' ? reason : null,
-        approved_at: new Date().toISOString() 
-    };
-
-    const { error } = await _supabase.from('checklist').update(updateData).eq('id', activeId);
-
-    if(error) {
-        alert("Gagal: " + error.message);
-    } else {
-        alert("Berhasil!");
-        closeModal();
-        loadData();
-    }
-  }
-
-  function showRejectInput() { document.getElementById('rejectInput').style.display = 'block'; }
-  function closeModal() { document.getElementById('modal').style.display = 'none'; }
-  window.onload = loadData;
-</script>
 </body>
 </html>
