@@ -30,13 +30,24 @@
     
     .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-    .grid-item { border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+    .grid-item { border: 1px solid #e0e0e0; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start; background: #fff; }
     
     .ok { color: #28a745; font-weight: bold; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; }
     .ng { color: #dc3545; font-weight: bold; background: #ffebee; padding: 2px 8px; border-radius: 4px; }
 
-    /* Style Alasan NG agar terlihat jelas di bawah Item */
-    .ng-reason { display: block; font-size: 11px; color: #dc3545; font-style: italic; margin-top: 4px; font-weight: normal; }
+    /* --- PERBAIKAN: STYLE ALASAN NG DIPERBESAR --- */
+    .ng-reason { 
+      display: block; 
+      font-size: 14px;        /* Diperbesar */
+      color: #b21f2d;        /* Merah lebih kontras */
+      font-style: normal;    /* Tidak miring agar lebih jelas */
+      margin-top: 8px; 
+      font-weight: bold;      /* Ditebalkan */
+      background: #fff8f8;   /* Background soft merah */
+      padding: 5px;
+      border-radius: 4px;
+      border-left: 3px solid #dc3545;
+    }
 
     .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
     canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
@@ -185,19 +196,18 @@
         const dbField = sec.prefix + f; 
         const val = row[dbField] || '-';
         
-        // DISESUAIKAN: Menggunakan akhiran _keterangan agar sinkron dengan database
         const reasonField = dbField + "_keterangan";
-        const reasonVal = row[reasonField] ? `<span class="ng-reason">Keterangan: ${row[reasonField]}</span>` : "";
+        const reasonVal = row[reasonField] ? `<span class="ng-reason">Keterangan NG: ${row[reasonField]}</span>` : "";
         
         const label = f.replace(/_/g, ' ').toUpperCase();
         
         html += `
           <div class="grid-item">
-            <div>
-              <span>${i+1}. ${label}</span>
+            <div style="flex: 1;">
+              <span style="font-weight: bold; color: #444;">${i+1}. ${label}</span>
               ${val === 'NG' ? reasonVal : ''}
             </div>
-            <span class="${val==='OK'?'ok':'ng'}">${val}</span>
+            <span class="${val==='OK'?'ok':'ng'}" style="margin-left: 10px;">${val}</span>
           </div>`;
       });
       html += `</div>`;
