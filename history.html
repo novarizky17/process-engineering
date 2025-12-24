@@ -16,6 +16,7 @@
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #000; }
         .document-page { background: white; width: 1150px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
         
+        /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
@@ -28,6 +29,7 @@
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
+        /* TABLE STYLING */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 6.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
@@ -38,7 +40,7 @@
         .col-week { width: 18px; font-size: 6pt; }
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
         
-        /* OPTIMASI PARAF PELAKSANA AGAR TERLIHAT SANGAT BESAR */
+        /* PERBAIKAN TOTAL: PARAF PELAKSANA SANGAT BESAR */
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 80px; }
         
         .sig-td { 
@@ -47,17 +49,21 @@
             padding: 0 !important; 
             vertical-align: middle !important; 
             text-align: center !important;
-            overflow: hidden;
+            overflow: hidden; /* Memotong bagian gambar yang keluar dari kotak */
             width: 18px;
         }
         .sig-td img { 
-            width: 150%; /* Skala diperbesar melewati batas sel untuk membuang margin kosong */
+            /* TEKNIK ZOOM: Memperbesar gambar 4x lipat dari lebar kolom */
+            width: 400%; 
             height: 100%; 
-            object-fit: contain; /* Memaksa gambar memenuhi kotak sejauh mungkin */
+            /* Memaksa coretan memenuhi area tanpa merusak proporsi */
+            object-fit: contain; 
             mix-blend-mode: multiply; 
-            filter: grayscale(1) contrast(3) brightness(0.4); /* Kontras tinggi agar garis pena pekat */
+            /* Kontras maksimal agar garis pena terlihat sangat hitam */
+            filter: grayscale(1) contrast(4) brightness(0.4); 
             display: block; 
-            margin-left: -25%; /* Menggeser posisi agar fokus ke tengah tanda tangan */
+            /* Menggeser gambar ke tengah untuk membuang margin kosong kiri-kanan */
+            margin-left: -150%; 
         }
 
         .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
