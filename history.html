@@ -16,6 +16,7 @@
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #000; }
         .document-page { background: white; width: 1150px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
         
+        /* HEADER & META INFO */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
@@ -28,6 +29,7 @@
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
+        /* TABLE STYLING */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 6.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
@@ -39,23 +41,23 @@
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: right !important; padding-right: 10px !important; font-size: 7pt; }
         
-        /* POSISI TANDA TANGAN PARAF PELAKSANA RATA KIRI */
+        /* FIX POSISI PARAF PELAKSANA */
         .sig-td { 
             height: 45px; 
             background-color: #fff; 
-            padding: 0 !important; 
+            padding: 2px !important; 
             vertical-align: middle !important; 
             text-align: left !important; /* RATA KIRI */
             position: relative;
             overflow: visible; 
         }
         .sig-td img { 
-            max-height: 42px; 
+            max-height: 40px; 
             width: auto; 
             mix-blend-mode: multiply; 
-            filter: grayscale(1) contrast(2.5) brightness(0.7); 
+            filter: grayscale(1) contrast(2) brightness(0.6); /* Kontras diperbaiki agar tidak blur */
             display: inline-block; 
-            margin: 0; /* TANPA MARGIN AGAR KE PINGGIR */
+            margin: 0 !important;
             vertical-align: middle;
         }
 
@@ -66,7 +68,7 @@
         .keterangan { font-size: 8.5pt; width: 60%; line-height: 1.4; color: #000; font-weight: bold; }
         .diketahui-box { width: 30%; text-align: center; margin-left: auto; }
         .sig-frame { border: 1.5px solid black; width: 160px; height: 80px; margin: 5px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
-        .sig-frame img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2.5) brightness(0.7); }
+        .sig-frame img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2) brightness(0.6); }
         .name-line { border-top: 1.5px solid black; width: 180px; margin: 0 auto; padding-top: 3px; font-weight: bold; color: #000; }
     </style>
 </head>
