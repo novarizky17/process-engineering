@@ -39,7 +39,7 @@
       justify-content: center;
       align-items: center;
       text-align: center;
-      padding: 100px 20px 40px; /* Padding atas disesuaikan karena header fixed */
+      padding: 100px 20px 40px;
     }
     h1 {
       font-size: 3em;
@@ -52,7 +52,6 @@
       max-width: 500px;
       color: #555;
     }
-    /* Kotak Form Login */
     .login-box {
       background: white;
       padding: 35px;
@@ -142,35 +141,39 @@
   </div>
 
   <script>
-    /**
-     * Fungsi handleLogin untuk validasi sisi klien (Client-side validation)
-     * Ini mencegah pengiriman form POST yang menyebabkan Error 405.
-     */
     function handleLogin() {
       const userField = document.getElementById('username').value;
       const passField = document.getElementById('password').value;
       const errorBox = document.getElementById('error-alert');
 
-      // --- KREDENSIAL LOGIN SEMENTARA ---
-      // Gunakan data ini untuk mencoba masuk:
-      const VALID_USER = "admin";
-      const VALID_PASS = "12345";
+      // --- DAFTAR 4 AKUN USER ---
+      const users = [
+        { username: "rizky", password: "123" },
+        { username: "operator1", password: "456" },
+        { username: "operator2", password: "789" },
+        { username: "supervisor", password: "000" }
+      ];
 
-      if (userField === VALID_USER && passField === VALID_PASS) {
-        // Jika benar, arahkan ke dashboard
+      // Mencari apakah input cocok dengan salah satu akun di daftar
+      const foundUser = users.find(u => u.username === userField && u.password === passField);
+
+      if (foundUser) {
+        // Simpan username ke localStorage agar bisa dipanggil di dashboard
+        localStorage.setItem("activeUser", foundUser.username);
+        // Arahkan ke file dashboard.html
         window.location.href = 'dashboard.html';
       } else {
-        // Jika salah, tampilkan pesan error
+        // Tampilkan pesan error
         errorBox.style.display = 'block';
         
-        // Sembunyikan kembali pesan error setelah 3 detik
+        // Sembunyikan pesan error otomatis setelah 3 detik
         setTimeout(() => {
           errorBox.style.display = 'none';
         }, 3000);
       }
     }
 
-    // Menambah fitur tekan "Enter" untuk login
+    // Mendukung login dengan tombol Enter
     document.addEventListener('keypress', function (e) {
       if (e.key === 'Enter') {
         handleLogin();
