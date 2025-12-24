@@ -59,7 +59,7 @@
         <select id="filter-tahun">
             <option value="2024">2024</option><option value="2025" selected>2025</option>
         </select>
-        <button onclick="renderReport()" style="background: #003366; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">TAMPILKAN REKAP MINGGUAN</button>
+        <button onclick="renderReport(true)" style="background: #003366; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">CARI DATA</button>
         <button onclick="window.print()" style="background: #222; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">PRINT PDF</button>
     </div>
 
@@ -179,46 +179,80 @@
             const weekRow = document.getElementById('week-row');
             weekRow.innerHTML = '';
             for(let i=1; i<=53; i++) weekRow.innerHTML += `<th class="col-week">${i}</th>`;
-            renderReport();
+            renderReport(false); // Jangan tampilkan data saat awal buka
         }
 
-        async function renderReport() {
+        async function renderReport(isSearching) {
             const thn = document.getElementById('filter-tahun').value;
             const merk = document.getElementById('input-merk').value.trim();
             const tonage = document.getElementById('input-tonage').value.trim();
 
-            document.getElementById('label-tahun').innerText = thn;
-            document.getElementById('label-merk').innerText = (merk || "-").toUpperCase();
-            document.getElementById('label-tonage').innerText = (tonage || "-").toUpperCase();
+            // Kunci Utama: Jika tidak sedang mencari (awal buka) atau input kosong, kosongkan tabel
+            if (!isSearching || (!merk && !tonage)) {
+                document.getElementById('label-merk').innerText = "-";
+                document.getElementById('label-tonage').innerText = "-";
+                document.getElementById('label-tahun').innerText = thn;
+                clearTable();
+                return;
+            }
 
-            // 1. Query Data Checklist yang sudah APPROVED
+            document.getElementById('label-tahun').innerText = thn;
+            document.getElementById('label-merk').innerText = merk.toUpperCase();
+            document.getElementById('label-tonage').innerText = tonage.toUpperCase();
+
+            // 1. Ambil data
             const { data, error } = await _sb
                 .from('checklist')
                 .select('*, pelaksana(*)')
-                .eq('status', 'Approved'); // Harus Approved baru muncul di history
+                .eq('status', 'Approved');
 
             if (error) return console.error(error);
 
-            // 2. Filter data berdasarkan Tahun, Merk, dan Tonage secara manual
+            // 2. Filter Ketat
             const filteredData = data.filter(item => {
                 const yearMatch = item.pelaksana && item.pelaksana.tanggal_checklist && item.pelaksana.tanggal_checklist.startsWith(thn);
-                const merkMatch = merk ? item.pelaksana.merk_mesin.toLowerCase().includes(merk.toLowerCase()) : true;
-                const tonageMatch = tonage ? item.pelaksana.tonage.toLowerCase().includes(tonage.toLowerCase()) : true;
+                // Gunakan pencarian persis atau mendekati
+                const merkMatch = item.pelaksana.merk_mesin.toLowerCase().includes(merk.toLowerCase());
+                const tonageMatch = item.pelaksana.tonage.toLowerCase().includes(tonage.toLowerCase());
                 return yearMatch && merkMatch && tonageMatch;
             });
 
-            // 3. Mapping data ke kolom WEEK pelaksana
             const dataMap = {};
             filteredData.forEach(item => {
                 const w = item.pelaksana ? item.pelaksana.week : null;
                 if(w) dataMap[w] = item;
             });
 
-            // 4. Render Isi Tabel
+            renderRows(dataMap);
+            renderParaf(dataMap);
+            renderSuper(filteredData);
+        }
+
+        function clearTable() {
+            const tbody = document.getElementById('table-content');
+            tbody.innerHTML = "";
+            checklistStructure.forEach(item => {
+                if (item.type === 'head') {
+                    let hRow = `<tr><td colspan="2" class="section-header">${item.header}</td>`;
+                    for(let i=1; i<=53; i++) hRow += `<td></td>`;
+                    tbody.innerHTML += hRow + `</tr>`;
+                } else {
+                    let rHtml = `<tr><td>-</td><td class="col-item">${item.name}</td>`;
+                    for(let i=1; i<=53; i++) rHtml += `<td></td>`;
+                    tbody.innerHTML += rHtml + `</tr>`;
+                }
+            });
+            const rowPel = document.getElementById('row-paraf-pelaksana');
+            while(rowPel.cells.length > 1) rowPel.deleteCell(1);
+            for(let i=1; i<=53; i++) rowPel.insertCell().className = "sig-td";
+            document.getElementById('super-sig').innerHTML = "";
+            document.getElementById('super-name').innerText = "( ........................ )";
+        }
+
+        function renderRows(dataMap) {
             const tbody = document.getElementById('table-content');
             tbody.innerHTML = "";
             let counter = 1;
-
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
                     let hRow = `<tr><td colspan="2" class="section-header">${item.header}</td>`;
@@ -227,20 +261,17 @@
                 } else {
                     let rHtml = `<tr><td>${counter++}</td><td class="col-item">${item.name}</td>`;
                     for(let i=1; i<=53; i++) {
-                        let sign = "";
-                        if (dataMap[i]) {
-                            sign = dataMap[i][item.field] === 'OK' ? '√' : 'X';
-                        }
+                        let sign = dataMap[i] ? (dataMap[i][item.field] === 'OK' ? '√' : 'X') : "";
                         rHtml += `<td>${sign}</td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
                 }
             });
+        }
 
-            // 5. Render Paraf Pelaksana
+        function renderParaf(dataMap) {
             const rowPel = document.getElementById('row-paraf-pelaksana');
             while(rowPel.cells.length > 1) rowPel.deleteCell(1);
-
             for(let i=1; i<=53; i++) {
                 const cPel = rowPel.insertCell();
                 cPel.className = "sig-td";
@@ -248,8 +279,9 @@
                     cPel.innerHTML = `<img src="${dataMap[i].signature_pelaksana}">`;
                 }
             }
+        }
 
-            // 6. Tanda Tangan Superintendent (Diketauhi)
+        function renderSuper(filteredData) {
             const latest = filteredData.sort((a,b) => b.id - a.id)[0];
             const sigFrame = document.getElementById('super-sig');
             if(latest && latest.signature) {
