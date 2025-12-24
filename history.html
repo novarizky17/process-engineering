@@ -15,57 +15,63 @@
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
         .document-page { background: white; width: 1150px; margin: 0 auto; padding: 15px; border: 1px solid #000; box-sizing: border-box; }
         
+        /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
         .logo-area { width: 150px; padding: 5px; text-align: center; }
         .logo-area img { width: 130px; height: auto; display: block; margin: 0 auto; }
         .title-area { text-align: center; font-size: 16pt; font-weight: bold; padding: 10px; text-transform: uppercase; }
-        .meta-area { width: 280px; font-size: 9pt; padding: 5px; }
+        .meta-area { width: 280px; font-size: 9pt; padding: 5px; text-transform: uppercase; }
         
-        .meta-info { display: flex; justify-content: space-between; margin: 8px 0; font-weight: bold; font-size: 10pt; align-items: flex-end; }
+        /* META INFO - FORCE UPPERCASE */
+        .meta-info { display: flex; justify-content: space-between; margin: 8px 0; font-weight: bold; font-size: 10pt; align-items: flex-end; text-transform: uppercase; }
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
-        .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; }
+        /* TABLE - FORCE UPPERCASE */
+        .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; }
         .table-official th, .table-official td { border: 1px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
         .col-no { width: 25px; }
         .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
         .col-tgl { width: 24px; font-size: 7pt; }
-        .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; text-transform: uppercase; }
+        .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
         
+        /* FOOTER SIGNATURE */
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: right !important; padding-right: 10px !important; font-size: 7pt; }
         .sig-td { height: 35px; background-color: #fff; overflow: hidden; }
         .sig-td img { height: 30px; width: auto; mix-blend-mode: multiply; }
 
+        /* CONTROLS */
         .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .no-print input, .no-print select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .no-print input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
+        .no-print select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
         
-        .footer-flex { display: flex; justify-content: space-between; margin-top: 20px; }
+        .footer-flex { display: flex; justify-content: space-between; margin-top: 20px; text-transform: uppercase; }
         .keterangan { font-size: 8.5pt; width: 60%; line-height: 1.4; }
         .diketahui-box { width: 30%; text-align: center; margin-left: auto; }
         .sig-frame { border: 1px solid black; width: 160px; height: 80px; margin: 5px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .sig-frame img { max-height: 75px; width: auto; }
-        .name-line { border-top: 1.5px solid black; width: 180px; margin: 0 auto; padding-top: 3px; font-weight: bold; text-transform: uppercase; }
+        .name-line { border-top: 1.5px solid black; width: 180px; margin: 0 auto; padding-top: 3px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="no-print">
-        <input type="text" id="input-merk" placeholder="Merk Mesin (Iron Man)...">
-        <input type="text" id="input-tonage" placeholder="Tonage...">
+        <input type="text" id="input-merk" placeholder="MERK MESIN (CONTOH: IRON MAN)">
+        <input type="text" id="input-tonage" placeholder="TONAGE (CONTOH: 150 TON)">
         <select id="filter-bulan">
-            <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
-            <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
-            <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
-            <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+            <option value="01">JANUARI</option><option value="02">FEBRUARI</option><option value="03">MARET</option>
+            <option value="04">APRIL</option><option value="05">MEI</option><option value="06">JUNI</option>
+            <option value="07">JULI</option><option value="08">AGUSTUS</option><option value="09">SEPTEMBER</option>
+            <option value="10">OKTOBER</option><option value="11">NOVEMBER</option><option value="12">DESEMBER</option>
         </select>
         <select id="filter-tahun">
             <option value="2024">2024</option><option value="2025" selected>2025</option>
         </select>
-        <button onclick="renderReport()" style="background: #003366; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer;">TAMPILKAN REKAP</button>
-        <button onclick="window.print()" style="background: #222; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer;">PRINT PDF</button>
+        <button onclick="renderReport()" style="background: #003366; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">TAMPILKAN REKAP</button>
+        <button onclick="window.print()" style="background: #222; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">PRINT PDF</button>
     </div>
 
     <div class="document-page">
@@ -76,10 +82,10 @@
             <div class="header-cell title-area">CHECKLIST MONITORING TOOLING SUPPORT</div>
             <div class="header-cell meta-area">
                 <div style="padding-left: 5px;">
-                    No Dokumen : AF.SP 05.14.Rev-00<br>
-                    Tanggal Terbit : 02 Agustus 2024<br>
-                    Halaman : 1/1<br>
-                    Tanggal Revisi : -
+                    NO DOKUMEN : AF.SP 05.14.REV-00<br>
+                    TANGGAL TERBIT : 02 AGUSTUS 2024<br>
+                    HALAMAN : 1/1<br>
+                    TANGGAL REVISI : -
                 </div>
             </div>
         </div>
@@ -103,9 +109,9 @@
         <table class="table-official">
             <thead>
                 <tr>
-                    <th class="col-no" rowspan="2">No</th>
-                    <th class="col-item" rowspan="2">Jenis Pengecekan</th>
-                    <th colspan="31">Tanggal</th>
+                    <th class="col-no" rowspan="2">NO</th>
+                    <th class="col-item" rowspan="2">JENIS PENGECEKAN</th>
+                    <th colspan="31">TANGGAL</th>
                 </tr>
                 <tr id="date-row"></tr>
             </thead>
@@ -122,10 +128,10 @@
 
         <div class="footer-flex">
             <div class="keterangan">
-                <strong>Beri tanda :</strong><br>
-                √ : Bila item yang diperiksa baik, sesuai standar<br>
-                x : Bila terjadi penyimpangan / kerusakan pada item yang diperiksa.<br>
-                o : Bila mesin dalam proses perbaikan
+                <strong>BERI TANDA :</strong><br>
+                √ : BILA ITEM YANG DIPERIKSA BAIK, SESUAI STANDAR<br>
+                X : BILA TERJADI PENYIMPANGAN / KERUSAKAN PADA ITEM YANG DIPERIKSA.<br>
+                O : BILA MESIN DALAM PROSES PERBAIKAN
             </div>
             <div class="diketahui-box">
                 <p style="font-weight: bold; margin-bottom: 5px;">DIKETAHUI</p>
@@ -197,14 +203,15 @@
             const tonage = document.getElementById('input-tonage').value.trim();
             const monthText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text;
 
-            document.getElementById('label-bulan').innerText = monthText + " " + thn;
-            document.getElementById('label-merk').innerText = merk || "-";
-            document.getElementById('label-tonage').innerText = tonage || "-";
+            // Display UpperCase labels
+            document.getElementById('label-bulan').innerText = monthText.toUpperCase() + " " + thn;
+            document.getElementById('label-merk').innerText = (merk || "-").toUpperCase();
+            document.getElementById('label-tonage').innerText = (tonage || "-").toUpperCase();
 
-            // Query Supabase berdasarkan filter
             const startDate = `${thn}-${bln}-01`;
             const endDate = `${thn}-${bln}-31`;
 
+            // Query with date range based on pelaksana table date
             const { data, error } = await _sb
                 .from('checklist')
                 .select('*, pelaksana(*)')
@@ -214,14 +221,13 @@
 
             if (error) return console.error(error);
 
-            // Filter manual untuk merk & tonage jika diinput
+            // Filter by merk and tonage locally to be flexible
             const filteredData = data.filter(item => {
                 const matchMerk = merk ? item.pelaksana.merk_mesin.toLowerCase().includes(merk.toLowerCase()) : true;
                 const matchTonage = tonage ? item.pelaksana.tonage.toLowerCase().includes(tonage.toLowerCase()) : true;
                 return matchMerk && matchTonage;
             });
 
-            // Mapping data berdasarkan Tanggal (1-31)
             const dataMap = {};
             filteredData.forEach(item => {
                 const day = parseInt(item.pelaksana.tanggal_checklist.split('-')[2]);
@@ -242,7 +248,7 @@
                     for(let i=1; i<=31; i++) {
                         let sign = "";
                         if (dataMap[i]) {
-                            sign = dataMap[i][item.field] === 'OK' ? '√' : 'x';
+                            sign = dataMap[i][item.field] === 'OK' ? '√' : 'X';
                         }
                         rHtml += `<td>${sign}</td>`;
                     }
@@ -250,7 +256,7 @@
                 }
             });
 
-            // Paraf Footer
+            // Paraf Handling
             const rowPel = document.getElementById('row-paraf-pelaksana');
             const rowPen = document.getElementById('row-paraf-pengecek');
             
@@ -271,7 +277,7 @@
                 }
             }
 
-            // Tanda Tangan Superintendent di Footer (Ambil yang paling terbaru di bulan itu)
+            // Global Superintendent Signature from latest Approved entry
             const latest = filteredData.sort((a,b) => b.id - a.id)[0];
             const sigFrame = document.getElementById('super-sig');
             if(latest && latest.signature) {
