@@ -12,11 +12,11 @@
             .no-print { display: none !important; }
             .document-page { box-shadow: none; border: none; width: 100%; max-width: none; margin: 0; padding: 5px; }
             .check-symbol { color: black !important; -webkit-print-color-adjust: exact; }
+            .ng-note { color: red !important; }
         }
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #000; }
         .document-page { background: white; width: 1150px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
         
-        /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
@@ -29,18 +29,28 @@
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
-        /* TABLE STYLING */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 8pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
         
-        .check-symbol { font-weight: 900; font-size: 14pt; color: #000 !important; display: block; line-height: 1; }
+        .check-symbol { font-weight: 900; font-size: 14pt; color: #000 !important; display: block; line-height: 1.2; }
+        
+        /* STYLE KHUSUS KETERANGAN NG DI DALAM KOLOM WEEK */
+        .ng-note { 
+            display: block; 
+            font-size: 6.5pt; 
+            color: #d32f2f; 
+            font-weight: bold; 
+            margin-top: 2px;
+            line-height: 1.1;
+            word-wrap: break-word;
+        }
+
         .col-no { width: 35px; }
         .col-item { width: 250px; text-align: left !important; padding-left: 8px !important; font-weight: bold; }
         .col-week { width: 80px; }
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
         
-        /* PARAF PELAKSANA */
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 10pt; height: 80px; }
         .sig-td { height: 80px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
         .sig-td img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2) brightness(0.6); }
@@ -119,8 +129,7 @@
             <tfoot>
                 <tr id="row-paraf-pelaksana">
                     <td colspan="2" class="row-title-footer">PARAF PELAKSANA</td>
-                    <td class="sig-td"></td><td class="sig-td"></td><td class="sig-td"></td><td class="sig-td"></td><td class="sig-td"></td>
-                </tr>
+                    </tr>
             </tfoot>
         </table>
 
@@ -200,7 +209,6 @@
             document.getElementById('label-merk').innerText = merk.toUpperCase();
             document.getElementById('label-tonage').innerText = tonage ? tonage.toUpperCase() : "-";
 
-            // Query data berdasarkan Tahun-Bulan (YYYY-MM)
             const dateFilter = `${thn}-${bln}`;
             const { data, error } = await _sb.from('checklist')
                 .select('*, pelaksana(*)')
@@ -209,7 +217,6 @@
 
             if (error) return console.error(error);
 
-            // Filter manual untuk merk dan tonage
             const filteredData = data.filter(item => {
                 if (!item.pelaksana) return false;
                 const mMatch = item.pelaksana.merk_mesin.toLowerCase().includes(merk.toLowerCase());
@@ -217,7 +224,6 @@
                 return mMatch && tMatch;
             });
 
-            // Map data berdasarkan week per bulan (Normalnya week 1-5 di input pelaksana)
             const dataMap = {};
             filteredData.forEach(item => {
                 const w = item.pelaksana ? item.pelaksana.week : null;
@@ -241,8 +247,19 @@
                     let char = numToChar(alphabetCounter++);
                     let rHtml = `<tr><td>${char}</td><td class="col-item">${item.name}</td>`;
                     for(let w=1; w<=5; w++) {
-                        let content = dataMap[w] ? (dataMap[w][item.field] === 'OK' ? '<span class="check-symbol">√</span>' : '<span class="check-symbol">X</span>') : "";
-                        rHtml += `<td>${content}</td>`;
+                        let symbol = "";
+                        let note = "";
+                        if(dataMap[w]) {
+                            // Cek status OK/NG
+                            symbol = dataMap[w][item.field] === 'OK' ? '<span class="check-symbol">√</span>' : '<span class="check-symbol">X</span>';
+                            
+                            // Ambil Keterangan NG (kolom field_keterangan)
+                            let noteValue = dataMap[w][`${item.field}_keterangan`];
+                            if(noteValue && dataMap[w][item.field] === 'NG') {
+                                note = `<span class="ng-note">${noteValue}</span>`;
+                            }
+                        }
+                        rHtml += `<td>${symbol}${note}</td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
                 }
@@ -273,7 +290,6 @@
             }
         }
 
-        // Jalankan tabel kosong saat awal
         window.onload = () => renderRows({});
     </script>
 </body>
