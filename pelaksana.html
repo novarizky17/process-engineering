@@ -8,8 +8,7 @@
   <style>
     body { 
         font-family: Arial, sans-serif; 
-        margin: 0; 
-        padding: 0; 
+        margin: 0; padding: 0; 
         background-color: #f4f4f4; 
         color: #333; 
         min-height: 100vh; 
@@ -44,11 +43,15 @@
         box-sizing: border-box; 
         font-size: 1em; 
         transition: border-color 0.3s;
+        text-transform: uppercase; /* Input otomatis terlihat kapital */
     }
     input:focus {
         border-color: #003366;
         outline: none;
     }
+    /* Kecilkan input khusus untuk nomor minggu agar tidak terlalu lebar */
+    #weekChecklist { width: 80px; text-align: center; }
+
     button.submit { 
         background-color: #155724; 
         color: white; 
@@ -83,12 +86,17 @@
       
       <div class="form-group">
         <label>Merk Mesin</label>
-        <input type="text" id="merkMesin" placeholder="Contoh: Haitian, Nissei, dll">
+        <input type="text" id="merkMesin" placeholder="Contoh: IRON MAN">
       </div>
 
       <div class="form-group">
         <label>Tonage</label>
-        <input type="text" id="tonage" placeholder="Contoh: 120T, 250T, dll">
+        <input type="text" id="tonage" placeholder="Contoh: 150T">
+      </div>
+
+      <div class="form-group">
+        <label>Minggu (Week)</label>
+        <input type="number" id="weekChecklist" placeholder="W" min="1" max="53">
       </div>
 
       <div class="form-group">
@@ -105,19 +113,39 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Set tanggal hari ini secara otomatis
-    document.getElementById('tanggalChecklist').value = new Date().toISOString().split('T')[0];
+    // Fungsi otomatis hitung nomor minggu [ISO Week]
+    function getWeekNumber(date) {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+        const startOfYear = new Date(d.getFullYear(), 0, 1);
+        return Math.ceil((((d - startOfYear) / 86400000) + 1) / 7);
+    }
+
+    // Inisialisasi Tanggal dan Week hari ini secara otomatis
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('tanggalChecklist');
+    const weekInput = document.getElementById('weekChecklist');
+    
+    dateInput.value = today;
+    weekInput.value = getWeekNumber(today);
+
+    // Update nomor minggu setiap kali tanggal diubah
+    dateInput.addEventListener('change', function() {
+        weekInput.value = getWeekNumber(this.value);
+    });
 
     async function simpanDanLanjut() {
       const nama = document.getElementById('namaPelaksana').value.trim();
       const merk = document.getElementById('merkMesin').value.trim();
       const tonage = document.getElementById('tonage').value.trim();
       const tanggal = document.getElementById('tanggalChecklist').value;
+      const week = document.getElementById('weekChecklist').value;
       const btn = document.getElementById('btnLanjut');
 
-      // Validasi sederhana
-      if (!nama || !merk || !tonage || !tanggal) {
-        alert('Mohon lengkapi semua data: Nama, Merk Mesin, Tonage, dan Tanggal!');
+      // Validasi semua data wajib diisi
+      if (!nama || !merk || !tonage || !tanggal || !week) {
+        alert('Mohon lengkapi semua data: Nama, Merk Mesin, Tonage, Week, dan Tanggal!');
         return;
       }
 
@@ -125,25 +153,27 @@
       btn.textContent = "Menyimpan...";
 
       try {
-        // Simpan ke tabel 'pelaksana' (Pastikan kolom merk_mesin dan tonage sudah ada di tabel Supabase Anda)
+        // Simpan ke tabel 'pelaksana' (Pastikan kolom 'week' tipe int sudah ada di database)
         const { data, error } = await _supabase
           .from('pelaksana')
           .insert([{ 
-              nama_pelaksana: nama, 
-              merk_mesin: merk, 
-              tonage: tonage, 
-              tanggal_checklist: tanggal 
+              nama_pelaksana: nama.toUpperCase(), 
+              merk_mesin: merk.toUpperCase(), 
+              tonage: tonage.toUpperCase(), 
+              tanggal_checklist: tanggal,
+              week: parseInt(week)
           }])
           .select('id')
           .single();
 
         if (error) throw error;
 
-        // Simpan informasi ke localStorage agar bisa ditampilkan di header form selanjutnya
+        // Simpan ke localStorage untuk digunakan halaman berikutnya
         localStorage.setItem('pelaksana_id', data.id);
-        localStorage.setItem('pelaksana_nama', nama);
-        localStorage.setItem('mesin_merk', merk);
-        localStorage.setItem('mesin_tonage', tonage);
+        localStorage.setItem('pelaksana_nama', nama.toUpperCase());
+        localStorage.setItem('mesin_merk', merk.toUpperCase());
+        localStorage.setItem('mesin_tonage', tonage.toUpperCase());
+        localStorage.setItem('mesin_week', week);
         localStorage.setItem('checklist_tanggal', tanggal);
         
         // Pindah ke halaman form checklist
