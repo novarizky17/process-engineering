@@ -110,7 +110,7 @@
         </table>
 
         <div class="footer-flex">
-            <div class="keterangan"><strong>BERI TANDA :</strong><br>√ : BILA ITEM YANG DIPERIKSA BAIK<br>X : BILA TERJADI PENYIMPANGAN<br>O : BILA MESIN DALAM PROSES PERBAIKAN</div>
+            <div class="keterangan"><strong>BERI TANDA :</strong><br>√ : BILA ITEM YANG DIPERIKSA BAIK, SESUAI STANDAR<br>X : BILA TERJADI PENYIMPANGAN / KERUSAKAN PADA ITEM YANG DIPERIKSA.<br>O : BILA MESIN DALAM PROSES PERBAIKAN</div>
             <div class="diketahui-box">
                 <p style="font-weight: bold; margin-bottom: 5px;">DIKETAHUI</p>
                 <div class="sig-frame" id="super-sig"></div>
@@ -167,7 +167,6 @@
             { name: "TUBBING", field: "dummy_tubbing" }
         ];
 
-        // Fungsi konversi nomor ke huruf (1=a, 2=b, 3=c...)
         function numToChar(num) {
             return String.fromCharCode(96 + num);
         }
@@ -223,20 +222,21 @@
             let alphabetCounter = 1;
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
-                    alphabetCounter = 1; // Reset huruf saat ganti seksi
+                    alphabetCounter = 1;
                     let hRow = `<tr><td colspan="2" class="section-header">${item.header}</td>`;
-                    for(let i=1; i<=53; i++) hRow += `<td>abc</td>`;
+                    for(let i=1; i<=53; i++) hRow += `<td></td>`; // Kosongkan
                     tbody.innerHTML += hRow + `</tr>`;
                 } else {
                     let char = numToChar(alphabetCounter++);
                     let rHtml = `<tr><td>${char}</td><td class="col-item">${item.name}</td>`;
-                    for(let i=1; i<=53; i++) rHtml += `<td>abc</td>`;
+                    for(let i=1; i<=53; i++) rHtml += `<td></td>`; // Kosongkan
                     tbody.innerHTML += rHtml + `</tr>`;
                 }
             });
             const rowPel = document.getElementById('row-paraf-pelaksana');
             while(rowPel.cells.length > 1) rowPel.deleteCell(1);
             for(let i=1; i<=53; i++) rowPel.insertCell().className = "sig-td";
+            document.getElementById('super-sig').innerHTML = ""; // Superintendent kosong
         }
 
         function renderRows(dataMap) {
@@ -245,15 +245,16 @@
             let alphabetCounter = 1;
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
-                    alphabetCounter = 1; // Reset huruf saat ganti seksi
+                    alphabetCounter = 1;
                     let hRow = `<tr><td colspan="2" class="section-header">${item.header}</td>`;
-                    for(let i=1; i<=53; i++) hRow += `<td>abc</td>`;
+                    for(let i=1; i<=53; i++) hRow += `<td></td>`; // Selalu kosong untuk header
                     tbody.innerHTML += hRow + `</tr>`;
                 } else {
                     let char = numToChar(alphabetCounter++);
                     let rHtml = `<tr><td>${char}</td><td class="col-item">${item.name}</td>`;
                     for(let i=1; i<=53; i++) {
-                        let content = dataMap[i] ? (dataMap[i][item.field] === 'OK' ? '<span class="check-symbol">√</span>' : '<span class="check-symbol">X</span>') : "abc";
+                        // Tampilkan simbol jika ada data, jika tidak biarkan kosong
+                        let content = dataMap[i] ? (dataMap[i][item.field] === 'OK' ? '<span class="check-symbol">√</span>' : '<span class="check-symbol">X</span>') : "";
                         rHtml += `<td>${content}</td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
@@ -269,9 +270,8 @@
                 cPel.className = "sig-td";
                 if(dataMap[i] && dataMap[i].signature_pelaksana) {
                     cPel.innerHTML = `<img src="${dataMap[i].signature_pelaksana}">`;
-                } else {
-                    cPel.innerText = "abc";
                 }
+                // Jika tidak ada data, biarkan cPel kosong
             }
         }
 
@@ -282,7 +282,7 @@
                 sigFrame.innerHTML = `<img src="${latest.signature}">`;
                 document.getElementById('super-name').innerText = "( SUPERINTENDENT )";
             } else {
-                sigFrame.innerHTML = "abc";
+                sigFrame.innerHTML = ""; // Biarkan kosong
                 document.getElementById('super-name').innerText = "( ........................ )";
             }
         }
