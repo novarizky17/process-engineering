@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Laporan Perawatan & Overhaul Mesin</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            background-color: #e2e8f0; 
+            padding: 20px; 
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 9.5pt;
+        }
+
+        /* Ukuran Kertas A4 */
+        .document-page { 
+            width: 210mm;
+            min-height: 297mm;
+            background: white; 
+            margin: 0 auto;
+            padding: 10mm; 
+            border: 2px solid #000;
+            box-sizing: border-box;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+
+        /* Header Table Style - Persis Gambar */
+        .header-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 15px; 
+            border: 2.5px solid black; 
+        }
+        .header-table td { 
+            border: 1px solid black; 
+            padding: 5px 10px; 
+            vertical-align: middle; 
+        }
+        .logo-box { width: 140px; text-align: center; border-right: 2px solid black !important; }
+        .logo-box img { width: 110px; margin: 0 auto; }
+        
+        .title-cell { text-align: center; border-right: 2px solid black !important; }
+        .company-name { font-weight: bold; font-size: 11pt; border-bottom: 1px solid black; padding-bottom: 4px; margin-bottom: 4px; }
+        .report-title { font-weight: bold; font-size: 11pt; text-transform: uppercase; }
+        
+        .meta-cell { width: 240px; padding: 0 !important; }
+        .meta-table { width: 100%; border-collapse: collapse; }
+        .meta-table td { border: none !important; border-bottom: 1px solid black !important; padding: 4px 8px !important; font-size: 8.5pt; font-weight: bold; }
+        .meta-table tr:last-child td { border-bottom: none !important; }
+        .meta-label { width: 100px; border-right: 1px solid black !important; }
+
+        /* Input Fields */
+        .input-row { display: flex; align-items: center; margin-bottom: 8px; font-weight: bold; }
+        .input-label { width: 230px; flex-shrink: 0; }
+        .input-line { border-bottom: 1px solid black; flex-grow: 1; outline: none; padding: 0 5px; font-weight: normal; font-size: 10pt; }
+
+        /* Small Box Checkbox */
+        .custom-box {
+            width: 15px;
+            height: 15px;
+            border: 1.5px solid black;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: white;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .custom-box input { opacity: 0; position: absolute; cursor: pointer; width: 100%; height: 100%; }
+        .custom-box .mark { display: none; font-size: 9pt; font-weight: bold; line-height: 1; }
+        .custom-box input:checked ~ .mark { display: block; }
+
+        /* Grid Dotted Lines Section */
+        .section-label { font-weight: bold; margin-top: 15px; margin-bottom: 8px; display: block; }
+        .dotted-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 6px;
+        }
+        .dotted-item { display: flex; align-items: flex-end; gap: 8px; }
+        .dotted-input { 
+            flex-grow: 1; 
+            border: none; 
+            border-bottom: 1.5px dotted #666; 
+            outline: none; 
+            background: transparent; 
+            font-size: 9.5pt;
+            padding: 0;
+        }
+
+        /* Part Table */
+        .part-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 5px; }
+        .part-table th, .part-table td { border: 1px solid black; padding: 6px; text-align: center; }
+        .part-table th { background-color: #f2f2f2; font-size: 9pt; font-weight: bold; }
+
+        /* Signature Grid (3 Columns) */
+        .sig-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            border: 2px solid black;
+            margin-top: 30px;
+        }
+        .sig-box {
+            border-right: 2px solid black;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+        .sig-box:last-child { border-right: none; }
+        .sig-header { font-weight: bold; font-size: 9pt; padding: 6px; border-bottom: 1.5px solid black; background: #fafafa; }
+        .sig-area { height: 100px; background: white; position: relative; cursor: crosshair; }
+        .sig-footer { border-top: 1.5px solid black; padding: 8px; font-weight: bold; font-size: 9pt; }
+        .sig-name { width: 95%; text-align: center; border: none; outline: none; text-transform: uppercase; font-size: 8.5pt; font-weight: bold; }
+        .canvas-el { width: 100%; height: 100%; }
+
+        /* UI Helpers */
+        .no-print { margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; }
+        .btn { padding: 10px 30px; border-radius: 4px; font-weight: bold; color: white; cursor: pointer; transition: 0.2s; }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; padding: 0; }
+            .document-page { box-shadow: none; border: 2px solid black; margin: 0; padding: 10mm; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <button onclick="window.location.href='dashboard.html'" class="btn bg-slate-600">← KEMBALI</button>
+        <button onclick="window.print()" class="btn bg-blue-900">CETAK FORM / PDF</button>
+    </div>
+
+    <div class="document-page">
+        <!-- HEADER KOTAK ISO -->
+        <table class="header-table">
+            <tr>
+                <td rowspan="2" class="logo-box">
+                    <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo AKG">
+                    <div class="text-[9pt] font-bold mt-1">AKG®</div>
+                </td>
+                <td class="title-cell">
+                    <div class="company-name">PT. AMARILIS KARISMA GEMILANG</div>
+                    <div class="report-title">LAPORAN PERAWATAN & OVER HAUL MESIN TOOLS / EQUIPMENT</div>
+                </td>
+                <td class="meta-cell">
+                    <table class="meta-table">
+                        <tr>
+                            <td class="meta-label">No Dokumen</td>
+                            <td>: AF.SP 05.01</td>
+                        </tr>
+                        <tr>
+                            <td class="meta-label">Tgl. Terbit</td>
+                            <td>: 02 Agustus 2024</td>
+                        </tr>
+                        <tr>
+                            <td class="meta-label">Halaman</td>
+                            <td>: 1 / 1</td>
+                        </tr>
+                        <tr>
+                            <td class="meta-label">Revisi</td>
+                            <td>: 00</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <form id="laporanPengerjaan">
+            <!-- INFO MESIN & TIPE PEKERJAAN -->
+            <div class="input-row">
+                <span class="input-label">Nama Mesin, Tools/equipment :</span>
+                <input type="text" id="nama_mesin" class="input-line">
+                <div class="flex gap-4 ml-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <div class="custom-box"><input type="radio" name="job_type" value="Perawatan"><span class="mark">✔</span></div> Perawatan
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <div class="custom-box"><input type="radio" name="job_type" value="Overhaul"><span class="mark">✔</span></div> Over Haul
+                    </label>
+                </div>
+            </div>
+            
+            <div class="input-row">
+                <span class="input-label">Tanggal, Jam Mulai :</span>
+                <input type="datetime-local" id="jam_mulai" class="input-line" style="max-width: 300px;">
+            </div>
+            
+            <div class="input-row">
+                <span class="input-label">Tanggal, Jam Selesai :</span>
+                <input type="datetime-local" id="jam_selesai" class="input-line" style="max-width: 300px;">
+            </div>
+
+            <!-- DISKRIPSI PERMASALAHAN (KOTAK KECIL DI AWAL BARIS) -->
+            <span class="section-label">Diskripsi Permasalahan Mesin Tools/Equipment :</span>
+            <div id="prob-container">
+                <script>
+                    for(let i=1; i<=4; i++) {
+                        document.write(`
+                            <div class="dotted-grid">
+                                <div class="dotted-item">
+                                    <div class="custom-box"><input type="checkbox" name="prob_check_a_${i}"><span class="mark">✔</span></div>
+                                    <input type="text" name="prob_text_a_${i}" class="dotted-input">
+                                </div>
+                                <div class="dotted-item">
+                                    <div class="custom-box"><input type="checkbox" name="prob_check_b_${i}"><span class="mark">✔</span></div>
+                                    <input type="text" name="prob_text_b_${i}" class="dotted-input">
+                                </div>
+                            </div>
+                        `);
+                    }
+                </script>
+            </div>
+
+            <!-- PEKERJAAN YANG DILAKUKAN -->
+            <span class="section-label">Pekerjaan Yang Dilakukan & Tindakan Yang Diambil :</span>
+            <div id="act-container">
+                <script>
+                    for(let i=1; i<=4; i++) {
+                        document.write(`
+                            <div class="dotted-grid">
+                                <div class="dotted-item">
+                                    <div class="custom-box"><input type="checkbox" name="act_check_a_${i}"><span class="mark">✔</span></div>
+                                    <input type="text" name="act_text_a_${i}" class="dotted-input">
+                                </div>
+                                <div class="dotted-item">
+                                    <div class="custom-box"><input type="checkbox" name="act_check_b_${i}"><span class="mark">✔</span></div>
+                                    <input type="text" name="act_text_b_${i}" class="dotted-input">
+                                </div>
+                            </div>
+                        `);
+                    }
+                </script>
+            </div>
+
+            <!-- KERUSAKAN PART -->
+            <span class="section-label">Kerusakan Part :</span>
+            <table class="part-table">
+                <thead>
+                    <tr>
+                        <th rowspan="2" style="width: 40px;">NO</th>
+                        <th rowspan="2">Nama Part</th>
+                        <th rowspan="2" style="width: 70px;">QTY</th>
+                        <th colspan="2">Tindak Lanjut</th>
+                    </tr>
+                    <tr>
+                        <th style="width: 110px;">Ganti Baru</th>
+                        <th style="width: 110px;">Repair</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <script>
+                        for(let i=1; i<=5; i++) {
+                            document.write(`
+                                <tr>
+                                    <td>${i}</td>
+                                    <td><input type="text" name="part_n_${i}" class="w-full outline-none px-2 border-none"></td>
+                                    <td><input type="number" name="part_q_${i}" class="w-full outline-none text-center border-none"></td>
+                                    <td><div class="flex justify-center"><div class="custom-box"><input type="radio" name="part_act_${i}" value="Ganti"><span class="mark">✔</span></div></div></td>
+                                    <td><div class="flex justify-center"><div class="custom-box"><input type="radio" name="part_act_${i}" value="Repair"><span class="mark">✔</span></div></div></td>
+                                </tr>
+                            `);
+                        }
+                    </script>
+                </tbody>
+            </table>
+
+            <!-- REKOMENDASI -->
+            <div style="margin-top: 15px;">
+                <span class="section-label">Rekomendasi & Catatan :</span>
+                <input type="text" id="rek_1" class="dotted-input w-full mb-3" placeholder="..................................................................................................................................................................................">
+                <input type="text" id="rek_2" class="dotted-input w-full mb-3" placeholder="..................................................................................................................................................................................">
+                <input type="text" id="rek_3" class="dotted-input w-full" placeholder="..................................................................................................................................................................................">
+            </div>
+
+            <!-- TANDA TANGAN (3 KOLOM PERSIS GAMBAR) -->
+            <div class="sig-grid">
+                <div class="sig-box">
+                    <div class="sig-header">Dikerjakan Oleh:</div>
+                    <div class="sig-area">
+                        <canvas id="can-eng" class="canvas-el"></canvas>
+                        <button type="button" onclick="resetCan('can-eng')" class="absolute top-0 right-0 p-1 text-[7pt] text-red-500 underline no-print">Reset</button>
+                    </div>
+                    <div class="sig-footer">
+                        <input type="text" id="name_engineer" class="sig-name" placeholder="ENGINEER">
+                    </div>
+                </div>
+                <div class="sig-box">
+                    <div class="sig-header">Diperiksa Oleh:</div>
+                    <div class="sig-area flex items-center justify-center text-slate-300 italic text-[7pt]">Paraf Spv</div>
+                    <div class="sig-footer">SPV / SUPERINTENDENT</div>
+                </div>
+                <div class="sig-box">
+                    <div class="sig-header">Mengetahui:</div>
+                    <div class="sig-area flex items-center justify-center text-slate-300 italic text-[7pt]">Paraf Manager</div>
+                    <div class="sig-footer">MANAGER</div>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center no-print">
+                <button type="button" id="btnSave" onclick="saveData()" class="btn bg-blue-900 shadow-xl hover:scale-105 transform transition">
+                    SIMPAN LAPORAN SEKARANG
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- MODAL SUKSES -->
+    <div id="modalOk" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-[100]">
+        <div class="bg-white p-12 rounded-lg shadow-2xl text-center border-t-8 border-blue-900">
+            <h2 class="text-2xl font-bold text-slate-800 mb-4">Laporan Berhasil Disimpan!</h2>
+            <button onclick="window.location.reload()" class="bg-blue-900 text-white px-10 py-2 rounded font-bold">OK</button>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
+        const _sb = supabase.createClient(SB_URL, SB_KEY);
+
+        // Sign Pad Logic
+        const canvas = document.getElementById('can-eng');
+        const ctx = canvas.getContext('2d');
+        let painting = false;
+
+        function init() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        }
+        window.onload = init;
+
+        function start(e) { painting = true; draw(e); }
+        function end() { painting = false; ctx.beginPath(); }
+        function draw(e) {
+            if (!painting) return;
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = "black";
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+            const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        canvas.addEventListener('mousedown', start);
+        canvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', end);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+        canvas.addEventListener('touchend', end);
+
+        function resetCan(id) {
+            const c = document.getElementById(id);
+            c.getContext('2d').clearRect(0,0,c.width,c.height);
+        }
+
+        async function saveData() {
+            const mesin = document.getElementById('nama_mesin').value;
+            const eng = document.getElementById('name_engineer').value;
+            const btn = document.getElementById('btnSave');
+
+            if (!mesin || !eng) {
+                alert("Mohon isi Nama Mesin dan Engineer!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "PROSES...";
+
+            try {
+                const dataPayload = {
+                    nama_pelaksana: eng,
+                    tanggal_checklist: document.getElementById('jam_mulai').value.split('T')[0] || new Date().toISOString().split('T')[0],
+                    merk_mesin: mesin,
+                    signature_pelaksana: canvas.toDataURL(),
+                    notes: `WAKTU: ${document.getElementById('jam_mulai').value} s/d ${document.getElementById('jam_selesai').value}`,
+                    status: 'Maintenance_Done'
+                };
+
+                const { error } = await _sb.from('pelaksana').insert([dataPayload]);
+                if (error) throw error;
+
+                document.getElementById('modalOk').classList.remove('hidden');
+
+            } catch (err) {
+                console.error(err);
+                alert("Gagal: " + err.message);
+                btn.disabled = false;
+                btn.innerText = "SIMPAN LAPORAN SEKARANG";
+            }
+        }
+    </script>
+</body>
+</html>
