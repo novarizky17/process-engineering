@@ -12,7 +12,7 @@
     .back-btn { background-color: #004085; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; }
     .main-content { padding: 20px; max-width: 900px; margin: 0 auto; }
     h1 { text-align: center; margin-bottom: 20px; }
-    .info { text-align: center; font-size: 1.1em; margin-bottom: 30px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); line-height: 1.6; }
+    .info { text-align: center; font-size: 1.0em; margin-bottom: 30px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); line-height: 1.8; }
     .form-container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
     .section { margin-bottom: 40px; border: 1px solid #eee; padding: 20px; border-radius: 10px; }
     .section h3 { font-size: 1.5em; border-bottom: 2px solid #003366; padding-bottom: 10px; margin-top: 0; color: #003366; }
@@ -43,9 +43,10 @@
   <div class="main-content">
     <h1>Checklist Pelaksana</h1>
     <div class="info">
-      MINGGU: <strong id="weekChecklist">-</strong> | 
       Pelaksana: <strong id="pelaksanaNama">-</strong> | 
-      Mesin: <strong id="merkMesin">-</strong> | 
+      Equipment: <strong id="namaTools">-</strong> | 
+      Capacity: <strong id="capacityValue">-</strong> <br>
+      MINGGU: <strong id="weekChecklist">-</strong> | 
       Tanggal: <strong id="tanggalChecklist">-</strong>
     </div>
 
@@ -174,7 +175,8 @@
       if (data) {
         document.getElementById('weekChecklist').textContent = data.week || '-';
         document.getElementById('pelaksanaNama').textContent = data.nama_pelaksana;
-        document.getElementById('merkMesin').textContent = data.merk_mesin;
+        document.getElementById('namaTools').textContent = data.merk_mesin; 
+        document.getElementById('capacityValue').textContent = data.tonage; // Menampilkan Capacity
         document.getElementById('tanggalChecklist').textContent = data.tanggal_checklist;
       }
     }
@@ -201,8 +203,6 @@
         
         if (radio.value === 'NG') {
           if (!ketValue) return alert("Item " + f.replace(/_/g, ' ').toUpperCase() + " NG wajib diisi keterangan!");
-          
-          // MENGGUNAKAN KOLOM _keterangan SESUAI DATABASE ANDA
           payload[`${f}_keterangan`] = ketValue;
         }
       }
