@@ -45,10 +45,7 @@
         transition: border-color 0.3s;
         text-transform: uppercase; 
     }
-    input:focus {
-        border-color: #003366;
-        outline: none;
-    }
+    input:focus { border-color: #003366; outline: none; }
     #weekChecklist { width: 80px; text-align: center; }
 
     button.submit { 
@@ -63,10 +60,7 @@
         margin-top: 10px; 
         font-weight: bold;
     }
-    button.submit:disabled {
-        background-color: #6c757d;
-        cursor: not-allowed;
-    }
+    button.submit:disabled { background-color: #6c757d; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -140,7 +134,7 @@
       const btn = document.getElementById('btnLanjut');
 
       if (!nama || !tools || !capacity || !tanggal || !week) {
-        alert('Mohon lengkapi semua data: Nama, Nama Tools, Capacity, Week, dan Tanggal!');
+        alert('Mohon lengkapi semua data!');
         return;
       }
 
@@ -148,13 +142,13 @@
       btn.textContent = "Menyimpan...";
 
       try {
-        // Catatan: Nama kolom 'merk_mesin' dan 'tonage' tetap digunakan agar sesuai dengan tabel database Anda yang lama
+        // Mengirim data ke kolom yang benar agar tidak error schema cache
         const { data, error } = await _supabase
           .from('pelaksana')
           .insert([{ 
               nama_pelaksana: nama.toUpperCase(), 
-              merk_mesin: tools.toUpperCase(), 
-              tonage: capacity.toUpperCase(), 
+              nama_tools: tools.toUpperCase(), 
+              capacity: capacity.toUpperCase(), 
               tanggal_checklist: tanggal,
               week: parseInt(week)
           }])
@@ -164,12 +158,8 @@
         if (error) throw error;
 
         localStorage.setItem('pelaksana_id', data.id);
-        localStorage.setItem('pelaksana_nama', nama.toUpperCase());
-        localStorage.setItem('mesin_merk', tools.toUpperCase());
-        localStorage.setItem('mesin_tonage', capacity.toUpperCase());
-        localStorage.setItem('mesin_week', week);
-        localStorage.setItem('checklist_tanggal', tanggal);
         
+        // Pastikan nama file tujuan sesuai dengan file form checklist Anda
         window.location.href = 'checklist-form.html'; 
 
       } catch (error) {
