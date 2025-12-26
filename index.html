@@ -123,15 +123,17 @@
             const foundUser = users.find(u => u.username === userField && u.password === passField);
 
             if (foundUser) {
+                // Simpan user aktif ke localStorage
                 localStorage.setItem("activeUser", foundUser.username);
-                // Diarahkan ke halaman Data Pelaksana Checklist
-                window.location.href = 'index.html'; 
+                // DIARAHKAN KE HALAMAN DASHBOARD
+                window.location.href = 'dashboard.html'; 
             } else {
                 errorBox.style.display = 'block';
                 setTimeout(() => { errorBox.style.display = 'none'; }, 3000);
             }
         }
 
+        // Mendukung login dengan menekan tombol Enter
         document.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') { handleLogin(); }
         });
