@@ -1,445 +1,111 @@
 <!DOCTYPE html>
-
 <html lang="id">
-
 <head>
-
-  <meta charset="UTF-8" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <title>Superintendent - Approval System (NG Only)</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-
-    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
-
-    header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-
-    .container { padding: 20px; max-width: 1100px; margin: 0 auto; }
-
-    
-
-    .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
-
-    table { width: 100%; border-collapse: collapse; }
-
-    th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
-
-    td { padding: 15px; border-top: 1px solid #eee; }
-
-    
-
-    .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
-
-    .status-pending { background: #fff3cd; color: #856404; }
-
-    .status-approved { background: #d4edda; color: #155724; }
-
-    .status-rejected { background: #f8d7da; color: #721c24; }
-
-
-
-    .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
-
-    .btn-primary { background: #007bff; color: white; }
-
-    .btn-success { background: #28a745; color: white; width: 45%; }
-
-    .btn-danger { background: #dc3545; color: white; width: 45%; }
-
-
-
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
-
-    .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 900px; }
-
-    
-
-    .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
-
-    .grid-item-ng { border: 2px solid #dc3545; padding: 15px; border-radius: 8px; margin-bottom: 10px; background: #fff5f5; }
-
-    
-
-    .ng-label { font-weight: bold; color: #b21f2d; font-size: 16px; text-transform: uppercase; }
-
-    .ng-reason-box { margin-top: 10px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #dc3545; font-size: 15px; color: #333; }
-
-    .all-ok-msg { color: #28a745; font-weight: bold; padding: 10px; font-style: italic; }
-
-
-
-    .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
-
-    canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
-
-    textarea { width: 100%; height: 80px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
-
-  </style>
-
-</head>
-
-<body>
-
-
-
-<header>
-
-  <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
-
-  <button class="btn btn-primary" onclick="loadData()">Refresh Data</button>
-
-</header>
-
-
-
-<div class="container">
-
-  <div class="card">
-
-    <table>
-
-      <thead>
-
-        <tr>
-
-          <th>Pelaksana</th>
-
-          <th>Week</th> 
-
-          <th>Equipment / Capacity</th>
-
-          <th>Tanggal</th>
-
-          <th>Status</th>
-
-          <th>Aksi</th>
-
-        </tr>
-
-      </thead>
-
-      <tbody id="mainTable">
-
-        <tr><td colspan="6" style="text-align:center;">Memuat data...</td></tr>
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-</div>
-
-
-
-<div id="modal" class="modal">
-
-  <div class="modal-content">
-
-    <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
-
-    <h2 style="color:#003366; margin:0;">Review Temuan NG</h2>
-
-    <p id="infoPelaksana" style="color:#666; margin-top:5px; font-weight: bold;"></p>
-
-    <hr>
-
-    
-
-    <div id="modalBody"></div>
-
-
-
-    <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
-
-      <div id="pendingSection" style="display:none; text-align:center;">
-
-        <p><strong>Tanda Tangan Superintendent:</strong></p>
-
-        <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
-
-        <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
-
-        <div style="display: flex; justify-content: space-around;">
-
-          <button class="btn btn-success" onclick="processStatus('Approved')">APPROVE</button>
-
-          <button class="btn btn-danger" onclick="showRejectInput()">REJECT</button>
-
-        </div>
-
-        <div id="rejectInput" style="display:none; margin-top:20px; text-align:left;">
-
-          <textarea id="reasonText" placeholder="Alasan penolakan..."></textarea>
-
-          <button class="btn btn-danger" style="width:100%;" onclick="processStatus('Rejected')">Kirim Penolakan</button>
-
-        </div>
-
-      </div>
-
-
-
-      <div id="historySection" style="display:none; text-align:center;">
-
-        <h3 id="historyLabel"></h3>
-
-        <div id="historySigArea">
-
-           <img id="historySigImg" style="max-width:300px; border:1px solid #ddd; padding:5px; background:white;">
-
-        </div>
-
-        <div id="historyRejectArea" style="background:#fff1f0; padding:15px; border-radius:8px; display:none;">
-
-           <strong>Alasan Reject:</strong> <span id="historyReason"></span>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-
-<script>
-
-  const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
-
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
-
-  const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-
-
-  let activeId = null;
-
-  const canvas = document.getElementById('sig-canvas');
-
-  const ctx = canvas.getContext('2d');
-
-  canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
-
-
-
-  const masterStructure = [
-
-    { section: "1. STAND LABEL", prefix: "", fields: ["wiring", "komponen", "kerapihan", "sensor", "timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator", "selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad", "flange", "vacuum_pad_takeout"] },
-
-    { section: "2. STACKING", prefix: "stacking_", fields: ["wiring", "sensor", "linier", "mechanical_part", "cylinder", "pneumatic"] },
-
-    { section: "3. CONVEYOR", prefix: "conveyor_", fields: ["belt", "motor", "rantai", "frame", "inverter"] },
-
-    { section: "4. DOSING", prefix: "dosing_", fields: ["alarm", "setting"] },
-
-    { section: "5. DUMMY", prefix: "dummy_", fields: ["vacuum", "condition", "flange", "instalasi", "tubbing"] }
-
-  ];
-
-
-
-  // Tanda tangan logic
-
-  let drawing = false;
-
-  function getP(e) {
-
-    const r = canvas.getBoundingClientRect();
-
-    const x = (e.clientX || e.touches[0].clientX) - r.left;
-
-    const y = (e.clientY || e.touches[0].clientY) - r.top;
-
-    return { x: x * (canvas.width/r.width), y: y * (canvas.height/r.height) };
-
-  }
-
-  canvas.onmousedown = (e) => { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
-
-  canvas.onmousemove = (e) => { if(!drawing) return; const p=getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
-
-  window.onmouseup = () => drawing=false;
-
-  canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
-
-  canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; const p=getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
-
-
-
-  function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-
-
-
-  async function loadData() {
-
-    const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
-
-    if(error) return;
-
-    document.getElementById('mainTable').innerHTML = data.map(row => `
-
-      <tr>
-
-        <td><strong>${row.pelaksana?.nama_pelaksana || '-'}</strong></td>
-
-        <td>W-${row.pelaksana?.week || '-'}</td>
-
-        <td>${row.pelaksana?.nama_tools || '-'} / ${row.pelaksana?.capacity || '-'}</td>
-
-        <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
-
-        <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
-
-        <td><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
-
-      </tr>
-
-    `).join('');
-
-  }
-
-
-
-  function openModal(row) {
-
-    activeId = row.id;
-
-    document.getElementById('infoPelaksana').innerText = `WEEK: ${row.pelaksana?.week} | Equipment: ${row.pelaksana?.nama_tools} | Pelaksana: ${row.pelaksana?.nama_pelaksana}`;
-
-    const body = document.getElementById('modalBody');
-
-    body.innerHTML = '';
-
-
-
-    masterStructure.forEach(sec => {
-
-      let ngItemsHtml = '';
-
-      sec.fields.forEach(f => {
-
-        const dbF = sec.prefix + f;
-
-        if(row[dbF] === 'NG') {
-
-          const reason = row[dbF + "_keterangan"] || "(Tidak ada keterangan)";
-
-          ngItemsHtml += `
-
-            <div class="grid-item-ng">
-
-              <div class="ng-label">${f.replace(/_/g,' ')}</div>
-
-              <div class="ng-reason-box"><strong>Keterangan:</strong> ${reason}</div>
-
-            </div>`;
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HISTORY CHECKLIST (MONTHLY) - TOOLING SUPPORT</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @page { size: A4 landscape; margin: 8mm; }
+        @media print {
+            body { padding: 0; margin: 0; background: white; }
+            .no-print { display: none !important; }
+            .document-page { box-shadow: none; border: none; width: 100%; max-width: none; margin: 0; padding: 5px; }
+            .check-symbol { color: black !important; -webkit-print-color-adjust: exact; }
+            .status-text { color: black !important; }
+        }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #000; }
+        .document-page { background: white; width: 1250px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
+@@ -34,12 +34,13 @@
+        .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; color: #000; }
+        .table-official th { background-color: #e5e5e5; font-weight: bold; }
+
+        .check-symbol { font-weight: bold; font-size: 11pt; color: #000 !important; }
+        .ng-text { font-size: 6pt; line-height: 1.1; word-wrap: break-word; color: #d32f2f; font-weight: bold; text-transform: uppercase; }
+        .status-text { font-weight: bold; font-size: 9pt; }
+        .ng-color { color: #d32f2f; } /* Merah untuk NG */
+        .ng-text-desc { font-size: 6pt; line-height: 1.1; word-wrap: break-word; color: #d32f2f; font-weight: bold; }
+
+        .col-no { width: 30px; }
+        .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
+        .col-status { width: 40px; } /* Kolom Simbol */
+        .col-status { width: 50px; } /* Kolom OK/NG */
+        .col-ket { width: 85px; }    /* Kolom Keterangan */
+
+        .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
+@@ -115,11 +116,11 @@
+                    <th colspan="2">WEEK 5</th>
+                </tr>
+                <tr>
+                    <th class="col-status">S</th><th class="col-ket">KET</th>
+                    <th class="col-status">S</th><th class="col-ket">KET</th>
+                    <th class="col-status">S</th><th class="col-ket">KET</th>
+                    <th class="col-status">S</th><th class="col-ket">KET</th>
+                    <th class="col-status">S</th><th class="col-ket">KET</th>
+                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
+                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
+                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
+                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
+                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
+                </tr>
+            </thead>
+            <tbody id="table-content"></tbody>
+@@ -244,49 +245,53 @@
+            checklistStructure.forEach(item => {
+                if (item.type === 'head') {
+                    alphabetCounter = 1;
+                    tbody.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td><td colspan="2"></td></tr>`;
+                    tbody.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="10"></td></tr>`;
+                } else {
+                    let char = numToChar(alphabetCounter++);
+                    let rHtml = `<tr><td>${char}</td><td class="col-item">${item.name}</td>`;
+                    for(let w=1; w<=5; w++) {
+                        let symbol = "";
+                        let statusText = "";
+                        let ket = "";
+                        let ngClass = "";
+
+                        if(dataMap[w]) {
+                            const status = dataMap[w][item.field];
+                            symbol = status === 'OK' ? '√' : (status === 'NG' ? 'X' : '');
+                            statusText = status || "";
+                            ngClass = status === 'NG' ? "ng-color" : "";
+                            ket = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
+                        }
+                        rHtml += `<td class="col-status"><span class="check-symbol">${symbol}</span></td>`;
+                        rHtml += `<td class="col-ket" style="text-align:left; padding-left:3px;"><span class="ng-text">${ket}</span></td>`;
+                        
+                        rHtml += `<td class="col-status"><span class="status-text ${ngClass}">${statusText}</span></td>`;
+                        rHtml += `<td class="col-ket" style="text-align:left; padding-left:3px;"><span class="ng-text-desc">${ket}</span></td>`;
+                    }
+                    tbody.innerHTML += rHtml + `</tr>`;
+                }
+            });
         }
 
-      });
+        function renderParaf(dataMap) {
+            for(let w=1; w<=5; w++) {
+                const cell = document.getElementById(`sig-w${w}`);
+                cell.innerHTML = "";
+                if(dataMap[w] && dataMap[w].signature_pelaksana) {
+                    cell.innerHTML = `<img src="${dataMap[w].signature_pelaksana}">`;
+                }
+            }
+        }
 
+        function renderSuper(filteredData) {
+            const latest = filteredData.sort((a,b) => b.id - a.id)[0];
+            const sigFrame = document.getElementById('super-sig');
+            if(latest && latest.signature) {
+                sigFrame.innerHTML = `<img src="${latest.signature}">`;
+                document.getElementById('super-name').innerText = "( SUPERINTENDENT )";
+            } else {
+                sigFrame.innerHTML = "";
+                document.getElementById('super-name').innerText = "( ........................ )";
+            }
+        }
 
-
-      body.innerHTML += `<div class="section-header">${sec.section}</div>`;
-
-      body.innerHTML += ngItemsHtml || `<div class="all-ok-msg">✓ Semua item pada bagian ini OK</div>`;
-
-    });
-
-
-
-    if(row.signature_pelaksana) {
-
-      body.innerHTML += `<div class="section-header">TTD PELAKSANA</div><div style="text-align:center"><img src="${row.signature_pelaksana}" style="height:100px; border:1px solid #eee"></div>`;
-
-    }
-
-
-
-    const isP = row.status === 'Pending';
-
-    document.getElementById('pendingSection').style.display = isP ? 'block' : 'none';
-
-    document.getElementById('historySection').style.display = isP ? 'none' : 'block';
-
-    
-
-    if(!isP) {
-
-      document.getElementById('historyLabel').innerText = row.status === 'Approved' ? '✓ DISETUJUI' : '✘ DITOLAK';
-
-      document.getElementById('historySigImg').src = row.signature || '';
-
-      document.getElementById('historyReason').innerText = row.reject_reason || '';
-
-      document.getElementById('historySigArea').style.display = row.status === 'Approved' ? 'block' : 'none';
-
-      document.getElementById('historyRejectArea').style.display = row.status === 'Rejected' ? 'block' : 'none';
-
-    }
-
-
-
-    document.getElementById('modal').style.display = 'block';
-
-    clearSig();
-
-  }
-
-
-
-  async function processStatus(st) {
-
-    const update = { status: st, approved_at: new Date().toISOString() };
-
-    if(st === 'Approved') {
-
-        const dataURL = canvas.toDataURL();
-
-        const blank = document.createElement('canvas');
-
-        blank.width = canvas.width; blank.height = canvas.height;
-
-        if(dataURL === blank.toDataURL()) return alert("TTD Wajib!");
-
-        update.signature = dataURL;
-
-    } else {
-
-        const r = document.getElementById('reasonText').value;
-
-        if(!r) return alert("Alasan Reject Wajib!");
-
-        update.reject_reason = r;
-
-    }
-
-
-
-    const { error } = await _supabase.from('checklist').update(update).eq('id', activeId);
-
-    if(!error) { alert("Berhasil!"); closeModal(); loadData(); }
-
-  }
-
-
-
-  function showRejectInput() { document.getElementById('rejectInput').style.display = 'block'; }
-
-  function closeModal() { document.getElementById('modal').style.display = 'none'; }
-
-  window.onload = loadData;
-
-</script>
-
+        window.onload = () => renderRows({});
+    </script>
 </body>
-
-</html>|
+</html>
