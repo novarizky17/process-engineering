@@ -12,22 +12,18 @@
     .main-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px 20px; text-align: center; }
     h1 { margin: 0 0 15px; font-size: 2.8em; color: #003366; }
     .subtitle { font-size: 1.3em; margin-bottom: 40px; max-width: 800px; color: #555; }
-    /* Grid diperbarui agar responsif dengan menu baru */
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; width: 100%; }
     .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 30px 20px; text-align: center; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
     .card:hover { transform: translateY(-8px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
-    .card h2 { margin: 0 0 10px; font-size: 1.6em; }
+    .card h2 { margin: 0 0 10px; font-size: 1.6em; color: white; }
     .card p { margin: 0; font-size: 1em; color: #eee; }
     
     /* Warna Menu */
     .blue { background-color: #004085; color: white; }
+    .maroon { background-color: #800000; color: white; } /* Perawatan & Overhaul */
     .green { background-color: #155724; color: white; }
     .orange { background-color: #c85000; color: white; }
     .purple { background-color: #6f42c1; color: white; }
-    /* Warna baru untuk Perawatan & Overhaul */
-    .maroon { background-color: #800000; color: white; }
-    
-    .card h2 { color: white; }
   </style>
 </head>
 <body>
@@ -49,6 +45,11 @@
         <p>Input data pelaksana dan tim checklist</p>
       </div>
 
+      <div class="card maroon" onclick="window.location.href='overhaul.html';">
+        <h2>Perawatan & Overhaul</h2>
+        <p>Form laporan maintenance dan overhaul tools</p>
+      </div>
+
       <div class="card green" onclick="window.location.href='jadwal-mingguan.html';">
         <h2>Jadwal Mingguan</h2>
         <p>Lihat dan atur jadwal checklist mingguan</p>
@@ -57,11 +58,6 @@
       <div class="card orange" onclick="window.location.href='superintendent.html';">
         <h2>Superintendent</h2>
         <p>Approval dan catatan superintendent</p>
-      </div>
-
-      <div class="card maroon" onclick="window.location.href='overhaul.html';">
-        <h2>Perawatan & Overhaul</h2>
-        <p>Form laporan maintenance dan overhaul tools</p>
       </div>
 
       <div class="card purple" onclick="window.location.href='history.html';">
