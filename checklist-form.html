@@ -101,6 +101,7 @@
   </div>
 
   <script>
+    // Konfigurasi Supabase
     const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -171,12 +172,23 @@
       const pId = localStorage.getItem('pelaksana_id');
       if (!pId) return window.location.assign('index.html');
       
-      const { data } = await _supabase.from('pelaksana').select('*').eq('id', pId).single();
+      // PERBAIKAN: Mengambil data menggunakan nama kolom terbaru
+      const { data, error } = await _supabase
+        .from('pelaksana')
+        .select('week, nama_pelaksana, nama_tools, capacity, tanggal_checklist')
+        .eq('id', pId)
+        .single();
+
+      if (error) {
+          console.error("Error fetch data pelaksana:", error.message);
+          return;
+      }
+
       if (data) {
         document.getElementById('weekChecklist').textContent = data.week || '-';
         document.getElementById('pelaksanaNama').textContent = data.nama_pelaksana;
-        document.getElementById('namaTools').textContent = data.merk_mesin; 
-        document.getElementById('capacityValue').textContent = data.tonage; // Menampilkan Capacity
+        document.getElementById('namaTools').textContent = data.nama_tools || '-'; // Berubah dari merk_mesin
+        document.getElementById('capacityValue').textContent = data.capacity || '-'; // Berubah dari tonage
         document.getElementById('tanggalChecklist').textContent = data.tanggal_checklist;
       }
     }
@@ -213,11 +225,11 @@
       const { error } = await _supabase.from('checklist').insert([payload]);
       
       if (error) {
-        alert("Gagal: " + error.message);
+        alert("Gagal menyimpan checklist: " + error.message);
         document.getElementById('btnSimpan').disabled = false;
         document.getElementById('btnSimpan').textContent = "SIMPAN DATA CHECKLIST";
       } else {
-        alert("Berhasil!");
+        alert("Data Checklist Berhasil Disimpan!");
         localStorage.removeItem('pelaksana_id');
         window.location.assign('index.html');
       }
