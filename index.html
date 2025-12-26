@@ -3,183 +3,105 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TOOLING SUPPORT - Login</title>
+  <title>Data Pelaksana Checklist</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f4;
-      color: #333;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    header {
-      background-color: #003366;
-      color: white;
-      width: 100%;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      position: fixed;
-      top: 0;
-      z-index: 1000;
-    }
-    .logo {
-      font-size: 2.2em;
-      font-weight: bold;
-    }
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 100px 20px 40px;
-    }
-    h1 {
-      font-size: 3em;
-      margin: 0 0 10px;
-      color: #004085;
-    }
-    p.subtitle {
-      font-size: 1.1em;
-      margin-bottom: 30px;
-      max-width: 500px;
-      color: #555;
-    }
-    .login-box {
-      background: white;
-      padding: 35px;
-      border-radius: 15px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 380px;
-    }
-    .form-group {
-      margin-bottom: 20px;
-      text-align: left;
-    }
-    .form-group label {
-      display: block;
-      font-size: 1em;
-      margin-bottom: 8px;
-      font-weight: bold;
-      color: #003366;
-    }
-    .form-group input {
-      width: 100%;
-      padding: 12px;
-      font-size: 1em;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      box-sizing: border-box;
-      transition: border-color 0.3s;
-    }
-    .form-group input:focus {
-      border-color: #004085;
-      outline: none;
-    }
-    .btn {
-      background-color: #155724;
-      color: white;
-      width: 100%;
-      padding: 15px;
-      font-size: 1.4em;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      font-weight: bold;
-    }
-    .btn:hover {
-      background-color: #0f4422;
-      transform: translateY(-2px);
-    }
-    .error-msg {
-      color: #721c24;
-      background-color: #f8d7da;
-      border: 1px solid #f5c6cb;
-      padding: 10px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      display: none;
-      font-size: 0.9em;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
+    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.5em; font-weight: bold; }
+    .main-content { flex: 1; padding: 40px 20px; text-align: center; }
+    .form-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
+    .form-group { margin-bottom: 20px; text-align: left; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+    input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; transition: border-color 0.3s; text-transform: uppercase; }
+    input:focus { border-color: #003366; outline: none; }
+    #weekChecklist { width: 80px; text-align: center; }
+    button.submit { background-color: #155724; color: white; padding: 14px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1em; width: 100%; margin-top: 10px; font-weight: bold; }
+    button.submit:disabled { background-color: #6c757d; cursor: not-allowed; }
   </style>
 </head>
 <body>
-
-  <header>
-    <div class="logo">TOOLING SUPPORT</div>
-  </header>
-
+  <header><div class="logo">TOOLING SUPPORT - PELAKSANA</div></header>
   <div class="main-content">
-    <h1>Login</h1>
-    <p class="subtitle">Silakan masukkan akun Anda untuk mengakses sistem digital monitoring checklist.</p>
-
-    <div class="login-box">
-      <div id="error-alert" class="error-msg">Username atau Password salah!</div>
-
+    <h1>Data Pelaksana Checklist</h1>
+    <div class="form-container">
       <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Masukkan username" autocomplete="off">
+        <label>Nama Pelaksana</label>
+        <input type="text" id="namaPelaksana" placeholder="Masukkan nama lengkap">
       </div>
-      
       <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Masukkan password">
+        <label>Nama Tools / Equipment</label>
+        <input type="text" id="namaTools" placeholder="Contoh: COMPRESSOR">
       </div>
-
-      <button type="button" class="btn" onclick="handleLogin()">Masuk</button>
+      <div class="form-group">
+        <label>Capacity</label>
+        <input type="text" id="capacity" placeholder="Contoh: 10 BAR">
+      </div>
+      <div class="form-group">
+        <label>Minggu (Week)</label>
+        <input type="number" id="weekChecklist" placeholder="W" min="1" max="53">
+      </div>
+      <div class="form-group">
+        <label>Tanggal Checklist</label>
+        <input type="date" id="tanggalChecklist">
+      </div>
+      <button class="submit" id="btnLanjut" onclick="simpanDanLanjut()">Lanjut ke Form Checklist</button>
     </div>
   </div>
 
   <script>
-    function handleLogin() {
-      const userField = document.getElementById('username').value;
-      const passField = document.getElementById('password').value;
-      const errorBox = document.getElementById('error-alert');
+    const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
+    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-      // --- DAFTAR 4 AKUN USER ---
-      const users = [
-        { username: "rizky", password: "123" },
-        { username: "operator1", password: "456" },
-        { username: "operator2", password: "789" },
-        { username: "supervisor", password: "000" }
-      ];
-
-      // Mencari apakah input cocok dengan salah satu akun di daftar
-      const foundUser = users.find(u => u.username === userField && u.password === passField);
-
-      if (foundUser) {
-        // Simpan username ke localStorage agar bisa dipanggil di dashboard
-        localStorage.setItem("activeUser", foundUser.username);
-        // Arahkan ke file dashboard.html
-        window.location.href = 'dashboard.html';
-      } else {
-        // Tampilkan pesan error
-        errorBox.style.display = 'block';
-        
-        // Sembunyikan pesan error otomatis setelah 3 detik
-        setTimeout(() => {
-          errorBox.style.display = 'none';
-        }, 3000);
-      }
+    function getWeekNumber(date) {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+        const startOfYear = new Date(d.getFullYear(), 0, 1);
+        return Math.ceil((((d - startOfYear) / 86400000) + 1) / 7);
     }
 
-    // Mendukung login dengan tombol Enter
-    document.addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') {
-        handleLogin();
-      }
-    });
-  </script>
+    const dateInput = document.getElementById('tanggalChecklist');
+    const weekInput = document.getElementById('weekChecklist');
+    dateInput.value = new Date().toISOString().split('T')[0];
+    weekInput.value = getWeekNumber(dateInput.value);
 
+    dateInput.addEventListener('change', function() { weekInput.value = getWeekNumber(this.value); });
+
+    async function simpanDanLanjut() {
+      const nama = document.getElementById('namaPelaksana').value.trim();
+      const tools = document.getElementById('namaTools').value.trim();
+      const capacity = document.getElementById('capacity').value.trim();
+      const tanggal = dateInput.value;
+      const week = weekInput.value;
+
+      if (!nama || !tools || !capacity || !tanggal || !week) {
+        return alert('Mohon lengkapi semua data!');
+      }
+
+      const btn = document.getElementById('btnLanjut');
+      btn.disabled = true; btn.textContent = "Menyimpan...";
+
+      try {
+        // MENGGUNAKAN NAMA KOLOM BARU
+        const { data, error } = await _supabase.from('pelaksana').insert([{ 
+            nama_pelaksana: nama.toUpperCase(), 
+            nama_tools: tools.toUpperCase(), 
+            capacity: capacity.toUpperCase(), 
+            tanggal_checklist: tanggal,
+            week: parseInt(week)
+        }]).select('id').single();
+
+        if (error) throw error;
+
+        localStorage.setItem('pelaksana_id', data.id);
+        window.location.href = 'checklist-form.html'; 
+      } catch (error) {
+        alert('Gagal: ' + error.message);
+        btn.disabled = false; btn.textContent = "Lanjut ke Form Checklist";
+      }
+    }
+  </script>
 </body>
 </html>
