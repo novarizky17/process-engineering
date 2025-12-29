@@ -15,34 +15,41 @@
             font-family: Arial, Helvetica, sans-serif;
             margin: 0;
             padding: 0;
-            background: white;
+            background: #f1f5f9;
             color: #000;
+            /* Menengahkan Container secara vertikal dan horizontal */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
 
         .container {
             width: 277mm;
             height: auto;
-            margin: 0 auto;
-            padding: 5mm 12mm;
+            background: white;
+            padding: 8mm 12mm;
             box-sizing: border-box;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-radius: 4px;
         }
 
-        /* Navigasi layar saja (Hilang saat cetak) */
+        /* Area Pencarian */
         .search-area {
             background: #1e293b;
             padding: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
-            border-radius: 4px;
-            color: white;
+            border-radius: 6px;
+            justify-content: center; /* Menengahkan tombol pencarian */
         }
 
         .search-area input, .search-area select {
-            padding: 8px;
+            padding: 10px;
             border-radius: 4px;
-            border: 1px solid #ccc;
+            border: 1px solid #cbd5e1;
             font-weight: bold;
             color: #000;
         }
@@ -51,150 +58,118 @@
             background: #3b82f6;
             color: white;
             border: none;
-            padding: 8px 20px;
+            padding: 10px 24px;
             cursor: pointer;
             font-weight: bold;
             border-radius: 4px;
+            transition: opacity 0.2s;
         }
 
+        .btn-action:hover { opacity: 0.9; }
+
+        /* Header Dokumen */
         .header {
             position: relative;
-            margin-bottom: 5px;
-            height: 40px;
+            margin-bottom: 8px;
+            height: 45px;
         }
 
         .logo-area {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             position: absolute;
             left: 0;
             top: 0;
         }
 
-        .logo {
-            width: 85px;
-            height: auto;
-        }
-
-        .company-name {
-            font-size: 12px;
-            font-weight: bold;
-        }
+        .logo { width: 90px; height: auto; }
+        .company-name { font-size: 13px; font-weight: bold; }
 
         .title {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
             text-align: center;
             width: 100%;
             margin: 0;
-            padding-top: 5px;
+            padding-top: 6px;
+            letter-spacing: 1px;
         }
 
+        /* Meta Section */
         .meta-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 10px;
-            margin-top: 20px;
+            margin-bottom: 15px;
+            margin-top: 25px;
         }
 
-        .machine-info div {
-            margin-bottom: 2px;
-            font-size: 10pt;
-        }
+        .machine-info div { margin-bottom: 4px; font-size: 10.5pt; }
+        .label { font-weight: bold; display: inline-block; width: 145px; }
+        .colon { padding: 0 6px; }
 
-        .label {
-            font-weight: bold;
-            display: inline-block;
-            width: 135px;
-        }
+        .doc-info { text-align: left; font-size: 10.5pt; }
+        .doc-info div { margin-bottom: 3px; }
+        .doc-label { font-weight: bold; display: inline-block; width: 150px; }
 
-        .colon {
-            padding: 0 5px;
-        }
-
-        .doc-info {
-            text-align: left;
-            font-size: 10pt;
-        }
-
-        .doc-info div {
-            margin-bottom: 2px;
-        }
-
-        .doc-label {
-            font-weight: bold;
-            display: inline-block;
-            width: 140px;
-        }
-
+        /* Tabel Utama */
         .main-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
-        .main-table th,
-        .main-table td {
+        .main-table th, .main-table td {
             border: 1px solid black;
-            padding: 4px 5px;
-            font-size: 9pt;
+            padding: 6px 8px;
+            font-size: 9.5pt;
             text-align: center;
             vertical-align: middle;
-            height: 20px;
+            height: 22px;
         }
 
-        .main-table th {
-            background-color: #f0f0f0;
-            font-weight: bold;
-        }
+        .main-table th { background-color: #f8fafc; font-weight: bold; }
 
-        .col-tgl      { width: 12%; }
-        .col-masalah  { width: 20%; }
-        .col-tindakan { width: 20%; }
-        .col-spare    { width: 20%; }
-        .col-ket      { width: 16%; }
-        .col-pic      { width: 12%; }
-
-        .signature-section {
-            margin-top: 15px;
-        }
-
+        /* Tanda Tangan */
+        .signature-section { margin-top: 20px; }
         .signature-row {
             display: flex;
             justify-content: space-between;
-            gap: 40px;
+            gap: 50px;
+            padding: 0 10px;
         }
 
         .sig-box {
             flex: 1;
             text-align: center;
-            min-width: 200px;
-            max-width: 280px;
+            max-width: 300px;
         }
 
         .sig-title {
             font-weight: bold;
-            font-size: 12pt;
-            margin-bottom: 65px;
+            font-size: 12.5pt;
+            margin-bottom: 75px;
             text-transform: uppercase;
         }
 
         .sig-line {
             border-bottom: 1.5px solid black;
-            width: 85%;
-            margin: 0 auto 8px;
+            width: 90%;
+            margin: 0 auto 10px;
         }
 
-        .sig-label {
-            font-size: 11pt;
-            font-weight: bold;
-        }
+        .sig-label { font-size: 11.5pt; font-weight: bold; }
 
         @media print {
+            body { background: white; display: block; }
             .no-print, .search-area { display: none !important; }
-            .container { margin: 0; padding: 5mm; }
+            .container { 
+                width: 100%; 
+                margin: 0; 
+                padding: 0; 
+                box-shadow: none;
+            }
         }
     </style>
 </head>
@@ -203,7 +178,7 @@
 <div class="container">
 
     <div class="search-area no-print">
-        <input type="text" id="mesin_search" placeholder="NAMA MESIN..." style="width: 180px;">
+        <input type="text" id="mesin_search" placeholder="NAMA MESIN..." style="width: 200px;">
         
         <select id="bulan_search">
             <option value="">- Semua Bulan -</option>
@@ -222,7 +197,7 @@
         </select>
 
         <button onclick="fetchData()" class="btn-action">CARI DATA</button>
-        <button onclick="window.print()" class="btn-action" style="background:#059669">CETAK</button>
+        <button onclick="window.print()" class="btn-action" style="background:#10b981">CETAK</button>
         <button onclick="window.location.href='laporan.html'" class="btn-action" style="background:#64748b">KEMBALI</button>
     </div>
 
@@ -253,16 +228,17 @@
     <table class="main-table">
         <thead>
             <tr>
-                <th class="col-tgl">Tanggal</th>
-                <th class="col-masalah">Permasalahan</th>
-                <th class="col-tindakan">Tindakan</th>
-                <th class="col-spare">Spare Part</th>
-                <th class="col-ket">Keterangan</th>
-                <th class="col-pic">PIC</th>
+                <th style="width: 12%">Tanggal</th>
+                <th style="width: 20%">Permasalahan</th>
+                <th style="width: 20%">Tindakan</th>
+                <th style="width: 20%">Spare Part</th>
+                <th style="width: 16%">Keterangan</th>
+                <th style="width: 12%">PIC</th>
             </tr>
         </thead>
         <tbody id="table_content">
             <script>
+                // Menampilkan 20 baris kosong standar di awal
                 for(let i=0; i<20; i++) document.write('<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>');
             </script>
         </tbody>
@@ -301,7 +277,6 @@
 
         if(!mesin) return alert("Masukkan Nama Mesin!");
 
-        // Filter berdasarkan mesin, bulan, dan tahun
         let query = _sb.from('laporan_maintenance').select(`
                 created_at, nama_mesin, engineer_name,
                 maintenance_problems(description),
@@ -310,18 +285,16 @@
             `).eq('nama_mesin', mesin);
 
         if(bulan) {
-            // Filter range tanggal dalam bulan tersebut
             const startDate = `${tahun}-${bulan}-01T00:00:00`;
             const endDate = `${tahun}-${bulan}-31T23:59:59`;
             query = query.gte('created_at', startDate).lte('created_at', endDate);
         } else {
-            // Filter seluruh tahun tersebut
             query = query.gte('created_at', `${tahun}-01-01`).lte('created_at', `${tahun}-12-31`);
         }
 
         const { data: reports, error } = await query.order('created_at', { ascending: true });
 
-        if (error) return alert("Gagal: " + error.message);
+        if (error) return alert("Gagal mengambil data.");
         
         const tbody = document.getElementById('table_content');
         tbody.innerHTML = '';
@@ -347,10 +320,9 @@
                 tbody.appendChild(tr);
             });
         } else {
-            alert("Data tidak ditemukan untuk periode tersebut.");
+            alert("Data tidak ditemukan.");
         }
 
-        // Tetap paksa 20 baris agar format dokumen tidak rusak
         const remaining = 20 - (reports ? reports.length : 0);
         for (let i = 0; i < (remaining < 0 ? 0 : remaining); i++) {
             tbody.innerHTML += '<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>';
