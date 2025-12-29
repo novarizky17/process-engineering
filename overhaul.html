@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #f1f5f9; padding: 20px; font-family: sans-serif; }
-        .form-card { max-width: 900px; background: white; margin: 0 auto; padding: 30px; border-radius: 12px; shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border: 1px solid #e2e8f0; }
+        .form-card { max-width: 900px; background: white; margin: 0 auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border: 1px solid #e2e8f0; }
         .section-title { font-weight: bold; font-size: 11pt; color: #1e293b; margin-bottom: 12px; border-bottom: 2px solid #3b82f6; display: inline-block; padding-bottom: 2px; }
         .input-field { width: 100%; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 6px; outline: none; transition: border 0.2s; }
         .input-field:focus { border-color: #3b82f6; }
@@ -23,7 +23,7 @@
 
     <div class="form-card">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-slate-800">Form Pengisian Laporan</h1>
+            <h1 class="text-2xl font-bold text-slate-800">Form Pengisian Laporan Overhaul</h1>
             <button onclick="window.location.href='laporan.html'" class="text-sm text-slate-500 underline">Kembali ke Dashboard</button>
         </div>
 
@@ -59,7 +59,7 @@
                                 document.write(`
                                     <div class="flex items-center gap-3">
                                         <input type="checkbox" name="prob_check_${col}_${i}" class="w-4 h-4">
-                                        <input type="text" name="prob_text_${col}_${i}" class="dotted-input" placeholder="Baris ${i}...">
+                                        <input type="text" name="prob_text_${col}_${i}" class="dotted-input" placeholder="Baris ${i}${col}...">
                                     </div>
                                 `);
                             });
@@ -77,7 +77,7 @@
                                 document.write(`
                                     <div class="flex items-center gap-3">
                                         <input type="checkbox" name="act_check_${col}_${i}" class="w-4 h-4">
-                                        <input type="text" name="act_text_${col}_${i}" class="dotted-input" placeholder="Baris ${i}...">
+                                        <input type="text" name="act_text_${col}_${i}" class="dotted-input" placeholder="Baris ${i}${col}...">
                                     </div>
                                 `);
                             });
@@ -122,7 +122,7 @@
 
             <div class="mb-8">
                 <span class="section-title text-slate-700">4. Rekomendasi & Catatan Tambahan</span>
-                <textarea id="catatan" rows="3" class="input-field mt-2" placeholder="Tuliskan saran atau catatan di sini..."></textarea>
+                <textarea id="catatan" rows="3" class="input-field mt-2" placeholder="Saran pengerjaan selanjutnya..."></textarea>
             </div>
 
             <div class="mb-10 max-w-md mx-auto text-center">
@@ -144,7 +144,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
             </div>
             <h2 class="text-xl font-bold text-slate-800 mb-2">Berhasil Disimpan!</h2>
-            <p class="text-slate-500 mb-6 text-sm">Laporan telah dikirim untuk review Superintendent.</p>
+            <p class="text-slate-500 mb-6 text-sm">Laporan telah masuk ke sistem riwayat maintenance.</p>
             <button onclick="window.location.reload()" class="bg-blue-900 text-white px-8 py-2 rounded-lg font-bold w-full">OK</button>
         </div>
     </div>
@@ -180,23 +180,34 @@
             const mesin = document.getElementById('nama_mesin').value;
             const eng = document.getElementById('name_engineer').value;
             const jobType = document.querySelector('input[name="job_type"]:checked')?.value;
+            const tglMulaiVal = document.getElementById('jam_mulai').value;
+            const tglSelesaiVal = document.getElementById('jam_selesai').value;
             const btn = document.getElementById('btnSave');
 
-            if (!mesin || !eng || !jobType) return alert("Mohon lengkapi Nama Mesin, Tipe Pekerjaan, dan Nama Engineer!");
+            if (!mesin || !eng || !jobType || !tglMulaiVal) return alert("Lengkapi data Mesin, Tipe Job, Tanggal Mulai, dan Nama!");
 
             btn.disabled = true; btn.innerText = "SEDANG MENYIMPAN...";
 
             try {
+                // Konversi pilihan tanggal manual ke format ISO agar tidak tertimpa waktu sekarang di database
+                const isoMulai = new Date(tglMulaiVal).toISOString();
+                const isoSelesai = tglSelesaiVal ? new Date(tglSelesaiVal).toISOString() : null;
+
                 const { data: mainData, error: mainError } = await _sb.from('laporan_maintenance').insert([{
-                    nama_mesin: mesin.toUpperCase(), job_type: jobType,
-                    jam_mulai: document.getElementById('jam_mulai').value, jam_selesai: document.getElementById('jam_selesai').value,
-                    engineer_name: eng.toUpperCase(), signature_engineer: canvas.toDataURL(),
+                    nama_mesin: mesin.toUpperCase(), 
+                    job_type: jobType,
+                    jam_mulai: isoMulai, 
+                    jam_selesai: isoSelesai,
+                    engineer_name: eng.toUpperCase(), 
+                    signature_engineer: canvas.toDataURL(),
                     rekomendasi_catatan: document.getElementById('catatan').value,
                     status: 'Maintenance_Done'
                 }]).select().single();
+
                 if (mainError) throw mainError;
                 const mId = mainData.id;
 
+                // Problems
                 const problems = [];
                 for(let i=1; i<=4; i++) {
                     ['a','b'].forEach(col => {
@@ -207,6 +218,7 @@
                 }
                 if(problems.length > 0) await _sb.from('maintenance_problems').insert(problems);
 
+                // Actions
                 const actions = [];
                 for(let i=1; i<=4; i++) {
                     ['a','b'].forEach(col => {
@@ -217,6 +229,7 @@
                 }
                 if(actions.length > 0) await _sb.from('maintenance_actions').insert(actions);
 
+                // Parts
                 const parts = [];
                 for(let i=1; i<=5; i++) {
                     const name = document.getElementsByName(`part_n_${i}`)[0].value;
@@ -227,7 +240,12 @@
                 if(parts.length > 0) await _sb.from('maintenance_parts').insert(parts);
 
                 document.getElementById('modalOk').classList.remove('hidden');
-            } catch (err) { console.error(err); alert("Gagal: " + err.message); btn.disabled = false; btn.innerText = "SIMPAN LAPORAN SEKARANG"; }
+            } catch (err) { 
+                console.error(err); 
+                alert("Error simpan: " + err.message); 
+                btn.disabled = false; 
+                btn.innerText = "SIMPAN LAPORAN SEKARANG"; 
+            }
         }
     </script>
 </body>
