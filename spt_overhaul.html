@@ -10,7 +10,8 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f5f9; }
         .sig-canvas { border: 2px dashed #003366; background: #fff; width: 100%; height: 160px; touch-action: none; cursor: crosshair; border-radius: 8px; }
         .table-custom th { background: #003366; color: white; text-transform: uppercase; font-size: 0.8rem; padding: 12px; }
-        .modal { display: none; position: fixed; z-index: 50; inset: 0; background: rgba(0,0,0,0.6); overflow-y: auto; }
+        /* CSS Modal Diperbaiki agar tersembunyi di awal */
+        .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: 1rem; }
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
         .approved { background: #d4edda; color: #155724; }
         .pending { background: #fff3cd; color: #856404; }
@@ -46,7 +47,7 @@
     </div>
 </div>
 
-<div id="modalReview" class="modal flex items-center justify-center p-4">
+<div id="modalReview" class="modal">
     <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
         <div class="bg-slate-50 p-4 border-b flex justify-between items-center">
             <h2 class="text-lg font-bold text-[#003366]">Detail Review Laporan</h2>
@@ -78,9 +79,14 @@
     const _sb = supabase.createClient(SB_URL, SB_KEY);
 
     let currentId = null;
-    const canvas = document.getElementById('sig-spt');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
+    let canvas, ctx, drawing = false;
+
+    // Fungsi Inisialisasi
+    function initCanvas() {
+        canvas = document.getElementById('sig-spt');
+        ctx = canvas.getContext('2d');
+        resizeCanvas();
+    }
 
     async function fetchLaporan() {
         const { data, error } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
@@ -94,10 +100,10 @@
         list.innerHTML = data.map(row => `
             <tr class="border-b hover:bg-slate-50 transition-colors">
                 <td class="p-4 text-sm">${new Date(row.created_at).toLocaleDateString('id-ID')}</td>
-                <td class="p-4 font-bold text-slate-700">${row.nama_mesin}</td>
-                <td class="p-4 text-sm">${row.job_type}</td>
-                <td class="p-4 text-sm">${row.engineer_name}</td>
-                <td class="p-4"><span class="status-badge ${row.status === 'Approved' ? 'approved' : 'pending'}">${row.status === 'Approved' ? 'Approved' : 'Pending'}</span></td>
+                <td class="p-4 font-bold text-slate-700">${row.nama_mesin || '-'}</td>
+                <td class="p-4 text-sm">${row.job_type || '-'}</td>
+                <td class="p-4 text-sm">${row.engineer_name || '-'}</td>
+                <td class="p-4"><span class="status-badge ${row.status === 'Approved' ? 'approved' : 'pending'}">${row.status}</span></td>
                 <td class="p-4"><button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1.5 rounded-md text-xs font-bold hover:bg-blue-800 transition-all shadow">REVIEW</button></td>
             </tr>
         `).join('');
@@ -107,6 +113,7 @@
         currentId = row.id;
         const cont = document.getElementById('modalContent');
         
+        // Ambil data relasi
         const { data: prob } = await _sb.from('maintenance_problems').select('*').eq('maintenance_id', row.id);
         const { data: act } = await _sb.from('maintenance_actions').select('*').eq('maintenance_id', row.id);
         const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
@@ -116,31 +123,10 @@
                 <div><p class="text-[10px] text-gray-500 uppercase tracking-widest">Mesin / Equipment</p><p class="font-bold text-lg">${row.nama_mesin}</p></div>
                 <div><p class="text-[10px] text-gray-500 uppercase tracking-widest">Tipe Pekerjaan</p><p class="font-bold text-blue-700">${row.job_type}</p></div>
                 <div><p class="text-[10px] text-gray-500 uppercase tracking-widest">Engineer</p><p class="font-bold">${row.engineer_name}</p></div>
-                <div><p class="text-[10px] text-gray-500 uppercase tracking-widest">Waktu Pengerjaan</p><p class="text-sm font-medium">${row.jam_mulai.replace('T', ' ')} s/d ${row.jam_selesai.replace('T', ' ')}</p></div>
+                <div><p class="text-[10px] text-gray-500 uppercase tracking-widest">Waktu Pengerjaan</p><p class="text-sm font-medium">${row.jam_mulai ? row.jam_mulai.replace('T', ' ') : '-'} s/d ${row.jam_selesai ? row.jam_selesai.replace('T', ' ') : '-'}</p></div>
             </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div><p class="font-bold text-[#003366] border-b-2 border-blue-100 mb-2 pb-1">Deskripsi Masalah:</p><ul class="space-y-1 text-sm">${prob.length ? prob.map(p => `<li class="flex items-start gap-2"><span>•</span>${p.description}</li>`).join('') : '<li class="italic text-gray-400">N/A</li>'}</ul></div>
-                <div><p class="font-bold text-[#003366] border-b-2 border-blue-100 mb-2 pb-1">Tindakan Diambil:</p><ul class="space-y-1 text-sm">${act.length ? act.map(a => `<li class="flex items-start gap-2"><span>•</span>${a.description}</li>`).join('') : '<li class="italic text-gray-400">N/A</li>'}</ul></div>
-            </div>
-            
-            <div class="mb-6">
-                <p class="font-bold text-[#003366] border-b-2 border-blue-100 mb-2 pb-1">Penggantian Suku Cadang:</p>
-                <div class="overflow-x-auto border rounded-lg">
-                    <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-50"><tr><th class="p-2">Part Name</th><th class="p-2 text-center">Qty</th><th class="p-2 text-center">Tindakan</th></tr></thead>
-                        <tbody>${part.length ? part.map(pt => `<tr class="border-t"><td class="p-2 font-medium">${pt.nama_part}</td><td class="p-2 text-center">${pt.qty}</td><td class="p-2 text-center"><span class="bg-gray-100 px-2 py-0.5 rounded">${pt.tindak_lanjut}</span></td></tr>`).join('') : '<tr><td colspan="3" class="p-4 text-center italic text-gray-400">Tidak ada penggantian part</td></tr>'}</tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="bg-yellow-50 p-4 border-l-4 border-yellow-400 rounded-r-lg">
-                <p class="text-[10px] font-bold text-yellow-700 uppercase mb-1">Rekomendasi & Catatan Engineer:</p>
-                <p class="text-sm italic text-gray-700">${row.rekomendasi_catatan || 'Tidak ada catatan tambahan.'}</p>
-            </div>
-        `;
+            `;
         
-        // LOGIKA PENYEMBUNYIAN TTD
         const isPending = row.status !== 'Approved';
         document.getElementById('approvalPanel').style.display = isPending ? 'block' : 'none';
         document.getElementById('historyPanel').style.display = isPending ? 'none' : 'block';
@@ -149,40 +135,34 @@
             document.getElementById('view-sig-spt').src = row.signature_superintendent || '';
         }
 
+        // Tampilkan modal hanya di sini
         document.getElementById('modalReview').style.display = 'flex';
-        resizeCanvas();
+        initCanvas(); // Inisialisasi canvas setelah modal tampil
     }
 
     async function processApproval() {
         const signature = canvas.toDataURL();
         const blank = document.createElement('canvas');
         blank.width = canvas.width; blank.height = canvas.height;
-        if (signature === blank.toDataURL()) return alert("Tanda tangan Superintendent wajib diisi untuk menyetujui!");
+        if (signature === blank.toDataURL()) return alert("Tanda tangan Superintendent wajib diisi!");
 
-        const { error } = await _sb.from('laporan_maintenance')
-            .update({ status: 'Approved', signature_superintendent: signature })
-            .eq('id', currentId);
-
-        if (!error) {
-            alert("Laporan Berhasil Disetujui!");
-            closeModal();
-            fetchLaporan();
-        } else {
-            alert("Terjadi Kesalahan: " + error.message);
-        }
+        const { error } = await _sb.from('laporan_maintenance').update({ status: 'Approved', signature_superintendent: signature }).eq('id', currentId);
+        if (!error) { alert("Laporan Berhasil Disetujui!"); closeModal(); fetchLaporan(); }
     }
 
-    // Canvas Utilities
-    function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#000'; }
+    function resizeCanvas() { if(canvas) { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#000'; } }
     function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-    function getP(e) { const r = canvas.getBoundingClientRect(); const x = (e.clientX || e.touches[0].clientX) - r.left; const y = (e.clientY || e.touches[0].clientY) - r.top; return { x: x * (canvas.width/r.width), y: y * (canvas.height/r.height) }; }
-    canvas.onmousedown = (e) => { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); };
-    canvas.onmousemove = (e) => { if(!drawing) return; const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); };
-    window.onmouseup = () => drawing=false;
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(!drawing) return; const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); });
+    function getP(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top }; }
+    
+    // Event listener canvas disederhanakan
+    document.addEventListener('mousedown', (e) => { if(e.target === canvas) { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); } });
+    document.addEventListener('mousemove', (e) => { if(drawing && e.target === canvas) { const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); } });
+    document.addEventListener('mouseup', () => drawing=false);
 
-    function closeModal() { document.getElementById('modalReview').style.display = 'none'; clearCanvas(); }
+    function closeModal() { 
+        document.getElementById('modalReview').style.display = 'none'; 
+    }
+
     window.onload = fetchLaporan;
 </script>
 
