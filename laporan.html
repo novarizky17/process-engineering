@@ -19,77 +19,89 @@
         .container {
             text-align: center;
             background-color: white;
-            padding: 60px 100px;
-            border-radius: 15px;
+            padding: 40px 60px;
+            border-radius: 20px;
             box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
             max-width: 600px;
+            width: 90%;
+        }
+
+        /* Styling Jam & Tanggal */
+        .datetime-wrapper {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        #clock {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #1e3a8a; /* Biru Gelap */
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #date {
+            font-size: 1.1em;
+            color: #64748b;
+            margin-top: 5px;
+            font-weight: 500;
         }
 
         h1 {
             color: #1a1a1a;
-            margin-bottom: 60px;
-            font-size: 2.8em;
+            margin-bottom: 40px;
+            font-size: 2.2em;
             font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .button-group {
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 20px;
         }
 
         .btn {
-            padding: 18px 50px;
-            font-size: 1.4em;
+            padding: 16px 40px;
+            font-size: 1.2em;
             font-weight: bold;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
         }
 
-        .btn-pelaksana {
-            background-color: #4CAF50; /* Hijau */
-        }
-        .btn-pelaksana:hover {
-            background-color: #45a049;
+        /* Warna Tombol */
+        .btn-pelaksana { background-color: #4CAF50; }
+        .btn-superintendent { background-color: #2196F3; }
+        .btn-manager { background-color: #F44336; }
+        .btn-history { background-color: #9C27B0; }
+
+        .btn:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+            filter: brightness(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
 
-        .btn-superintendent {
-            background-color: #2196F3; /* Biru */
-        }
-        .btn-superintendent:hover {
-            background-color: #1e88e5;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);
-        }
-
-        .btn-manager {
-            background-color: #F44336; /* Merah */
-        }
-        .btn-manager:hover {
-            background-color: #d32f2f;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(244, 67, 54, 0.4);
-        }
-
-        .btn-history {
-            background-color: #9C27B0; /* Ungu */
-        }
-        .btn-history:hover {
-            background-color: #8e24aa;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(156, 39, 176, 0.4);
+        .btn:active {
+            transform: translateY(-1px);
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="datetime-wrapper">
+            <div id="clock">00:00:00</div>
+            <div id="date">Memuat Tanggal...</div>
+        </div>
+
         <h1>Laporan Overhaul</h1>
         
         <div class="button-group">
@@ -99,5 +111,32 @@
             <a href="hs_overhaul.html" class="btn btn-history">History</a>
         </div>
     </div>
+
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            
+            // Format Jam (HH:mm:ss)
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+
+            // Format Tanggal (Hari, Tanggal Bulan Tahun)
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            document.getElementById('date').textContent = now.toLocaleDateString('id-ID', options);
+        }
+
+        // Jalankan setiap detik
+        setInterval(updateDateTime, 1000);
+        
+        // Panggil langsung agar tidak menunggu 1 detik pertama
+        updateDateTime();
+    </script>
 </body>
 </html>
