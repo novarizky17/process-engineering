@@ -100,13 +100,25 @@
     let currentId = null;
     let canvas, ctx, drawing = false;
 
-    // FUNGSI HANYA TANGGAL (Tanpa Jam)
-    function formatIndoDate(isoString) {
+    // FUNGSI KHUSUS TANGGAL (Tanpa Jam) untuk Tabel Utama
+    function formatIndoDateOnly(isoString) {
         if (!isoString) return "-";
         try {
-            const datePart = isoString.split('T')[0]; // Mengambil bagian YYYY-MM-DD
+            const datePart = isoString.split('T')[0]; 
             const [y, m, d] = datePart.split('-');
             return `${d}/${m}/${y}`;
+        } catch (e) { return isoString; }
+    }
+
+    // FUNGSI TANGGAL & JAM untuk Detail Laporan
+    function formatIndoDateTime(isoString) {
+        if (!isoString) return "-";
+        try {
+            const parts = isoString.split('T');
+            if (parts.length < 2) return isoString;
+            const [y, m, d] = parts[0].split('-');
+            const timePart = parts[1].substring(0, 5); 
+            return `${d}/${m}/${y} | ${timePart}`;
         } catch (e) { return isoString; }
     }
 
@@ -122,7 +134,7 @@
         if (data) {
             list.innerHTML = data.map(row => `
                 <tr class="border-b hover:bg-slate-50 transition-colors text-sm">
-                    <td class="p-4 font-medium text-slate-500">${formatIndoDate(row.created_at)}</td>
+                    <td class="p-4 font-medium text-slate-500">${formatIndoDateOnly(row.created_at)}</td>
                     <td class="p-4 font-bold text-slate-700 uppercase">${row.nama_mesin || '-'}</td>
                     <td class="p-4 font-semibold text-blue-700">${row.job_type || '-'}</td>
                     <td class="p-4 font-medium">${row.engineer_name || '-'}</td>
@@ -146,8 +158,8 @@
                 <div><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Mesin / Equipment</p><p class="font-bold text-[#003366] text-lg uppercase">${row.nama_mesin}</p></div>
                 <div><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Tipe Pekerjaan</p><p class="font-bold text-blue-700 text-lg uppercase">${row.job_type}</p></div>
                 <div><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Engineer</p><p class="font-bold uppercase">${row.engineer_name}</p></div>
-                <div><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Tanggal Pengerjaan</p>
-                     <p class="text-xs font-bold text-slate-700">${formatIndoDate(row.jam_mulai)} <span class="text-blue-500">s/d</span> ${formatIndoDate(row.jam_selesai)}</p>
+                <div><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Periode Kerja</p>
+                     <p class="text-xs font-bold text-slate-700">${formatIndoDateTime(row.jam_mulai)} <span class="text-blue-500">s/d</span> ${formatIndoDateTime(row.jam_selesai)}</p>
                 </div>
             </div>
             
@@ -183,6 +195,8 @@
         if (!isPending) {
             document.getElementById('view-sig-spt').src = row.signature_superintendent || '';
             document.getElementById('view_spt_notes').innerText = row.spt_notes || "Tidak ada catatan SPT.";
+        } else {
+            document.getElementById('spt_notes').value = "";
         }
 
         document.getElementById('modalReview').style.display = 'flex';
