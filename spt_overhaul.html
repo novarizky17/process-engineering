@@ -8,30 +8,37 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f5f9; }
-        .sig-canvas { border: 2px dashed #ccc; background: #fff; width: 100%; height: 150px; touch-action: none; cursor: crosshair; }
+        .sig-canvas { border: 2px dashed #003366; background: #fff; width: 100%; height: 160px; touch-action: none; cursor: crosshair; border-radius: 8px; }
         .table-custom th { background: #003366; color: white; text-transform: uppercase; font-size: 0.8rem; padding: 12px; }
         
+        /* Modal hidden secara default */
         .modal { 
             display: none; 
             position: fixed; 
-            z-index: 999; 
+            z-index: 100; 
             inset: 0; 
             background: rgba(0,0,0,0.6); 
-            overflow-y: auto;
-            align-items: center;
-            justify-content: center;
+            align-items: center; 
+            justify-content: center; 
+            padding: 1rem; 
         }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .approved { background: #d4edda; color: #155724; }
+        .pending { background: #fff3cd; color: #856404; }
     </style>
 </head>
 <body>
 
 <header class="bg-[#003366] text-white p-4 flex justify-between items-center shadow-lg">
-    <h1 class="text-xl font-bold">SUPERINTENDENT - APPROVAL MAINTENANCE</h1>
+    <div class="flex items-center gap-4">
+        <button onclick="window.location.href='dashboard.html'" class="text-sm bg-blue-800 px-3 py-1 rounded">← DASHBOARD</button>
+        <h1 class="text-xl font-bold">SUPERINTENDENT - APPROVAL SYSTEM</h1>
+    </div>
     <button onclick="fetchLaporan()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 font-bold text-sm">REFRESH DATA</button>
 </header>
 
 <div class="container mx-auto p-6">
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
         <table class="w-full text-left border-collapse table-custom">
             <thead>
                 <tr>
@@ -44,28 +51,34 @@
                 </tr>
             </thead>
             <tbody id="listLaporan">
-                <tr><td colspan="6" class="p-4 text-center">Memuat data...</td></tr>
+                <tr><td colspan="6" class="p-8 text-center text-gray-500">Memuat data laporan...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<div id="modalReview" class="modal p-4">
-    <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-        <div class="bg-slate-100 p-4 border-b flex justify-between items-center">
-            <h2 class="text-lg font-bold text-[#003366]">Detail Laporan Perawatan</h2>
-            <button onclick="closeModal()" class="text-2xl font-bold">&times;</button>
+<div id="modalReview" class="modal">
+    <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
+        <div class="bg-slate-50 p-4 border-b flex justify-between items-center">
+            <h2 class="text-lg font-bold text-[#003366]">Detail Review Laporan</h2>
+            <button onclick="closeModal()" class="text-2xl font-bold hover:text-red-500">&times;</button>
         </div>
         
-        <div class="p-6 overflow-y-auto" id="modalContent"></div>
-
-        <div class="p-6 bg-slate-50 border-t">
-            <p class="font-bold mb-2">Tanda Tangan Superintendent / SPV:</p>
-            <canvas id="sig-spt" class="sig-canvas mb-4"></canvas>
-            <div class="flex gap-4">
-                <button onclick="clearCanvas()" class="bg-gray-500 text-white px-6 py-2 rounded font-bold">Hapus TTD</button>
-                <button onclick="processApproval()" class="flex-grow bg-green-600 text-white px-6 py-2 rounded font-bold hover:bg-green-700">SETUJUI (APPROVE)</button>
+        <div class="p-6 overflow-y-auto" id="modalContent">
             </div>
+
+        <div id="approvalPanel" class="p-6 bg-slate-50 border-t" style="display: none;">
+            <p class="font-bold text-[#003366] mb-2 text-center uppercase">Tanda Tangan Superintendent / SPV</p>
+            <div class="relative">
+                <canvas id="sig-spt" class="sig-canvas mb-4"></canvas>
+                <button onclick="clearCanvas()" class="absolute top-2 right-2 text-xs bg-red-100 text-red-600 px-2 py-1 rounded shadow-sm">Reset</button>
+            </div>
+            <button onclick="processApproval()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold text-lg hover:bg-green-700 shadow-lg transition-all">APPROVE & SELESAIKAN</button>
+        </div>
+
+        <div id="historyPanel" class="p-6 bg-green-50 border-t text-center" style="display: none;">
+            <p class="text-green-700 font-bold uppercase mb-2">Laporan Ini Telah Disetujui</p>
+            <img id="view-sig-spt" class="h-24 mx-auto border border-green-200 bg-white p-2 rounded" alt="TTD SPT">
         </div>
     </div>
 </div>
@@ -76,20 +89,23 @@
     const _sb = supabase.createClient(SB_URL, SB_KEY);
 
     let currentId = null;
-    const canvas = document.getElementById('sig-spt');
-    const ctx = canvas.getContext('2d');
-    let drawing = false;
+    let canvas, ctx, drawing = false;
 
-    // FUNGSI UNTUK MERAPIKAN FORMAT WAKTU
+    // FUNGSI FIX JAM: Memproses teks mentah tanpa konversi Date agar jam tidak berubah
     function formatIndoTime(isoString) {
         if (!isoString) return "-";
-        const date = new Date(isoString);
-        const tgl = String(date.getDate()).padStart(2, '0');
-        const bln = String(date.getMonth() + 1).padStart(2, '0');
-        const thn = date.getFullYear();
-        const jam = String(date.getHours()).padStart(2, '0');
-        const mnt = String(date.getMinutes()).padStart(2, '0');
-        return `${tgl}/${bln}/${thn} | ${jam}:${mnt}`;
+        try {
+            const parts = isoString.split('T');
+            if (parts.length < 2) return isoString;
+
+            const datePart = parts[0]; 
+            const timePart = parts[1].substring(0, 5); 
+
+            const [y, m, d] = datePart.split('-');
+            return `${d}/${m}/${y} | ${timePart}`;
+        } catch (e) {
+            return isoString;
+        }
     }
 
     async function fetchLaporan() {
@@ -97,18 +113,18 @@
         const list = document.getElementById('listLaporan');
         
         if (data.length === 0) {
-            list.innerHTML = '<tr><td colspan="6" class="p-4 text-center">Tidak ada laporan masuk.</td></tr>';
+            list.innerHTML = '<tr><td colspan="6" class="p-8 text-center">Belum ada laporan.</td></tr>';
             return;
         }
 
         list.innerHTML = data.map(row => `
-            <tr class="border-b hover:bg-slate-50">
-                <td class="p-4 text-xs">${formatIndoTime(row.created_at)}</td>
-                <td class="p-4 font-bold text-sm">${row.nama_mesin}</td>
-                <td class="p-4 text-sm">${row.job_type}</td>
-                <td class="p-4 text-sm">${row.engineer_name}</td>
-                <td class="p-4"><span class="px-2 py-1 rounded text-[10px] font-bold ${row.status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}">${row.status}</span></td>
-                <td class="p-4"><button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-3 py-1 rounded text-xs font-bold shadow hover:bg-blue-800">REVIEW</button></td>
+            <tr class="border-b hover:bg-slate-50 transition-colors text-sm">
+                <td class="p-4">${formatIndoTime(row.created_at)}</td>
+                <td class="p-4 font-bold text-slate-700">${row.nama_mesin || '-'}</td>
+                <td class="p-4">${row.job_type || '-'}</td>
+                <td class="p-4">${row.engineer_name || '-'}</td>
+                <td class="p-4"><span class="status-badge ${row.status === 'Approved' ? 'approved' : 'pending'}">${row.status}</span></td>
+                <td class="p-4"><button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1.5 rounded-md text-xs font-bold hover:bg-blue-800 transition-all shadow">REVIEW</button></td>
             </tr>
         `).join('');
     }
@@ -122,38 +138,60 @@
         const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
 
         cont.innerHTML = `
-            <div class="grid grid-cols-2 gap-4 mb-6 border bg-slate-50 p-3 rounded-lg">
-                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Mesin / Equipment</p><p class="font-bold text-[#003366]">${row.nama_mesin}</p></div>
-                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Tipe Pekerjaan</p><p class="font-bold text-blue-700">${row.job_type}</p></div>
+            <div class="grid grid-cols-2 gap-4 mb-6 border bg-slate-50 p-4 rounded-lg">
+                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Mesin / Equipment</p><p class="font-bold text-[#003366] text-lg">${row.nama_mesin}</p></div>
+                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Tipe Pekerjaan</p><p class="font-bold text-blue-700 text-lg">${row.job_type}</p></div>
                 <div><p class="text-[10px] text-gray-500 uppercase font-bold">Engineer</p><p class="font-bold">${row.engineer_name}</p></div>
-                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Periode Pengerjaan</p>
-                     <p class="text-xs font-semibold text-slate-700">${formatIndoTime(row.jam_mulai)} <span class="text-blue-500 mx-1">s/d</span> ${formatIndoTime(row.jam_selesai)}</p>
+                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Waktu Pengerjaan</p>
+                     <p class="text-sm font-semibold text-slate-700">${formatIndoTime(row.jam_mulai)} <span class="text-blue-500 mx-1">s/d</span> ${formatIndoTime(row.jam_selesai)}</p>
                 </div>
             </div>
-            <div class="mb-4"><p class="font-bold border-b mb-2 text-sm text-slate-800">1. Diskripsi Masalah:</p><ul class="list-disc pl-5 text-sm space-y-1">${prob.map(p => `<li>${p.description}</li>`).join('')}</ul></div>
-            <div class="mb-4"><p class="font-bold border-b mb-2 text-sm text-slate-800">2. Pekerjaan & Tindakan:</p><ul class="list-disc pl-5 text-sm space-y-1">${act.map(a => `<li>${a.description}</li>`).join('')}</ul></div>
-            <div class="mb-4">
-                <p class="font-bold border-b mb-2 text-sm text-slate-800">3. Kerusakan Part:</p>
-                <table class="w-full text-xs border border-slate-200">
-                    <tr class="bg-slate-100 uppercase">
-                        <th class="border p-1.5 text-left">Nama Part</th>
-                        <th class="border p-1.5 text-center w-16">Qty</th>
-                        <th class="border p-1.5 text-center w-24">Tindakan</th>
-                    </tr>
-                    ${part.length > 0 ? part.map(pt => `<tr><td class="border p-1.5">${pt.nama_part}</td><td class="border p-1.5 text-center">${pt.qty}</td><td class="border p-1.5 text-center"><span class="bg-gray-100 px-2 py-0.5 rounded text-[10px] font-bold">${pt.tindak_lanjut}</span></td></tr>`).join('') : '<tr><td colspan="3" class="p-2 text-center italic text-gray-400">Tidak ada penggantian part.</td></tr>'}
-                </table>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div><p class="font-bold text-[#003366] border-b-2 border-blue-100 mb-2 pb-1">Deskripsi Masalah:</p>
+                     <ul class="list-disc pl-5 text-sm space-y-1">${prob.length ? prob.map(p => `<li>${p.description}</li>`).join('') : '<li class="italic text-gray-400">N/A</li>'}</ul>
+                </div>
+                <div><p class="font-bold text-[#003366] border-b-2 border-blue-100 mb-2 pb-1">Tindakan Diambil:</p>
+                     <ul class="list-disc pl-5 text-sm space-y-1">${act.length ? act.map(a => `<li>${a.description}</li>`).join('') : '<li class="italic text-gray-400">N/A</li>'}</ul>
+                </div>
             </div>
-            <div class="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
-                <p class="text-[10px] font-bold uppercase text-yellow-700">Rekomendasi Engineer:</p>
-                <p class="text-sm italic text-slate-700">${row.rekomendasi_catatan || 'Tidak ada catatan.'}</p>
+            
+            <div class="mb-6">
+                <p class="font-bold text-[#003366] border-b-2 border-blue-100 mb-2 pb-1">Penggantian Suku Cadang:</p>
+                <div class="overflow-x-auto border rounded-lg">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-slate-50"><tr><th class="p-2 border-b">Part Name</th><th class="p-2 border-b text-center">Qty</th><th class="p-2 border-b text-center">Tindakan</th></tr></thead>
+                        <tbody>${part.length ? part.map(pt => `<tr class="border-b"><td class="p-2">${pt.nama_part}</td><td class="p-2 text-center">${pt.qty}</td><td class="p-2 text-center"><span class="bg-gray-100 px-2 py-0.5 rounded">${pt.tindak_lanjut}</span></td></tr>`).join('') : '<tr><td colspan="3" class="p-4 text-center italic text-gray-400">Tidak ada penggantian part</td></tr>'}</tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-yellow-50 p-4 border-l-4 border-yellow-400 rounded-r-lg">
+                <p class="text-[10px] font-bold text-yellow-700 uppercase mb-1">Rekomendasi & Catatan Engineer:</p>
+                <p class="text-sm italic text-gray-700">${row.rekomendasi_catatan || 'Tidak ada catatan.'}</p>
             </div>
         `;
         
+        const isPending = row.status !== 'Approved';
+        document.getElementById('approvalPanel').style.display = isPending ? 'block' : 'none';
+        document.getElementById('historyPanel').style.display = isPending ? 'none' : 'block';
+        
+        if (!isPending) {
+            document.getElementById('view-sig-spt').src = row.signature_superintendent || '';
+        }
+
         document.getElementById('modalReview').style.display = 'flex';
-        setTimeout(resizeCanvas, 50);
+        
+        // Inisialisasi canvas setelah modal muncul
+        canvas = document.getElementById('sig-spt');
+        ctx = canvas.getContext('2d');
+        setTimeout(() => {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
+        }, 50);
     }
 
-    // Sisanya (processApproval, canvas logic) tetap sama seperti sebelumnya
     async function processApproval() {
         const signature = canvas.toDataURL();
         const blank = document.createElement('canvas');
@@ -162,18 +200,16 @@
 
         const { error } = await _sb.from('laporan_maintenance').update({ status: 'Approved', signature_superintendent: signature }).eq('id', currentId);
         if (!error) { alert("Laporan Berhasil Disetujui!"); closeModal(); fetchLaporan(); }
-        else { alert("Error: " + error.message); }
+        else { alert("Gagal: " + error.message); }
     }
 
-    function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
-    function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-    function getP(e) { const r = canvas.getBoundingClientRect(); const clientX = e.clientX || (e.touches && e.touches[0].clientX); const clientY = e.clientY || (e.touches && e.touches[0].clientY); return { x: clientX - r.left, y: clientY - r.top }; }
-    canvas.onmousedown = (e) => { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); };
-    canvas.onmousemove = (e) => { if(!drawing) return; const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); };
-    window.onmouseup = () => drawing=false;
-    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
-    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(!drawing) return; const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); });
-    canvas.addEventListener('touchend', () => drawing=false);
+    function clearCanvas() { if(ctx) ctx.clearRect(0,0,canvas.width,canvas.height); }
+    function getP(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top }; }
+    
+    document.addEventListener('mousedown', (e) => { if(e.target === canvas) { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); } });
+    document.addEventListener('mousemove', (e) => { if(drawing && e.target === canvas) { const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); } });
+    document.addEventListener('mouseup', () => drawing=false);
+
     function closeModal() { document.getElementById('modalReview').style.display = 'none'; clearCanvas(); }
     window.onload = fetchLaporan;
 </script>
