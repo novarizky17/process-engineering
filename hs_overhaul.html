@@ -1,264 +1,220 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Laporan Perawatan & Overhaul Mesin</title>
+    <title>History Overhaul & Maintenance - Tooling Support</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #e2e8f0; padding: 20px; font-family: Arial, Helvetica, sans-serif; font-size: 9.5pt; }
-        .document-page { width: 210mm; min-height: 297mm; background: white; margin: 0 auto; padding: 10mm; border: 2px solid #000; box-sizing: border-box; box-shadow: 0 0 15px rgba(0,0,0,0.2); }
-        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 2.5px solid black; }
-        .header-table td { border: 1px solid black; padding: 5px 10px; vertical-align: middle; }
-        .logo-box { width: 140px; text-align: center; border-right: 2px solid black !important; }
-        .logo-box img { width: 110px; margin: 0 auto; }
-        .title-cell { text-align: center; border-right: 2px solid black !important; }
-        .company-name { font-weight: bold; font-size: 11pt; border-bottom: 1px solid black; padding-bottom: 4px; margin-bottom: 4px; }
-        .report-title { font-weight: bold; font-size: 11pt; text-transform: uppercase; }
-        .meta-cell { width: 240px; padding: 0 !important; }
-        .meta-table { width: 100%; border-collapse: collapse; }
-        .meta-table td { border: none !important; border-bottom: 1px solid black !important; padding: 4px 8px !important; font-size: 8.5pt; font-weight: bold; }
-        .meta-table tr:last-child td { border-bottom: none !important; }
-        .meta-label { width: 100px; border-right: 1px solid black !important; }
-        .input-row { display: flex; align-items: center; margin-bottom: 8px; font-weight: bold; }
-        .input-label { width: 230px; flex-shrink: 0; }
-        .input-line { border-bottom: 1px solid black; flex-grow: 1; outline: none; padding: 0 5px; font-weight: normal; font-size: 10pt; }
-        .custom-box { width: 15px; height: 15px; border: 1.5px solid black; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; background: white; flex-shrink: 0; position: relative; }
-        .custom-box input { opacity: 0; position: absolute; cursor: pointer; width: 100%; height: 100%; }
-        .custom-box .mark { display: none; font-size: 9pt; font-weight: bold; line-height: 1; }
-        .custom-box input:checked ~ .mark { display: block; }
-        .section-label { font-weight: bold; margin-top: 15px; margin-bottom: 8px; display: block; }
-        .dotted-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 6px; }
-        .dotted-item { display: flex; align-items: flex-end; gap: 8px; }
-        .dotted-input { flex-grow: 1; border: none; border-bottom: 1.5px dotted #666; outline: none; background: transparent; font-size: 9.5pt; padding: 0; }
-        .part-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 5px; }
-        .part-table th, .part-table td { border: 1px solid black; padding: 6px; text-align: center; }
-        .part-table th { background-color: #f2f2f2; font-size: 9pt; font-weight: bold; }
-        .sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 2px solid black; margin-top: 30px; }
-        .sig-box { border-right: 2px solid black; display: flex; flex-direction: column; text-align: center; }
-        .sig-box:last-child { border-right: none; }
-        .sig-header { font-weight: bold; font-size: 9pt; padding: 6px; border-bottom: 1.5px solid black; background: #fafafa; }
-        .sig-area { height: 100px; background: white; position: relative; cursor: crosshair; }
-        .sig-footer { border-top: 1.5px solid black; padding: 8px; font-weight: bold; font-size: 9pt; }
-        .sig-name { width: 95%; text-align: center; border: none; outline: none; text-transform: uppercase; font-size: 8.5pt; font-weight: bold; }
-        .canvas-el { width: 100%; height: 100%; }
-        .btn { padding: 10px 30px; border-radius: 4px; font-weight: bold; color: white; cursor: pointer; transition: 0.2s; }
-        @media print { .no-print { display: none !important; } body { background: white; padding: 0; } .document-page { box-shadow: none; border: 2px solid black; margin: 0; padding: 10mm; width: 100%; } }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f5f9; }
+        /* Header Tabel */
+        .table-hs th { background: #0f172a; color: white; text-transform: uppercase; font-size: 0.75rem; padding: 12px; }
+        
+        /* Modal Overlay */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 100; 
+            inset: 0; 
+            background: rgba(0,0,0,0.6); 
+            align-items: center; 
+            justify-content: center; 
+            padding: 1rem; 
+        }
+
+        /* Status Badges */
+        .status-badge { padding: 2px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; }
+        .bg-approved { background: #dcfce7; color: #166534; }
+        .bg-pending { background: #fef9c3; color: #854d0e; }
+
+        /* Pengaturan Cetak */
+        @media print { 
+            .no-print { display: none !important; } 
+            .modal { position: relative; display: block; background: white; padding: 0; }
+            .document-page { border: none; box-shadow: none; width: 100%; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="no-print">
-        <button onclick="window.location.href='laporan.html'" class="btn bg-slate-600">← KEMBALI</button>
-        <button onclick="window.print()" class="btn bg-blue-900">CETAK FORM / PDF</button>
+<header class="bg-[#0f172a] text-white p-4 flex justify-between items-center shadow-lg no-print">
+    <div class="flex items-center gap-4">
+        <button onclick="window.location.href='dashboard.html'" class="text-xs bg-slate-700 px-3 py-1.5 rounded hover:bg-slate-600 transition">← DASHBOARD</button>
+        <h1 class="text-xl font-bold">HISTORY MAINTENANCE</h1>
     </div>
+    <div class="flex gap-2">
+        <input type="text" id="searchMesin" placeholder="Cari Nama Mesin..." class="text-black px-4 py-1.5 rounded text-sm outline-none w-64 focus:ring-2 focus:ring-blue-500">
+        <button onclick="fetchHistory()" class="bg-blue-600 px-5 py-1.5 rounded font-bold text-xs hover:bg-blue-700 transition">CARI DATA</button>
+    </div>
+</header>
 
-    <div class="document-page">
-        <table class="header-table">
-            <tr>
-                <td rowspan="2" class="logo-box">
-                    <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo AKG">
-                    <div class="text-[9pt] font-bold mt-1">AKG®</div>
-                </td>
-                <td class="title-cell">
-                    <div class="company-name">PT. AMARILIS KARISMA GEMILANG</div>
-                    <div class="report-title">LAPORAN PERAWATAN & OVER HAUL MESIN TOOLS / EQUIPMENT</div>
-                </td>
-                <td class="meta-cell">
-                    <table class="meta-table">
-                        <tr><td class="meta-label">No Dokumen</td><td>: AF.SP 05.01</td></tr>
-                        <tr><td class="meta-label">Tgl. Terbit</td><td>: 02 Agustus 2024</td></tr>
-                        <tr><td class="meta-label">Halaman</td><td>: 1 / 1</td></tr>
-                        <tr><td class="meta-label">Revisi</td><td>: 00</td></tr>
-                    </table>
-                </td>
-            </tr>
+<div class="container mx-auto p-6 no-print">
+    <div class="bg-white rounded-xl shadow-md overflow-hidden border border-slate-200">
+        <table class="w-full text-left border-collapse table-hs">
+            <thead>
+                <tr>
+                    <th>Tanggal Input</th>
+                    <th>Nama Mesin / Tools</th>
+                    <th>Tipe Job</th>
+                    <th>Engineer</th>
+                    <th>Status</th>
+                    <th class="text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="historyTable">
+                <tr><td colspan="6" class="p-12 text-center text-slate-400 italic">Memuat data riwayat laporan...</td></tr>
+            </tbody>
         </table>
-
-        <form id="laporanPengerjaan">
-            <div class="input-row">
-                <span class="input-label">Nama Mesin, Tools/equipment :</span>
-                <input type="text" id="nama_mesin" class="input-line">
-                <div class="flex gap-4 ml-4">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <div class="custom-box"><input type="radio" name="job_type" value="Perawatan"><span class="mark">✔</span></div> Perawatan
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <div class="custom-box"><input type="radio" name="job_type" value="Overhaul"><span class="mark">✔</span></div> Over Haul
-                    </label>
-                </div>
-            </div>
-            
-            <div class="input-row">
-                <span class="input-label">Tanggal, Jam Mulai :</span>
-                <input type="datetime-local" id="jam_mulai" class="input-line" style="max-width: 300px;">
-            </div>
-            
-            <div class="input-row">
-                <span class="input-label">Tanggal, Jam Selesai :</span>
-                <input type="datetime-local" id="jam_selesai" class="input-line" style="max-width: 300px;">
-            </div>
-
-            <span class="section-label">Diskripsi Permasalahan Mesin Tools/Equipment :</span>
-            <div id="prob-container">
-                <script>
-                    for(let i=1; i<=4; i++) {
-                        document.write(`<div class="dotted-grid">
-                            <div class="dotted-item"><div class="custom-box"><input type="checkbox" name="prob_check_a_${i}"><span class="mark">✔</span></div><input type="text" name="prob_text_a_${i}" class="dotted-input"></div>
-                            <div class="dotted-item"><div class="custom-box"><input type="checkbox" name="prob_check_b_${i}"><span class="mark">✔</span></div><input type="text" name="prob_text_b_${i}" class="dotted-input"></div>
-                        </div>`);
-                    }
-                </script>
-            </div>
-
-            <span class="section-label">Pekerjaan Yang Dilakukan & Tindakan Yang Diambil :</span>
-            <div id="act-container">
-                <script>
-                    for(let i=1; i<=4; i++) {
-                        document.write(`<div class="dotted-grid">
-                            <div class="dotted-item"><div class="custom-box"><input type="checkbox" name="act_check_a_${i}"><span class="mark">✔</span></div><input type="text" name="act_text_a_${i}" class="dotted-input"></div>
-                            <div class="dotted-item"><div class="custom-box"><input type="checkbox" name="act_check_b_${i}"><span class="mark">✔</span></div><input type="text" name="act_text_b_${i}" class="dotted-input"></div>
-                        </div>`);
-                    }
-                </script>
-            </div>
-
-            <span class="section-label">Kerusakan Part :</span>
-            <table class="part-table">
-                <thead>
-                    <tr><th rowspan="2" style="width: 40px;">NO</th><th rowspan="2">Nama Part</th><th rowspan="2" style="width: 70px;">QTY</th><th colspan="2">Tindak Lanjut</th></tr>
-                    <tr><th style="width: 110px;">Ganti Baru</th><th style="width: 110px;">Repair</th></tr>
-                </thead>
-                <tbody>
-                    <script>
-                        for(let i=1; i<=5; i++) {
-                            document.write(`<tr>
-                                <td>${i}</td>
-                                <td><input type="text" name="part_n_${i}" class="w-full outline-none px-2 border-none"></td>
-                                <td><input type="number" name="part_q_${i}" class="w-full outline-none text-center border-none"></td>
-                                <td><div class="flex justify-center"><div class="custom-box"><input type="radio" name="part_act_${i}" value="Ganti"><span class="mark">✔</span></div></div></td>
-                                <td><div class="flex justify-center"><div class="custom-box"><input type="radio" name="part_act_${i}" value="Repair"><span class="mark">✔</span></div></div></td>
-                            </tr>`);
-                        }
-                    </script>
-                </tbody>
-            </table>
-
-            <div style="margin-top: 15px;">
-                <span class="section-label">Rekomendasi & Catatan :</span>
-                <input type="text" id="rek_1" class="dotted-input w-full mb-3" placeholder="...">
-                <input type="text" id="rek_2" class="dotted-input w-full mb-3" placeholder="...">
-                <input type="text" id="rek_3" class="dotted-input w-full" placeholder="...">
-            </div>
-
-            <div class="sig-grid">
-                <div class="sig-box">
-                    <div class="sig-header">Dikerjakan Oleh:</div>
-                    <div class="sig-area"><canvas id="can-eng" class="canvas-el"></canvas><button type="button" onclick="resetCan('can-eng')" class="absolute top-0 right-0 p-1 text-[7pt] text-red-500 underline no-print">Reset</button></div>
-                    <div class="sig-footer"><input type="text" id="name_engineer" class="sig-name" placeholder="ENGINEER"></div>
-                </div>
-                <div class="sig-box"><div class="sig-header">Diperiksa Oleh:</div><div class="sig-area flex items-center justify-center text-slate-300 italic text-[7pt]">Paraf Spv</div><div class="sig-footer">SPV / SUPERINTENDENT</div></div>
-                <div class="sig-box"><div class="sig-header">Mengetahui:</div><div class="sig-area flex items-center justify-center text-slate-300 italic text-[7pt]">Paraf Manager</div><div class="sig-footer">MANAGER</div></div>
-            </div>
-
-            <div class="mt-8 text-center no-print">
-                <button type="button" id="btnSave" onclick="saveData()" class="btn bg-blue-900 shadow-xl hover:scale-105 transform transition">SIMPAN LAPORAN SEKARANG</button>
-            </div>
-        </form>
     </div>
+</div>
 
-    <div id="modalOk" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-[100]">
-        <div class="bg-white p-12 rounded-lg shadow-2xl text-center border-t-8 border-blue-900">
-            <h2 class="text-2xl font-bold text-slate-800 mb-4">Laporan Berhasil Disimpan!</h2>
-            <button onclick="window.location.reload()" class="bg-blue-900 text-white px-10 py-2 rounded font-bold">OK</button>
+<div id="modalDetail" class="modal">
+    <div class="bg-white w-full max-w-5xl rounded-xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col document-page">
+        <div class="bg-slate-100 p-4 border-b flex justify-between items-center no-print">
+            <h2 class="font-black text-slate-700 uppercase tracking-tight">Detail Laporan Maintenance</h2>
+            <div class="flex gap-2">
+                <button onclick="window.print()" class="bg-blue-800 text-white px-5 py-1.5 rounded text-xs font-bold hover:bg-blue-900 transition">CETAK PDF</button>
+                <button onclick="closeModal()" class="text-3xl leading-none font-light hover:text-red-500 transition">&times;</button>
+            </div>
+        </div>
+        
+        <div class="p-8 overflow-y-auto flex-grow" id="modalBody">
+            </div>
+
+        <div class="p-6 bg-slate-50 border-t grid grid-cols-3 gap-6 text-center">
+            <div>
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-2">Engineer (Pelaksana)</p>
+                <div class="h-24 bg-white border rounded flex items-center justify-center p-2">
+                    <img id="view-sig-eng" class="max-h-full" alt="TTD Engineer">
+                </div>
+            </div>
+            <div>
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-2">Superintendent (Pemeriksa)</p>
+                <div class="h-24 bg-white border rounded flex items-center justify-center p-2">
+                    <img id="view-sig-spt" class="max-h-full" alt="TTD SPT">
+                </div>
+            </div>
+            <div>
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-2">Manager (Mengetahui)</p>
+                <div class="h-24 bg-white border rounded flex items-center justify-center p-2">
+                    <img id="view-sig-mn" class="max-h-full" alt="TTD Manager">
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    <script>
-        const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
-        const _sb = supabase.createClient(SB_URL, SB_KEY);
+<script>
+    // Konfigurasi Supabase
+    const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
+    const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        const canvas = document.getElementById('can-eng');
-        const ctx = canvas.getContext('2d');
-        let painting = false;
+    // Fungsi format waktu manual agar tidak bergeser (UTC/WIB)
+    function fmt(iso) {
+        if (!iso) return "-";
+        const p = iso.split('T');
+        if (p.length < 2) return iso;
+        const [y, m, d] = p[0].split('-');
+        return `${d}/${m}/${y} | ${p[1].substring(0, 5)}`;
+    }
 
-        function init() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
-        window.onload = init;
+    // Ambil data dari tabel laporan_maintenance
+    async function fetchHistory() {
+        const search = document.getElementById('searchMesin').value;
+        let query = _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
+        
+        if(search) query = query.ilike('nama_mesin', `%${search}%`);
 
-        function start(e) { painting = true; draw(e); }
-        function end() { painting = false; ctx.beginPath(); }
-        function draw(e) {
-            if (!painting) return;
-            ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = "black";
-            const rect = canvas.getBoundingClientRect();
-            const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-            const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
-            ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
+        const { data, error } = await query;
+        const list = document.getElementById('historyTable');
+
+        if (data) {
+            list.innerHTML = data.map(row => `
+                <tr class="border-b hover:bg-blue-50 transition-colors text-sm">
+                    <td class="p-4 font-mono text-xs text-slate-500">${fmt(row.created_at)}</td>
+                    <td class="p-4 font-bold text-slate-800 uppercase">${row.nama_mesin}</td>
+                    <td class="p-4">${row.job_type}</td>
+                    <td class="p-4 text-slate-600">${row.engineer_name}</td>
+                    <td class="p-4"><span class="status-badge ${row.status === 'Final_Approved' ? 'bg-approved' : 'bg-pending'}">${row.status}</span></td>
+                    <td class="p-4 text-center">
+                        <button onclick='viewFull(${JSON.stringify(row)})' class="bg-slate-800 text-white px-5 py-1.5 rounded-lg text-[10px] font-bold hover:bg-black hover:scale-105 transition shadow-sm">DETAIL</button>
+                    </td>
+                </tr>
+            `).join('');
         }
+    }
 
-        canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', draw); window.addEventListener('mouseup', end);
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); }); canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }); canvas.addEventListener('touchend', end);
-        function resetCan(id) { const c = document.getElementById(id); c.getContext('2d').clearRect(0,0,c.width,c.height); }
+    // Ambil detail data dari 3 tabel relasi lainnya
+    async function viewFull(row) {
+        const { data: prob } = await _sb.from('maintenance_problems').select('*').eq('maintenance_id', row.id);
+        const { data: act } = await _sb.from('maintenance_actions').select('*').eq('maintenance_id', row.id);
+        const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
 
-        async function saveData() {
-            const mesin = document.getElementById('nama_mesin').value;
-            const eng = document.getElementById('name_engineer').value;
-            const jobType = document.querySelector('input[name="job_type"]:checked')?.value;
-            const btn = document.getElementById('btnSave');
-            if (!mesin || !eng || !jobType) return alert("Mohon isi Nama Mesin, Engineer, dan Pilih Tipe Pekerjaan!");
+        const body = document.getElementById('modalBody');
+        body.innerHTML = `
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8 border bg-slate-50 p-6 rounded-2xl border-slate-200 shadow-inner">
+                <div><p class="text-[9px] text-slate-400 font-black uppercase mb-1">Nama Mesin</p><p class="font-black text-slate-800 text-lg uppercase">${row.nama_mesin}</p></div>
+                <div><p class="text-[9px] text-slate-400 font-black uppercase mb-1">Tipe Pekerjaan</p><p class="font-bold text-blue-700">${row.job_type}</p></div>
+                <div><p class="text-[9px] text-slate-400 font-black uppercase mb-1">Engineer Pelaksana</p><p class="font-bold text-slate-800">${row.engineer_name}</p></div>
+                <div><p class="text-[9px] text-slate-400 font-black uppercase mb-1">Durasi Pengerjaan</p><p class="text-[10px] font-bold text-slate-600">${fmt(row.jam_mulai)} <br> s/d ${fmt(row.jam_selesai)}</p></div>
+            </div>
 
-            btn.disabled = true; btn.innerText = "SEDANG MENYIMPAN...";
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-8">
+                <div>
+                    <h3 class="font-black text-slate-800 border-b-2 border-red-200 mb-3 pb-1 text-xs uppercase flex items-center gap-2">
+                        <span class="w-1.5 h-4 bg-red-500 rounded"></span> 1. Diskripsi Masalah
+                    </h3>
+                    <ul class="text-sm space-y-2 text-slate-600 italic">
+                        ${prob.length ? prob.map(p => `<li class="flex items-start gap-2"><span>•</span> ${p.description}</li>`).join('') : '<li class="text-slate-400">Tidak ada data.</li>'}
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-black text-slate-800 border-b-2 border-green-200 mb-3 pb-1 text-xs uppercase flex items-center gap-2">
+                        <span class="w-1.5 h-4 bg-green-500 rounded"></span> 2. Tindakan Diambil
+                    </h3>
+                    <ul class="text-sm space-y-2 text-slate-600 italic">
+                        ${act.length ? act.map(a => `<li class="flex items-start gap-2"><span>•</span> ${a.description}</li>`).join('') : '<li class="text-slate-400">Tidak ada data.</li>'}
+                    </ul>
+                </div>
+            </div>
 
-            try {
-                // 1. Header Utama
-                const { data: mainData, error: mainError } = await _sb.from('laporan_maintenance').insert([{
-                    nama_mesin: mesin.toUpperCase(), job_type: jobType,
-                    jam_mulai: document.getElementById('jam_mulai').value, jam_selesai: document.getElementById('jam_selesai').value,
-                    engineer_name: eng.toUpperCase(), signature_engineer: canvas.toDataURL(),
-                    rekomendasi_catatan: `${document.getElementById('rek_1').value}\n${document.getElementById('rek_2').value}\n${document.getElementById('rek_3').value}`.trim(),
-                    status: 'Maintenance_Done'
-                }]).select().single();
-                if (mainError) throw mainError;
-                const mId = mainData.id;
+            <div class="mb-10">
+                <h3 class="font-black text-slate-800 border-b-2 border-slate-200 mb-4 pb-1 text-xs uppercase text-center tracking-widest">3. Rekap Penggantian Part</h3>
+                <div class="overflow-hidden border border-slate-100 rounded-xl shadow-sm">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-slate-50 text-slate-500">
+                            <tr><th class="p-3 border-b">Nama Part</th><th class="p-3 border-b text-center">Jumlah</th><th class="p-3 border-b text-center">Tindak Lanjut</th></tr>
+                        </thead>
+                        <tbody>
+                            ${part.length ? part.map(pt => `<tr class="border-t">
+                                <td class="p-3 font-semibold text-slate-700 uppercase">${pt.nama_part}</td>
+                                <td class="p-3 text-center font-bold text-blue-600">${pt.qty}</td>
+                                <td class="p-3 text-center"><span class="bg-slate-100 px-3 py-1 rounded-full font-bold text-[9px]">${pt.tindak_lanjut}</span></td>
+                            </tr>`).join('') : '<tr><td colspan="3" class="p-6 text-center text-slate-300 italic">Tidak ada penggantian sparepart.</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                // 2. Masalah
-                const problems = [];
-                for(let i=1; i<=4; i++) {
-                    ['a','b'].forEach(col => {
-                        const txt = document.getElementsByName(`prob_text_${col}_${i}`)[0].value;
-                        const chk = document.getElementsByName(`prob_check_${col}_${i}`)[0].checked;
-                        if(txt) problems.push({ maintenance_id: mId, description: txt, is_checked: chk });
-                    });
-                }
-                if(problems.length > 0) await _sb.from('maintenance_problems').insert(problems);
+            <div class="bg-yellow-50 p-5 rounded-xl border-l-4 border-yellow-400 italic text-sm text-slate-700 shadow-sm">
+                <p class="text-[9px] font-black uppercase text-yellow-800 mb-2 tracking-tighter">Saran & Rekomendasi Engineer:</p>
+                "${row.rekomendasi_catatan || 'Tidak ada catatan tambahan.'}"
+            </div>
+        `;
 
-                // 3. Tindakan
-                const actions = [];
-                for(let i=1; i<=4; i++) {
-                    ['a','b'].forEach(col => {
-                        const txt = document.getElementsByName(`act_text_${col}_${i}`)[0].value;
-                        const chk = document.getElementsByName(`act_check_${col}_${i}`)[0].checked;
-                        if(txt) actions.push({ maintenance_id: mId, description: txt, is_checked: chk });
-                    });
-                }
-                if(actions.length > 0) await _sb.from('maintenance_actions').insert(actions);
+        // Tampilkan Tanda Tangan
+        document.getElementById('view-sig-eng').src = row.signature_engineer || '';
+        document.getElementById('view-sig-spt').src = row.signature_superintendent || '';
+        document.getElementById('view-sig-mn').src = row.signature_manager || '';
 
-                // 4. Part
-                const parts = [];
-                for(let i=1; i<=5; i++) {
-                    const name = document.getElementsByName(`part_n_${i}`)[0].value;
-                    const qty = document.getElementsByName(`part_q_${i}`)[0].value;
-                    const act = document.querySelector(`input[name="part_act_${i}"]:checked`)?.value;
-                    if(name) parts.push({ maintenance_id: mId, nama_part: name, qty: parseInt(qty) || 0, tindak_lanjut: act });
-                }
-                if(parts.length > 0) await _sb.from('maintenance_parts').insert(parts);
+        document.getElementById('modalDetail').style.display = 'flex';
+    }
 
-                document.getElementById('modalOk').classList.remove('hidden');
-            } catch (err) { console.error(err); alert("Gagal menyimpan: " + err.message); btn.disabled = false; btn.innerText = "SIMPAN LAPORAN SEKARANG"; }
-        }
-    </script>
+    function closeModal() { document.getElementById('modalDetail').style.display = 'none'; }
+    window.onload = fetchHistory;
+</script>
+
 </body>
 </html>
