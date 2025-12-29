@@ -11,7 +11,6 @@
         .sig-canvas { border: 2px dashed #ccc; background: #fff; width: 100%; height: 150px; touch-action: none; cursor: crosshair; }
         .table-custom th { background: #003366; color: white; text-transform: uppercase; font-size: 0.8rem; padding: 12px; }
         
-        /* PERBAIKAN: Modal harus hidden secara default dan menggunakan fixed */
         .modal { 
             display: none; 
             position: fixed; 
@@ -36,7 +35,7 @@
         <table class="w-full text-left border-collapse table-custom">
             <thead>
                 <tr>
-                    <th>Tanggal</th>
+                    <th>Tanggal Input</th>
                     <th>Nama Mesin / Tools</th>
                     <th>Job Type</th>
                     <th>Engineer</th>
@@ -81,6 +80,18 @@
     const ctx = canvas.getContext('2d');
     let drawing = false;
 
+    // FUNGSI UNTUK MERAPIKAN FORMAT WAKTU
+    function formatIndoTime(isoString) {
+        if (!isoString) return "-";
+        const date = new Date(isoString);
+        const tgl = String(date.getDate()).padStart(2, '0');
+        const bln = String(date.getMonth() + 1).padStart(2, '0');
+        const thn = date.getFullYear();
+        const jam = String(date.getHours()).padStart(2, '0');
+        const mnt = String(date.getMinutes()).padStart(2, '0');
+        return `${tgl}/${bln}/${thn} | ${jam}:${mnt}`;
+    }
+
     async function fetchLaporan() {
         const { data, error } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
         const list = document.getElementById('listLaporan');
@@ -92,12 +103,12 @@
 
         list.innerHTML = data.map(row => `
             <tr class="border-b hover:bg-slate-50">
-                <td class="p-4">${new Date(row.created_at).toLocaleDateString('id-ID')}</td>
-                <td class="p-4 font-bold">${row.nama_mesin}</td>
-                <td class="p-4">${row.job_type}</td>
-                <td class="p-4">${row.engineer_name}</td>
+                <td class="p-4 text-xs">${formatIndoTime(row.created_at)}</td>
+                <td class="p-4 font-bold text-sm">${row.nama_mesin}</td>
+                <td class="p-4 text-sm">${row.job_type}</td>
+                <td class="p-4 text-sm">${row.engineer_name}</td>
                 <td class="p-4"><span class="px-2 py-1 rounded text-[10px] font-bold ${row.status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}">${row.status}</span></td>
-                <td class="p-4"><button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-3 py-1 rounded text-xs">REVIEW</button></td>
+                <td class="p-4"><button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-3 py-1 rounded text-xs font-bold shadow hover:bg-blue-800">REVIEW</button></td>
             </tr>
         `).join('');
     }
@@ -106,87 +117,64 @@
         currentId = row.id;
         const cont = document.getElementById('modalContent');
         
-        // Ambil data relasi
         const { data: prob } = await _sb.from('maintenance_problems').select('*').eq('maintenance_id', row.id);
         const { data: act } = await _sb.from('maintenance_actions').select('*').eq('maintenance_id', row.id);
         const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
 
         cont.innerHTML = `
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div><p class="text-xs text-gray-500 uppercase">Mesin/Equipment</p><p class="font-bold">${row.nama_mesin}</p></div>
-                <div><p class="text-xs text-gray-500 uppercase">Tipe Pekerjaan</p><p class="font-bold text-blue-700">${row.job_type}</p></div>
-                <div><p class="text-xs text-gray-500 uppercase">Engineer</p><p class="font-bold">${row.engineer_name}</p></div>
-                <div><p class="text-xs text-gray-500 uppercase">Waktu</p><p class="text-sm">${row.jam_mulai} s/d ${row.jam_selesai}</p></div>
+            <div class="grid grid-cols-2 gap-4 mb-6 border bg-slate-50 p-3 rounded-lg">
+                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Mesin / Equipment</p><p class="font-bold text-[#003366]">${row.nama_mesin}</p></div>
+                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Tipe Pekerjaan</p><p class="font-bold text-blue-700">${row.job_type}</p></div>
+                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Engineer</p><p class="font-bold">${row.engineer_name}</p></div>
+                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Periode Pengerjaan</p>
+                     <p class="text-xs font-semibold text-slate-700">${formatIndoTime(row.jam_mulai)} <span class="text-blue-500 mx-1">s/d</span> ${formatIndoTime(row.jam_selesai)}</p>
+                </div>
             </div>
-            <div class="mb-4"><p class="font-bold border-b mb-2">Masalah:</p><ul class="list-disc pl-5 text-sm">${prob.map(p => `<li>${p.description}</li>`).join('')}</ul></div>
-            <div class="mb-4"><p class="font-bold border-b mb-2">Tindakan:</p><ul class="list-disc pl-5 text-sm">${act.map(a => `<li>${a.description}</li>`).join('')}</ul></div>
+            <div class="mb-4"><p class="font-bold border-b mb-2 text-sm text-slate-800">1. Diskripsi Masalah:</p><ul class="list-disc pl-5 text-sm space-y-1">${prob.map(p => `<li>${p.description}</li>`).join('')}</ul></div>
+            <div class="mb-4"><p class="font-bold border-b mb-2 text-sm text-slate-800">2. Pekerjaan & Tindakan:</p><ul class="list-disc pl-5 text-sm space-y-1">${act.map(a => `<li>${a.description}</li>`).join('')}</ul></div>
             <div class="mb-4">
-                <p class="font-bold border-b mb-2">Suku Cadang (Parts):</p>
-                <table class="w-full text-xs border">
-                    <tr class="bg-gray-100"><th>Part Name</th><th>Qty</th><th>Tindakan</th></tr>
-                    ${part.map(pt => `<tr><td class="border p-1">${pt.nama_part}</td><td class="border p-1 text-center">${pt.qty}</td><td class="border p-1 text-center">${pt.tindak_lanjut}</td></tr>`).join('')}
+                <p class="font-bold border-b mb-2 text-sm text-slate-800">3. Kerusakan Part:</p>
+                <table class="w-full text-xs border border-slate-200">
+                    <tr class="bg-slate-100 uppercase">
+                        <th class="border p-1.5 text-left">Nama Part</th>
+                        <th class="border p-1.5 text-center w-16">Qty</th>
+                        <th class="border p-1.5 text-center w-24">Tindakan</th>
+                    </tr>
+                    ${part.length > 0 ? part.map(pt => `<tr><td class="border p-1.5">${pt.nama_part}</td><td class="border p-1.5 text-center">${pt.qty}</td><td class="border p-1.5 text-center"><span class="bg-gray-100 px-2 py-0.5 rounded text-[10px] font-bold">${pt.tindak_lanjut}</span></td></tr>`).join('') : '<tr><td colspan="3" class="p-2 text-center italic text-gray-400">Tidak ada penggantian part.</td></tr>'}
                 </table>
             </div>
-            <div class="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400">
-                <p class="text-xs font-bold uppercase">Rekomendasi Engineer:</p>
-                <p class="text-sm italic">${row.rekomendasi_catatan || '-'}</p>
+            <div class="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                <p class="text-[10px] font-bold uppercase text-yellow-700">Rekomendasi Engineer:</p>
+                <p class="text-sm italic text-slate-700">${row.rekomendasi_catatan || 'Tidak ada catatan.'}</p>
             </div>
         `;
         
-        // Tampilkan modal dengan mengganti display menjadi flex
-        const modal = document.getElementById('modalReview');
-        modal.style.display = 'flex';
-        
-        // Beri jeda kecil agar browser merender display:flex sebelum resize canvas
+        document.getElementById('modalReview').style.display = 'flex';
         setTimeout(resizeCanvas, 50);
     }
 
+    // Sisanya (processApproval, canvas logic) tetap sama seperti sebelumnya
     async function processApproval() {
         const signature = canvas.toDataURL();
         const blank = document.createElement('canvas');
         blank.width = canvas.width; blank.height = canvas.height;
         if (signature === blank.toDataURL()) return alert("Tanda tangan Superintendent wajib diisi!");
 
-        const { error } = await _sb.from('laporan_maintenance')
-            .update({ status: 'Approved', signature_superintendent: signature })
-            .eq('id', currentId);
-
-        if (!error) {
-            alert("Laporan Berhasil Disetujui!");
-            closeModal();
-            fetchLaporan();
-        } else {
-            alert("Error: " + error.message);
-        }
+        const { error } = await _sb.from('laporan_maintenance').update({ status: 'Approved', signature_superintendent: signature }).eq('id', currentId);
+        if (!error) { alert("Laporan Berhasil Disetujui!"); closeModal(); fetchLaporan(); }
+        else { alert("Error: " + error.message); }
     }
 
-    function resizeCanvas() { 
-        canvas.width = canvas.offsetWidth; 
-        canvas.height = canvas.offsetHeight; 
-    }
-    
+    function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
     function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-    
-    function getP(e) { 
-        const r = canvas.getBoundingClientRect(); 
-        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-        return { x: clientX - r.left, y: clientY - r.top }; 
-    }
-
+    function getP(e) { const r = canvas.getBoundingClientRect(); const clientX = e.clientX || (e.touches && e.touches[0].clientX); const clientY = e.clientY || (e.touches && e.touches[0].clientY); return { x: clientX - r.left, y: clientY - r.top }; }
     canvas.onmousedown = (e) => { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); };
     canvas.onmousemove = (e) => { if(!drawing) return; const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); };
     window.onmouseup = () => drawing=false;
-    
     canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
     canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(!drawing) return; const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); });
     canvas.addEventListener('touchend', () => drawing=false);
-
-    function closeModal() { 
-        document.getElementById('modalReview').style.display = 'none'; 
-        clearCanvas(); 
-    }
-    
+    function closeModal() { document.getElementById('modalReview').style.display = 'none'; clearCanvas(); }
     window.onload = fetchLaporan;
 </script>
 </body>
