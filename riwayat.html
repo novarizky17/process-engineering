@@ -10,7 +10,7 @@
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f9; color: #000; }
         .container { width: 277mm; margin: 20px auto; padding: 5mm 12mm; box-sizing: border-box; background: white; border: 1px solid #000; }
         
-        /* Area Navigasi & Pencarian (Hanya di layar) */
+        /* Area Pencarian (Hanya di layar) */
         .search-area { background: #1e293b; padding: 15px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; border-radius: 4px; }
         .search-input { flex-grow: 1; padding: 8px; text-transform: uppercase; border: 1px solid #ccc; font-weight: bold; }
         .btn-action { background: #3b82f6; color: white; border: none; padding: 8px 20px; cursor: pointer; font-weight: bold; }
@@ -22,7 +22,7 @@
         .company-name { font-size: 12px; font-weight: bold; }
         .title { font-size: 22px; font-weight: bold; text-align: center; width: 100%; margin: 0; }
         
-        /* Meta Info Sesuai image_54aca2.png */
+        /* Meta Info - Kembali ke format gambar */
         .meta-section { display: flex; justify-content: space-between; margin-bottom: 15px; margin-top: 10px; }
         .machine-info div { margin-bottom: 3px; font-size: 10pt; }
         .label { font-weight: bold; display: inline-block; width: 140px; }
@@ -33,7 +33,7 @@
         .main-table th, .main-table td { border: 1px solid black; padding: 5px; font-size: 9pt; text-align: center; }
         .main-table th { background-color: #f0f0f0; font-weight: bold; }
         
-        /* Area Tanda Tangan Sesuai image_5c44e2.png */
+        /* Kotak Tanda Tangan - Kembali ke format tabel kotak */
         .sig-table { width: 100%; border-collapse: collapse; border: 1px solid black; margin-top: 20px; }
         .sig-table td { border: 1px solid black; text-align: center; width: 33.33%; vertical-align: middle; }
         .sig-header { font-weight: bold; padding: 5px; font-size: 10pt; height: 25px; }
@@ -52,9 +52,9 @@
 
 <div class="container">
     <div class="search-area no-print">
-        <input type="text" id="input_search" class="search-input" placeholder="MASUKKAN NAMA MESIN UNTUK MENGISI KARTU RIWAYAT...">
+        <input type="text" id="input_search" class="search-input" placeholder="KETIK NAMA MESIN UNTUK MENGISI KARTU RIWAYAT...">
         <button onclick="searchData()" class="btn-action">CARI DATA</button>
-        <button onclick="window.print()" class="btn-action" style="background:#10b981">CETAK (PDF)</button>
+        <button onclick="window.print()" class="btn-action" style="background:#10b981">CETAK</button>
         <button onclick="window.location.href='laporan.html'" class="btn-action" style="background:#64748b">KEMBALI</button>
     </div>
 
@@ -68,7 +68,7 @@
 
     <div class="meta-section">
         <div class="machine-info">
-            <div><span class="label">NAMA MESIN</span> : <span id="v_nama" style="font-weight: bold;">-</span></div>
+            <div><span class="label">NAMA MESIN</span> : <span id="v_nama" style="font-weight: normal;">-</span></div>
             <div><span class="label">NO. MESIN</span> : <span id="v_no">-</span></div>
             <div><span class="label">TAHUN PEMBUATAN</span> : <span id="v_thn">-</span></div>
             <div><span class="label">LOKASI MESIN</span> : <span id="v_lok">-</span></div>
@@ -93,7 +93,7 @@
             </tr>
         </thead>
         <tbody id="contentTable">
-            <tr><td colspan="6" style="height: 300px; color: #ccc;">Cari Nama Mesin untuk menampilkan riwayat otomatis...</td></tr>
+            <tr><td colspan="6" style="height: 25px;"></td></tr>
         </tbody>
     </table>
 
@@ -139,23 +139,21 @@
                     <td style="text-align:left">${row.maintenance_actions.map(a => a.description).join(', ')}</td>
                     <td style="text-align:left">${row.maintenance_parts.map(pt => pt.nama_part).join(', ')}</td>
                     <td>-</td>
-                    <td style="font-weight: bold;">${row.engineer_name}</td>
+                    <td>${row.engineer_name}</td>
                 </tr>
             `).join('');
             
-            // Mengisi baris kosong tambahan jika data sedikit
             for(let i = res.length; i < 10; i++) {
                 tbody.innerHTML += `<tr><td style="height:25px"></td><td></td><td></td><td></td><td></td><td></td></tr>`;
             }
 
-            // Menampilkan Tanda Tangan Terakhir yang terekam
             const last = res[res.length - 1];
             document.getElementById('s_eng').src = last.signature_engineer || '';
             document.getElementById('n_eng').innerText = last.engineer_name || 'PIC';
             document.getElementById('s_spt').src = last.signature_superintendent || '';
             document.getElementById('s_mn').src = last.signature_manager || '';
         } else {
-            alert("Data untuk mesin tersebut tidak ditemukan.");
+            alert("Data tidak ditemukan.");
         }
     }
 </script>
