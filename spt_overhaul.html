@@ -10,7 +10,18 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f5f9; }
         .sig-canvas { border: 2px dashed #ccc; background: #fff; width: 100%; height: 150px; touch-action: none; cursor: crosshair; }
         .table-custom th { background: #003366; color: white; text-transform: uppercase; font-size: 0.8rem; padding: 12px; }
-        .modal { display: none; position: fixed; z-index: 50; inset: 0; background: rgba(0,0,0,0.5); overflow-y: auto; }
+        
+        /* PERBAIKAN: Modal harus hidden secara default dan menggunakan fixed */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 999; 
+            inset: 0; 
+            background: rgba(0,0,0,0.6); 
+            overflow-y: auto;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -40,15 +51,14 @@
     </div>
 </div>
 
-<div id="modalReview" class="modal flex items-center justify-center p-4">
+<div id="modalReview" class="modal p-4">
     <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-        <div class="bg-slate-100 p-4 border-bottom flex justify-between items-center">
+        <div class="bg-slate-100 p-4 border-b flex justify-between items-center">
             <h2 class="text-lg font-bold text-[#003366]">Detail Laporan Perawatan</h2>
             <button onclick="closeModal()" class="text-2xl font-bold">&times;</button>
         </div>
         
-        <div class="p-6 overflow-y-auto" id="modalContent">
-            </div>
+        <div class="p-6 overflow-y-auto" id="modalContent"></div>
 
         <div class="p-6 bg-slate-50 border-t">
             <p class="font-bold mb-2">Tanda Tangan Superintendent / SPV:</p>
@@ -71,7 +81,6 @@
     const ctx = canvas.getContext('2d');
     let drawing = false;
 
-    // Fetch Laporan yang statusnya 'Maintenance_Done'
     async function fetchLaporan() {
         const { data, error } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
         const list = document.getElementById('listLaporan');
@@ -97,7 +106,7 @@
         currentId = row.id;
         const cont = document.getElementById('modalContent');
         
-        // Ambil data relasi (Masalah, Tindakan, Parts)
+        // Ambil data relasi
         const { data: prob } = await _sb.from('maintenance_problems').select('*').eq('maintenance_id', row.id);
         const { data: act } = await _sb.from('maintenance_actions').select('*').eq('maintenance_id', row.id);
         const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
@@ -109,10 +118,8 @@
                 <div><p class="text-xs text-gray-500 uppercase">Engineer</p><p class="font-bold">${row.engineer_name}</p></div>
                 <div><p class="text-xs text-gray-500 uppercase">Waktu</p><p class="text-sm">${row.jam_mulai} s/d ${row.jam_selesai}</p></div>
             </div>
-            
             <div class="mb-4"><p class="font-bold border-b mb-2">Masalah:</p><ul class="list-disc pl-5 text-sm">${prob.map(p => `<li>${p.description}</li>`).join('')}</ul></div>
             <div class="mb-4"><p class="font-bold border-b mb-2">Tindakan:</p><ul class="list-disc pl-5 text-sm">${act.map(a => `<li>${a.description}</li>`).join('')}</ul></div>
-            
             <div class="mb-4">
                 <p class="font-bold border-b mb-2">Suku Cadang (Parts):</p>
                 <table class="w-full text-xs border">
@@ -120,18 +127,20 @@
                     ${part.map(pt => `<tr><td class="border p-1">${pt.nama_part}</td><td class="border p-1 text-center">${pt.qty}</td><td class="border p-1 text-center">${pt.tindak_lanjut}</td></tr>`).join('')}
                 </table>
             </div>
-
             <div class="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400">
                 <p class="text-xs font-bold uppercase">Rekomendasi Engineer:</p>
                 <p class="text-sm italic">${row.rekomendasi_catatan || '-'}</p>
             </div>
         `;
         
-        document.getElementById('modalReview').style.display = 'flex';
-        resizeCanvas();
+        // Tampilkan modal dengan mengganti display menjadi flex
+        const modal = document.getElementById('modalReview');
+        modal.style.display = 'flex';
+        
+        // Beri jeda kecil agar browser merender display:flex sebelum resize canvas
+        setTimeout(resizeCanvas, 50);
     }
 
-    // Approval Process
     async function processApproval() {
         const signature = canvas.toDataURL();
         const blank = document.createElement('canvas');
@@ -139,7 +148,7 @@
         if (signature === blank.toDataURL()) return alert("Tanda tangan Superintendent wajib diisi!");
 
         const { error } = await _sb.from('laporan_maintenance')
-            .update({ status: 'Approved', signature_superintendent: signature }) // Pastikan kolom ini ada di SQL
+            .update({ status: 'Approved', signature_superintendent: signature })
             .eq('id', currentId);
 
         if (!error) {
@@ -151,19 +160,34 @@
         }
     }
 
-    // Signature Logic
-    function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+    function resizeCanvas() { 
+        canvas.width = canvas.offsetWidth; 
+        canvas.height = canvas.offsetHeight; 
+    }
+    
     function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-    function getP(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top }; }
+    
+    function getP(e) { 
+        const r = canvas.getBoundingClientRect(); 
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        return { x: clientX - r.left, y: clientY - r.top }; 
+    }
+
     canvas.onmousedown = (e) => { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); };
     canvas.onmousemove = (e) => { if(!drawing) return; const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); };
     window.onmouseup = () => drawing=false;
+    
     canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
     canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(!drawing) return; const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); });
+    canvas.addEventListener('touchend', () => drawing=false);
 
-    function closeModal() { document.getElementById('modalReview').style.display = 'none'; clearCanvas(); }
+    function closeModal() { 
+        document.getElementById('modalReview').style.display = 'none'; 
+        clearCanvas(); 
+    }
+    
     window.onload = fetchLaporan;
 </script>
-
 </body>
 </html>
