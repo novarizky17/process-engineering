@@ -11,6 +11,7 @@
         .sig-canvas { border: 2px dashed #003366; background: #fff; width: 100%; height: 160px; touch-action: none; cursor: crosshair; border-radius: 8px; }
         .table-custom th { background: #003366; color: white; text-transform: uppercase; font-size: 0.8rem; padding: 12px; }
         
+        /* Modal hidden secara default */
         .modal { 
             display: none; 
             position: fixed; 
@@ -101,13 +102,18 @@
     let currentId = null;
     let canvas, ctx, drawing = false;
 
+    // FUNGSI FIX JAM: Memproses teks mentah untuk menghindari auto-convert ke UTC/WIB
     function formatIndoTime(isoString) {
         if (!isoString) return "-";
         try {
             const parts = isoString.split('T');
             if (parts.length < 2) return isoString;
-            const [y, m, d] = parts[0].split('-');
-            return `${d}/${m}/${y} | ${parts[1].substring(0, 5)}`;
+
+            const datePart = parts[0]; // YYYY-MM-DD
+            const timePart = parts[1].substring(0, 5); // HH:mm
+
+            const [y, m, d] = datePart.split('-');
+            return `${d}/${m}/${y} | ${timePart}`;
         } catch (e) { return isoString; }
     }
 
@@ -156,7 +162,7 @@
                 <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm"><p class="font-bold text-[#003366] border-b mb-2 pb-1 text-sm">1. DESKRIPSI MASALAH:</p>
                      <ul class="list-disc pl-5 text-xs space-y-1 italic text-slate-600">${prob.length ? prob.map(p => `<li>${p.description}</li>`).join('') : '<li>N/A</li>'}</ul>
                 </div>
-                <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm"><p class="font-bold text-[#003366] border-b mb-2 pb-1 text-sm">2. TINDAKAN DIABIL:</p>
+                <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm"><p class="font-bold text-[#003366] border-b mb-2 pb-1 text-sm">2. TINDAKAN DIAMBIL:</p>
                      <ul class="list-disc pl-5 text-xs space-y-1 italic text-slate-600">${act.length ? act.map(a => `<li>${a.description}</li>`).join('') : '<li>N/A</li>'}</ul>
                 </div>
             </div>
@@ -185,12 +191,11 @@
             document.getElementById('view-sig-spt').src = row.signature_superintendent || '';
             document.getElementById('view_spt_notes').innerText = row.spt_notes || "Tidak ada catatan SPT.";
         } else {
-            document.getElementById('spt_notes').value = ""; // Reset input catatan
+            document.getElementById('spt_notes').value = ""; 
         }
 
         document.getElementById('modalReview').style.display = 'flex';
         
-        // Inisialisasi Canvas
         canvas = document.getElementById('sig-spt');
         ctx = canvas.getContext('2d');
         setTimeout(() => {
