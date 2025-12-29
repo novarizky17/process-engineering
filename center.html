@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Center - Menu Utama</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 60px 100px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            max-width: 600px;
+        }
+
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 60px;
+            font-size: 3em;
+            font-weight: bold;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .btn {
+            padding: 20px 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-laporan {
+            background-color: #FF5722; /* Orange */
+        }
+
+        .btn-laporan:hover {
+            background-color: #e64a19;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 87, 34, 0.4);
+        }
+
+        .btn-kartu {
+            background-color: #673AB7; /* Purple */
+        }
+
+        .btn-kartu:hover {
+            background-color: #5e35b1;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(103, 58, 183, 0.4);
+        }
+
+        .btn-checklist {
+            background-color: #009688; /* Teal */
+        }
+
+        .btn-checklist:hover {
+            background-color: #00897b;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 150, 136, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Menu Utama</h1>
+        
+        <div class="button-group">
+            <a href="dashboard.html" class="btn btn-laporan">Laporan Perawatan</a>
+            <a href="kartu.html" class="btn btn-kartu">Kartu Riwayat</a>
+            <a href="dashboard.html" class="btn btn-checklist">Form Checklist</a>
+        </div>
+    </div>
+</body>
+</html>
