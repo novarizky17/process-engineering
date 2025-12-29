@@ -62,8 +62,7 @@
             <button onclick="closeModal()" class="text-3xl font-light hover:text-red-500 transition">&times;</button>
         </div>
         
-        <div class="p-8 overflow-y-auto flex-grow" id="modalContent">
-            </div>
+        <div class="p-8 overflow-y-auto flex-grow" id="modalContent"></div>
 
         <div class="p-6 bg-slate-50 border-t grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="text-center">
@@ -103,12 +102,26 @@
     let currentId = null;
     let canvas, ctx, drawing = false;
 
-    function formatTime(iso) {
-        if (!iso) return "-";
-        const parts = iso.split('T');
-        if (parts.length < 2) return iso;
-        const [y, m, d] = parts[0].split('-');
-        return `${d}/${m}/${y} | ${parts[1].substring(0, 5)}`;
+    // FUNGSI KHUSUS TANGGAL SAJA (Digunakan pada Tabel Utama)
+    function formatIndoDateOnly(isoString) {
+        if (!isoString) return "-";
+        try {
+            const datePart = isoString.split('T')[0]; 
+            const [y, m, d] = datePart.split('-');
+            return `${d}/${m}/${y}`;
+        } catch (e) { return isoString; }
+    }
+
+    // FUNGSI TANGGAL & JAM (Digunakan pada Detail Modal agar durasi tetap akurat)
+    function formatIndoDateTime(isoString) {
+        if (!isoString) return "-";
+        try {
+            const parts = isoString.split('T');
+            if (parts.length < 2) return isoString;
+            const [y, m, d] = parts[0].split('-');
+            const timePart = parts[1].substring(0, 5); 
+            return `${d}/${m}/${y} | ${timePart}`;
+        } catch (e) { return isoString; }
     }
 
     async function fetchLaporan() {
@@ -117,11 +130,11 @@
         
         if (data) {
             list.innerHTML = data.map(row => `
-                <tr class="border-b hover:bg-slate-50 transition-all">
-                    <td class="p-4 text-xs text-slate-500">${formatTime(row.created_at)}</td>
-                    <td class="p-4 font-bold text-slate-800">${row.nama_mesin}</td>
-                    <td class="p-4 text-sm">${row.job_type}</td>
-                    <td class="p-4 text-sm">${row.engineer_name}</td>
+                <tr class="border-b hover:bg-slate-50 transition-all text-sm">
+                    <td class="p-4 font-medium text-slate-500">${formatIndoDateOnly(row.created_at)}</td>
+                    <td class="p-4 font-bold text-slate-800 uppercase">${row.nama_mesin}</td>
+                    <td class="p-4">${row.job_type}</td>
+                    <td class="p-4">${row.engineer_name}</td>
                     <td class="p-4"><span class="status-badge ${row.status === 'Final_Approved' ? 'approved-all' : 'partial'}">${row.status}</span></td>
                     <td class="p-4 text-center">
                         <button onclick='viewDetail(${JSON.stringify(row)})' class="bg-[#1e293b] text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-md hover:scale-105 transition-transform">DETAIL & SIGN</button>
@@ -140,33 +153,36 @@
         const cont = document.getElementById('modalContent');
         cont.innerHTML = `
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Equipment</p><p class="font-bold text-slate-800">${row.nama_mesin}</p></div>
+                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Equipment</p><p class="font-bold text-slate-800 uppercase">${row.nama_mesin}</p></div>
                 <div><p class="text-[9px] text-slate-400 uppercase font-bold">Tipe</p><p class="font-bold text-blue-600">${row.job_type}</p></div>
-                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Engineer</p><p class="font-bold text-slate-800">${row.engineer_name}</p></div>
-                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Durasi</p><p class="text-[10px] font-bold">${formatTime(row.jam_mulai)} s/d ${formatTime(row.jam_selesai)}</p></div>
+                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Engineer</p><p class="font-bold text-slate-800 uppercase">${row.engineer_name}</p></div>
+                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Periode Kerja</p>
+                    <p class="text-[10px] font-bold text-slate-700">${formatIndoDateTime(row.jam_mulai)} <span class="text-blue-500">s/d</span> ${formatIndoDateTime(row.jam_selesai)}</p>
+                </div>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div><h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">1. Masalah</h3><ul class="text-xs space-y-1">${prob.map(p => `<li>• ${p.description}</li>`).join('')}</ul></div>
-                <div><h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">2. Tindakan</h3><ul class="text-xs space-y-1">${act.map(a => `<li>• ${a.description}</li>`).join('')}</ul></div>
+                <div><h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">1. Masalah</h3><ul class="text-xs space-y-1 italic text-slate-600">${prob.map(p => `<li>• ${p.description}</li>`).join('')}</ul></div>
+                <div><h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">2. Tindakan</h3><ul class="text-xs space-y-1 italic text-slate-600">${act.map(a => `<li>• ${a.description}</li>`).join('')}</ul></div>
             </div>
 
             <div class="mb-6">
                 <h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">3. Suku Cadang</h3>
                 <table class="w-full text-[10px] text-left border">
                     <tr class="bg-slate-100"><th>Part Name</th><th class="text-center">Qty</th><th class="text-center">Keterangan</th></tr>
-                    ${part.map(pt => `<tr class="border-t"><td>${pt.nama_part}</td><td class="text-center">${pt.qty}</td><td class="text-center">${pt.tindak_lanjut}</td></tr>`).join('')}
+                    ${part.map(pt => `<tr class="border-t"><td class="uppercase">${pt.nama_part}</td><td class="text-center font-bold text-blue-600">${pt.qty}</td><td class="text-center uppercase text-[9px]">${pt.tindak_lanjut}</td></tr>`).join('')}
                 </table>
             </div>
 
-            <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 italic text-sm">"${row.rekomendasi_catatan || '-'}"</div>
+            <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 italic text-sm text-slate-700">
+                <p class="text-[9px] font-bold text-blue-800 uppercase mb-1">Rekomendasi Engineer:</p>
+                "${row.rekomendasi_catatan || '-'}"
+            </div>
         `;
 
-        // Tampilkan TTD yang sudah ada
         document.getElementById('sig-engineer').src = row.signature_engineer || '';
         document.getElementById('sig-spt').src = row.signature_superintendent || '';
 
-        // Kontrol Panel Manager
         const hasManagerSign = row.status === 'Final_Approved';
         document.getElementById('managerSigInput').style.display = hasManagerSign ? 'none' : 'block';
         document.getElementById('managerSigView').style.display = hasManagerSign ? 'block' : 'none';
@@ -181,9 +197,11 @@
     function initCanvas() {
         canvas = document.getElementById('can-manager');
         ctx = canvas.getContext('2d');
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
+        setTimeout(() => {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
+        }, 100);
     }
 
     async function saveFinalApproval() {
@@ -203,7 +221,7 @@
         }
     }
 
-    function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+    function clearCanvas() { if(ctx) ctx.clearRect(0,0,canvas.width,canvas.height); }
     function getP(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top }; }
     
     document.addEventListener('mousedown', (e) => { if(e.target === canvas) { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); } });
