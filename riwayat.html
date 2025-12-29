@@ -36,14 +36,15 @@
             gap: 10px;
             align-items: center;
             border-radius: 4px;
+            color: white;
         }
 
-        .search-area input {
-            flex-grow: 1;
+        .search-area input, .search-area select {
             padding: 8px;
-            text-transform: uppercase;
+            border-radius: 4px;
             border: 1px solid #ccc;
             font-weight: bold;
+            color: #000;
         }
 
         .btn-action {
@@ -202,8 +203,25 @@
 <div class="container">
 
     <div class="search-area no-print">
-        <input type="text" id="mesin_search" placeholder="CARI NAMA MESIN...">
-        <button onclick="fetchData()" class="btn-action">TAMPILKAN DATA</button>
+        <input type="text" id="mesin_search" placeholder="NAMA MESIN..." style="width: 180px;">
+        
+        <select id="bulan_search">
+            <option value="">- Semua Bulan -</option>
+            <option value="01">Januari</option><option value="02">Februari</option>
+            <option value="03">Maret</option><option value="04">April</option>
+            <option value="05">Mei</option><option value="06">Juni</option>
+            <option value="07">Juli</option><option value="08">Agustus</option>
+            <option value="09">September</option><option value="10">Oktober</option>
+            <option value="11">November</option><option value="12">Desember</option>
+        </select>
+
+        <select id="tahun_search">
+            <option value="2024">2024</option>
+            <option value="2025" selected>2025</option>
+            <option value="2026">2026</option>
+        </select>
+
+        <button onclick="fetchData()" class="btn-action">CARI DATA</button>
         <button onclick="window.print()" class="btn-action" style="background:#059669">CETAK</button>
         <button onclick="window.location.href='laporan.html'" class="btn-action" style="background:#64748b">KEMBALI</button>
     </div>
@@ -277,20 +295,31 @@
     const _sb = supabase.createClient(SB_URL, SB_KEY);
 
     async function fetchData() {
-        const query = document.getElementById('mesin_search').value.trim().toUpperCase();
-        if(!query) return alert("Masukkan Nama Mesin!");
+        const mesin = document.getElementById('mesin_search').value.trim().toUpperCase();
+        const bulan = document.getElementById('bulan_search').value;
+        const tahun = document.getElementById('tahun_search').value;
 
-        // Ambil data laporan overhaul otomatis
-        const { data: reports, error } = await _sb
-            .from('laporan_maintenance')
-            .select(`
+        if(!mesin) return alert("Masukkan Nama Mesin!");
+
+        // Filter berdasarkan mesin, bulan, dan tahun
+        let query = _sb.from('laporan_maintenance').select(`
                 created_at, nama_mesin, engineer_name,
                 maintenance_problems(description),
                 maintenance_actions(description),
                 maintenance_parts(nama_part, qty)
-            `)
-            .eq('nama_mesin', query)
-            .order('created_at', { ascending: true });
+            `).eq('nama_mesin', mesin);
+
+        if(bulan) {
+            // Filter range tanggal dalam bulan tersebut
+            const startDate = `${tahun}-${bulan}-01T00:00:00`;
+            const endDate = `${tahun}-${bulan}-31T23:59:59`;
+            query = query.gte('created_at', startDate).lte('created_at', endDate);
+        } else {
+            // Filter seluruh tahun tersebut
+            query = query.gte('created_at', `${tahun}-01-01`).lte('created_at', `${tahun}-12-31`);
+        }
+
+        const { data: reports, error } = await query.order('created_at', { ascending: true });
 
         if (error) return alert("Gagal: " + error.message);
         
@@ -317,9 +346,11 @@
                 `;
                 tbody.appendChild(tr);
             });
+        } else {
+            alert("Data tidak ditemukan untuk periode tersebut.");
         }
 
-        // Tambahkan baris kosong sisa agar tabel tetap memiliki 20 baris sesuai format asli
+        // Tetap paksa 20 baris agar format dokumen tidak rusak
         const remaining = 20 - (reports ? reports.length : 0);
         for (let i = 0; i < (remaining < 0 ? 0 : remaining); i++) {
             tbody.innerHTML += '<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td></tr>';
