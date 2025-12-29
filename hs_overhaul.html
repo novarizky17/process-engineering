@@ -56,7 +56,7 @@
         .section-label { font-weight: bold; margin-top: 15px; margin-bottom: 8px; display: block; }
         .dotted-item { display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px dotted #000; min-height: 22px; padding-bottom: 1px; margin-bottom: 4px; }
 
-        /* Tabel Part - Tindak Lanjut */
+        /* Tabel Part */
         .part-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 5px; }
         .part-table th, .part-table td { border: 1px solid black; padding: 5px; text-align: center; }
         .part-table th { font-size: 8.5pt; font-weight: bold; background-color: #f2f2f2; }
@@ -136,8 +136,7 @@
                 </tr>
             </table>
 
-            <div id="reportContent">
-                </div>
+            <div id="reportContent"></div>
 
             <div class="sig-grid">
                 <div class="sig-box">
@@ -251,8 +250,8 @@
 
                 <div class="mt-4">
                     <span class="section-label">Rekomendasi & Catatan :</span>
-                    <div class="border-b border-black min-h-[22px] mb-1 italic font-medium">${row.rekomendasi_catatan || ''}</div>
-                    <div class="border-b border-black min-h-[22px]"></div>
+                    <div class="border-b border-black min-h-[22px] mb-1 italic font-medium">Engineer: ${row.rekomendasi_catatan || ''}</div>
+                    <div class="border-b border-black min-h-[22px] italic font-medium text-blue-800">SPT: ${row.spt_notes || ''}</div>
                 </div>
             `;
 
