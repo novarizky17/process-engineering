@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History Overhaul & Maintenance</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f5f9; }
+        .table-hs th { background: #0f172a; color: white; text-transform: uppercase; font-size: 0.75rem; padding: 12px; }
+        .modal { 
+            display: none; 
+            position: fixed; 
+            z-index: 100; 
+            inset: 0; 
+            background: rgba(0,0,0,0.6); 
+            align-items: center; 
+            justify-content: center; 
+            padding: 1rem; 
+        }
+        .status-badge { padding: 2px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; }
+        .bg-approved { background: #dcfce7; color: #166534; }
+        .bg-pending { background: #fef9c3; color: #854d0e; }
+        @media print { .no-print { display: none !important; } .modal { position: relative; display: block; background: white; } }
+    </style>
+</head>
+<body>
+
+<header class="bg-[#0f172a] text-white p-4 flex justify-between items-center shadow-lg no-print">
+    <div class="flex items-center gap-4">
+        <button onclick="window.location.href='dashboard.html'" class="text-xs bg-slate-700 px-3 py-1.5 rounded">← DASHBOARD</button>
+        <h1 class="text-xl font-bold">HISTORY MAINTENANCE</h1>
+    </div>
+    <div class="flex gap-2">
+        <input type="text" id="searchMesin" placeholder="Cari Nama Mesin..." class="text-black px-3 py-1 rounded text-sm outline-none">
+        <button onclick="fetchHistory()" class="bg-blue-600 px-4 py-1.5 rounded font-bold text-xs hover:bg-blue-700">CARI DATA</button>
+    </div>
+</header>
+
+<div class="container mx-auto p-6 no-print">
+    <div class="bg-white rounded-xl shadow-md overflow-hidden border border-slate-200">
+        <table class="w-full text-left border-collapse table-hs">
+            <thead>
+                <tr>
+                    <th>Tanggal Input</th>
+                    <th>Nama Mesin / Tools</th>
+                    <th>Tipe Job</th>
+                    <th>Engineer</th>
+                    <th>Status</th>
+                    <th class="text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="historyTable">
+                <tr><td colspan="6" class="p-8 text-center text-slate-400">Memuat data riwayat...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modalDetail" class="modal">
+    <div class="bg-white w-full max-w-5xl rounded-xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
+        <div class="bg-slate-100 p-4 border-b flex justify-between items-center no-print">
+            <h2 class="font-bold text-slate-700 uppercase">Detail Laporan Maintenance</h2>
+            <div class="flex gap-2">
+                <button onclick="window.print()" class="bg-blue-700 text-white px-4 py-1 rounded text-xs font-bold">CETAK PDF</button>
+                <button onclick="closeModal()" class="text-2xl font-bold hover:text-red-500">&times;</button>
+            </div>
+        </div>
+        
+        <div class="p-8 overflow-y-auto" id="modalBody">
+            </div>
+
+        <div class="p-6 bg-slate-50 border-t grid grid-cols-3 gap-4 text-center">
+            <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Engineer</p>
+                <img id="view-sig-eng" class="h-20 mx-auto border bg-white p-1 rounded">
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Superintendent</p>
+                <img id="view-sig-spt" class="h-20 mx-auto border bg-white p-1 rounded">
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Manager</p>
+                <img id="view-sig-mn" class="h-20 mx-auto border bg-white p-1 rounded">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
+    const _sb = supabase.createClient(SB_URL, SB_KEY);
+
+    // Fungsi format waktu manual
+    function fmt(iso) {
+        if (!iso) return "-";
+        const p = iso.split('T');
+        if (p.length < 2) return iso;
+        const [y, m, d] = p[0].split('-');
+        return `${d}/${m}/${y} | ${p[1].substring(0, 5)}`;
+    }
+
+    async function fetchHistory() {
+        const search = document.getElementById('searchMesin').value;
+        let query = _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
+        
+        if(search) query = query.ilike('nama_mesin', `%${search}%`);
+
+        const { data, error } = await query;
+        const list = document.getElementById('historyTable');
+
+        if (data) {
+            list.innerHTML = data.map(row => `
+                <tr class="border-b hover:bg-slate-50 transition-colors text-sm">
+                    <td class="p-4 font-mono text-xs text-slate-500">${fmt(row.created_at)}</td>
+                    <td class="p-4 font-bold text-slate-700">${row.nama_mesin}</td>
+                    <td class="p-4">${row.job_type}</td>
+                    <td class="p-4">${row.engineer_name}</td>
+                    <td class="p-4"><span class="status-badge ${row.status === 'Final_Approved' ? 'bg-approved' : 'bg-pending'}">${row.status}</span></td>
+                    <td class="p-4 text-center">
+                        <button onclick='viewFull(${JSON.stringify(row)})' class="bg-slate-800 text-white px-4 py-1 rounded text-[10px] font-bold hover:bg-black transition shadow">DETAIL</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    async function viewFull(row) {
+        // Ambil detail masalah, tindakan, dan part
+        const { data: prob } = await _sb.from('maintenance_problems').select('*').eq('maintenance_id', row.id);
+        const { data: act } = await _sb.from('maintenance_actions').select('*').eq('maintenance_id', row.id);
+        const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
+
+        const body = document.getElementById('modalBody');
+        body.innerHTML = `
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 border bg-slate-50 p-4 rounded-lg">
+                <div><p class="text-[10px] text-slate-400 font-bold uppercase">Mesin</p><p class="font-black text-slate-800 text-lg">${row.nama_mesin}</p></div>
+                <div><p class="text-[10px] text-slate-400 font-bold uppercase">Tipe Job</p><p class="font-bold text-blue-700">${row.job_type}</p></div>
+                <div><p class="text-[10px] text-slate-400 font-bold uppercase">Pelaksana</p><p class="font-bold text-slate-800">${row.engineer_name}</p></div>
+                <div><p class="text-[10px] text-slate-400 font-bold uppercase">Waktu</p><p class="text-[10px] font-bold">${fmt(row.jam_mulai)} s/d ${fmt(row.jam_selesai)}</p></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <h3 class="font-bold text-slate-800 border-b-2 border-red-100 mb-2 text-xs uppercase">1. Diskripsi Masalah</h3>
+                    <ul class="text-sm space-y-1 text-slate-600 italic">
+                        ${prob.map(p => `<li>• ${p.description}</li>`).join('')}
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800 border-b-2 border-green-100 mb-2 text-xs uppercase">2. Tindakan Diambil</h3>
+                    <ul class="text-sm space-y-1 text-slate-600 italic">
+                        ${act.map(a => `<li>• ${a.description}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="font-bold text-slate-800 border-b-2 border-slate-100 mb-2 text-xs uppercase text-center">3. Kerusakan Part</h3>
+                <table class="w-full text-xs border">
+                    <tr class="bg-slate-50 uppercase text-slate-400">
+                        <th class="p-2 border">Part Name</th><th class="p-2 border text-center">Qty</th><th class="p-2 border text-center">Tindakan</th>
+                    </tr>
+                    ${part.map(pt => `<tr><td class="p-2 border font-medium">${pt.nama_part}</td><td class="p-2 border text-center">${pt.qty}</td><td class="p-2 border text-center">${pt.tindak_lanjut}</td></tr>`).join('')}
+                </table>
+            </div>
+
+            <div class="bg-yellow-50 p-4 border-l-4 border-yellow-400 italic text-sm text-slate-700">
+                <strong>Catatan/Rekomendasi:</strong><br>
+                ${row.rekomendasi_catatan || '-'}
+            </div>
+        `;
+
+        document.getElementById('view-sig-eng').src = row.signature_engineer || '';
+        document.getElementById('view-sig-spt').src = row.signature_superintendent || '';
+        document.getElementById('view-sig-mn').src = row.signature_manager || '';
+
+        document.getElementById('modalDetail').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('modalDetail').style.display = 'none'; }
+    window.onload = fetchHistory;
+</script>
+
+</body>
+</html>
