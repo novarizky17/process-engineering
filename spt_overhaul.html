@@ -11,7 +11,6 @@
         .sig-canvas { border: 2px dashed #003366; background: #fff; width: 100%; height: 160px; touch-action: none; cursor: crosshair; border-radius: 8px; }
         .table-custom th { background: #003366; color: white; text-transform: uppercase; font-size: 0.8rem; padding: 12px; }
         
-        /* Modal hidden secara default */
         .modal { 
             display: none; 
             position: fixed; 
@@ -31,10 +30,10 @@
 
 <header class="bg-[#003366] text-white p-4 flex justify-between items-center shadow-lg">
     <div class="flex items-center gap-4">
-        <button onclick="window.location.href='laporan.html'" class="text-sm bg-blue-800 px-3 py-1 rounded">← DASHBOARD</button>
-        <h1 class="text-xl font-bold">SUPERINTENDENT - APPROVAL SYSTEM</h1>
+        <button onclick="window.location.href='dashboard.html'" class="text-sm bg-blue-800 px-3 py-1 rounded hover:bg-blue-700 transition">← DASHBOARD</button>
+        <h1 class="text-xl font-bold uppercase tracking-tight">Superintendent - Approval System</h1>
     </div>
-    <button onclick="fetchLaporan()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 font-bold text-sm">REFRESH DATA</button>
+    <button onclick="fetchLaporan()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 font-bold text-sm shadow-md">REFRESH DATA</button>
 </header>
 
 <div class="container mx-auto p-6">
@@ -51,7 +50,7 @@
                 </tr>
             </thead>
             <tbody id="listLaporan">
-                <tr><td colspan="6" class="p-8 text-center text-gray-500">Memuat data laporan...</td></tr>
+                <tr><td colspan="6" class="p-8 text-center text-gray-500 italic">Memuat data laporan...</td></tr>
             </tbody>
         </table>
     </div>
@@ -60,25 +59,36 @@
 <div id="modalReview" class="modal">
     <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
         <div class="bg-slate-50 p-4 border-b flex justify-between items-center">
-            <h2 class="text-lg font-bold text-[#003366]">Detail Review Laporan</h2>
-            <button onclick="closeModal()" class="text-2xl font-bold hover:text-red-500">&times;</button>
+            <h2 class="text-lg font-bold text-[#003366]">Detail Review Laporan Maintenance</h2>
+            <button onclick="closeModal()" class="text-2xl font-bold hover:text-red-500 transition">&times;</button>
         </div>
         
-        <div class="p-6 overflow-y-auto" id="modalContent">
+        <div class="p-6 overflow-y-auto flex-grow" id="modalContent">
             </div>
 
-        <div id="approvalPanel" class="p-6 bg-slate-50 border-t" style="display: none;">
-            <p class="font-bold text-[#003366] mb-2 text-center uppercase">Tanda Tangan Superintendent / SPV</p>
-            <div class="relative">
-                <canvas id="sig-spt" class="sig-canvas mb-4"></canvas>
-                <button onclick="clearCanvas()" class="absolute top-2 right-2 text-xs bg-red-100 text-red-600 px-2 py-1 rounded shadow-sm">Reset</button>
+        <div id="approvalPanel" class="p-6 bg-slate-50 border-t shadow-inner" style="display: none;">
+            <div class="mb-4">
+                <label class="block text-sm font-bold text-[#003366] uppercase mb-2">Catatan / Rekomendasi Superintendent:</label>
+                <textarea id="spt_notes" class="w-full border-2 border-slate-200 rounded-lg p-3 text-sm focus:border-blue-500 outline-none transition-all" rows="3" placeholder="Tuliskan instruksi atau hasil evaluasi di sini..."></textarea>
             </div>
-            <button onclick="processApproval()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold text-lg hover:bg-green-700 shadow-lg transition-all">APPROVE & SELESAIKAN</button>
+
+            <p class="font-bold text-[#003366] mb-2 text-center uppercase text-xs">Tanda Tangan Superintendent / SPV</p>
+            <div class="relative">
+                <canvas id="sig-spt" class="sig-canvas mb-4 shadow-sm"></canvas>
+                <button onclick="clearCanvas()" class="absolute top-2 right-2 text-xs bg-red-100 text-red-600 px-3 py-1 rounded-md shadow-sm font-bold">RESET</button>
+            </div>
+            <button onclick="processApproval()" class="w-full bg-green-600 text-white py-3 rounded-xl font-black text-lg hover:bg-green-700 shadow-xl transform active:scale-95 transition-all uppercase">APPROVE & SELESAIKAN</button>
         </div>
 
         <div id="historyPanel" class="p-6 bg-green-50 border-t text-center" style="display: none;">
-            <p class="text-green-700 font-bold uppercase mb-2">Laporan Ini Telah Disetujui</p>
-            <img id="view-sig-spt" class="h-24 mx-auto border border-green-200 bg-white p-2 rounded" alt="TTD SPT">
+            <div class="max-w-md mx-auto">
+                <p class="text-green-700 font-black uppercase mb-1 text-sm tracking-widest">Laporan Telah Disetujui</p>
+                <div class="bg-white p-3 rounded-lg border border-green-200 shadow-sm mb-4 text-left">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Catatan SPT:</p>
+                    <p id="view_spt_notes" class="text-sm italic text-slate-600"></p>
+                </div>
+                <img id="view-sig-spt" class="h-24 mx-auto border-2 border-green-200 bg-white p-2 rounded-lg shadow-md" alt="TTD SPT">
+            </div>
         </div>
     </div>
 </div>
@@ -91,42 +101,37 @@
     let currentId = null;
     let canvas, ctx, drawing = false;
 
-    // FUNGSI FIX JAM: Memproses teks mentah tanpa konversi Date agar jam tidak berubah
     function formatIndoTime(isoString) {
         if (!isoString) return "-";
         try {
             const parts = isoString.split('T');
             if (parts.length < 2) return isoString;
-
-            const datePart = parts[0]; 
-            const timePart = parts[1].substring(0, 5); 
-
-            const [y, m, d] = datePart.split('-');
-            return `${d}/${m}/${y} | ${timePart}`;
-        } catch (e) {
-            return isoString;
-        }
+            const [y, m, d] = parts[0].split('-');
+            return `${d}/${m}/${y} | ${parts[1].substring(0, 5)}`;
+        } catch (e) { return isoString; }
     }
 
     async function fetchLaporan() {
         const { data, error } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
         const list = document.getElementById('listLaporan');
         
-        if (data.length === 0) {
-            list.innerHTML = '<tr><td colspan="6" class="p-8 text-center">Belum ada laporan.</td></tr>';
+        if (data && data.length === 0) {
+            list.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-400 italic">Belum ada laporan masuk.</td></tr>';
             return;
         }
 
-        list.innerHTML = data.map(row => `
-            <tr class="border-b hover:bg-slate-50 transition-colors text-sm">
-                <td class="p-4">${formatIndoTime(row.created_at)}</td>
-                <td class="p-4 font-bold text-slate-700">${row.nama_mesin || '-'}</td>
-                <td class="p-4">${row.job_type || '-'}</td>
-                <td class="p-4">${row.engineer_name || '-'}</td>
-                <td class="p-4"><span class="status-badge ${row.status === 'Approved' ? 'approved' : 'pending'}">${row.status}</span></td>
-                <td class="p-4"><button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1.5 rounded-md text-xs font-bold hover:bg-blue-800 transition-all shadow">REVIEW</button></td>
-            </tr>
-        `).join('');
+        if (data) {
+            list.innerHTML = data.map(row => `
+                <tr class="border-b hover:bg-slate-50 transition-colors text-sm">
+                    <td class="p-4 font-medium text-slate-500">${formatIndoTime(row.created_at)}</td>
+                    <td class="p-4 font-bold text-slate-700 uppercase">${row.nama_mesin || '-'}</td>
+                    <td class="p-4 font-semibold text-blue-700">${row.job_type || '-'}</td>
+                    <td class="p-4 font-medium">${row.engineer_name || '-'}</td>
+                    <td class="p-4"><span class="status-badge ${row.status === 'Approved' ? 'approved' : 'pending'}">${row.status}</span></td>
+                    <td class="p-4"><button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1.5 rounded-md text-xs font-bold hover:bg-blue-800 transition-all shadow-md">REVIEW</button></td>
+                </tr>
+            `).join('');
+        }
     }
 
     async function openReview(row) {
@@ -138,37 +143,37 @@
         const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
 
         cont.innerHTML = `
-            <div class="grid grid-cols-2 gap-4 mb-6 border bg-slate-50 p-4 rounded-lg">
-                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Mesin / Equipment</p><p class="font-bold text-[#003366] text-lg">${row.nama_mesin}</p></div>
-                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Tipe Pekerjaan</p><p class="font-bold text-blue-700 text-lg">${row.job_type}</p></div>
-                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Engineer</p><p class="font-bold">${row.engineer_name}</p></div>
-                <div><p class="text-[10px] text-gray-500 uppercase font-bold">Waktu Pengerjaan</p>
-                     <p class="text-sm font-semibold text-slate-700">${formatIndoTime(row.jam_mulai)} <span class="text-blue-500 mx-1">s/d</span> ${formatIndoTime(row.jam_selesai)}</p>
+            <div class="grid grid-cols-2 gap-4 mb-6 border bg-slate-50 p-4 rounded-xl shadow-sm">
+                <div><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Mesin / Equipment</p><p class="font-bold text-[#003366] text-lg uppercase">${row.nama_mesin}</p></div>
+                <div><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Tipe Pekerjaan</p><p class="font-bold text-blue-700 text-lg uppercase">${row.job_type}</p></div>
+                <div><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Engineer</p><p class="font-bold uppercase">${row.engineer_name}</p></div>
+                <div><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Periode Kerja</p>
+                     <p class="text-xs font-bold text-slate-700">${formatIndoTime(row.jam_mulai)} <span class="text-blue-500">s/d</span> ${formatIndoTime(row.jam_selesai)}</p>
                 </div>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div><p class="font-bold text-[#003366] border-b-2 border-blue-100 mb-2 pb-1">Deskripsi Masalah:</p>
-                     <ul class="list-disc pl-5 text-sm space-y-1">${prob.length ? prob.map(p => `<li>${p.description}</li>`).join('') : '<li class="italic text-gray-400">N/A</li>'}</ul>
+                <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm"><p class="font-bold text-[#003366] border-b mb-2 pb-1 text-sm">1. DESKRIPSI MASALAH:</p>
+                     <ul class="list-disc pl-5 text-xs space-y-1 italic text-slate-600">${prob.length ? prob.map(p => `<li>${p.description}</li>`).join('') : '<li>N/A</li>'}</ul>
                 </div>
-                <div><p class="font-bold text-[#003366] border-b-2 border-blue-100 mb-2 pb-1">Tindakan Diambil:</p>
-                     <ul class="list-disc pl-5 text-sm space-y-1">${act.length ? act.map(a => `<li>${a.description}</li>`).join('') : '<li class="italic text-gray-400">N/A</li>'}</ul>
+                <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm"><p class="font-bold text-[#003366] border-b mb-2 pb-1 text-sm">2. TINDAKAN DIABIL:</p>
+                     <ul class="list-disc pl-5 text-xs space-y-1 italic text-slate-600">${act.length ? act.map(a => `<li>${a.description}</li>`).join('') : '<li>N/A</li>'}</ul>
                 </div>
             </div>
             
-            <div class="mb-6">
-                <p class="font-bold text-[#003366] border-b-2 border-blue-100 mb-2 pb-1">Penggantian Suku Cadang:</p>
+            <div class="mb-6 bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
+                <p class="font-bold text-[#003366] border-b mb-2 pb-1 text-sm">3. PENGGANTIAN SUKU CADANG:</p>
                 <div class="overflow-x-auto border rounded-lg">
-                    <table class="w-full text-xs text-left">
+                    <table class="w-full text-[11px] text-left">
                         <thead class="bg-slate-50"><tr><th class="p-2 border-b">Part Name</th><th class="p-2 border-b text-center">Qty</th><th class="p-2 border-b text-center">Tindakan</th></tr></thead>
-                        <tbody>${part.length ? part.map(pt => `<tr class="border-b"><td class="p-2">${pt.nama_part}</td><td class="p-2 text-center">${pt.qty}</td><td class="p-2 text-center"><span class="bg-gray-100 px-2 py-0.5 rounded">${pt.tindak_lanjut}</span></td></tr>`).join('') : '<tr><td colspan="3" class="p-4 text-center italic text-gray-400">Tidak ada penggantian part</td></tr>'}</tbody>
+                        <tbody>${part.length ? part.map(pt => `<tr class="border-b"><td class="p-2 font-medium uppercase">${pt.nama_part}</td><td class="p-2 text-center font-bold text-blue-600">${pt.qty}</td><td class="p-2 text-center"><span class="bg-slate-100 px-2 py-0.5 rounded-full font-bold text-[9px] uppercase">${pt.tindak_lanjut}</span></td></tr>`).join('') : '<tr><td colspan="3" class="p-4 text-center italic text-gray-400">Tidak ada penggantian part</td></tr>'}</tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="bg-yellow-50 p-4 border-l-4 border-yellow-400 rounded-r-lg">
-                <p class="text-[10px] font-bold text-yellow-700 uppercase mb-1">Rekomendasi & Catatan Engineer:</p>
-                <p class="text-sm italic text-gray-700">${row.rekomendasi_catatan || 'Tidak ada catatan.'}</p>
+            <div class="bg-yellow-50 p-4 border-l-4 border-yellow-400 rounded shadow-sm">
+                <p class="text-[10px] font-black text-yellow-700 uppercase mb-1 tracking-tighter">Rekomendasi & Catatan Engineer:</p>
+                <p class="text-sm italic text-slate-700 font-medium">"${row.rekomendasi_catatan || 'Tidak ada catatan.'}"</p>
             </div>
         `;
         
@@ -178,29 +183,46 @@
         
         if (!isPending) {
             document.getElementById('view-sig-spt').src = row.signature_superintendent || '';
+            document.getElementById('view_spt_notes').innerText = row.spt_notes || "Tidak ada catatan SPT.";
+        } else {
+            document.getElementById('spt_notes').value = ""; // Reset input catatan
         }
 
         document.getElementById('modalReview').style.display = 'flex';
         
-        // Inisialisasi canvas setelah modal muncul
+        // Inisialisasi Canvas
         canvas = document.getElementById('sig-spt');
         ctx = canvas.getContext('2d');
         setTimeout(() => {
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
             ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
-        }, 50);
+        }, 100);
     }
 
     async function processApproval() {
         const signature = canvas.toDataURL();
+        const notes = document.getElementById('spt_notes').value;
         const blank = document.createElement('canvas');
         blank.width = canvas.width; blank.height = canvas.height;
+        
         if (signature === blank.toDataURL()) return alert("Tanda tangan Superintendent wajib diisi!");
 
-        const { error } = await _sb.from('laporan_maintenance').update({ status: 'Approved', signature_superintendent: signature }).eq('id', currentId);
-        if (!error) { alert("Laporan Berhasil Disetujui!"); closeModal(); fetchLaporan(); }
-        else { alert("Gagal: " + error.message); }
+        const { error } = await _sb.from('laporan_maintenance')
+            .update({ 
+                status: 'Approved', 
+                signature_superintendent: signature,
+                spt_notes: notes 
+            })
+            .eq('id', currentId);
+
+        if (!error) { 
+            alert("Approval Berhasil Disimpan!"); 
+            closeModal(); 
+            fetchLaporan(); 
+        } else { 
+            alert("Gagal: " + error.message); 
+        }
     }
 
     function clearCanvas() { if(ctx) ctx.clearRect(0,0,canvas.width,canvas.height); }
