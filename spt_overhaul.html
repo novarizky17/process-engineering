@@ -8,20 +8,26 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f5f9; }
-        .sig-canvas { border: 2px dashed #ccc; background: #fff; width: 100%; height: 150px; touch-action: none; cursor: crosshair; }
+        .sig-canvas { border: 2px dashed #003366; background: #fff; width: 100%; height: 160px; touch-action: none; cursor: crosshair; border-radius: 8px; }
         .table-custom th { background: #003366; color: white; text-transform: uppercase; font-size: 0.8rem; padding: 12px; }
-        .modal { display: none; position: fixed; z-index: 50; inset: 0; background: rgba(0,0,0,0.5); overflow-y: auto; }
+        .modal { display: none; position: fixed; z-index: 50; inset: 0; background: rgba(0,0,0,0.6); overflow-y: auto; }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .approved { background: #d4edda; color: #155724; }
+        .pending { background: #fff3cd; color: #856404; }
     </style>
 </head>
 <body>
 
 <header class="bg-[#003366] text-white p-4 flex justify-between items-center shadow-lg">
-    <h1 class="text-xl font-bold">SUPERINTENDENT - APPROVAL MAINTENANCE</h1>
+    <div class="flex items-center gap-4">
+        <button onclick="window.location.href='dashboard.html'" class="text-sm bg-blue-800 px-3 py-1 rounded">← DASHBOARD</button>
+        <h1 class="text-xl font-bold">SUPERINTENDENT - APPROVAL SYSTEM</h1>
+    </div>
     <button onclick="fetchLaporan()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 font-bold text-sm">REFRESH DATA</button>
 </header>
 
 <div class="container mx-auto p-6">
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
         <table class="w-full text-left border-collapse table-custom">
             <thead>
                 <tr>
@@ -34,29 +40,34 @@
                 </tr>
             </thead>
             <tbody id="listLaporan">
-                <tr><td colspan="6" class="p-4 text-center">Memuat data...</td></tr>
+                <tr><td colspan="6" class="p-8 text-center text-gray-500">Memuat data laporan...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <div id="modalReview" class="modal flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-        <div class="bg-slate-100 p-4 border-bottom flex justify-between items-center">
-            <h2 class="text-lg font-bold text-[#003366]">Detail Laporan Perawatan</h2>
-            <button onclick="closeModal()" class="text-2xl font-bold">&times;</button>
+    <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
+        <div class="bg-slate-50 p-4 border-b flex justify-between items-center">
+            <h2 class="text-lg font-bold text-[#003366]">Detail Review Laporan</h2>
+            <button onclick="closeModal()" class="text-2xl font-bold hover:text-red-500">&times;</button>
         </div>
         
         <div class="p-6 overflow-y-auto" id="modalContent">
             </div>
 
-        <div class="p-6 bg-slate-50 border-t">
-            <p class="font-bold mb-2">Tanda Tangan Superintendent / SPV:</p>
-            <canvas id="sig-spt" class="sig-canvas mb-4"></canvas>
-            <div class="flex gap-4">
-                <button onclick="clearCanvas()" class="bg-gray-500 text-white px-6 py-2 rounded font-bold">Hapus TTD</button>
-                <button onclick="processApproval()" class="flex-grow bg-green-600 text-white px-6 py-2 rounded font-bold hover:bg-green-700">SETUJUI (APPROVE)</button>
+        <div id="approvalPanel" class="p-6 bg-slate-50 border-t" style="display: none;">
+            <p class="font-bold text-[#003366] mb-2 text-center uppercase">Tanda Tangan Superintendent / SPV</p>
+            <div class="relative">
+                <canvas id="sig-spt" class="sig-canvas mb-4"></canvas>
+                <button onclick="clearCanvas()" class="absolute top-2 right-2 text-xs bg-red-100 text-red-600 px-2 py-1 rounded">Reset</button>
             </div>
+            <button onclick="processApproval()" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold text-lg hover:bg-green-700 shadow-lg transition-all">APPROVE & SELESAIKAN</button>
+        </div>
+
+        <div id="historyPanel" class="p-6 bg-green-50 border-t text-center" style="display: none;">
+            <p class="text-green-700 font-bold uppercase mb-2">Laporan Ini Telah Disetujui</p>
+            <img id="view-sig-spt" class="h-24 mx-auto border border-green-200 bg-white p-2 rounded" alt="TTD SPT">
         </div>
     </div>
 </div>
@@ -71,24 +82,23 @@
     const ctx = canvas.getContext('2d');
     let drawing = false;
 
-    // Fetch Laporan yang statusnya 'Maintenance_Done'
     async function fetchLaporan() {
         const { data, error } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
         const list = document.getElementById('listLaporan');
         
         if (data.length === 0) {
-            list.innerHTML = '<tr><td colspan="6" class="p-4 text-center">Tidak ada laporan masuk.</td></tr>';
+            list.innerHTML = '<tr><td colspan="6" class="p-8 text-center">Belum ada laporan terekam.</td></tr>';
             return;
         }
 
         list.innerHTML = data.map(row => `
-            <tr class="border-b hover:bg-slate-50">
-                <td class="p-4">${new Date(row.created_at).toLocaleDateString('id-ID')}</td>
-                <td class="p-4 font-bold">${row.nama_mesin}</td>
-                <td class="p-4">${row.job_type}</td>
-                <td class="p-4">${row.engineer_name}</td>
-                <td class="p-4"><span class="px-2 py-1 rounded text-[10px] font-bold ${row.status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}">${row.status}</span></td>
-                <td class="p-4"><button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-3 py-1 rounded text-xs">REVIEW</button></td>
+            <tr class="border-b hover:bg-slate-50 transition-colors">
+                <td class="p-4 text-sm">${new Date(row.created_at).toLocaleDateString('id-ID')}</td>
+                <td class="p-4 font-bold text-slate-700">${row.nama_mesin}</td>
+                <td class="p-4 text-sm">${row.job_type}</td>
+                <td class="p-4 text-sm">${row.engineer_name}</td>
+                <td class="p-4"><span class="status-badge ${row.status === 'Approved' ? 'approved' : 'pending'}">${row.status === 'Approved' ? 'Approved' : 'Pending'}</span></td>
+                <td class="p-4"><button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1.5 rounded-md text-xs font-bold hover:bg-blue-800 transition-all shadow">REVIEW</button></td>
             </tr>
         `).join('');
     }
@@ -97,49 +107,60 @@
         currentId = row.id;
         const cont = document.getElementById('modalContent');
         
-        // Ambil data relasi (Masalah, Tindakan, Parts)
         const { data: prob } = await _sb.from('maintenance_problems').select('*').eq('maintenance_id', row.id);
         const { data: act } = await _sb.from('maintenance_actions').select('*').eq('maintenance_id', row.id);
         const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
 
         cont.innerHTML = `
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div><p class="text-xs text-gray-500 uppercase">Mesin/Equipment</p><p class="font-bold">${row.nama_mesin}</p></div>
-                <div><p class="text-xs text-gray-500 uppercase">Tipe Pekerjaan</p><p class="font-bold text-blue-700">${row.job_type}</p></div>
-                <div><p class="text-xs text-gray-500 uppercase">Engineer</p><p class="font-bold">${row.engineer_name}</p></div>
-                <div><p class="text-xs text-gray-500 uppercase">Waktu</p><p class="text-sm">${row.jam_mulai} s/d ${row.jam_selesai}</p></div>
+            <div class="grid grid-cols-2 gap-6 mb-8 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <div><p class="text-[10px] text-gray-500 uppercase tracking-widest">Mesin / Equipment</p><p class="font-bold text-lg">${row.nama_mesin}</p></div>
+                <div><p class="text-[10px] text-gray-500 uppercase tracking-widest">Tipe Pekerjaan</p><p class="font-bold text-blue-700">${row.job_type}</p></div>
+                <div><p class="text-[10px] text-gray-500 uppercase tracking-widest">Engineer</p><p class="font-bold">${row.engineer_name}</p></div>
+                <div><p class="text-[10px] text-gray-500 uppercase tracking-widest">Waktu Pengerjaan</p><p class="text-sm font-medium">${row.jam_mulai.replace('T', ' ')} s/d ${row.jam_selesai.replace('T', ' ')}</p></div>
             </div>
             
-            <div class="mb-4"><p class="font-bold border-b mb-2">Masalah:</p><ul class="list-disc pl-5 text-sm">${prob.map(p => `<li>${p.description}</li>`).join('')}</ul></div>
-            <div class="mb-4"><p class="font-bold border-b mb-2">Tindakan:</p><ul class="list-disc pl-5 text-sm">${act.map(a => `<li>${a.description}</li>`).join('')}</ul></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div><p class="font-bold text-[#003366] border-b-2 border-blue-100 mb-2 pb-1">Deskripsi Masalah:</p><ul class="space-y-1 text-sm">${prob.length ? prob.map(p => `<li class="flex items-start gap-2"><span>•</span>${p.description}</li>`).join('') : '<li class="italic text-gray-400">N/A</li>'}</ul></div>
+                <div><p class="font-bold text-[#003366] border-b-2 border-blue-100 mb-2 pb-1">Tindakan Diambil:</p><ul class="space-y-1 text-sm">${act.length ? act.map(a => `<li class="flex items-start gap-2"><span>•</span>${a.description}</li>`).join('') : '<li class="italic text-gray-400">N/A</li>'}</ul></div>
+            </div>
             
-            <div class="mb-4">
-                <p class="font-bold border-b mb-2">Suku Cadang (Parts):</p>
-                <table class="w-full text-xs border">
-                    <tr class="bg-gray-100"><th>Part Name</th><th>Qty</th><th>Tindakan</th></tr>
-                    ${part.map(pt => `<tr><td class="border p-1">${pt.nama_part}</td><td class="border p-1 text-center">${pt.qty}</td><td class="border p-1 text-center">${pt.tindak_lanjut}</td></tr>`).join('')}
-                </table>
+            <div class="mb-6">
+                <p class="font-bold text-[#003366] border-b-2 border-blue-100 mb-2 pb-1">Penggantian Suku Cadang:</p>
+                <div class="overflow-x-auto border rounded-lg">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-slate-50"><tr><th class="p-2">Part Name</th><th class="p-2 text-center">Qty</th><th class="p-2 text-center">Tindakan</th></tr></thead>
+                        <tbody>${part.length ? part.map(pt => `<tr class="border-t"><td class="p-2 font-medium">${pt.nama_part}</td><td class="p-2 text-center">${pt.qty}</td><td class="p-2 text-center"><span class="bg-gray-100 px-2 py-0.5 rounded">${pt.tindak_lanjut}</span></td></tr>`).join('') : '<tr><td colspan="3" class="p-4 text-center italic text-gray-400">Tidak ada penggantian part</td></tr>'}</tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400">
-                <p class="text-xs font-bold uppercase">Rekomendasi Engineer:</p>
-                <p class="text-sm italic">${row.rekomendasi_catatan || '-'}</p>
+            <div class="bg-yellow-50 p-4 border-l-4 border-yellow-400 rounded-r-lg">
+                <p class="text-[10px] font-bold text-yellow-700 uppercase mb-1">Rekomendasi & Catatan Engineer:</p>
+                <p class="text-sm italic text-gray-700">${row.rekomendasi_catatan || 'Tidak ada catatan tambahan.'}</p>
             </div>
         `;
         
+        // LOGIKA PENYEMBUNYIAN TTD
+        const isPending = row.status !== 'Approved';
+        document.getElementById('approvalPanel').style.display = isPending ? 'block' : 'none';
+        document.getElementById('historyPanel').style.display = isPending ? 'none' : 'block';
+        
+        if (!isPending) {
+            document.getElementById('view-sig-spt').src = row.signature_superintendent || '';
+        }
+
         document.getElementById('modalReview').style.display = 'flex';
         resizeCanvas();
     }
 
-    // Approval Process
     async function processApproval() {
         const signature = canvas.toDataURL();
         const blank = document.createElement('canvas');
         blank.width = canvas.width; blank.height = canvas.height;
-        if (signature === blank.toDataURL()) return alert("Tanda tangan Superintendent wajib diisi!");
+        if (signature === blank.toDataURL()) return alert("Tanda tangan Superintendent wajib diisi untuk menyetujui!");
 
         const { error } = await _sb.from('laporan_maintenance')
-            .update({ status: 'Approved', signature_superintendent: signature }) // Pastikan kolom ini ada di SQL
+            .update({ status: 'Approved', signature_superintendent: signature })
             .eq('id', currentId);
 
         if (!error) {
@@ -147,14 +168,14 @@
             closeModal();
             fetchLaporan();
         } else {
-            alert("Error: " + error.message);
+            alert("Terjadi Kesalahan: " + error.message);
         }
     }
 
-    // Signature Logic
-    function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+    // Canvas Utilities
+    function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#000'; }
     function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-    function getP(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top }; }
+    function getP(e) { const r = canvas.getBoundingClientRect(); const x = (e.clientX || e.touches[0].clientX) - r.left; const y = (e.clientY || e.touches[0].clientY) - r.top; return { x: x * (canvas.width/r.width), y: y * (canvas.height/r.height) }; }
     canvas.onmousedown = (e) => { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); };
     canvas.onmousemove = (e) => { if(!drawing) return; const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); };
     window.onmouseup = () => drawing=false;
