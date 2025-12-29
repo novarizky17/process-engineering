@@ -10,37 +10,36 @@
         body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f9; color: #000; }
         .container { width: 277mm; margin: 20px auto; padding: 5mm 12mm; box-sizing: border-box; background: white; border: 1px solid #000; }
         
-        /* Area Pencarian (Hanya muncul di layar, tidak saat print) */
+        /* Area Navigasi & Pencarian (Hanya di layar) */
         .search-area { background: #1e293b; padding: 15px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; border-radius: 4px; }
-        .search-input { flex-grow: 1; padding: 8px; text-transform: uppercase; border: 1px solid #ccc; }
+        .search-input { flex-grow: 1; padding: 8px; text-transform: uppercase; border: 1px solid #ccc; font-weight: bold; }
         .btn-action { background: #3b82f6; color: white; border: none; padding: 8px 20px; cursor: pointer; font-weight: bold; }
 
-        /* Header Dokumen Sesuai Gambar Asli */
+        /* Header Dokumen */
         .header { position: relative; margin-bottom: 10px; height: 50px; border-bottom: 2px solid #000; }
         .logo-area { display: flex; align-items: center; gap: 10px; position: absolute; left: 0; top: 0; }
         .logo { width: 85px; height: auto; }
         .company-name { font-size: 12px; font-weight: bold; }
         .title { font-size: 22px; font-weight: bold; text-align: center; width: 100%; margin: 0; }
         
-        /* Meta Section Sesuai Gambar AF.SP 05.18 */
+        /* Meta Info Sesuai image_54aca2.png */
         .meta-section { display: flex; justify-content: space-between; margin-bottom: 15px; margin-top: 10px; }
         .machine-info div { margin-bottom: 3px; font-size: 10pt; }
         .label { font-weight: bold; display: inline-block; width: 140px; }
-        .doc-info { font-size: 10pt; line-height: 1.4; }
+        .doc-info { font-size: 10pt; line-height: 1.4; text-align: left; }
 
-        /* Tabel Utama Sesuai Gambar */
+        /* Tabel Utama */
         .main-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .main-table th, .main-table td { border: 1px solid black; padding: 5px; font-size: 9pt; text-align: center; }
         .main-table th { background-color: #f0f0f0; font-weight: bold; }
         
-        /* Tanda Tangan Sesuai Gambar */
-        .sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 1px solid black; margin-top: 20px; }
-        .sig-box { border-right: 1px solid black; text-align: center; min-height: 100px; display: flex; flex-direction: column; }
-        .sig-box:last-child { border-right: none; }
-        .sig-header { font-weight: bold; border-bottom: 1px solid black; padding: 5px; font-size: 10pt; }
-        .sig-space { flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 5px; }
-        .sig-space img { max-height: 60px; }
-        .sig-footer { font-weight: bold; border-top: 1px solid black; padding: 5px; font-size: 9pt; text-transform: uppercase; }
+        /* Area Tanda Tangan Sesuai image_5c44e2.png */
+        .sig-table { width: 100%; border-collapse: collapse; border: 1px solid black; margin-top: 20px; }
+        .sig-table td { border: 1px solid black; text-align: center; width: 33.33%; vertical-align: middle; }
+        .sig-header { font-weight: bold; padding: 5px; font-size: 10pt; height: 25px; }
+        .sig-space { height: 80px; display: flex; align-items: center; justify-content: center; padding: 5px; }
+        .sig-space img { max-height: 70px; }
+        .sig-footer { font-weight: bold; padding: 5px; font-size: 9pt; height: 25px; text-transform: uppercase; }
 
         @media print { 
             .no-print { display: none !important; } 
@@ -53,9 +52,9 @@
 
 <div class="container">
     <div class="search-area no-print">
-        <input type="text" id="input_search" class="search-input" placeholder="MASUKKAN NAMA MESIN...">
-        <button onclick="searchData()" class="btn-action">CARI RIWAYAT</button>
-        <button onclick="window.print()" class="btn-action" style="background:#10b981">CETAK</button>
+        <input type="text" id="input_search" class="search-input" placeholder="MASUKKAN NAMA MESIN UNTUK MENGISI KARTU RIWAYAT...">
+        <button onclick="searchData()" class="btn-action">CARI DATA</button>
+        <button onclick="window.print()" class="btn-action" style="background:#10b981">CETAK (PDF)</button>
         <button onclick="window.location.href='laporan.html'" class="btn-action" style="background:#64748b">KEMBALI</button>
     </div>
 
@@ -69,16 +68,16 @@
 
     <div class="meta-section">
         <div class="machine-info">
-            <div><span class="label">NAMA MESIN</span> : <span id="v_nama">-</span></div>
+            <div><span class="label">NAMA MESIN</span> : <span id="v_nama" style="font-weight: bold;">-</span></div>
             <div><span class="label">NO. MESIN</span> : <span id="v_no">-</span></div>
             <div><span class="label">TAHUN PEMBUATAN</span> : <span id="v_thn">-</span></div>
             <div><span class="label">LOKASI MESIN</span> : <span id="v_lok">-</span></div>
         </div>
         <div class="doc-info">
-            <div><b>No Dokumen</b> : AF.SP 05.18.Rev-00</div>
-            <div><b>Tanggal Terbit</b> : 02 Agustus 2024</div>
-            <div><b>Halaman</b> : 1/1</div>
-            <div><b>Tanggal Revisi</b> : -</div>
+            <div><b>No Dokumen</b><span style="margin-left: 28px;">: AF.SP 05.18.Rev-00</span></div>
+            <div><b>Tanggal Terbit</b><span style="margin-left: 20px;">: 02 Agustus 2024</span></div>
+            <div><b>Halaman</b><span style="margin-left: 45px;">: 1/1</span></div>
+            <div><b>Tanggal Revisi</b><span style="margin-left: 17px;">: -</span></div>
         </div>
     </div>
 
@@ -94,26 +93,27 @@
             </tr>
         </thead>
         <tbody id="contentTable">
-            </tbody>
+            <tr><td colspan="6" style="height: 300px; color: #ccc;">Cari Nama Mesin untuk menampilkan riwayat otomatis...</td></tr>
+        </tbody>
     </table>
 
-    <div class="sig-grid">
-        <div class="sig-box">
-            <div class="sig-header">DIBUAT</div>
-            <div class="sig-space"><img id="s_eng"></div>
-            <div class="sig-footer" id="n_eng">PIC</div>
-        </div>
-        <div class="sig-box">
-            <div class="sig-header">DIKETAHUI</div>
-            <div class="sig-space"><img id="s_spt"></div>
-            <div class="sig-footer">SPV / SUPERINTENDENT</div>
-        </div>
-        <div class="sig-box">
-            <div class="sig-header">DISETUJUI</div>
-            <div class="sig-space"><img id="s_mn"></div>
-            <div class="sig-footer">MANAGER</div>
-        </div>
-    </div>
+    <table class="sig-table">
+        <tr>
+            <td class="sig-header">DIBUAT</td>
+            <td class="sig-header">DIKETAHUI</td>
+            <td class="sig-header">DISETUJUI</td>
+        </tr>
+        <tr>
+            <td class="sig-space"><img id="s_eng"></td>
+            <td class="sig-space"><img id="s_spt"></td>
+            <td class="sig-space"><img id="s_mn"></td>
+        </tr>
+        <tr>
+            <td class="sig-footer" id="n_eng">PIC</td>
+            <td class="sig-footer">SPV / SUPERINTENDENT</td>
+            <td class="sig-footer">MANAGER</td>
+        </tr>
+    </table>
 </div>
 
 <script>
@@ -139,18 +139,23 @@
                     <td style="text-align:left">${row.maintenance_actions.map(a => a.description).join(', ')}</td>
                     <td style="text-align:left">${row.maintenance_parts.map(pt => pt.nama_part).join(', ')}</td>
                     <td>-</td>
-                    <td>${row.engineer_name}</td>
+                    <td style="font-weight: bold;">${row.engineer_name}</td>
                 </tr>
             `).join('');
             
-            // Isi Tanda Tangan Terakhir
+            // Mengisi baris kosong tambahan jika data sedikit
+            for(let i = res.length; i < 10; i++) {
+                tbody.innerHTML += `<tr><td style="height:25px"></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+            }
+
+            // Menampilkan Tanda Tangan Terakhir yang terekam
             const last = res[res.length - 1];
             document.getElementById('s_eng').src = last.signature_engineer || '';
             document.getElementById('n_eng').innerText = last.engineer_name || 'PIC';
             document.getElementById('s_spt').src = last.signature_superintendent || '';
             document.getElementById('s_mn').src = last.signature_manager || '';
         } else {
-            alert("Data tidak ditemukan");
+            alert("Data untuk mesin tersebut tidak ditemukan.");
         }
     }
 </script>
