@@ -37,8 +37,8 @@
         .view-label { width: 230px; flex-shrink: 0; }
         .view-line { border-bottom: 1px solid black; flex-grow: 1; padding: 0 5px; font-weight: normal; }
         
-        /* Checkbox Box Sesuai Gambar */
-        .check-box { 
+        /* Kotak Kosong Samping Teks */
+        .empty-box { 
             width: 14px; 
             height: 14px; 
             border: 1.2px solid black; 
@@ -46,29 +46,28 @@
             align-items: center; 
             justify-content: center; 
             background: white; 
-            margin-right: 4px; 
-            font-size: 8pt; 
-            font-weight: bold; 
-            line-height: 1;
+            margin-right: 6px; 
+            font-size: 9pt;
+            font-weight: bold;
         }
         
         .section-label { font-weight: bold; margin-top: 15px; margin-bottom: 8px; display: block; }
         .dotted-item { display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px dotted #000; min-height: 22px; padding-bottom: 1px; margin-bottom: 4px; }
 
-        /* Tabel Part - Sesuai Gambar */
+        /* Tabel Part */
         .part-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 5px; }
         .part-table th, .part-table td { border: 1px solid black; padding: 4px; text-align: center; }
-        .part-table th { font-size: 8.5pt; font-weight: bold; background-color: #fff; }
-        .tindak-lanjut-grid { display: flex; justify-content: space-around; align-items: center; width: 100%; font-size: 8pt; }
+        .part-table th { font-size: 9pt; font-weight: bold; background-color: #f2f2f2; }
+        .tindak-lanjut-container { display: flex; justify-content: flex-start; align-items: center; gap: 15px; padding-left: 10px; }
 
         /* Grid Tanda Tangan */
         .sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 2px solid black; margin-top: 30px; }
-        .sig-box { border-right: 2px solid black; text-align: center; display: flex; flex-direction: column; }
+        .sig-box { border-right: 2px solid black; text-align: center; display: flex; flex-direction: column; min-height: 120px; }
         .sig-box:last-child { border-right: none; }
-        .sig-header { font-weight: bold; font-size: 9pt; padding: 6px; border-bottom: 1.5px solid black; }
-        .sig-area { height: 85px; display: flex; align-items: center; justify-content: center; padding: 5px; }
-        .sig-area img { max-height: 100%; }
-        .sig-footer { border-top: 1px solid black; padding: 4px; font-weight: bold; font-size: 8pt; text-transform: uppercase; }
+        .sig-header { font-weight: bold; font-size: 9.5pt; padding: 8px; border-bottom: 1.5px solid black; background: #fafafa; }
+        .sig-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 10px; }
+        .sig-area img { max-height: 80px; }
+        .sig-footer { border-top: 1.5px solid black; padding: 6px; font-weight: bold; font-size: 9pt; text-transform: uppercase; }
 
         /* Modal Settings */
         .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.6); align-items: flex-start; justify-content: center; overflow-y: auto; padding: 40px 20px; }
@@ -85,10 +84,10 @@
 
     <div class="max-w-6xl mx-auto mb-6 no-print">
         <div class="bg-[#003366] text-white p-4 rounded-t-lg flex justify-between items-center shadow-lg">
-            <h1 class="text-xl font-bold">HISTORY LAPORAN MAINTENANCE</h1>
+            <h1 class="text-xl font-bold uppercase tracking-wide">History Laporan Perawatan & Overhaul</h1>
             <div class="flex gap-2">
                 <button onclick="window.location.href='dashboard.html'" class="bg-slate-600 px-4 py-1.5 rounded text-xs font-bold uppercase">Dashboard</button>
-                <button onclick="fetchHistory()" class="bg-blue-500 px-4 py-1.5 rounded text-xs font-bold uppercase">Refresh Data</button>
+                <button onclick="fetchHistory()" class="bg-blue-500 px-4 py-1.5 rounded text-xs font-bold uppercase">Refresh</button>
             </div>
         </div>
         <div class="bg-white p-4 border border-slate-200 rounded-b-lg shadow-sm">
@@ -104,7 +103,7 @@
                     </tr>
                 </thead>
                 <tbody id="listHistory">
-                    <tr><td colspan="6" class="p-10 text-center text-slate-400 italic">Memuat data...</td></tr>
+                    <tr><td colspan="6" class="p-10 text-center text-slate-400 italic">Memuat data riwayat...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -112,7 +111,7 @@
 
     <div id="modalReview" class="modal">
         <div class="document-page shadow-2xl relative">
-            <button onclick="closeModal()" class="no-print absolute -top-10 right-0 text-white font-bold text-xl">TUTUP [X]</button>
+            <button onclick="closeModal()" class="no-print absolute -top-12 right-0 bg-red-600 text-white px-4 py-1 rounded font-bold uppercase text-xs hover:bg-red-700 transition">Tutup [X]</button>
             
             <table class="header-table">
                 <tr>
@@ -157,7 +156,7 @@
             </div>
 
             <div class="mt-8 text-right no-print">
-                <button onclick="window.print()" class="bg-[#003366] text-white px-8 py-2 rounded font-bold uppercase text-xs">Cetak PDF</button>
+                <button onclick="window.print()" class="bg-[#003366] text-white px-8 py-2 rounded font-bold uppercase text-xs shadow hover:bg-black transition">Cetak Laporan</button>
             </div>
         </div>
     </div>
@@ -179,14 +178,14 @@
             const list = document.getElementById('listHistory');
             if(data) {
                 list.innerHTML = data.map(row => `
-                    <tr class="border-b hover:bg-slate-50 transition">
-                        <td class="p-3 border font-mono text-xs">${fmtDate(row.created_at)}</td>
+                    <tr class="border-b hover:bg-slate-50 transition text-xs">
+                        <td class="p-3 border font-mono">${fmtDate(row.created_at)}</td>
                         <td class="p-3 border font-bold uppercase">${row.nama_mesin}</td>
-                        <td class="p-3 border text-center text-xs font-bold text-blue-700">${row.job_type}</td>
-                        <td class="p-3 border text-xs uppercase">${row.engineer_name}</td>
-                        <td class="p-3 border text-center"><span class="text-[10px] bg-green-50 text-green-600 px-2 py-0.5 rounded font-bold border border-green-100 uppercase">${row.status}</span></td>
+                        <td class="p-3 border text-center font-bold text-blue-700">${row.job_type}</td>
+                        <td class="p-3 border uppercase text-slate-600">${row.engineer_name}</td>
+                        <td class="p-3 border text-center"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold uppercase text-[9px] border border-green-200">${row.status}</span></td>
                         <td class="p-3 border text-center">
-                            <button onclick='viewReport(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1 rounded text-[10px] font-bold uppercase shadow-md">Review</button>
+                            <button onclick='viewReport(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1 rounded text-[10px] font-bold uppercase shadow">Review</button>
                         </td>
                     </tr>
                 `).join('');
@@ -204,45 +203,45 @@
                     <span class="view-label">Nama Mesin, Tools/equipment :</span>
                     <span class="view-line uppercase font-bold text-blue-900">${row.nama_mesin}</span>
                     <div class="ml-4 flex gap-4 text-[8.5pt]">
-                        <div class="flex items-center"><div class="check-box">${row.job_type === 'Perawatan' ? '✔' : ''}</div> Perawatan</div>
-                        <div class="flex items-center"><div class="check-box">${row.job_type === 'Overhaul' ? '✔' : ''}</div> Over Haul</div>
+                        <div class="flex items-center"><div class="empty-box"></div> Perawatan ${row.job_type === 'Perawatan' ? '✔' : ''}</div>
+                        <div class="flex items-center"><div class="empty-box"></div> Over Haul ${row.job_type === 'Overhaul' ? '✔' : ''}</div>
                     </div>
                 </div>
                 <div class="view-row"><span class="view-label">Tanggal, Jam Mulai :</span><span class="view-line">${fmtDate(row.jam_mulai)}</span></div>
                 <div class="view-row"><span class="view-label">Tanggal, Jam Selesai :</span><span class="view-line">${fmtDate(row.jam_selesai)}</span></div>
 
                 <span class="section-label">Diskripsi Permasalahan Mesin Tools/Equipment :</span>
-                <div class="grid grid-cols-2 gap-x-10">
-                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[8.5pt]"><div class="check-box">${prob[i]?.is_checked ? '✔' : ''}</div> ${prob[i]?.description || ''}</div>`).join('')}
+                <div class="grid grid-cols-2 gap-x-10 mb-2">
+                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[8.5pt] italic"><div class="empty-box"></div> ${prob[i]?.description || ''} ${prob[i]?.is_checked ? '✔' : ''}</div>`).join('')}
                 </div>
 
                 <span class="section-label">Pekerjaan Yang Dilakukan & Tindakan Yang Diambil :</span>
-                <div class="grid grid-cols-2 gap-x-10">
-                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[8.5pt]"><div class="check-box">${act[i]?.is_checked ? '✔' : ''}</div> ${act[i]?.description || ''}</div>`).join('')}
+                <div class="grid grid-cols-2 gap-x-10 mb-2">
+                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[8.5pt] italic"><div class="empty-box"></div> ${act[i]?.description || ''} ${act[i]?.is_checked ? '✔' : ''}</div>`).join('')}
                 </div>
 
                 <span class="section-label">Kerusakan Part :</span>
                 <table class="part-table">
                     <thead>
                         <tr>
-                            <th rowspan="2" style="width: 35px;">NO</th>
-                            <th rowspan="2">Nama Part</th>
-                            <th rowspan="2" style="width: 60px;">QTY</th>
-                            <th colspan="2">Tindak Lanjut</th>
-                        </tr>
-                        <tr>
-                            <th style="width: 100px;">Ganti Baru</th>
-                            <th style="width: 100px;">Repair</th>
+                            <th style="width: 40px;">NO</th>
+                            <th>Nama Part</th>
+                            <th style="width: 70px;">QTY</th>
+                            <th>Tindak Lanjut</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${Array.from({length: 5}, (_, i) => `
-                            <tr>
+                            <tr class="text-[8.5pt]">
                                 <td>${i+1}</td>
-                                <td class="text-left px-2 uppercase font-medium text-[8pt]">${part[i]?.nama_part || ''}</td>
+                                <td class="text-left px-2 uppercase">${part[i]?.nama_part || ''}</td>
                                 <td>${part[i]?.qty || ''}</td>
-                                <td><div class="check-box">${part[i]?.tindak_lanjut === 'Ganti' ? '✔' : ''}</div></td>
-                                <td><div class="check-box">${part[i]?.tindak_lanjut === 'Repair' ? '✔' : ''}</div></td>
+                                <td>
+                                    <div class="tindak-lanjut-container">
+                                        <div class="flex items-center"><div class="empty-box"></div> Ganti Baru ${part[i]?.tindak_lanjut === 'Ganti' ? '✔' : ''}</div>
+                                        <div class="flex items-center"><div class="empty-box"></div> Repair ${part[i]?.tindak_lanjut === 'Repair' ? '✔' : ''}</div>
+                                    </div>
+                                </td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -250,7 +249,7 @@
 
                 <div class="mt-4">
                     <span class="section-label">Rekomendasi & Catatan :</span>
-                    <div class="border-b border-black min-h-[18px] mb-1 italic">${row.rekomendasi_catatan || ''}</div>
+                    <div class="border-b border-black min-h-[18px] mb-1 italic font-medium">${row.rekomendasi_catatan || ''}</div>
                     <div class="border-b border-black min-h-[18px]"></div>
                 </div>
             `;
