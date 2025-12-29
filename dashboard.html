@@ -1,80 +1,94 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TOOLING SUPPORT - Dashboard</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
-    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-    .logo { font-size: 1.8em; font-weight: bold; }
-    .date-time { font-size: 1em; font-weight: 500; }
-    .main-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px 20px; text-align: center; }
-    h1 { margin: 0 0 15px; font-size: 2.8em; color: #003366; }
-    .subtitle { font-size: 1.3em; margin-bottom: 40px; max-width: 800px; color: #555; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; width: 100%; }
-    .card { background-color: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 30px 20px; text-align: center; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
-    .card:hover { transform: translateY(-8px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
-    .card h2 { margin: 0 0 10px; font-size: 1.6em; color: white; }
-    .card p { margin: 0; font-size: 1em; color: #eee; }
-    
-    /* Warna Menu */
-    .blue { background-color: #004085; color: white; }
-    .maroon { background-color: #800000; color: white; } /* Perawatan & Overhaul */
-    .green { background-color: #155724; color: white; }
-    .orange { background-color: #c85000; color: white; }
-    .purple { background-color: #6f42c1; color: white; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 50px 80px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 50px;
+            font-size: 2.5em;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .btn {
+            padding: 18px 40px;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-pelaksana {
+            background-color: #4CAF50;
+        }
+
+        .btn-pelaksana:hover {
+            background-color: #45a049;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-superintendent {
+            background-color: #2196F3;
+        }
+
+        .btn-superintendent:hover {
+            background-color: #1e88e5;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(33, 150, 243, 0.4);
+        }
+
+        .btn-history {
+            background-color: #9C27B0;
+        }
+
+        .btn-history:hover {
+            background-color: #8e24aa;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(156, 39, 176, 0.4);
+        }
+    </style>
 </head>
 <body>
-
-  <header>
-    <div class="logo">TOOLING SUPPORT</div>
-    <div class="date-time" id="realTime">Memuat waktu...</div>
-  </header>
-
-  <div class="main-content">
-    <h1>Checklist Monitoring Tooling Support</h1>
-    <p class="subtitle">
-      Sistem digital untuk pencatatan, monitoring, dan approval checklist harian tooling support produksi.
-    </p>
-
-    <div class="grid">
-      <div class="card blue" onclick="window.location.href='pelaksana.html';">
-        <h2>Pelaksana</h2>
-        <p>Input data pelaksana dan tim checklist</p>
-      </div>
-
-      <div class="card maroon" onclick="window.location.href='overhaul.html';">
-        <h2>Perawatan & Overhaul</h2>
-        <p>Form laporan maintenance dan overhaul tools</p>
-      </div>
-
-      <div class="card green" onclick="window.location.href='jadwal-mingguan.html';">
-        <h2>Jadwal Mingguan</h2>
-        <p>Lihat dan atur jadwal checklist mingguan</p>
-      </div>
-
-      <div class="card orange" onclick="window.location.href='superintendent.html';">
-        <h2>Superintendent</h2>
-        <p>Approval dan catatan superintendent</p>
-      </div>
-
-      <div class="card purple" onclick="window.location.href='history.html';">
-        <h2>History</h2>
-        <p>Riwayat pengisian checklist sebelumnya</p>
-      </div>
+    <div class="container">
+        <h1>Dashboard</h1>
+        
+        <div class="button-group">
+            <a href="pelaksana.html" class="btn btn-pelaksana">Pelaksana</a>
+            <a href="superintendent.html" class="btn btn-superintendent">Superintendent</a>
+            <a href="history.html" class="btn btn-history">History</a>
+        </div>
     </div>
-  </div>
-
-  <script>
-    function updateTime() {
-      const now = new Date();
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
-      document.getElementById('realTime').textContent = now.toLocaleDateString('id-ID', options).replace(/,/g, '').replace(' pukul ', ' | ');
-    }
-    updateTime();
-    setInterval(updateTime, 1000);
-  </script>
 </body>
 </html>
