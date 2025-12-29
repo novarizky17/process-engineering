@@ -32,12 +32,10 @@
         .meta-table { width: 100%; border-collapse: collapse; }
         .meta-table td { border: none !important; border-bottom: 1px solid black !important; padding: 4px 8px !important; font-size: 8.5pt; font-weight: bold; }
         
-        /* Baris View Data */
         .view-row { display: flex; align-items: center; margin-bottom: 8px; font-weight: bold; }
         .view-label { width: 230px; flex-shrink: 0; }
         .view-line { border-bottom: 1px solid black; flex-grow: 1; padding: 0 5px; font-weight: normal; }
         
-        /* Kotak Centang */
         .box-container { display: flex; align-items: center; gap: 5px; }
         .check-box { 
             width: 15px; 
@@ -56,29 +54,32 @@
         .section-label { font-weight: bold; margin-top: 15px; margin-bottom: 8px; display: block; }
         .dotted-item { display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px dotted #000; min-height: 22px; padding-bottom: 1px; margin-bottom: 4px; }
 
-        /* Tabel Part */
         .part-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 5px; }
         .part-table th, .part-table td { border: 1px solid black; padding: 5px; text-align: center; }
         .part-table th { font-size: 8.5pt; font-weight: bold; background-color: #f2f2f2; }
         .tindak-lanjut-layout { display: flex; justify-content: space-around; width: 100%; }
 
-        /* Grid Tanda Tangan Sesuai Gambar Referensi */
+        /* Grid Tanda Tangan Sesuai Instruksi */
         .sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 2px solid black; margin-top: 30px; }
-        .sig-box { border-right: 2px solid black; text-align: center; display: flex; flex-direction: column; min-height: 130px; }
+        .sig-box { border-right: 2px solid black; text-align: center; display: flex; flex-direction: column; min-height: 140px; }
         .sig-box:last-child { border-right: none; }
         .sig-header { font-weight: bold; font-size: 9.5pt; padding: 8px; border-bottom: 1.5px solid black; background: #fafafa; }
-        .sig-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 10px; }
-        .sig-area img { max-height: 80px; }
         
-        /* Footer Tanda Tangan Khusus Engineer */
-        .sig-footer { border-top: 1.5px solid black; padding: 4px; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .name-display { font-weight: bold; font-size: 9pt; text-transform: uppercase; margin-bottom: 2px; }
-        .label-display { font-size: 8pt; font-weight: bold; border-top: 1px solid #ccc; width: 80%; padding-top: 2px; color: #444; }
+        /* Area Tanda Tangan */
+        .sig-area { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px; }
+        .sig-area img { max-height: 70px; margin-bottom: 5px; }
+        
+        /* Nama Terang di dalam kotak area tanda tangan (Untuk SPV & Manager) */
+        .name-under-sig { font-weight: bold; font-size: 8.5pt; text-transform: uppercase; margin-top: auto; padding-bottom: 2px; }
 
-        /* Baris Catatan */
+        /* Footer Label */
+        .sig-footer { border-top: 1.5px solid black; padding: 6px; font-weight: bold; font-size: 9pt; text-transform: uppercase; background: #fff; }
+        
+        /* Style Khusus Nama Engineer (Di atas Footer) */
+        .engineer-name-style { font-weight: bold; font-size: 9pt; text-transform: uppercase; margin-top: auto; }
+
         .note-line { border-bottom: 1px solid black; min-height: 22px; width: 100%; margin-bottom: 2px; font-style: italic; display: flex; align-items: flex-end; }
 
-        /* Modal */
         .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.6); align-items: flex-start; justify-content: center; overflow-y: auto; padding: 40px 20px; }
         
         @media print { 
@@ -148,27 +149,29 @@
             <div class="sig-grid">
                 <div class="sig-box">
                     <div class="sig-header">Dikerjakan Oleh:</div>
-                    <div class="sig-area"><img id="view-sig-eng"></div>
-                    <div class="sig-footer">
-                        <span id="view-name-eng" class="name-display">NAMA ENGINEER</span>
-                        <span class="label-display">ENGINEER</span>
+                    <div class="sig-area">
+                        <img id="view-sig-eng">
+                        <span id="view-name-eng" class="engineer-name-style"></span>
                     </div>
+                    <div class="sig-footer">ENGINEER</div>
                 </div>
+                
                 <div class="sig-box">
                     <div class="sig-header">Diperiksa Oleh:</div>
-                    <div class="sig-area"><img id="view-sig-spt"></div>
-                    <div class="sig-footer">
-                         <span id="view-name-spt" class="name-display">NAMA SPV</span>
-                         <span class="label-display">SPV / SUPERINTENDENT</span>
+                    <div class="sig-area">
+                        <img id="view-sig-spt">
+                        <span id="view-name-spt" class="name-under-sig"></span>
                     </div>
+                    <div class="sig-footer">SPV / SUPERINTENDENT</div>
                 </div>
+                
                 <div class="sig-box">
                     <div class="sig-header">Mengetahui:</div>
-                    <div class="sig-area"><img id="view-sig-mn"></div>
-                    <div class="sig-footer">
-                         <span id="view-name-mn" class="name-display">NAMA MANAGER</span>
-                         <span class="label-display">MANAGER</span>
+                    <div class="sig-area">
+                        <img id="view-sig-mn">
+                        <span id="view-name-mn" class="name-under-sig"></span>
                     </div>
+                    <div class="sig-footer">MANAGER</div>
                 </div>
             </div>
 
@@ -200,9 +203,7 @@
                         <td class="p-3 border font-bold uppercase">${row.nama_mesin}</td>
                         <td class="p-3 border text-center font-bold text-blue-700">${row.job_type}</td>
                         <td class="p-3 border uppercase text-slate-600">${row.engineer_name}</td>
-                        <td class="p-3 border text-center">
-                            <span class="text-[9px] bg-green-50 text-green-700 px-2 py-0.5 rounded font-bold border border-green-100 uppercase">${row.status}</span>
-                        </td>
+                        <td class="p-3 border text-center"><span class="text-[9px] bg-green-50 text-green-600 px-2 py-0.5 rounded font-bold border border-green-100 uppercase">${row.status}</span></td>
                         <td class="p-3 border text-center">
                             <button onclick='viewReport(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1 rounded text-[10px] font-bold uppercase shadow">Review</button>
                         </td>
@@ -242,12 +243,7 @@
                 <span class="section-label">Kerusakan Part :</span>
                 <table class="part-table">
                     <thead>
-                        <tr>
-                            <th style="width: 40px;">NO</th>
-                            <th>Nama Part</th>
-                            <th style="width: 70px;">QTY</th>
-                            <th style="width: 250px;">Tindak Lanjut</th>
-                        </tr>
+                        <tr><th style="width: 40px;">NO</th><th>Nama Part</th><th style="width: 70px;">QTY</th><th style="width: 250px;">Tindak Lanjut</th></tr>
                     </thead>
                     <tbody>
                         ${Array.from({length: 5}, (_, i) => `
@@ -274,13 +270,13 @@
                 </div>
             `;
 
-            // Menampilkan tanda tangan digital
+            // TANDA TANGAN DIGITAL
             document.getElementById('view-sig-eng').src = row.signature_engineer || '';
             document.getElementById('view-sig-spt').src = row.signature_superintendent || '';
             document.getElementById('view-sig-mn').src = row.signature_manager || '';
             
-            // Menampilkan nama di atas label jabatan
-            document.getElementById('view-name-eng').innerText = row.engineer_name || "ENGINEER";
+            // NAMA TERANG SESUAI INSTRUKSI
+            document.getElementById('view-name-eng').innerText = row.engineer_name || "";
             document.getElementById('view-name-spt').innerText = row.spt_name || "";
             document.getElementById('view-name-mn').innerText = row.manager_name || "";
 
