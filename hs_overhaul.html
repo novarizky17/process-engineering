@@ -20,7 +20,7 @@
             box-sizing: border-box; 
         }
 
-        /* Header Dokumen Standar ISO */
+        /* Header Dokumen ISO */
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 2.5px solid black; }
         .header-table td { border: 1px solid black; padding: 5px 10px; vertical-align: middle; }
         .logo-box { width: 140px; text-align: center; border-right: 2px solid black !important; }
@@ -37,28 +37,30 @@
         .view-label { width: 230px; flex-shrink: 0; }
         .view-line { border-bottom: 1px solid black; flex-grow: 1; padding: 0 5px; font-weight: normal; }
         
-        /* Kotak Kosong Samping Teks */
-        .empty-box { 
-            width: 14px; 
-            height: 14px; 
+        /* Kotak Centang Presisi */
+        .box-container { display: flex; align-items: center; gap: 5px; }
+        .check-box { 
+            width: 15px; 
+            height: 15px; 
             border: 1.2px solid black; 
             display: inline-flex; 
             align-items: center; 
             justify-content: center; 
             background: white; 
-            margin-right: 6px; 
-            font-size: 9pt;
-            font-weight: bold;
+            font-size: 9pt; 
+            font-weight: bold; 
+            line-height: 1;
+            flex-shrink: 0;
         }
         
         .section-label { font-weight: bold; margin-top: 15px; margin-bottom: 8px; display: block; }
         .dotted-item { display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px dotted #000; min-height: 22px; padding-bottom: 1px; margin-bottom: 4px; }
 
-        /* Tabel Part */
+        /* Tabel Part - Tindak Lanjut */
         .part-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 5px; }
-        .part-table th, .part-table td { border: 1px solid black; padding: 4px; text-align: center; }
-        .part-table th { font-size: 9pt; font-weight: bold; background-color: #f2f2f2; }
-        .tindak-lanjut-container { display: flex; justify-content: flex-start; align-items: center; gap: 15px; padding-left: 10px; }
+        .part-table th, .part-table td { border: 1px solid black; padding: 5px; text-align: center; }
+        .part-table th { font-size: 8.5pt; font-weight: bold; background-color: #f2f2f2; }
+        .tindak-lanjut-layout { display: flex; justify-content: space-around; width: 100%; }
 
         /* Grid Tanda Tangan */
         .sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 2px solid black; margin-top: 30px; }
@@ -103,7 +105,7 @@
                     </tr>
                 </thead>
                 <tbody id="listHistory">
-                    <tr><td colspan="6" class="p-10 text-center text-slate-400 italic">Memuat data riwayat...</td></tr>
+                    <tr><td colspan="6" class="p-10 text-center text-slate-400 italic">Memuat data...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -111,7 +113,7 @@
 
     <div id="modalReview" class="modal">
         <div class="document-page shadow-2xl relative">
-            <button onclick="closeModal()" class="no-print absolute -top-12 right-0 bg-red-600 text-white px-4 py-1 rounded font-bold uppercase text-xs hover:bg-red-700 transition">Tutup [X]</button>
+            <button onclick="closeModal()" class="no-print absolute -top-12 right-0 bg-red-600 text-white px-4 py-1 rounded font-bold uppercase text-xs">Tutup [X]</button>
             
             <table class="header-table">
                 <tr>
@@ -156,7 +158,7 @@
             </div>
 
             <div class="mt-8 text-right no-print">
-                <button onclick="window.print()" class="bg-[#003366] text-white px-8 py-2 rounded font-bold uppercase text-xs shadow hover:bg-black transition">Cetak Laporan</button>
+                <button onclick="window.print()" class="bg-[#003366] text-white px-8 py-2 rounded font-bold uppercase text-xs shadow-lg hover:bg-black transition">Cetak PDF</button>
             </div>
         </div>
     </div>
@@ -182,10 +184,10 @@
                         <td class="p-3 border font-mono">${fmtDate(row.created_at)}</td>
                         <td class="p-3 border font-bold uppercase">${row.nama_mesin}</td>
                         <td class="p-3 border text-center font-bold text-blue-700">${row.job_type}</td>
-                        <td class="p-3 border uppercase text-slate-600">${row.engineer_name}</td>
-                        <td class="p-3 border text-center"><span class="bg-green-100 text-green-700 px-2 py-0.5 rounded font-bold uppercase text-[9px] border border-green-200">${row.status}</span></td>
+                        <td class="p-3 border uppercase">${row.engineer_name}</td>
+                        <td class="p-3 border text-center"><span class="text-[9px] bg-green-50 text-green-600 px-2 py-0.5 rounded font-bold border border-green-100 uppercase">${row.status}</span></td>
                         <td class="p-3 border text-center">
-                            <button onclick='viewReport(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1 rounded text-[10px] font-bold uppercase shadow">Review</button>
+                            <button onclick='viewReport(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1 rounded text-[10px] font-bold uppercase shadow-md">Review</button>
                         </td>
                     </tr>
                 `).join('');
@@ -202,22 +204,22 @@
                 <div class="view-row">
                     <span class="view-label">Nama Mesin, Tools/equipment :</span>
                     <span class="view-line uppercase font-bold text-blue-900">${row.nama_mesin}</span>
-                    <div class="ml-4 flex gap-4 text-[8.5pt]">
-                        <div class="flex items-center"><div class="empty-box"></div> Perawatan ${row.job_type === 'Perawatan' ? '✔' : ''}</div>
-                        <div class="flex items-center"><div class="empty-box"></div> Over Haul ${row.job_type === 'Overhaul' ? '✔' : ''}</div>
+                    <div class="ml-4 flex gap-4 text-[9pt]">
+                        <div class="box-container"><div class="check-box">${row.job_type === 'Perawatan' ? '✔' : ''}</div> Perawatan</div>
+                        <div class="box-container"><div class="check-box">${row.job_type === 'Overhaul' ? '✔' : ''}</div> Over Haul</div>
                     </div>
                 </div>
                 <div class="view-row"><span class="view-label">Tanggal, Jam Mulai :</span><span class="view-line">${fmtDate(row.jam_mulai)}</span></div>
                 <div class="view-row"><span class="view-label">Tanggal, Jam Selesai :</span><span class="view-line">${fmtDate(row.jam_selesai)}</span></div>
 
                 <span class="section-label">Diskripsi Permasalahan Mesin Tools/Equipment :</span>
-                <div class="grid grid-cols-2 gap-x-10 mb-2">
-                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[8.5pt] italic"><div class="empty-box"></div> ${prob[i]?.description || ''} ${prob[i]?.is_checked ? '✔' : ''}</div>`).join('')}
+                <div class="grid grid-cols-2 gap-x-10">
+                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[9pt]"><div class="check-box">${prob[i]?.is_checked ? '✔' : ''}</div> ${prob[i]?.description || ''}</div>`).join('')}
                 </div>
 
                 <span class="section-label">Pekerjaan Yang Dilakukan & Tindakan Yang Diambil :</span>
-                <div class="grid grid-cols-2 gap-x-10 mb-2">
-                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[8.5pt] italic"><div class="empty-box"></div> ${act[i]?.description || ''} ${act[i]?.is_checked ? '✔' : ''}</div>`).join('')}
+                <div class="grid grid-cols-2 gap-x-10">
+                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[9pt]"><div class="check-box">${act[i]?.is_checked ? '✔' : ''}</div> ${act[i]?.description || ''}</div>`).join('')}
                 </div>
 
                 <span class="section-label">Kerusakan Part :</span>
@@ -227,19 +229,19 @@
                             <th style="width: 40px;">NO</th>
                             <th>Nama Part</th>
                             <th style="width: 70px;">QTY</th>
-                            <th>Tindak Lanjut</th>
+                            <th style="width: 250px;">Tindak Lanjut</th>
                         </tr>
                     </thead>
                     <tbody>
                         ${Array.from({length: 5}, (_, i) => `
-                            <tr class="text-[8.5pt]">
+                            <tr>
                                 <td>${i+1}</td>
-                                <td class="text-left px-2 uppercase">${part[i]?.nama_part || ''}</td>
+                                <td class="text-left px-2 uppercase font-medium text-[8.5pt]">${part[i]?.nama_part || ''}</td>
                                 <td>${part[i]?.qty || ''}</td>
                                 <td>
-                                    <div class="tindak-lanjut-container">
-                                        <div class="flex items-center"><div class="empty-box"></div> Ganti Baru ${part[i]?.tindak_lanjut === 'Ganti' ? '✔' : ''}</div>
-                                        <div class="flex items-center"><div class="empty-box"></div> Repair ${part[i]?.tindak_lanjut === 'Repair' ? '✔' : ''}</div>
+                                    <div class="tindak-lanjut-layout">
+                                        <div class="box-container"><div class="check-box">${part[i]?.tindak_lanjut === 'Ganti' ? '✔' : ''}</div> Ganti Baru</div>
+                                        <div class="box-container"><div class="check-box">${part[i]?.tindak_lanjut === 'Repair' ? '✔' : ''}</div> Repair</div>
                                     </div>
                                 </td>
                             </tr>
@@ -249,8 +251,8 @@
 
                 <div class="mt-4">
                     <span class="section-label">Rekomendasi & Catatan :</span>
-                    <div class="border-b border-black min-h-[18px] mb-1 italic font-medium">${row.rekomendasi_catatan || ''}</div>
-                    <div class="border-b border-black min-h-[18px]"></div>
+                    <div class="border-b border-black min-h-[22px] mb-1 italic font-medium">${row.rekomendasi_catatan || ''}</div>
+                    <div class="border-b border-black min-h-[22px]"></div>
                 </div>
             `;
 
