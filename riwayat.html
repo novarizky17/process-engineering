@@ -7,38 +7,56 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @page { size: A4 landscape; margin: 8mm; }
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: white; color: #000; }
-        .container { width: 277mm; margin: 0 auto; padding: 5mm 12mm; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f9; color: #000; }
+        .container { width: 277mm; margin: 20px auto; padding: 5mm 12mm; box-sizing: border-box; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px; }
+        
+        /* Search Box Area */
+        .search-area { background: #1e293b; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
+        .search-input { flex-grow: 1; padding: 10px; border-radius: 5px; border: none; font-weight: bold; text-transform: uppercase; }
+        .btn-search { background: #3b82f6; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-search:hover { background: #2563eb; }
+
         .header { position: relative; margin-bottom: 5px; height: 40px; }
         .logo-area { display: flex; align-items: center; gap: 10px; position: absolute; left: 0; top: 0; }
         .logo { width: 85px; height: auto; }
         .company-name { font-size: 12px; font-weight: bold; }
         .title { font-size: 22px; font-weight: bold; text-align: center; width: 100%; margin: 0; padding-top: 5px; }
+        
         .meta-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; margin-top: 20px; }
         .machine-info div { margin-bottom: 2px; font-size: 10pt; }
         .label { font-weight: bold; display: inline-block; width: 135px; }
         .colon { padding: 0 5px; }
-        .doc-info { text-align: left; font-size: 10pt; }
+        
         .main-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .main-table th, .main-table td { border: 1px solid black; padding: 4px 5px; font-size: 9pt; text-align: center; height: 20px; }
-        .main-table th { background-color: #f0f0f0; }
-        .col-tgl { width: 12%; } .col-masalah { width: 20%; } .col-tindakan { width: 20%; }
-        .col-spare { width: 20%; } .col-ket { width: 16%; } .col-pic { width: 12%; }
+        .main-table th, .main-table td { border: 1px solid black; padding: 6px 5px; font-size: 8.5pt; text-align: center; }
+        .main-table th { background-color: #f0f0f0; font-weight: bold; }
+        
         .signature-section { margin-top: 15px; }
         .signature-row { display: flex; justify-content: space-between; gap: 40px; }
         .sig-box { flex: 1; text-align: center; }
-        .sig-title { font-weight: bold; font-size: 12pt; margin-bottom: 65px; text-transform: uppercase; }
-        .sig-line { border-bottom: 1.5px solid black; width: 85%; margin: 0 auto 8px; }
-        .sig-label { font-size: 11pt; font-weight: bold; }
-        
-        /* Input styling untuk meta data */
-        .input-meta { border: none; border-bottom: 1px dotted black; font-family: Arial; font-size: 10pt; width: 200px; outline: none; }
-        @media print { .no-print { display: none; } .input-meta { border-bottom: none; } }
+        .sig-title { font-weight: bold; font-size: 10pt; margin-bottom: 50px; text-transform: uppercase; }
+        .sig-line { border-bottom: 1.5px solid black; width: 80%; margin: 0 auto 5px; }
+        .sig-label { font-size: 9pt; font-weight: bold; }
+
+        .input-meta { border: none; border-bottom: 1px dotted black; width: 180px; outline: none; font-size: 10pt; }
+
+        @media print { 
+            .no-print, .search-area { display: none !important; } 
+            .container { margin: 0; box-shadow: none; width: 100%; }
+            body { background: white; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <div class="search-area no-print">
+        <input type="text" id="input_search_mesin" class="search-input" placeholder="KETIK NAMA MESIN (CONTOH: IRON MAN)..." onkeypress="if(event.key === 'Enter') searchMachine()">
+        <button onclick="searchMachine()" class="btn-search">CARI DATA</button>
+        <button onclick="window.print()" class="btn-search" style="background: #10b981;">CETAK</button>
+        <button onclick="window.location.href='dashboard.html'" class="btn-search" style="background: #64748b;">KEMBALI</button>
+    </div>
+
     <div class="header">
         <div class="logo-area">
             <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo AKG" class="logo">
@@ -49,31 +67,31 @@
 
     <div class="meta-section">
         <div class="machine-info">
-            <div><span class="label">NAMA MESIN</span><span class="colon">:</span><span id="view_nama_mesin" style="font-weight:bold;">-</span></div>
-            <div><span class="label">NO. MESIN</span><span class="colon">:</span><input type="text" class="input-meta" placeholder="..."></div>
-            <div><span class="label">TAHUN PEMBUATAN</span><span class="colon">:</span><input type="text" class="input-meta" placeholder="..."></div>
-            <div><span class="label">LOKASI MESIN</span><span class="colon">:</span><input type="text" class="input-meta" placeholder="..."></div>
+            <div><span class="label">NAMA MESIN</span><span class="colon">:</span><span id="view_nama_mesin" style="font-weight:bold; color: #2563eb;">-</span></div>
+            <div><span class="label">NO. MESIN</span><span class="colon">:</span><input type="text" class="input-meta"></div>
+            <div><span class="label">TAHUN PEMBUATAN</span><span class="colon">:</span><input type="text" class="input-meta"></div>
+            <div><span class="label">LOKASI MESIN</span><span class="colon">:</span><input type="text" class="input-meta"></div>
         </div>
-        <div class="doc-info">
-            <div><span class="doc-label">No Dokumen</span><span class="colon">:</span> AF.SP 05.18.Rev-00</div>
-            <div><span class="doc-label">Tanggal Terbit</span><span class="colon">:</span> 02 Agustus 2024</div>
-            <button class="no-print" onclick="window.print()" style="margin-top: 10px; cursor: pointer;">Cetak Laporan</button>
+        <div class="doc-info" style="font-size: 9pt; text-align: right;">
+            <div><b>No Dokumen :</b> AF.SP 05.18.Rev-00</div>
+            <div><b>Tanggal Terbit :</b> 02 Agustus 2024</div>
         </div>
     </div>
 
     <table class="main-table">
         <thead>
             <tr>
-                <th class="col-tgl">Tanggal</th>
-                <th class="col-masalah">Permasalahan</th>
-                <th class="col-tindakan">Tindakan</th>
-                <th class="col-spare">Spare Part</th>
-                <th class="col-ket">Keterangan</th>
-                <th class="col-pic">PIC</th>
+                <th style="width: 10%;">Tanggal</th>
+                <th style="width: 22%;">Permasalahan</th>
+                <th style="width: 22%;">Tindakan</th>
+                <th style="width: 22%;">Spare Part</th>
+                <th style="width: 14%;">Keterangan</th>
+                <th style="width: 10%;">PIC</th>
             </tr>
         </thead>
         <tbody id="tableBody">
-            </tbody>
+            <tr><td colspan="6" style="padding: 40px; color: #94a3b8; font-style: italic;">Silahkan cari nama mesin untuk menampilkan riwayat...</td></tr>
+        </tbody>
     </table>
 
     <div class="signature-section">
@@ -86,67 +104,75 @@
 </div>
 
 <script>
-    // Konfigurasi Supabase
     const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
     const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-    async function loadHistory() {
-        // Ambil data laporan terbaru yang sudah approved
+    async function searchMachine() {
+        const query = document.getElementById('input_search_mesin').value.trim().toUpperCase();
+        if(!query) return alert("Masukkan nama mesin!");
+
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '<tr><td colspan="6" style="padding: 20px;">Mencari riwayat...</td></tr>';
+
+        // Ambil data berdasarkan nama mesin dan urutkan tanggal pengerjaan
         const { data: reports, error } = await _sb
             .from('laporan_maintenance')
             .select(`
-                id, created_at, nama_mesin, engineer_name, 
+                id, created_at, nama_mesin, engineer_name, jam_mulai,
                 maintenance_problems(description), 
                 maintenance_actions(description),
                 maintenance_parts(nama_part, qty)
             `)
-            .order('created_at', { ascending: false });
+            .eq('nama_mesin', query)
+            .order('jam_mulai', { ascending: true });
 
         if (error) {
-            console.error("Gagal mengambil data:", error);
+            alert("Error: " + error.message);
             return;
         }
 
-        const tbody = document.getElementById('tableBody');
+        if (!reports || reports.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="padding: 40px; color: red;">Data tidak ditemukan untuk mesin tersebut.</td></tr>';
+            document.getElementById('view_nama_mesin').innerText = "-";
+            return;
+        }
+
+        // Tampilkan Nama Mesin di Meta Data
+        document.getElementById('view_nama_mesin').innerText = reports[0].nama_mesin;
         tbody.innerHTML = '';
 
-        if (reports && reports.length > 0) {
-            // Isi Nama Mesin di Meta Data dengan data terbaru
-            document.getElementById('view_nama_mesin').innerText = reports[0].nama_mesin;
+        reports.forEach(row => {
+            const tr = document.createElement('tr');
+            
+            // Format Tanggal pengerjaan (bukan tanggal input)
+            const dateStr = row.jam_mulai ? row.jam_mulai.split('T')[0] : row.created_at.split('T')[0];
+            const [y, m, d] = dateStr.split('-');
+            const formattedDate = `${d}/${m}/${y}`;
+            
+            // Pengolahan data detail
+            const masalah = row.maintenance_problems.map(p => `• ${p.description}`).join('<br>');
+            const tindakan = row.maintenance_actions.map(a => `• ${a.description}`).join('<br>');
+            const parts = row.maintenance_parts.map(pt => `• ${pt.nama_part} (${pt.qty})`).join('<br>');
 
-            reports.forEach(row => {
-                const tr = document.createElement('tr');
-                
-                // Format Tanggal
-                const date = new Date(row.created_at).toLocaleDateString('id-ID');
-                
-                // Gabungkan permasalahan & tindakan menjadi list
-                const masalah = row.maintenance_problems.map(p => p.description).join(', ');
-                const tindakan = row.maintenance_actions.map(a => a.description).join(', ');
-                const parts = row.maintenance_parts.map(pt => `${pt.nama_part} (${pt.qty})`).join(', ');
+            tr.innerHTML = `
+                <td>${formattedDate}</td>
+                <td style="text-align:left; vertical-align: top;">${masalah || '-'}</td>
+                <td style="text-align:left; vertical-align: top;">${tindakan || '-'}</td>
+                <td style="text-align:left; vertical-align: top;">${parts || '-'}</td>
+                <td>-</td>
+                <td style="font-weight: bold; font-size: 7.5pt;">${row.engineer_name || '-'}</td>
+            `;
+            tbody.appendChild(tr);
+        });
 
-                tr.innerHTML = `
-                    <td>${date}</td>
-                    <td style="text-align:left;">${masalah || '-'}</td>
-                    <td style="text-align:left;">${tindakan || '-'}</td>
-                    <td style="text-align:left;">${parts || '-'}</td>
-                    <td>-</td>
-                    <td>${row.engineer_name || '-'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            // Tambahkan baris kosong sisa agar tabel tetap terlihat penuh (opsional)
-            for(let i = reports.length; i < 15; i++) {
-                const emptyTr = document.createElement('tr');
-                emptyTr.innerHTML = '<td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td>';
-                tbody.appendChild(emptyTr);
-            }
+        // Baris kosong tambahan untuk estetika kartu fisik
+        for(let i = reports.length; i < 12; i++) {
+            const emptyTr = document.createElement('tr');
+            emptyTr.innerHTML = '<td style="height: 25px;">&nbsp;</td><td></td><td></td><td></td><td></td><td></td>';
+            tbody.appendChild(emptyTr);
         }
     }
-
-    window.onload = loadHistory;
 </script>
 
 </body>
