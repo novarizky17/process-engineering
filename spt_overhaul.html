@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superintendent - Approval Overhaul</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f5f9; }
+        .sig-canvas { border: 2px dashed #ccc; background: #fff; width: 100%; height: 150px; touch-action: none; cursor: crosshair; }
+        .table-custom th { background: #003366; color: white; text-transform: uppercase; font-size: 0.8rem; padding: 12px; }
+        .modal { display: none; position: fixed; z-index: 50; inset: 0; background: rgba(0,0,0,0.5); overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+<header class="bg-[#003366] text-white p-4 flex justify-between items-center shadow-lg">
+    <h1 class="text-xl font-bold">SUPERINTENDENT - APPROVAL MAINTENANCE</h1>
+    <button onclick="fetchLaporan()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 font-bold text-sm">REFRESH DATA</button>
+</header>
+
+<div class="container mx-auto p-6">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <table class="w-full text-left border-collapse table-custom">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Nama Mesin / Tools</th>
+                    <th>Job Type</th>
+                    <th>Engineer</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="listLaporan">
+                <tr><td colspan="6" class="p-4 text-center">Memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modalReview" class="modal flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+        <div class="bg-slate-100 p-4 border-bottom flex justify-between items-center">
+            <h2 class="text-lg font-bold text-[#003366]">Detail Laporan Perawatan</h2>
+            <button onclick="closeModal()" class="text-2xl font-bold">&times;</button>
+        </div>
+        
+        <div class="p-6 overflow-y-auto" id="modalContent">
+            </div>
+
+        <div class="p-6 bg-slate-50 border-t">
+            <p class="font-bold mb-2">Tanda Tangan Superintendent / SPV:</p>
+            <canvas id="sig-spt" class="sig-canvas mb-4"></canvas>
+            <div class="flex gap-4">
+                <button onclick="clearCanvas()" class="bg-gray-500 text-white px-6 py-2 rounded font-bold">Hapus TTD</button>
+                <button onclick="processApproval()" class="flex-grow bg-green-600 text-white px-6 py-2 rounded font-bold hover:bg-green-700">SETUJUI (APPROVE)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
+    const _sb = supabase.createClient(SB_URL, SB_KEY);
+
+    let currentId = null;
+    const canvas = document.getElementById('sig-spt');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    // Fetch Laporan yang statusnya 'Maintenance_Done'
+    async function fetchLaporan() {
+        const { data, error } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
+        const list = document.getElementById('listLaporan');
+        
+        if (data.length === 0) {
+            list.innerHTML = '<tr><td colspan="6" class="p-4 text-center">Tidak ada laporan masuk.</td></tr>';
+            return;
+        }
+
+        list.innerHTML = data.map(row => `
+            <tr class="border-b hover:bg-slate-50">
+                <td class="p-4">${new Date(row.created_at).toLocaleDateString('id-ID')}</td>
+                <td class="p-4 font-bold">${row.nama_mesin}</td>
+                <td class="p-4">${row.job_type}</td>
+                <td class="p-4">${row.engineer_name}</td>
+                <td class="p-4"><span class="px-2 py-1 rounded text-[10px] font-bold ${row.status === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}">${row.status}</span></td>
+                <td class="p-4"><button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-3 py-1 rounded text-xs">REVIEW</button></td>
+            </tr>
+        `).join('');
+    }
+
+    async function openReview(row) {
+        currentId = row.id;
+        const cont = document.getElementById('modalContent');
+        
+        // Ambil data relasi (Masalah, Tindakan, Parts)
+        const { data: prob } = await _sb.from('maintenance_problems').select('*').eq('maintenance_id', row.id);
+        const { data: act } = await _sb.from('maintenance_actions').select('*').eq('maintenance_id', row.id);
+        const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
+
+        cont.innerHTML = `
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div><p class="text-xs text-gray-500 uppercase">Mesin/Equipment</p><p class="font-bold">${row.nama_mesin}</p></div>
+                <div><p class="text-xs text-gray-500 uppercase">Tipe Pekerjaan</p><p class="font-bold text-blue-700">${row.job_type}</p></div>
+                <div><p class="text-xs text-gray-500 uppercase">Engineer</p><p class="font-bold">${row.engineer_name}</p></div>
+                <div><p class="text-xs text-gray-500 uppercase">Waktu</p><p class="text-sm">${row.jam_mulai} s/d ${row.jam_selesai}</p></div>
+            </div>
+            
+            <div class="mb-4"><p class="font-bold border-b mb-2">Masalah:</p><ul class="list-disc pl-5 text-sm">${prob.map(p => `<li>${p.description}</li>`).join('')}</ul></div>
+            <div class="mb-4"><p class="font-bold border-b mb-2">Tindakan:</p><ul class="list-disc pl-5 text-sm">${act.map(a => `<li>${a.description}</li>`).join('')}</ul></div>
+            
+            <div class="mb-4">
+                <p class="font-bold border-b mb-2">Suku Cadang (Parts):</p>
+                <table class="w-full text-xs border">
+                    <tr class="bg-gray-100"><th>Part Name</th><th>Qty</th><th>Tindakan</th></tr>
+                    ${part.map(pt => `<tr><td class="border p-1">${pt.nama_part}</td><td class="border p-1 text-center">${pt.qty}</td><td class="border p-1 text-center">${pt.tindak_lanjut}</td></tr>`).join('')}
+                </table>
+            </div>
+
+            <div class="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400">
+                <p class="text-xs font-bold uppercase">Rekomendasi Engineer:</p>
+                <p class="text-sm italic">${row.rekomendasi_catatan || '-'}</p>
+            </div>
+        `;
+        
+        document.getElementById('modalReview').style.display = 'flex';
+        resizeCanvas();
+    }
+
+    // Approval Process
+    async function processApproval() {
+        const signature = canvas.toDataURL();
+        const blank = document.createElement('canvas');
+        blank.width = canvas.width; blank.height = canvas.height;
+        if (signature === blank.toDataURL()) return alert("Tanda tangan Superintendent wajib diisi!");
+
+        const { error } = await _sb.from('laporan_maintenance')
+            .update({ status: 'Approved', signature_superintendent: signature }) // Pastikan kolom ini ada di SQL
+            .eq('id', currentId);
+
+        if (!error) {
+            alert("Laporan Berhasil Disetujui!");
+            closeModal();
+            fetchLaporan();
+        } else {
+            alert("Error: " + error.message);
+        }
+    }
+
+    // Signature Logic
+    function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+    function clearCanvas() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+    function getP(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top }; }
+    canvas.onmousedown = (e) => { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); };
+    canvas.onmousemove = (e) => { if(!drawing) return; const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); };
+    window.onmouseup = () => drawing=false;
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if(!drawing) return; const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); });
+
+    function closeModal() { document.getElementById('modalReview').style.display = 'none'; clearCanvas(); }
+    window.onload = fetchLaporan;
+</script>
+
+</body>
+</html>
