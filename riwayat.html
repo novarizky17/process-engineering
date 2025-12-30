@@ -86,11 +86,11 @@
             border-radius: 4px;
         }
 
-        /* HEADER - DIRAPATKAN */
+        /* HEADER - LOGO & NAMA PT DITURUNKAN AGAR DEKAT DENGAN ISI */
         .header {
             position: relative;
             margin-bottom: 0;
-            height: 65px; 
+            height: 85px; /* Memberi ruang agar logo bisa turun mendekati No Dokumen */
         }
 
         .logo-area {
@@ -99,7 +99,7 @@
             gap: 12px;
             position: absolute;
             left: 0;
-            top: 5px; 
+            top: 45px; /* LOGO & NAMA PT DITURUNKAN AGAR DEKAT KE DATA BAWAHNYA */
         }
 
         .logo { width: 95px; height: auto; }
@@ -111,16 +111,16 @@
             text-align: center;
             width: 100%;
             margin: 0;
-            padding-top: 5px;
+            padding-top: 45px; /* JUDUL DITURUNKAN SEJAJAR DENGAN LOGO */
         }
 
-        /* META SECTION - DITURUNKAN DAN SANGAT DEKAT DENGAN KOLOM */
+        /* META SECTION - DEKAT DENGAN TABEL */
         .meta-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-end; 
-            margin-bottom: 5px; /* SANGAT DEKAT DENGAN TABEL */
-            margin-top: 45px;   /* POSISI DITURUNKAN DARI LOGO */
+            margin-bottom: 5px; /* Sangat dekat ke tabel */
+            margin-top: 10px;  /* Jarak minimal agar logo di atas terlihat dekat */
         }
 
         /* SEMUA TEKS IDENTITAS NORMAL (TIDAK BOLD) */
@@ -140,11 +140,9 @@
         .doc-info div { margin-bottom: 2px; }
         .doc-label { font-weight: normal !important; display: inline-block; width: 145px; }
 
-        /* TABEL UTAMA - MENEMPEL KE ATAS */
         .main-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 0;
             margin-bottom: 25px;
         }
 
