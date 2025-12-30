@@ -32,7 +32,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        /* INPUT TITIK-TITIK - NORMAL (TIDAK BOLD) */
+        /* INPUT TITIK-TITIK - SEKARANG DIBUAT BOLD */
         .input-dot {
             border: none;
             border-bottom: 1px dotted black;
@@ -41,7 +41,7 @@
             font-size: 10.5pt;
             outline: none;
             background: transparent;
-            font-weight: normal !important; 
+            font-weight: bold !important; /* Diubah menjadi Bold sesuai permintaan */
             color: #000;
         }
 
@@ -54,7 +54,7 @@
             text-align: center;
             outline: none;
             background: transparent;
-            font-weight: normal !important;
+            font-weight: normal;
         }
 
         /* PANEL PENCARIAN */
@@ -86,11 +86,11 @@
             border-radius: 4px;
         }
 
-        /* HEADER - LOGO & NAMA PT DITURUNKAN AGAR DEKAT DENGAN ISI */
+        /* HEADER - LOGO & NAMA PT DITURUNKAN */
         .header {
             position: relative;
             margin-bottom: 0;
-            height: 85px; /* Memberi ruang agar logo bisa turun mendekati No Dokumen */
+            height: 80px; 
         }
 
         .logo-area {
@@ -99,46 +99,51 @@
             gap: 12px;
             position: absolute;
             left: 0;
-            top: 45px; /* LOGO & NAMA PT DITURUNKAN AGAR DEKAT KE DATA BAWAHNYA */
+            top: 30px; 
         }
 
         .logo { width: 95px; height: auto; }
-        .company-name { font-size: 14px; font-weight: normal !important; }
+        .company-name { font-size: 14px; font-weight: bold; }
 
         .title {
             font-size: 26px;
-            font-weight: normal !important; 
+            font-weight: bold; 
             text-align: center;
             width: 100%;
             margin: 0;
-            padding-top: 45px; /* JUDUL DITURUNKAN SEJAJAR DENGAN LOGO */
+            padding-top: 30px; 
         }
 
-        /* META SECTION - DEKAT DENGAN TABEL */
+        /* META SECTION - KASIH JARAK 1 SPASI (25px) DAN TEKS BOLD */
         .meta-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-end; 
-            margin-bottom: 5px; /* Sangat dekat ke tabel */
-            margin-top: 10px;  /* Jarak minimal agar logo di atas terlihat dekat */
+            margin-bottom: 5px; 
+            margin-top: 25px;  /* Memberi jarak 1 spasi (sekitar 10mm/25px) agar tidak nempel */
         }
 
-        /* SEMUA TEKS IDENTITAS NORMAL (TIDAK BOLD) */
+        /* IDENTITAS MESIN DIBUAT BOLD */
         .machine-info div { 
             margin-bottom: 4px; 
             font-size: 10.5pt; 
-            font-weight: normal !important; 
+            font-weight: bold !important; /* Dibuat Bold sesuai permintaan */
         }
         
         .label { 
-            font-weight: normal !important; 
+            font-weight: bold !important; 
             display: inline-block; 
             width: 165px; 
         }
 
-        .doc-info { text-align: left; font-size: 10.5pt; font-weight: normal !important; }
+        #d_mesin {
+            font-weight: bold !important; /* Nama Mesin dari database juga Bold */
+        }
+
+        /* INFO DOKUMEN DIBUAT BOLD */
+        .doc-info { text-align: left; font-size: 10.5pt; font-weight: bold !important; }
         .doc-info div { margin-bottom: 2px; }
-        .doc-label { font-weight: normal !important; display: inline-block; width: 145px; }
+        .doc-label { font-weight: bold !important; display: inline-block; width: 140px; }
 
         .main-table {
             width: 100%;
@@ -162,7 +167,7 @@
             text-align: center;
             vertical-align: middle;
             height: 25px;
-            font-weight: normal !important;
+            font-weight: normal;
         }
 
         .signature-section { margin-top: 20px; }
