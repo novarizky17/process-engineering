@@ -24,12 +24,22 @@
             text-transform: uppercase; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* HEADER BARU SESUAI PERMINTAAN */
+        /* HEADER ISO */
         .main-header { width: 100%; border-collapse: collapse; border: 2px solid black; margin-bottom: 12px; }
         .main-header td { border: 1px solid black; padding: 5px; vertical-align: middle; }
         .logo-box { width: 150px; padding: 15px !important; text-align: center !important; }
         .logo-img { width: 130px; height: auto; }
-        .company-col { font-size: 16pt; font-weight: bold; padding: 10px !important; border-bottom: 1px solid black; text-align: center !important; }
+
+        /* PERBAIKAN: UKURAN FONT DIPERKECIL AGAR HORIZONTAL */
+        .company-col { 
+            font-size: 12pt; /* Ukuran font diperkecil dari 16pt ke 12pt */
+            font-weight: bold; 
+            padding: 10px !important; 
+            border-bottom: 1px solid black; 
+            text-align: center !important; 
+            white-space: nowrap; /* Memaksa teks tetap satu baris */
+        }
+
         .meta-box { width: 260px; padding: 0 !important; }
         .meta-table { width: 100%; border-collapse: collapse; font-size: 8pt; text-align: left; }
         .meta-table td { border: none !important; border-bottom: 1px solid black !important; padding: 4px 8px !important; text-align: left !important; font-weight: bold; }
@@ -37,7 +47,7 @@
         .meta-label { width: 105px; }
         .title-row-cell { font-size: 14pt; font-weight: bold; line-height: 1.4; text-transform: uppercase; padding: 10px !important; text-align: center !important; }
 
-        /* Struktur Data Laporan */
+        /* Struktur Data Laporan Sejajar */
         .view-row { display: flex; align-items: center; margin-bottom: 6px; font-weight: bold; color: #000; }
         .view-label { width: 220px; flex-shrink: 0; }
         .view-separator { width: 15px; flex-shrink: 0; text-align: center; }
@@ -46,42 +56,21 @@
         .check-box { width: 15px; height: 15px; border: 1.5px solid black; display: inline-flex; align-items: center; justify-content: center; background: white; font-size: 9pt; font-weight: bold; flex-shrink: 0; }
         .section-label { font-weight: bold; margin-top: 12px; margin-bottom: 6px; display: block; color: #000; text-decoration: underline; }
         .dotted-item { display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px dotted #000; min-height: 22px; padding-bottom: 1px; margin-bottom: 4px; color: #000; }
+        
+        /* Tabel Part - Struktur Asli */
         .part-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 8px; color: #000; }
         .part-table th, .part-table td { border: 1.5px solid black; padding: 5px; text-align: center; }
         .part-table th { font-size: 9pt; font-weight: bold; background-color: #f2f2f2; }
 
-        /* PERBAIKAN: HILANGKAN BORDER KOTAK TANDA TANGAN */
-        .sig-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr 1fr; 
-            border: none; /* Hilangkan border kotak utama */
-            margin-top: auto; 
-            width: 100%; 
-        }
-        .sig-box { 
-            text-align: center; 
-            display: flex; 
-            flex-direction: column; 
-            height: 180px; 
-            position: relative; 
-            box-sizing: border-box;
-            border: none; /* Hilangkan border kotak tiap kolom */
-        }
+        /* Tanda Tangan Tanpa Border Kotak */
+        .sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border: none; margin-top: auto; width: 100%; }
+        .sig-box { text-align: center; display: flex; flex-direction: column; height: 180px; position: relative; box-sizing: border-box; border: none; }
         .sig-header { font-weight: bold; font-size: 9pt; padding: 8px; border: none; background: transparent; }
         .sig-area { flex-grow: 1; padding: 10px; display: flex; justify-content: center; align-items: flex-start; }
         .sig-area img { max-height: 80px; width: auto; }
 
-        /* Nama di Atas Garis Horizontal Tetap Dipertahankan */
-        .sig-name-container { 
-            position: absolute; 
-            bottom: 31px; 
-            left: 0; 
-            right: 0; 
-            text-align: center; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-        }
+        /* Nama di Atas Garis Horizontal */
+        .sig-name-container { position: absolute; bottom: 31px; left: 0; right: 0; text-align: center; display: flex; flex-direction: column; align-items: center; }
         .name-text { font-weight: bold; font-size: 9pt; text-transform: uppercase; color: #000; margin-bottom: 2px; }
         .sig-line-horizontal { border-top: 1.8px solid black; width: 85%; }
         .sig-footer { padding: 6px; font-weight: bold; font-size: 9pt; text-transform: uppercase; border: none; background: transparent; margin-top: auto; }
