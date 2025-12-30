@@ -32,18 +32,20 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        /* Input titik-titik - Dipastikan NORMAL (Tidak Bold) */
+        /* INPUT TITIK-TITIK - NORMAL (TIDAK BOLD) */
         .input-dot {
             border: none;
             border-bottom: 1px dotted black;
-            width: 350px; /* Diperpanjang sesuai gambar a5ff2b */
+            width: 380px; 
             font-family: Arial;
             font-size: 10.5pt;
             outline: none;
             background: transparent;
-            font-weight: normal; 
+            font-weight: normal !important;
+            color: #000;
         }
 
+        /* INPUT TABEL - NORMAL (TIDAK BOLD) */
         .table-input {
             border: none;
             width: 95%;
@@ -53,9 +55,10 @@
             text-align: center;
             outline: none;
             background: transparent;
-            font-weight: normal;
+            font-weight: normal !important;
         }
 
+        /* AREA PENCARIAN */
         .search-area {
             background: #1e293b;
             padding: 15px;
@@ -111,35 +114,36 @@
             padding-top: 6px;
         }
 
-        /* META SECTION - Diturunkan lebih bawah sesuai gambar */
+        /* META SECTION - DITURUNKAN POSISINYA */
         .meta-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 20px;
-            margin-top: 45px; /* Jarak ditambah agar lebih turun */
+            margin-bottom: 25px;
+            margin-top: 60px; /* Diturunkan lebih rendah dari header */
         }
 
         .machine-info div { 
-            margin-bottom: 6px; 
+            margin-bottom: 8px; 
             font-size: 10.5pt; 
-            font-weight: normal; 
+            font-weight: normal !important; 
         }
         
         .label { 
             font-weight: bold; 
             display: inline-block; 
-            width: 155px; 
+            width: 160px; 
         }
 
         #d_mesin {
-            font-weight: normal; 
+            font-weight: normal !important; 
         }
 
-        .doc-info { text-align: left; font-size: 10.5pt; font-weight: normal; }
+        .doc-info { text-align: left; font-size: 10.5pt; font-weight: normal !important; }
         .doc-info div { margin-bottom: 4px; }
         .doc-label { font-weight: bold; display: inline-block; width: 140px; }
 
+        /* TABEL UTAMA - ISI TIDAK BOLD */
         .main-table {
             width: 100%;
             border-collapse: collapse;
@@ -162,9 +166,10 @@
             text-align: center;
             vertical-align: middle;
             height: 25px;
-            font-weight: normal; /* Isi tabel tidak bold */
+            font-weight: normal !important;
         }
 
+        /* TANDA TANGAN */
         .signature-section { margin-top: 20px; }
         .signature-row {
             display: flex;
@@ -343,8 +348,6 @@
                 `;
                 tbody.appendChild(tr);
             });
-        } else {
-            alert("Data tidak ditemukan.");
         }
 
         const remaining = 20 - (reports ? reports.length : 0);
