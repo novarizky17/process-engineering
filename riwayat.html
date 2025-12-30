@@ -90,7 +90,7 @@
         .header {
             position: relative;
             margin-bottom: 0;
-            height: 70px; /* Tinggi dikurangi agar lebih rapat */
+            height: 65px; 
         }
 
         .logo-area {
@@ -99,12 +99,10 @@
             gap: 12px;
             position: absolute;
             left: 0;
-            top: 10px; /* Posisi logo disesuaikan agar dekat dengan meta */
+            top: 5px; 
         }
 
         .logo { width: 95px; height: auto; }
-        
-        /* Nama PT dan Judul - Normal (Tidak Bold) */
         .company-name { font-size: 14px; font-weight: normal !important; }
 
         .title {
@@ -113,19 +111,19 @@
             text-align: center;
             width: 100%;
             margin: 0;
-            padding-top: 10px;
+            padding-top: 5px;
         }
 
-        /* META SECTION - DIRAPATKAN KE AREA LOGO */
+        /* META SECTION - DITURUNKAN DAN SANGAT DEKAT DENGAN KOLOM */
         .meta-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-end; 
-            margin-bottom: 25px; /* Jarak 1 baris kolom ke tabel */
-            margin-top: 5px;   /* Jarak dipersempit agar dekat dengan logo di atasnya */
+            margin-bottom: 5px; /* SANGAT DEKAT DENGAN TABEL */
+            margin-top: 45px;   /* POSISI DITURUNKAN DARI LOGO */
         }
 
-        /* TEKS IDENTITAS MESIN NORMAL (TIDAK BOLD) */
+        /* SEMUA TEKS IDENTITAS NORMAL (TIDAK BOLD) */
         .machine-info div { 
             margin-bottom: 4px; 
             font-size: 10.5pt; 
@@ -142,9 +140,11 @@
         .doc-info div { margin-bottom: 2px; }
         .doc-label { font-weight: normal !important; display: inline-block; width: 145px; }
 
+        /* TABEL UTAMA - MENEMPEL KE ATAS */
         .main-table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 0;
             margin-bottom: 25px;
         }
 
