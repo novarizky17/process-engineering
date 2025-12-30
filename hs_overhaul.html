@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Optimasi Kertas A4 Portrait */
+        /* Pengaturan Kertas A4 */
         @page { 
             size: A4 portrait; 
             margin: 0; 
@@ -22,7 +22,7 @@
             color: #000; 
         }
         
-        /* Layout Dokumen Utama - Dipaksa 1 Halaman */
+        /* Layout Dokumen Utama - Full 1 Halaman */
         .document-page { 
             width: 210mm; 
             height: 296mm; 
@@ -36,9 +36,9 @@
             overflow: hidden;
         }
 
-        /* Header ISO Standar */
+        /* Header ISO */
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; border: 2.5px solid black; }
-        .header-table td { border: 1.5px solid black; padding: 5px 10px; vertical-align: middle; color: #000; }
+        .header-table td { border: 1px solid black; padding: 5px 10px; vertical-align: middle; color: #000; }
         .logo-box { width: 130px; text-align: center; }
         .logo-box img { width: 100px; margin: 0 auto; }
         .title-cell { text-align: center; line-height: 1.3; }
@@ -71,12 +71,12 @@
         .part-table th { font-size: 9pt; font-weight: bold; background-color: #f2f2f2; }
         .tindak-lanjut-layout { display: flex; justify-content: space-around; width: 100%; }
 
-        /* PERBAIKAN GRID TANDA TANGAN */
+        /* KUNCI KESELARASAN TANDA TANGAN */
         .sig-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr 1fr; 
             border: 2px solid black; 
-            margin-top: auto; /* Mengunci posisi di paling bawah halaman */
+            margin-top: auto; 
             width: 100%;
         }
         .sig-box { 
@@ -84,7 +84,8 @@
             text-align: center; 
             display: flex; 
             flex-direction: column; 
-            height: 170px; /* Tinggi seragam agar garis sejajar */
+            height: 180px; /* Tinggi dikunci seragam */
+            position: relative; /* Penting untuk posisi nama */
             box-sizing: border-box;
         }
         .sig-box:last-child { border-right: none; }
@@ -93,22 +94,29 @@
             border-bottom: 2px solid black; background: #f2f2f2; 
         }
         .sig-area { 
-            flex-grow: 1; display: flex; flex-direction: column; 
-            align-items: center; justify-content: flex-end; 
-            padding: 10px; 
+            flex-grow: 1; padding: 10px;
+            display: flex; justify-content: center; align-items: flex-start;
         }
-        .sig-area img { max-height: 75px; width: auto; margin-bottom: 5px; }
+        .sig-area img { max-height: 80px; width: auto; }
+
+        /* Wadah Nama Dikunci di Atas Footer */
+        .sig-name-container {
+            position: absolute;
+            bottom: 35px; /* Jarak tetap dari area abu-abu terbawah */
+            left: 0;
+            right: 0;
+            text-align: center;
+        }
         
-        /* Nama dan Garis Horizontal */
         .name-under-sig, .engineer-name-style { 
             font-weight: bold; font-size: 9pt; text-transform: uppercase; 
-            border-top: 2px solid black; /* Garis pembatas tanda tangan */
-            width: 85%; margin: 2px auto 0; padding-top: 3px; display: block; color: #000; 
+            border-top: 2px solid black; /* Garis horizontal lurus sejajar */
+            width: 85%; margin: 0 auto; padding-top: 3px; display: block; color: #000; 
         }
         .sig-footer { 
             border-top: 2px solid black; padding: 6px; 
             font-weight: bold; font-size: 9pt; text-transform: uppercase; 
-            background: #f2f2f2; margin-top: auto; /* Menghilangkan celah putih */
+            background: #f2f2f2; margin-top: auto; /* Menempel ke dasar kotak */
         }
 
         .note-line { border-bottom: 1.5px solid black; min-height: 20px; width: 100%; margin-bottom: 2px; font-style: italic; display: flex; align-items: flex-end; color: #000; }
@@ -118,7 +126,7 @@
         
         @media print { 
             .no-print { display: none !important; } 
-            body { background: white; padding: 0; margin: 0; }
+            body { background: white; padding: 0; }
             .modal { position: absolute; display: block; background: none; padding: 0; }
             .document-page { border: 1.5px solid black; margin: 0; padding: 10mm; width: 210mm; height: 297mm; box-shadow: none; }
         }
@@ -183,24 +191,24 @@
             <div class="sig-grid">
                 <div class="sig-box">
                     <div class="sig-header">Dikerjakan Oleh:</div>
-                    <div class="sig-area">
-                        <img id="view-sig-eng">
+                    <div class="sig-area"><img id="view-sig-eng"></div>
+                    <div class="sig-name-container">
                         <span id="view-name-eng" class="engineer-name-style"></span>
                     </div>
                     <div class="sig-footer">ENGINEER</div>
                 </div>
                 <div class="sig-box">
                     <div class="sig-header">Diperiksa Oleh:</div>
-                    <div class="sig-area">
-                        <img id="view-sig-spt">
+                    <div class="sig-area"><img id="view-sig-spt"></div>
+                    <div class="sig-name-container">
                         <span id="view-name-spt" class="name-under-sig"></span>
                     </div>
                     <div class="sig-footer">SPV / SUPERINTENDENT</div>
                 </div>
                 <div class="sig-box">
                     <div class="sig-header">Mengetahui:</div>
-                    <div class="sig-area">
-                        <img id="view-sig-mn">
+                    <div class="sig-area"><img id="view-sig-mn"></div>
+                    <div class="sig-name-container">
                         <span id="view-name-mn" class="name-under-sig"></span>
                     </div>
                     <div class="sig-footer">MANAGER</div>
@@ -220,8 +228,8 @@
 
         function fmtDate(iso) {
             if(!iso) return "-";
-            const d = new Date(iso);
-            return d.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'});
+            const date = new Date(iso);
+            return date.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'});
         }
 
         async function fetchHistory() {
