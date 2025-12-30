@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manager - Approval & Monitoring Overhaul</title>
+    <title>Manager - Final Approval Overhaul</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -23,6 +23,7 @@
         .status-badge { padding: 2px 8px; border-radius: 12px; font-weight: bold; font-size: 10px; text-transform: uppercase; }
         .approved-all { background: #dcfce7; color: #15803d; }
         .partial { background: #e0f2fe; color: #0369a1; }
+        .rejected { background: #fee2e2; color: #b91c1c; }
     </style>
 </head>
 <body>
@@ -58,11 +59,19 @@
 <div id="modalManager" class="modal">
     <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
         <div class="bg-slate-50 p-5 border-b flex justify-between items-center">
-            <h2 class="text-xl font-bold text-slate-800">Final Review & Signature</h2>
+            <h2 class="text-xl font-bold text-slate-800">Final Review & Decision</h2>
             <button onclick="closeModal()" class="text-3xl font-light hover:text-red-500 transition">&times;</button>
         </div>
         
         <div class="p-8 overflow-y-auto flex-grow" id="modalContent"></div>
+
+        <div class="px-8 pb-4">
+            <div class="bg-slate-100 p-4 rounded-xl border-l-4 border-slate-500">
+                <p class="text-[10px] font-black text-slate-500 uppercase mb-1">Hasil Evaluasi Superintendent (Pemeriksa):</p>
+                <p id="view_spt_name_modal" class="text-xs font-bold text-slate-800 uppercase mb-1"></p>
+                <p id="view_spt_notes_modal" class="text-sm italic text-slate-600 font-medium"></p>
+            </div>
+        </div>
 
         <div class="p-6 bg-slate-50 border-t grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="text-center">
@@ -77,15 +86,18 @@
                     <img id="sig-spt" class="max-h-full" alt="TTD SPT">
                 </div>
             </div>
-            <div id="managerActionPanel" class="text-center">
-                <p class="text-[10px] font-bold text-blue-600 uppercase mb-2">Manager (Penyetuju Akhir)</p>
+            <div id="managerDecisionPanel" class="text-center">
+                <p class="text-[10px] font-bold text-blue-600 uppercase mb-2">Manager (Keputusan Akhir)</p>
+                
                 <div id="managerSigInput">
                     <canvas id="can-manager" class="sig-canvas mb-2"></canvas>
                     <div class="flex gap-2 justify-center">
-                        <button onclick="clearCanvas()" class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded">RESET</button>
-                        <button onclick="saveFinalApproval()" class="text-[10px] bg-green-600 text-white px-4 py-1 rounded font-bold">SETUJUI</button>
+                        <button onclick="clearCanvas()" class="text-[10px] bg-slate-200 text-slate-600 px-2 py-1 rounded font-bold">RESET</button>
+                        <button onclick="saveDecision('Rejected')" class="text-[10px] bg-red-600 text-white px-3 py-1 rounded font-bold hover:bg-red-700 transition">TOLAK</button>
+                        <button onclick="saveDecision('Final_Approved')" class="text-[10px] bg-green-600 text-white px-4 py-1 rounded font-bold hover:bg-green-700 transition">SETUJUI</button>
                     </div>
                 </div>
+
                 <div id="managerSigView" style="display: none;" class="bg-white border border-blue-200 rounded p-2 h-24 flex items-center justify-center">
                     <img id="view-sig-manager" class="max-h-full">
                 </div>
@@ -102,7 +114,6 @@
     let currentId = null;
     let canvas, ctx, drawing = false;
 
-    // FUNGSI KHUSUS TANGGAL SAJA (Digunakan pada Tabel Utama)
     function formatIndoDateOnly(isoString) {
         if (!isoString) return "-";
         try {
@@ -112,7 +123,6 @@
         } catch (e) { return isoString; }
     }
 
-    // FUNGSI TANGGAL & JAM (Digunakan pada Detail Modal agar durasi tetap akurat)
     function formatIndoDateTime(isoString) {
         if (!isoString) return "-";
         try {
@@ -125,22 +135,27 @@
     }
 
     async function fetchLaporan() {
-        const { data, error } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
+        const { data } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
         const list = document.getElementById('listLaporan');
         
         if (data) {
-            list.innerHTML = data.map(row => `
+            list.innerHTML = data.map(row => {
+                let badgeClass = 'partial';
+                if (row.status === 'Final_Approved') badgeClass = 'approved-all';
+                if (row.status === 'Rejected') badgeClass = 'rejected';
+
+                return `
                 <tr class="border-b hover:bg-slate-50 transition-all text-sm">
                     <td class="p-4 font-medium text-slate-500">${formatIndoDateOnly(row.created_at)}</td>
                     <td class="p-4 font-bold text-slate-800 uppercase">${row.nama_mesin}</td>
                     <td class="p-4">${row.job_type}</td>
                     <td class="p-4">${row.engineer_name}</td>
-                    <td class="p-4"><span class="status-badge ${row.status === 'Final_Approved' ? 'approved-all' : 'partial'}">${row.status}</span></td>
+                    <td class="p-4"><span class="status-badge ${badgeClass}">${row.status}</span></td>
                     <td class="p-4 text-center">
-                        <button onclick='viewDetail(${JSON.stringify(row)})' class="bg-[#1e293b] text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-md hover:scale-105 transition-transform">DETAIL & SIGN</button>
+                        <button onclick='viewDetail(${JSON.stringify(row)})' class="bg-[#1e293b] text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-md hover:scale-105 transition-transform">DETAIL & DECIDE</button>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
     }
 
@@ -173,20 +188,20 @@
                     ${part.map(pt => `<tr class="border-t"><td class="uppercase">${pt.nama_part}</td><td class="text-center font-bold text-blue-600">${pt.qty}</td><td class="text-center uppercase text-[9px]">${pt.tindak_lanjut}</td></tr>`).join('')}
                 </table>
             </div>
-
-            <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 italic text-sm text-slate-700">
-                <p class="text-[9px] font-bold text-blue-800 uppercase mb-1">Rekomendasi Engineer:</p>
-                "${row.rekomendasi_catatan || '-'}"
-            </div>
         `;
+
+        // Menampilkan Catatan Superintendent
+        document.getElementById('view_spt_name_modal').innerText = "Oleh: " + (row.spt_name || "-");
+        document.getElementById('view_spt_notes_modal').innerText = `"${row.spt_notes || 'Tidak ada catatan khusus.'}"`;
 
         document.getElementById('sig-engineer').src = row.signature_engineer || '';
         document.getElementById('sig-spt').src = row.signature_superintendent || '';
 
-        const hasManagerSign = row.status === 'Final_Approved';
-        document.getElementById('managerSigInput').style.display = hasManagerSign ? 'none' : 'block';
-        document.getElementById('managerSigView').style.display = hasManagerSign ? 'block' : 'none';
-        if (hasManagerSign) {
+        const hasDecision = (row.status === 'Final_Approved' || row.status === 'Rejected');
+        document.getElementById('managerSigInput').style.display = hasDecision ? 'none' : 'block';
+        document.getElementById('managerSigView').style.display = hasDecision ? 'block' : 'none';
+        
+        if (hasDecision) {
             document.getElementById('view-sig-manager').src = row.signature_manager || '';
         }
 
@@ -204,29 +219,46 @@
         }, 100);
     }
 
-    async function saveFinalApproval() {
+    async function saveDecision(statusValue) {
         const signature = canvas.toDataURL();
         const blank = document.createElement('canvas');
         blank.width = canvas.width; blank.height = canvas.height;
+        
         if (signature === blank.toDataURL()) return alert("Tanda tangan Manager wajib diisi!");
 
+        const confirmText = statusValue === 'Final_Approved' ? "Setujui Laporan ini?" : "Tolak Laporan ini?";
+        if (!confirm(confirmText)) return;
+
         const { error } = await _sb.from('laporan_maintenance')
-            .update({ status: 'Final_Approved', signature_manager: signature })
+            .update({ 
+                status: statusValue, 
+                signature_manager: signature 
+            })
             .eq('id', currentId);
 
         if (!error) {
-            alert("Approval Final Berhasil!");
+            alert("Keputusan Berhasil Disimpan!");
             closeModal();
             fetchLaporan();
         }
     }
 
     function clearCanvas() { if(ctx) ctx.clearRect(0,0,canvas.width,canvas.height); }
-    function getP(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top }; }
+    function getP(e) { 
+        const r = canvas.getBoundingClientRect(); 
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - r.left, y: clientY - r.top }; 
+    }
     
     document.addEventListener('mousedown', (e) => { if(e.target === canvas) { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); } });
     document.addEventListener('mousemove', (e) => { if(drawing && e.target === canvas) { const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); } });
     document.addEventListener('mouseup', () => drawing=false);
+
+    // Support Touch Screen
+    document.addEventListener('touchstart', (e) => { if(e.target === canvas) { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); } });
+    document.addEventListener('touchmove', (e) => { if(drawing && e.target === canvas) { e.preventDefault(); const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); } });
+    document.addEventListener('touchend', () => drawing=false);
 
     function closeModal() { document.getElementById('modalManager').style.display = 'none'; }
     window.onload = fetchLaporan;
