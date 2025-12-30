@@ -86,11 +86,11 @@
             border-radius: 4px;
         }
 
-        /* HEADER - DITURUNKAN LEBIH JAUH */
+        /* HEADER - POSISI DITURUNKAN LEBIH JAUH */
         .header {
             position: relative;
             margin-bottom: 0;
-            height: 120px; /* Ditambah untuk penurunan logo */
+            height: 100px; /* Ditambah agar area penurunan lebih luas */
         }
 
         .logo-area {
@@ -99,33 +99,31 @@
             gap: 12px;
             position: absolute;
             left: 0;
-            top: 50px; /* Posisi logo diturunkan lebih jauh */
+            top: 40px; /* DITURUNKAN LEBIH JAUH */
         }
 
         .logo { width: 95px; height: auto; }
-        
-        /* Nama PT dan Judul - Normal (Tidak Bold) */
-        .company-name { font-size: 14px; font-weight: normal !important; }
+        .company-name { font-size: 14px; font-weight: bold; }
 
         .title {
             font-size: 26px;
-            font-weight: normal !important; /* Judul tidak tebal */
+            font-weight: bold;
             text-align: center;
             width: 100%;
             margin: 0;
-            padding-top: 50px; /* Sejajar logo */
+            padding-top: 40px; /* Judul diturunkan sejajar logo */
         }
 
-        /* META SECTION - TEKS NORMAL & JARAK 1 KOLOM KE TABEL */
+        /* META SECTION - JARAK 10MM DARI LOGO */
         .meta-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-end; 
-            margin-bottom: 25px; /* Memberi jarak space 1 kolom ke tabel */
-            margin-top: 40px; 
+            margin-bottom: 2px; /* Menempel dengan tabel */
+            margin-top: 38px;  /* Jarak sekitar 10mm dari header logo di atasnya */
         }
 
-        /* SEMUA LABEL DAN ISI - NORMAL (TIDAK BOLD) */
+        /* TEKS IDENTITAS MESIN NORMAL (TIDAK BOLD) */
         .machine-info div { 
             margin-bottom: 4px; 
             font-size: 10.5pt; 
@@ -232,7 +230,7 @@
             <div><span class="label">LOKASI MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
         </div>
 
-        <div class="doc-info">
+        <div class="doc-info" style="font-weight: normal !important;">
             <div><span class="doc-label">No Dokumen</span>: AF.SP 05.18.Rev-00</div>
             <div><span class="doc-label">Tanggal Terbit</span>: 02 Agustus 2024</div>
             <div><span class="doc-label">Halaman</span>: 1/1</div>
