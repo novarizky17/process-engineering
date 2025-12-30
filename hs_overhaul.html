@@ -7,101 +7,90 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #f1f5f9; padding: 20px; font-family: Arial, sans-serif; font-size: 9.5pt; color: #000; }
+        /* Pengaturan Kertas A4 */
+        @page { 
+            size: A4 portrait; 
+            margin: 0; 
+        }
+
+        body { 
+            background-color: #f1f5f9; 
+            margin: 0; 
+            padding: 20px; 
+            font-family: Arial, sans-serif; 
+            font-size: 9pt; 
+            color: #000; 
+        }
         
-        /* Layout Dokumen Utama */
+        /* Layout Dokumen Utama - Dipaksa 1 Halaman */
         .document-page { 
             width: 210mm; 
-            min-height: 297mm; 
+            height: 295mm; /* Sedikit kurang dari 297mm agar aman dari margin browser */
             background: white; 
             margin: 0 auto; 
-            padding: 10mm; 
-            border: 2px solid #000; 
+            padding: 8mm; 
+            border: 1px solid #000; 
             box-sizing: border-box; 
+            overflow: hidden; /* Mencegah munculnya halaman kedua */
         }
 
-        /* Header Dokumen ISO */
-        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; border: 2.5px solid black; }
-        .header-table td { border: 1px solid black; padding: 5px 10px; vertical-align: middle; }
-        .logo-box { width: 140px; text-align: center; border-right: 2px solid black !important; }
-        .logo-box img { width: 110px; margin: 0 auto; }
-        .title-cell { text-align: center; border-right: 2px solid black !important; }
-        .company-name { font-weight: bold; font-size: 11pt; border-bottom: 1px solid black; padding-bottom: 4px; margin-bottom: 4px; }
-        .report-title { font-weight: bold; font-size: 11pt; text-transform: uppercase; }
-        .meta-cell { width: 240px; padding: 0 !important; }
+        /* Header ISO */
+        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; border: 2px solid black; }
+        .header-table td { border: 1px solid black; padding: 4px 8px; vertical-align: middle; color: #000; }
+        .logo-box { width: 120px; text-align: center; }
+        .logo-box img { width: 90px; margin: 0 auto; }
+        .title-cell { text-align: center; line-height: 1.2; }
+        .company-name { font-weight: bold; font-size: 10pt; border-bottom: 1px solid black; padding-bottom: 2px; }
+        .report-title { font-weight: bold; font-size: 10pt; text-transform: uppercase; margin-top: 2px; }
+        .meta-cell { width: 220px; padding: 0 !important; }
         .meta-table { width: 100%; border-collapse: collapse; }
-        .meta-table td { border: none !important; border-bottom: 1px solid black !important; padding: 4px 8px !important; font-size: 8.5pt; font-weight: bold; }
+        .meta-table td { border: none !important; border-bottom: 1px solid black !important; padding: 2px 6px !important; font-size: 8pt; font-weight: bold; }
+        .meta-table tr:last-child td { border-bottom: none !important; }
         
-        .view-row { display: flex; align-items: center; margin-bottom: 8px; font-weight: bold; }
-        .view-label { width: 230px; flex-shrink: 0; }
+        /* Data Row */
+        .view-row { display: flex; align-items: center; margin-bottom: 5px; font-weight: bold; color: #000; }
+        .view-label { width: 200px; flex-shrink: 0; }
         .view-line { border-bottom: 1px solid black; flex-grow: 1; padding: 0 5px; font-weight: normal; color: #000; }
         
-        .box-container { display: flex; align-items: center; gap: 5px; }
+        .box-container { display: flex; align-items: center; gap: 4px; }
         .check-box { 
-            width: 15px; 
-            height: 15px; 
-            border: 1.2px solid black; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            background: white; 
-            font-size: 9pt; 
-            font-weight: bold; 
-            line-height: 1;
-            flex-shrink: 0;
+            width: 14px; height: 14px; border: 1.2px solid black; 
+            display: inline-flex; align-items: center; justify-content: center; 
+            background: white; font-size: 8pt; font-weight: bold; flex-shrink: 0; 
         }
         
-        .section-label { font-weight: bold; margin-top: 15px; margin-bottom: 8px; display: block; }
-        .dotted-item { display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px dotted #000; min-height: 22px; padding-bottom: 1px; margin-bottom: 4px; }
+        .section-label { font-weight: bold; margin-top: 10px; margin-bottom: 4px; display: block; color: #000; }
+        .dotted-item { display: flex; align-items: flex-end; gap: 6px; border-bottom: 1px dotted #000; min-height: 20px; margin-bottom: 3px; color: #000; }
 
-        .part-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 5px; }
-        .part-table th, .part-table td { border: 1px solid black; padding: 5px; text-align: center; }
-        .part-table th { font-size: 8.5pt; font-weight: bold; background-color: #f2f2f2; }
+        /* Tabel Part */
+        .part-table { width: 100%; border-collapse: collapse; border: 1.5px solid black; margin-top: 5px; }
+        .part-table th, .part-table td { border: 1px solid black; padding: 4px; text-align: center; }
+        .part-table th { font-size: 8pt; font-weight: bold; background-color: #f2f2f2; }
         .tindak-lanjut-layout { display: flex; justify-content: space-around; width: 100%; }
 
-        /* Grid Tanda Tangan */
-        .sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 2px solid black; margin-top: 30px; }
-        .sig-box { border-right: 2px solid black; text-align: center; display: flex; flex-direction: column; min-height: 140px; }
+        /* Grid Tanda Tangan Rapi */
+        .sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 1.5px solid black; margin-top: 15px; }
+        .sig-box { border-right: 1.5px solid black; text-align: center; display: flex; flex-direction: column; height: 140px; }
         .sig-box:last-child { border-right: none; }
-        .sig-header { font-weight: bold; font-size: 9.5pt; padding: 8px; border-bottom: 1.5px solid black; background: #fafafa; }
+        .sig-header { font-weight: bold; font-size: 8.5pt; padding: 4px; border-bottom: 1.5px solid black; background: #fafafa; }
+        .sig-area { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 5px; }
+        .sig-area img { max-height: 60px; width: auto; margin-bottom: 2px; }
         
-        .sig-area { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px; }
-        .sig-area img { max-height: 70px; margin-bottom: 2px; }
-        
-        .name-under-sig { 
-            font-weight: bold; 
-            font-size: 8.5pt; 
-            text-transform: uppercase; 
-            margin-top: auto; 
-            padding-bottom: 1px;
-            border-bottom: 1px solid black;
-            display: inline-block;
-            min-width: 120px;
-            color: #000;
+        .name-under-sig, .engineer-name-style { 
+            font-weight: bold; font-size: 8pt; text-transform: uppercase; 
+            border-top: 1.2px solid black; width: 85%; margin: 2px auto 0; padding-top: 2px; display: block; color: #000; 
         }
+        .sig-footer { border-top: 1.2px solid black; padding: 4px; font-weight: bold; font-size: 8.5pt; text-transform: uppercase; background: #f2f2f2; }
 
-        .sig-footer { border-top: 1.5px solid black; padding: 6px; font-weight: bold; font-size: 9pt; text-transform: uppercase; background: #fff; }
-        
-        .engineer-name-style { 
-            font-weight: bold; 
-            font-size: 9pt; 
-            text-transform: uppercase; 
-            margin-top: auto;
-            border-bottom: 1px solid black;
-            display: inline-block;
-            min-width: 120px;
-            color: #000;
-        }
+        .note-line { border-bottom: 1px solid black; min-height: 18px; width: 100%; margin-bottom: 1px; font-style: italic; display: flex; align-items: flex-end; color: #000; font-size: 8.5pt; }
 
-        .note-line { border-bottom: 1px solid black; min-height: 22px; width: 100%; margin-bottom: 2px; font-style: italic; display: flex; align-items: flex-end; }
-
-        .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.6); align-items: flex-start; justify-content: center; overflow-y: auto; padding: 40px 20px; }
+        .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; overflow-y: auto; }
         
         @media print { 
             .no-print { display: none !important; } 
-            body { background: white; padding: 0; }
-            .modal { position: static; display: block; background: none; padding: 0; }
-            .document-page { border: 2px solid black; margin: 0; box-shadow: none; width: 100%; }
+            body { background: white; padding: 0; margin: 0; }
+            .modal { position: absolute; display: block; background: none; padding: 0; }
+            .document-page { border: none; margin: 0; padding: 10mm; width: 210mm; height: 297mm; }
         }
     </style>
 </head>
@@ -109,13 +98,13 @@
 
     <div class="max-w-6xl mx-auto mb-6 no-print">
         <div class="bg-[#003366] text-white p-4 rounded-t-lg flex justify-between items-center shadow-lg">
-            <h1 class="text-xl font-bold uppercase tracking-wide">History Laporan Perawatan & Overhaul</h1>
+            <h1 class="text-xl font-bold uppercase">History Laporan Maintenance</h1>
             <div class="flex gap-2">
                 <button onclick="window.location.href='dashboard.html'" class="bg-slate-600 px-4 py-1.5 rounded text-xs font-bold uppercase">Dashboard</button>
                 <button onclick="fetchHistory()" class="bg-blue-500 px-4 py-1.5 rounded text-xs font-bold uppercase">Refresh</button>
             </div>
         </div>
-        <div class="bg-white p-4 border border-slate-200 rounded-b-lg shadow-sm">
+        <div class="bg-white p-4 border rounded-b-lg shadow-sm">
             <table class="w-full text-left text-sm border-collapse">
                 <thead>
                     <tr class="bg-slate-100 uppercase text-[10px]">
@@ -136,13 +125,13 @@
 
     <div id="modalReview" class="modal">
         <div class="document-page shadow-2xl relative">
-            <button onclick="closeModal()" class="no-print absolute -top-12 right-0 bg-red-600 text-white px-4 py-1 rounded font-bold uppercase text-xs">Tutup [X]</button>
+            <button onclick="closeModal()" class="no-print absolute -top-10 right-0 bg-red-600 text-white px-4 py-1 rounded font-bold uppercase text-xs">Tutup [X]</button>
             
             <table class="header-table">
                 <tr>
                     <td rowspan="2" class="logo-box">
                         <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo AKG">
-                        <div class="text-[9pt] font-bold mt-1">AKG®</div>
+                        <div class="text-[8pt] font-bold mt-1">AKG®</div>
                     </td>
                     <td class="title-cell">
                         <div class="company-name">PT. AMARILIS KARISMA GEMILANG</div>
@@ -150,10 +139,10 @@
                     </td>
                     <td class="meta-cell">
                         <table class="meta-table">
-                            <tr><td class="w-24 border-r border-black p-1">No Dokumen</td><td class="p-1">: AF.SP 05.01</td></tr>
-                            <tr><td class="w-24 border-r border-black p-1">Tgl. Terbit</td><td class="p-1">: 02 Agustus 2024</td></tr>
-                            <tr><td class="w-24 border-r border-black p-1">Halaman</td><td class="p-1">: 1 / 1</td></tr>
-                            <tr><td class="w-24 border-r border-black p-1">Revisi</td><td class="p-1">: 00</td></tr>
+                            <tr><td class="w-24">No Dokumen</td><td>: AF.SP 05.01</td></tr>
+                            <tr><td class="w-24">Tgl. Terbit</td><td>: 02 Agustus 2024</td></tr>
+                            <tr><td class="w-24">Halaman</td><td>: 1 / 1</td></tr>
+                            <tr><td class="w-24">Revisi</td><td>: 00</td></tr>
                         </table>
                     </td>
                 </tr>
@@ -170,7 +159,6 @@
                     </div>
                     <div class="sig-footer">ENGINEER</div>
                 </div>
-                
                 <div class="sig-box">
                     <div class="sig-header">Diperiksa Oleh:</div>
                     <div class="sig-area">
@@ -179,7 +167,6 @@
                     </div>
                     <div class="sig-footer">SPV / SUPERINTENDENT</div>
                 </div>
-                
                 <div class="sig-box">
                     <div class="sig-header">Mengetahui:</div>
                     <div class="sig-area">
@@ -190,8 +177,8 @@
                 </div>
             </div>
 
-            <div class="mt-8 text-right no-print">
-                <button onclick="window.print()" class="bg-[#003366] text-white px-8 py-2 rounded font-bold uppercase text-xs shadow-lg hover:bg-black transition">Cetak PDF</button>
+            <div class="mt-4 text-right no-print">
+                <button onclick="window.print()" class="bg-[#003366] text-white px-8 py-2 rounded font-bold uppercase text-xs shadow-lg">Cetak PDF</button>
             </div>
         </div>
     </div>
@@ -203,13 +190,8 @@
 
         function fmtOnlyDate(iso) {
             if(!iso) return "-";
-            try {
-                const date = new Date(iso);
-                const d = String(date.getDate()).padStart(2, '0');
-                const m = String(date.getMonth() + 1).padStart(2, '0');
-                const y = date.getFullYear();
-                return `${d}/${m}/${y}`;
-            } catch (e) { return iso; }
+            const date = new Date(iso);
+            return date.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'});
         }
 
         async function fetchHistory() {
@@ -241,7 +223,7 @@
                 <div class="view-row">
                     <span class="view-label">Nama Mesin, Tools/equipment :</span>
                     <span class="view-line uppercase font-bold text-black">${row.nama_mesin}</span>
-                    <div class="ml-4 flex gap-4 text-[9pt]">
+                    <div class="ml-4 flex gap-4 text-[8pt]">
                         <div class="box-container"><div class="check-box">${row.job_type === 'Perawatan' ? '✔' : ''}</div> Perawatan</div>
                         <div class="box-container"><div class="check-box">${row.job_type === 'Overhaul' ? '✔' : ''}</div> Over Haul</div>
                     </div>
@@ -250,25 +232,25 @@
                 <div class="view-row"><span class="view-label">Tanggal Selesai :</span><span class="view-line text-black">${fmtOnlyDate(row.jam_selesai)}</span></div>
 
                 <span class="section-label">Diskripsi Permasalahan Mesin Tools/Equipment :</span>
-                <div class="grid grid-cols-2 gap-x-10">
-                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[9pt] text-black"><div class="check-box">${prob[i]?.is_checked ? '✔' : ''}</div> ${prob[i]?.description || ''}</div>`).join('')}
+                <div class="grid grid-cols-2 gap-x-6">
+                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[8.5pt] text-black"><div class="check-box">${prob[i]?.is_checked ? '✔' : ''}</div> ${prob[i]?.description || ''}</div>`).join('')}
                 </div>
 
                 <span class="section-label">Pekerjaan Yang Dilakukan & Tindakan Yang Diambil :</span>
-                <div class="grid grid-cols-2 gap-x-10">
-                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[9pt] text-black"><div class="check-box">${act[i]?.is_checked ? '✔' : ''}</div> ${act[i]?.description || ''}</div>`).join('')}
+                <div class="grid grid-cols-2 gap-x-6">
+                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[8.5pt] text-black"><div class="check-box">${act[i]?.is_checked ? '✔' : ''}</div> ${act[i]?.description || ''}</div>`).join('')}
                 </div>
 
                 <span class="section-label">Kerusakan Part :</span>
                 <table class="part-table">
                     <thead>
-                        <tr><th style="width: 40px;">NO</th><th>Nama Part</th><th style="width: 70px;">QTY</th><th style="width: 250px;">Tindak Lanjut</th></tr>
+                        <tr><th style="width: 30px;">NO</th><th>Nama Part</th><th style="width: 50px;">QTY</th><th style="width: 200px;">Tindak Lanjut</th></tr>
                     </thead>
                     <tbody>
                         ${Array.from({length: 5}, (_, i) => `
                             <tr>
                                 <td class="text-black">${i+1}</td>
-                                <td class="text-left px-2 uppercase font-medium text-[8.5pt] text-black">${part[i]?.nama_part || ''}</td>
+                                <td class="text-left px-2 uppercase font-medium text-[8pt] text-black">${part[i]?.nama_part || ''}</td>
                                 <td class="text-black">${part[i]?.qty || ''}</td>
                                 <td>
                                     <div class="tindak-lanjut-layout text-black">
@@ -281,11 +263,10 @@
                     </tbody>
                 </table>
 
-                <div class="mt-4">
+                <div class="mt-2">
                     <span class="section-label">Rekomendasi & Catatan :</span>
                     <div class="note-line text-black">Engineer: ${row.rekomendasi_catatan || ''}</div>
                     <div class="note-line text-black">${row.spt_notes || ''}</div>
-                    <div class="note-line"></div><div class="note-line"></div><div class="note-line"></div>
                 </div>
             `;
 
