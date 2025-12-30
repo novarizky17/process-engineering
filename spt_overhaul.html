@@ -23,6 +23,7 @@
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
         .approved { background: #d4edda; color: #155724; }
         .pending { background: #fff3cd; color: #856404; }
+        .rejected { background: #f8d7da; color: #721c24; }
     </style>
 </head>
 <body>
@@ -71,8 +72,8 @@
                     <input type="text" id="spt_name" class="w-full border-2 border-slate-200 rounded-lg p-2 text-sm focus:border-blue-500 outline-none uppercase font-bold" placeholder="NAMA LENGKAP ANDA">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-[#003366] uppercase mb-1">Catatan / Rekomendasi:</label>
-                    <textarea id="spt_notes" class="w-full border-2 border-slate-200 rounded-lg p-2 text-sm focus:border-blue-500 outline-none transition-all" rows="2" placeholder="Hasil evaluasi..."></textarea>
+                    <label class="block text-xs font-bold text-[#003366] uppercase mb-1">Catatan / Rekomendasi (Wajib jika Reject):</label>
+                    <textarea id="spt_notes" class="w-full border-2 border-slate-200 rounded-lg p-2 text-sm focus:border-blue-500 outline-none transition-all" rows="2" placeholder="Hasil evaluasi atau alasan penolakan..."></textarea>
                 </div>
             </div>
 
@@ -81,18 +82,22 @@
                 <canvas id="sig-spt" class="sig-canvas mb-4 shadow-sm"></canvas>
                 <button onclick="clearCanvas()" class="absolute top-2 right-2 text-xs bg-red-100 text-red-600 px-3 py-1 rounded-md shadow-sm font-bold">RESET</button>
             </div>
-            <button onclick="processApproval()" class="w-full bg-green-600 text-white py-3 rounded-xl font-black text-lg hover:bg-green-700 shadow-xl transform active:scale-95 transition-all uppercase">APPROVE & SELESAIKAN</button>
+
+            <div class="flex gap-4">
+                <button onclick="processReview('Rejected')" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-black text-lg hover:bg-red-700 shadow-xl transform active:scale-95 transition-all uppercase">REJECT LAPORAN</button>
+                <button onclick="processReview('Approved')" class="flex-[2] bg-green-600 text-white py-3 rounded-xl font-black text-lg hover:bg-green-700 shadow-xl transform active:scale-95 transition-all uppercase">APPROVE & SELESAIKAN</button>
+            </div>
         </div>
 
-        <div id="historyPanel" class="p-6 bg-green-50 border-t text-center" style="display: none;">
+        <div id="historyPanel" class="p-6 bg-slate-50 border-t text-center" style="display: none;">
             <div class="max-w-md mx-auto">
-                <p class="text-green-700 font-black uppercase mb-1 text-sm tracking-widest">Laporan Telah Disetujui</p>
-                <div class="bg-white p-3 rounded-lg border border-green-200 shadow-sm mb-4 text-left">
+                <p id="history_status_text" class="font-black uppercase mb-1 text-sm tracking-widest"></p>
+                <div class="bg-white p-3 rounded-lg border shadow-sm mb-4 text-left" id="history_box_color">
                     <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Pemeriksa & Catatan:</p>
                     <p id="view_spt_name" class="text-sm font-bold text-slate-800 uppercase"></p>
                     <p id="view_spt_notes" class="text-xs italic text-slate-600 mt-1"></p>
                 </div>
-                <img id="view-sig-spt" class="h-24 mx-auto border-2 border-green-200 bg-white p-2 rounded-lg shadow-md" alt="TTD SPT">
+                <img id="view-sig-spt" class="h-24 mx-auto border-2 bg-white p-2 rounded-lg shadow-md" alt="TTD SPT">
             </div>
         </div>
     </div>
@@ -136,16 +141,21 @@
         }
 
         if (data) {
-            list.innerHTML = data.map(row => `
+            list.innerHTML = data.map(row => {
+                let badgeClass = 'pending';
+                if (row.status === 'Approved') badgeClass = 'approved';
+                if (row.status === 'Rejected') badgeClass = 'rejected';
+
+                return `
                 <tr class="border-b hover:bg-slate-50 transition-colors text-sm">
                     <td class="p-4 font-medium text-slate-500">${formatIndoDateOnly(row.created_at)}</td>
                     <td class="p-4 font-bold text-slate-700 uppercase">${row.nama_mesin || '-'}</td>
                     <td class="p-4 font-semibold text-blue-700">${row.job_type || '-'}</td>
                     <td class="p-4 font-medium">${row.engineer_name || '-'}</td>
-                    <td class="p-4"><span class="status-badge ${row.status === 'Approved' ? 'approved' : 'pending'}">${row.status}</span></td>
+                    <td class="p-4"><span class="status-badge ${badgeClass}">${row.status}</span></td>
                     <td class="p-4"><button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1.5 rounded-md text-xs font-bold hover:bg-blue-800 transition-all shadow-md">REVIEW</button></td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
     }
 
@@ -192,14 +202,30 @@
             </div>
         `;
         
-        const isPending = row.status !== 'Approved';
-        document.getElementById('approvalPanel').style.display = isPending ? 'block' : 'none';
-        document.getElementById('historyPanel').style.display = isPending ? 'none' : 'block';
+        const isReviewed = (row.status === 'Approved' || row.status === 'Rejected');
+        document.getElementById('approvalPanel').style.display = isReviewed ? 'none' : 'block';
+        document.getElementById('historyPanel').style.display = isReviewed ? 'block' : 'none';
         
-        if (!isPending) {
+        if (isReviewed) {
+            const hText = document.getElementById('history_status_text');
+            const hBox = document.getElementById('history_box_color');
+            const hSig = document.getElementById('view-sig-spt');
+            
+            if(row.status === 'Approved') {
+                hText.innerText = "Laporan Telah Disetujui";
+                hText.className = "text-green-700 font-black uppercase mb-1 text-sm tracking-widest";
+                hBox.className = "bg-white p-3 rounded-lg border border-green-200 shadow-sm mb-4 text-left";
+                hSig.className = "h-24 mx-auto border-2 border-green-200 bg-white p-2 rounded-lg shadow-md";
+            } else {
+                hText.innerText = "Laporan Telah Ditolak";
+                hText.className = "text-red-700 font-black uppercase mb-1 text-sm tracking-widest";
+                hBox.className = "bg-white p-3 rounded-lg border border-red-200 shadow-sm mb-4 text-left";
+                hSig.className = "h-24 mx-auto border-2 border-red-200 bg-white p-2 rounded-lg shadow-md";
+            }
+
             document.getElementById('view-sig-spt').src = row.signature_superintendent || '';
             document.getElementById('view_spt_name').innerText = row.spt_name || "-";
-            document.getElementById('view_spt_notes').innerText = row.spt_notes || "Tidak ada catatan SPT.";
+            document.getElementById('view_spt_notes').innerText = row.spt_notes || "Tidak ada catatan.";
         } else {
             document.getElementById('spt_name').value = "";
             document.getElementById('spt_notes').value = "";
@@ -216,7 +242,7 @@
         }, 100);
     }
 
-    async function processApproval() {
+    async function processReview(newStatus) {
         const signature = canvas.toDataURL();
         const name = document.getElementById('spt_name').value.trim();
         const notes = document.getElementById('spt_notes').value.trim();
@@ -225,11 +251,15 @@
         blank.width = canvas.width; blank.height = canvas.height;
         
         if (!name) return alert("Mohon isi Nama Superintendent!");
+        if (newStatus === 'Rejected' && !notes) return alert("Mohon isi Catatan/Alasan penolakan jika laporan di-Reject!");
         if (signature === blank.toDataURL()) return alert("Tanda tangan Superintendent wajib diisi!");
+
+        const confirmMsg = newStatus === 'Approved' ? "Setujui laporan ini?" : "Tolak laporan ini?";
+        if(!confirm(confirmMsg)) return;
 
         const { error } = await _sb.from('laporan_maintenance')
             .update({ 
-                status: 'Approved', 
+                status: newStatus, 
                 signature_superintendent: signature,
                 spt_name: name,
                 spt_notes: notes 
@@ -237,7 +267,7 @@
             .eq('id', currentId);
 
         if (!error) { 
-            alert("Approval Berhasil Disimpan!"); 
+            alert(`Laporan Berhasil di-${newStatus}!`); 
             closeModal(); 
             fetchLaporan(); 
         } else { 
@@ -246,11 +276,24 @@
     }
 
     function clearCanvas() { if(ctx) ctx.clearRect(0,0,canvas.width,canvas.height); }
-    function getP(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX || e.touches[0].clientX) - r.left, y: (e.clientY || e.touches[0].clientY) - r.top }; }
+    function getP(e) { 
+        const r = canvas.getBoundingClientRect(); 
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - r.left, y: clientY - r.top }; 
+    }
     
-    document.addEventListener('mousedown', (e) => { if(e.target === canvas) { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); } });
-    document.addEventListener('mousemove', (e) => { if(drawing && e.target === canvas) { const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); } });
-    document.addEventListener('mouseup', () => drawing=false);
+    function startDraw(e) { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }
+    function moveDraw(e) { if(drawing) { e.preventDefault(); const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); } }
+    function stopDraw() { drawing=false; }
+
+    document.addEventListener('mousedown', (e) => { if(e.target === canvas) startDraw(e); });
+    document.addEventListener('mousemove', (e) => { if(e.target === canvas) moveDraw(e); });
+    window.addEventListener('mouseup', stopDraw);
+
+    document.addEventListener('touchstart', (e) => { if(e.target === canvas) startDraw(e); }, {passive: false});
+    document.addEventListener('touchmove', (e) => { if(e.target === canvas) moveDraw(e); }, {passive: false});
+    window.addEventListener('touchend', stopDraw);
 
     function closeModal() { document.getElementById('modalReview').style.display = 'none'; clearCanvas(); }
     window.onload = fetchLaporan;
