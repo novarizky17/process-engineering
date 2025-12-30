@@ -68,9 +68,10 @@
         .meta-table td { border: none !important; border-bottom: 1.5px solid black !important; padding: 3px 8px !important; font-size: 8.5pt; font-weight: bold; }
         .meta-table tr:last-child td { border-bottom: none !important; }
         
-        /* Baris Informasi Data */
+        /* Baris Informasi Data Sejajar */
         .view-row { display: flex; align-items: center; margin-bottom: 6px; font-weight: bold; color: #000; }
         .view-label { width: 220px; flex-shrink: 0; }
+        .view-separator { width: 15px; flex-shrink: 0; text-align: center; } /* Untuk menyejajarkan titik dua */
         .view-line { border-bottom: 1.5px solid black; flex-grow: 1; padding: 0 5px; font-weight: normal; color: #000; height: 22px; }
         
         .box-container { display: flex; align-items: center; gap: 6px; }
@@ -85,7 +86,7 @@
 
         /* Tabel Part */
         .part-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 8px; color: #000; }
-        .part-table th, .part-table td { border: 1px solid black; padding: 5px; text-align: center; }
+        .part-table th, .part-table td { border: 1.5px solid black; padding: 5px; text-align: center; }
         .part-table th { font-size: 9pt; font-weight: bold; background-color: #f2f2f2; }
         .tindak-lanjut-layout { display: flex; justify-content: space-around; width: 100%; }
 
@@ -164,12 +165,7 @@
             <table class="w-full text-left text-sm border-collapse">
                 <thead>
                     <tr class="bg-slate-100 uppercase text-[10px]">
-                        <th class="p-3 border">Tanggal</th>
-                        <th class="p-3 border">Nama Mesin</th>
-                        <th class="p-3 border text-center">Tipe</th>
-                        <th class="p-3 border">Engineer</th>
-                        <th class="p-3 border text-center">Status</th>
-                        <th class="p-3 border text-center">Aksi</th>
+                        <th class="p-3 border">Tanggal</th><th class="p-3 border">Nama Mesin</th><th class="p-3 border text-center">Tipe</th><th class="p-3 border">Engineer</th><th class="p-3 border text-center">Status</th><th class="p-3 border text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="listHistory">
@@ -210,25 +206,19 @@
                 <div class="sig-box">
                     <div class="sig-header">Dikerjakan Oleh:</div>
                     <div class="sig-area"><img id="view-sig-eng"></div>
-                    <div class="sig-name-container">
-                        <span id="view-name-eng" class="engineer-name-style"></span>
-                    </div>
+                    <div class="sig-name-container"><span id="view-name-eng" class="engineer-name-style"></span></div>
                     <div class="sig-footer">ENGINEER</div>
                 </div>
                 <div class="sig-box">
                     <div class="sig-header">Diperiksa Oleh:</div>
                     <div class="sig-area"><img id="view-sig-spt"></div>
-                    <div class="sig-name-container">
-                        <span id="view-name-spt" class="name-under-sig"></span>
-                    </div>
+                    <div class="sig-name-container"><span id="view-name-spt" class="name-under-sig"></span></div>
                     <div class="sig-footer">SPV / SUPERINTENDENT</div>
                 </div>
                 <div class="sig-box">
                     <div class="sig-header">Mengetahui:</div>
                     <div class="sig-area"><img id="view-sig-mn"></div>
-                    <div class="sig-name-container">
-                        <span id="view-name-mn" class="name-under-sig"></span>
-                    </div>
+                    <div class="sig-name-container"><span id="view-name-mn" class="name-under-sig"></span></div>
                     <div class="sig-footer">MANAGER</div>
                 </div>
             </div>
@@ -244,12 +234,13 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        // Fungsi format Tanggal dan Jam lengkap
+        // Perbaikan: Pemisah koma (,)
         function fmtDateTime(iso) {
             if(!iso) return "-";
             const d = new Date(iso);
-            return d.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'}) + " / " + 
-                   d.toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit', hour12: false});
+            const dateStr = d.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'});
+            const timeStr = d.toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit', hour12: false});
+            return `${dateStr}, ${timeStr}`;
         }
 
         async function fetchHistory() {
@@ -263,9 +254,7 @@
                         <td class="p-3 border text-center font-bold text-black">${row.job_type}</td>
                         <td class="p-3 border uppercase text-black font-medium">${row.engineer_name}</td>
                         <td class="p-3 border text-center"><span class="text-[9px] bg-green-50 text-green-600 px-2 py-0.5 rounded font-bold border border-green-100 uppercase">${row.status}</span></td>
-                        <td class="p-3 border text-center">
-                            <button onclick='viewReport(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1 rounded text-[10px] font-bold uppercase shadow">Review</button>
-                        </td>
+                        <td class="p-3 border text-center"><button onclick='viewReport(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1 rounded text-[10px] font-bold uppercase shadow">Review</button></td>
                     </tr>
                 `).join('');
             }
@@ -277,65 +266,59 @@
             const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
 
             const container = document.getElementById('reportContent');
+            // Perbaikan: Titik dua disejajarkan menggunakan view-separator
             container.innerHTML = `
                 <div class="view-row">
-                    <span class="view-label">Nama Mesin, Tools/equipment :</span>
+                    <span class="view-label">Nama Mesin, Tools/equipment</span>
+                    <span class="view-separator">:</span>
                     <span class="view-line uppercase font-bold text-black">${row.nama_mesin}</span>
                     <div class="ml-4 flex gap-6 text-[10pt]">
                         <div class="box-container"><div class="check-box">${row.job_type === 'Perawatan' ? '✔' : ''}</div> Perawatan</div>
                         <div class="box-container"><div class="check-box">${row.job_type === 'Overhaul' ? '✔' : ''}</div> Over Haul</div>
                     </div>
                 </div>
-                <div class="view-row"><span class="view-label">Tanggal / Jam Mulai :</span><span class="view-line text-black font-medium">${fmtDateTime(row.jam_mulai)}</span></div>
-                <div class="view-row"><span class="view-label">Tanggal / Jam Selesai :</span><span class="view-line text-black font-medium">${fmtDateTime(row.jam_selesai)}</span></div>
+                <div class="view-row">
+                    <span class="view-label">Tanggal, Jam Mulai</span>
+                    <span class="view-separator">:</span>
+                    <span class="view-line text-black font-medium">${fmtDateTime(row.jam_mulai)}</span>
+                </div>
+                <div class="view-row">
+                    <span class="view-label">Tanggal, Jam Selesai</span>
+                    <span class="view-separator">:</span>
+                    <span class="view-line text-black font-medium">${fmtDateTime(row.jam_selesai)}</span>
+                </div>
 
                 <span class="section-label">Diskripsi Permasalahan Mesin Tools/Equipment :</span>
-                <div class="grid grid-cols-2 gap-x-10">
-                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-black"><div class="check-box">${prob[i]?.is_checked ? '✔' : ''}</div> ${prob[i]?.description || ''}</div>`).join('')}
-                </div>
-
+                <div class="grid grid-cols-2 gap-x-10">${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-black"><div class="check-box">${prob[i]?.is_checked ? '✔' : ''}</div> ${prob[i]?.description || ''}</div>`).join('')}</div>
                 <span class="section-label">Pekerjaan Yang Dilakukan & Tindakan Yang Diambil :</span>
-                <div class="grid grid-cols-2 gap-x-10">
-                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-black"><div class="check-box">${act[i]?.is_checked ? '✔' : ''}</div> ${act[i]?.description || ''}</div>`).join('')}
-                </div>
-
+                <div class="grid grid-cols-2 gap-x-10">${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-black"><div class="check-box">${act[i]?.is_checked ? '✔' : ''}</div> ${act[i]?.description || ''}</div>`).join('')}</div>
+                
                 <span class="section-label">Kerusakan Part :</span>
                 <table class="part-table">
-                    <thead>
-                        <tr><th style="width: 40px;">NO</th><th>Nama Part</th><th style="width: 60px;">QTY</th><th style="width: 250px;">Tindak Lanjut</th></tr>
-                    </thead>
-                    <tbody>
-                        ${Array.from({length: 5}, (_, i) => `
-                            <tr>
-                                <td class="text-black">${i+1}</td>
-                                <td class="text-left px-2 uppercase font-medium text-black">${part[i]?.nama_part || ''}</td>
-                                <td class="text-black">${part[i]?.qty || ''}</td>
-                                <td>
-                                    <div class="tindak-lanjut-layout text-black">
-                                        <div class="box-container"><div class="check-box">${part[i]?.tindak_lanjut === 'Ganti' ? '✔' : ''}</div> Ganti Baru</div>
-                                        <div class="box-container"><div class="check-box">${part[i]?.tindak_lanjut === 'Repair' ? '✔' : ''}</div> Repair</div>
-                                    </div>
-                                </td>
-                            </tr>
-                        `).join('')}
+                    <thead><tr><th style="width: 40px;">NO</th><th>Nama Part</th><th style="width: 60px;">QTY</th><th style="width: 250px;">Tindak Lanjut</th></tr></thead>
+                    <tbody>${Array.from({length: 5}, (_, i) => `
+                        <tr>
+                            <td>${i+1}</td>
+                            <td class="text-left px-2 uppercase font-medium text-black">${part[i]?.nama_part || ''}</td>
+                            <td class="text-black">${part[i]?.qty || ''}</td>
+                            <td>
+                                <div class="tindak-lanjut-layout text-black">
+                                    <div class="box-container"><div class="check-box">${part[i]?.tindak_lanjut === 'Ganti' ? '✔' : ''}</div> Ganti Baru</div>
+                                    <div class="box-container"><div class="check-box">${part[i]?.tindak_lanjut === 'Repair' ? '✔' : ''}</div> Repair</div>
+                                </div>
+                            </td>
+                        </tr>`).join('')}
                     </tbody>
                 </table>
-
-                <div class="mt-4">
-                    <span class="section-label">Rekomendasi & Catatan :</span>
-                    <div class="note-line text-black font-medium">${row.rekomendasi_catatan || ''}</div>
-                    <div class="note-line text-black font-medium">${row.spt_notes || ''}</div>
-                </div>
+                <div class="mt-4"><span class="section-label">Rekomendasi & Catatan :</span><div class="note-line text-black font-medium">${row.rekomendasi_catatan || ''}</div><div class="note-line text-black font-medium">${row.spt_notes || ''}</div></div>
             `;
 
             document.getElementById('view-sig-eng').src = row.signature_engineer || '';
             document.getElementById('view-sig-spt').src = row.signature_superintendent || '';
             document.getElementById('view-sig-mn').src = row.signature_manager || '';
-            
             document.getElementById('view-name-eng').innerText = row.engineer_name || "";
             document.getElementById('view-name-spt').innerText = row.spt_name || "";
             document.getElementById('view-name-mn').innerText = row.manager_name || "";
-
             document.getElementById('modalReview').style.display = 'flex';
         }
 
