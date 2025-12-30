@@ -7,86 +7,114 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Memaksimalkan area cetak */
+        /* Optimasi Kertas A4 Portrait */
         @page { 
             size: A4 portrait; 
-            margin: 5mm; 
+            margin: 0; 
         }
 
         body { 
             background-color: #f1f5f9; 
             margin: 0; 
-            padding: 10px; 
+            padding: 15px; 
             font-family: Arial, sans-serif; 
-            font-size: 10pt; 
+            font-size: 9.5pt; 
             color: #000; 
         }
         
-        /* Layout Full Page */
+        /* Layout Dokumen Utama - Dipaksa 1 Halaman */
         .document-page { 
-            width: 200mm; 
-            height: 287mm; 
+            width: 210mm; 
+            height: 296mm; 
             background: white; 
             margin: 0 auto; 
-            padding: 5mm; 
+            padding: 10mm; 
             border: 1.5px solid #000; 
             box-sizing: border-box; 
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
-        /* Header Rapi */
-        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; border: 2.5px solid black; }
-        .header-table td { border: 1px solid black; padding: 6px; vertical-align: middle; color: #000; }
+        /* Header ISO Standar */
+        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; border: 2.5px solid black; }
+        .header-table td { border: 1.5px solid black; padding: 5px 10px; vertical-align: middle; color: #000; }
         .logo-box { width: 130px; text-align: center; }
-        .logo-box img { width: 110px; margin: 0 auto; }
+        .logo-box img { width: 100px; margin: 0 auto; }
         .title-cell { text-align: center; line-height: 1.3; }
-        .company-name { font-weight: bold; font-size: 12pt; border-bottom: 1px solid black; padding-bottom: 2px; }
-        .report-title { font-weight: bold; font-size: 11pt; text-transform: uppercase; margin-top: 3px; }
+        .company-name { font-weight: bold; font-size: 11pt; border-bottom: 1.5px solid black; padding-bottom: 2px; }
+        .report-title { font-weight: bold; font-size: 10.5pt; text-transform: uppercase; margin-top: 3px; }
         
         .meta-cell { width: 240px; padding: 0 !important; }
         .meta-table { width: 100%; border-collapse: collapse; }
-        .meta-table td { border: none !important; border-bottom: 1px solid black !important; padding: 3px 8px !important; font-size: 8.5pt; font-weight: bold; }
+        .meta-table td { border: none !important; border-bottom: 1.5px solid black !important; padding: 3px 8px !important; font-size: 8.5pt; font-weight: bold; }
         .meta-table tr:last-child td { border-bottom: none !important; }
         
-        /* Baris Data Utama */
-        .view-row { display: flex; align-items: center; margin-bottom: 8px; font-weight: bold; color: #000; }
+        /* Baris Informasi Data */
+        .view-row { display: flex; align-items: center; margin-bottom: 6px; font-weight: bold; color: #000; }
         .view-label { width: 220px; flex-shrink: 0; }
         .view-line { border-bottom: 1.5px solid black; flex-grow: 1; padding: 0 5px; font-weight: normal; color: #000; height: 22px; }
         
         .box-container { display: flex; align-items: center; gap: 6px; }
         .check-box { 
-            width: 16px; height: 16px; border: 1.5px solid black; 
+            width: 15px; height: 15px; border: 1.5px solid black; 
             display: inline-flex; align-items: center; justify-content: center; 
-            background: white; font-size: 10pt; font-weight: bold; flex-shrink: 0; 
+            background: white; font-size: 9pt; font-weight: bold; flex-shrink: 0; 
         }
         
         .section-label { font-weight: bold; margin-top: 12px; margin-bottom: 6px; display: block; color: #000; text-decoration: underline; }
-        .dotted-item { display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px dotted #000; min-height: 24px; margin-bottom: 5px; color: #000; }
+        .dotted-item { display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px dotted #000; min-height: 22px; margin-bottom: 4px; color: #000; }
 
-        /* Tabel Part Lebih Luas */
-        .part-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 8px; }
-        .part-table th, .part-table td { border: 1.5px solid black; padding: 6px; text-align: center; }
+        /* Tabel Part */
+        .part-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 8px; color: #000; }
+        .part-table th, .part-table td { border: 1.5px solid black; padding: 5px; text-align: center; }
         .part-table th { font-size: 9pt; font-weight: bold; background-color: #f2f2f2; }
         .tindak-lanjut-layout { display: flex; justify-content: space-around; width: 100%; }
 
-        /* Grid Tanda Tangan Full */
-        .sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 2px solid black; margin-top: auto; }
-        .sig-box { border-right: 2px solid black; text-align: center; display: flex; flex-direction: column; height: 160px; }
+        /* PERBAIKAN GRID TANDA TANGAN */
+        .sig-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            border: 2px solid black; 
+            margin-top: auto; /* Mengunci posisi di paling bawah halaman */
+            width: 100%;
+        }
+        .sig-box { 
+            border-right: 2px solid black; 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            height: 170px; /* Tinggi seragam agar garis sejajar */
+            box-sizing: border-box;
+        }
         .sig-box:last-child { border-right: none; }
-        .sig-header { font-weight: bold; font-size: 9pt; padding: 6px; border-bottom: 1.5px solid black; background: #fafafa; }
-        .sig-area { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 10px; }
-        .sig-area img { max-height: 75px; width: auto; margin-bottom: 4px; }
+        .sig-header { 
+            font-weight: bold; font-size: 9pt; padding: 8px; 
+            border-bottom: 2px solid black; background: #f2f2f2; 
+        }
+        .sig-area { 
+            flex-grow: 1; display: flex; flex-direction: column; 
+            align-items: center; justify-content: flex-end; 
+            padding: 10px; 
+        }
+        .sig-area img { max-height: 75px; width: auto; margin-bottom: 5px; }
         
+        /* Nama dan Garis Horizontal */
         .name-under-sig, .engineer-name-style { 
             font-weight: bold; font-size: 9pt; text-transform: uppercase; 
-            border-top: 1.5px solid black; width: 90%; margin: 2px auto 0; padding-top: 3px; display: block; color: #000; 
+            border-top: 2px solid black; /* Garis pembatas tanda tangan */
+            width: 85%; margin: 2px auto 0; padding-top: 3px; display: block; color: #000; 
         }
-        .sig-footer { border-top: 1.5px solid black; padding: 5px; font-weight: bold; font-size: 9pt; text-transform: uppercase; background: #f2f2f2; }
+        .sig-footer { 
+            border-top: 2px solid black; padding: 6px; 
+            font-weight: bold; font-size: 9pt; text-transform: uppercase; 
+            background: #f2f2f2; margin-top: auto; /* Menghilangkan celah putih */
+        }
 
-        .note-line { border-bottom: 1px solid black; min-height: 22px; width: 100%; margin-bottom: 2px; font-style: italic; display: flex; align-items: flex-end; color: #000; }
+        .note-line { border-bottom: 1.5px solid black; min-height: 20px; width: 100%; margin-bottom: 2px; font-style: italic; display: flex; align-items: flex-end; color: #000; }
 
-        .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        /* Modal Preview */
+        .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; overflow-y: auto; }
         
         @media print { 
             .no-print { display: none !important; } 
@@ -100,7 +128,7 @@
 
     <div class="max-w-6xl mx-auto mb-6 no-print">
         <div class="bg-[#003366] text-white p-4 rounded-t-lg flex justify-between items-center shadow-lg">
-            <h1 class="text-xl font-bold uppercase">History Laporan Maintenance</h1>
+            <h1 class="text-xl font-bold uppercase tracking-wide">History Laporan Perawatan & Overhaul</h1>
             <div class="flex gap-2">
                 <button onclick="window.location.href='dashboard.html'" class="bg-slate-600 px-4 py-1.5 rounded text-xs font-bold uppercase">Dashboard</button>
                 <button onclick="fetchHistory()" class="bg-blue-500 px-4 py-1.5 rounded text-xs font-bold uppercase">Refresh</button>
@@ -180,7 +208,7 @@
             </div>
 
             <div class="mt-4 text-right no-print">
-                <button onclick="window.print()" class="bg-[#003366] text-white px-10 py-2 rounded font-black uppercase text-sm shadow-lg">CETAK LAPORAN</button>
+                <button onclick="window.print()" class="bg-[#003366] text-white px-10 py-2 rounded font-black uppercase text-sm shadow-xl hover:bg-black transition">Cetak Laporan</button>
             </div>
         </div>
     </div>
@@ -190,10 +218,10 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        function fmtOnlyDate(iso) {
+        function fmtDate(iso) {
             if(!iso) return "-";
-            const date = new Date(iso);
-            return date.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'});
+            const d = new Date(iso);
+            return d.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'});
         }
 
         async function fetchHistory() {
@@ -202,10 +230,10 @@
             if(data) {
                 list.innerHTML = data.map(row => `
                     <tr class="border-b hover:bg-slate-50 transition text-xs">
-                        <td class="p-3 border font-mono text-black">${fmtOnlyDate(row.created_at)}</td>
+                        <td class="p-3 border font-mono text-black">${fmtDate(row.created_at)}</td>
                         <td class="p-3 border font-bold uppercase text-black">${row.nama_mesin}</td>
                         <td class="p-3 border text-center font-bold text-black">${row.job_type}</td>
-                        <td class="p-3 border uppercase text-black">${row.engineer_name}</td>
+                        <td class="p-3 border uppercase text-black font-medium">${row.engineer_name}</td>
                         <td class="p-3 border text-center"><span class="text-[9px] bg-green-50 text-green-600 px-2 py-0.5 rounded font-bold border border-green-100 uppercase">${row.status}</span></td>
                         <td class="p-3 border text-center">
                             <button onclick='viewReport(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1 rounded text-[10px] font-bold uppercase shadow">Review</button>
@@ -230,8 +258,8 @@
                         <div class="box-container"><div class="check-box">${row.job_type === 'Overhaul' ? '✔' : ''}</div> Over Haul</div>
                     </div>
                 </div>
-                <div class="view-row"><span class="view-label">Tanggal Mulai :</span><span class="view-line text-black">${fmtOnlyDate(row.jam_mulai)}</span></div>
-                <div class="view-row"><span class="view-label">Tanggal Selesai :</span><span class="view-line text-black">${fmtOnlyDate(row.jam_selesai)}</span></div>
+                <div class="view-row"><span class="view-label">Tanggal Mulai :</span><span class="view-line text-black font-medium">${fmtDate(row.jam_mulai)}</span></div>
+                <div class="view-row"><span class="view-label">Tanggal Selesai :</span><span class="view-line text-black font-medium">${fmtDate(row.jam_selesai)}</span></div>
 
                 <span class="section-label">Diskripsi Permasalahan Mesin Tools/Equipment :</span>
                 <div class="grid grid-cols-2 gap-x-10">
@@ -267,8 +295,8 @@
 
                 <div class="mt-4">
                     <span class="section-label">Rekomendasi & Catatan :</span>
-                    <div class="note-line text-black">Engineer: ${row.rekomendasi_catatan || ''}</div>
-                    <div class="note-line text-black">${row.spt_notes || ''}</div>
+                    <div class="note-line text-black font-medium">Engineer: ${row.rekomendasi_catatan || ''}</div>
+                    <div class="note-line text-black font-medium">${row.spt_notes || ''}</div>
                 </div>
             `;
 
