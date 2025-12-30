@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Pengaturan Kertas A4 */
+        /* Pengaturan Kertas A4 Portrait */
         @page { 
             size: A4 portrait; 
             margin: 0; 
@@ -36,7 +36,7 @@
             overflow: hidden;
         }
 
-        /* Header ISO */
+        /* Header ISO Standar */
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; border: 2.5px solid black; }
         .header-table td { border: 1px solid black; padding: 5px 10px; vertical-align: middle; color: #000; }
         .logo-box { width: 130px; text-align: center; }
@@ -71,7 +71,7 @@
         .part-table th { font-size: 9pt; font-weight: bold; background-color: #f2f2f2; }
         .tindak-lanjut-layout { display: flex; justify-content: space-around; width: 100%; }
 
-        /* KUNCI KESELARASAN TANDA TANGAN */
+        /* GRID TANDA TANGAN SEJAJAR */
         .sig-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr 1fr; 
@@ -84,8 +84,8 @@
             text-align: center; 
             display: flex; 
             flex-direction: column; 
-            height: 180px; /* Tinggi dikunci seragam */
-            position: relative; /* Penting untuk posisi nama */
+            height: 180px; 
+            position: relative; 
             box-sizing: border-box;
         }
         .sig-box:last-child { border-right: none; }
@@ -99,10 +99,10 @@
         }
         .sig-area img { max-height: 80px; width: auto; }
 
-        /* Wadah Nama Dikunci di Atas Footer */
+        /* Nama Dikunci Sejajar */
         .sig-name-container {
             position: absolute;
-            bottom: 35px; /* Jarak tetap dari area abu-abu terbawah */
+            bottom: 35px; 
             left: 0;
             right: 0;
             text-align: center;
@@ -110,18 +110,18 @@
         
         .name-under-sig, .engineer-name-style { 
             font-weight: bold; font-size: 9pt; text-transform: uppercase; 
-            border-top: 2px solid black; /* Garis horizontal lurus sejajar */
+            border-top: 2px solid black; 
             width: 85%; margin: 0 auto; padding-top: 3px; display: block; color: #000; 
         }
         .sig-footer { 
             border-top: 2px solid black; padding: 6px; 
             font-weight: bold; font-size: 9pt; text-transform: uppercase; 
-            background: #f2f2f2; margin-top: auto; /* Menempel ke dasar kotak */
+            background: #f2f2f2; margin-top: auto; 
         }
 
         .note-line { border-bottom: 1.5px solid black; min-height: 20px; width: 100%; margin-bottom: 2px; font-style: italic; display: flex; align-items: flex-end; color: #000; }
 
-        /* Modal Preview */
+        /* Modal */
         .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; overflow-y: auto; }
         
         @media print { 
@@ -226,10 +226,11 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
+        // Hanya Tanggal (Tanpa Jam)
         function fmtDate(iso) {
             if(!iso) return "-";
-            const date = new Date(iso);
-            return date.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'});
+            const d = new Date(iso);
+            return d.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'});
         }
 
         async function fetchHistory() {
