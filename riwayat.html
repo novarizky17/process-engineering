@@ -57,6 +57,7 @@
             font-weight: normal !important;
         }
 
+        /* PANEL PENCARIAN */
         .search-area {
             background: #1e293b;
             padding: 15px;
@@ -85,10 +86,11 @@
             border-radius: 4px;
         }
 
+        /* HEADER - POSISI LOGO DAN NAMA PT DITURUNKAN */
         .header {
             position: relative;
             margin-bottom: 5px;
-            height: 45px;
+            height: 60px; /* Tinggi ditambah agar area lebih lega */
         }
 
         .logo-area {
@@ -97,7 +99,7 @@
             gap: 12px;
             position: absolute;
             left: 0;
-            top: 0;
+            top: 15px; /* DITURUNKAN 15px dari atas */
         }
 
         .logo { width: 90px; height: auto; }
@@ -109,7 +111,7 @@
             text-align: center;
             width: 100%;
             margin: 0;
-            padding-top: 6px;
+            padding-top: 15px; /* Judul juga diturunkan agar sejajar */
         }
 
         /* META SECTION - TEKS NORMAL & MENEMPEL TABEL */
@@ -118,10 +120,9 @@
             justify-content: space-between;
             align-items: flex-end; 
             margin-bottom: 2px; /* Hampir menempel dengan tabel */
-            margin-top: 70px;  /* Diturunkan lebih rendah */
+            margin-top: 60px;  /* Jarak dari header */
         }
 
-        /* MENGHAPUS HURUF TEBAL PADA SELURUH BAGIAN IDENTITAS */
         .machine-info div { 
             margin-bottom: 4px; 
             font-size: 10.5pt; 
@@ -129,16 +130,11 @@
         }
         
         .label { 
-            font-weight: normal !important; /* Label Nama Mesin dll TIDAK BOLD */
+            font-weight: normal !important; 
             display: inline-block; 
             width: 160px; 
         }
 
-        #d_mesin {
-            font-weight: normal !important; /* Nama Mesin dari database TIDAK BOLD */
-        }
-
-        /* MENGHAPUS HURUF TEBAL PADA INFO DOKUMEN */
         .doc-info { text-align: left; font-size: 10.5pt; font-weight: normal !important; }
         .doc-info div { margin-bottom: 2px; }
         .doc-label { font-weight: normal !important; display: inline-block; width: 140px; }
