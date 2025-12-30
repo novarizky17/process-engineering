@@ -12,13 +12,12 @@
             body { padding: 0; margin: 0; background: white; }
             .no-print { display: none !important; }
             .document-page { box-shadow: none; border: none; width: 100%; max-width: none; margin: 0; padding: 5px; }
-            .check-symbol { color: black !important; -webkit-print-color-adjust: exact; }
             .status-text { color: black !important; }
         }
         body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
         .document-page { background: white; width: 1250px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
         
-        /* HEADER - DISESUAIKAN DENGAN GAMBAR */
+        /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
@@ -26,10 +25,10 @@
         .logo-area img { width: 130px; height: auto; display: block; margin: 0 auto; }
         .title-area { text-align: center; font-size: 16pt; font-weight: bold; padding: 10px; text-transform: uppercase; color: #000; }
         
-        /* META AREA - DIBUAT BOLD SESUAI FOTO */
-        .meta-area { width: 280px; font-size: 9pt; padding: 5px; text-transform: uppercase; color: #000; font-weight: bold; }
+        /* META AREA - PERBAIKAN TANGGAL TERBIT KESAMPING */
+        .meta-area { width: 320px; font-size: 9pt; padding: 5px; text-transform: uppercase; color: #000; font-weight: bold; }
         .meta-table { width: 100%; border-collapse: collapse; }
-        .meta-table td { padding: 2px 5px; vertical-align: top; border: none !important; }
+        .meta-table td { padding: 2px 5px; vertical-align: middle; border: none !important; white-space: nowrap; }
 
         .meta-info { display: flex; justify-content: space-between; margin: 8px 0; font-weight: bold; font-size: 10pt; align-items: flex-end; text-transform: uppercase; color: #000; }
         .info-label { width: 110px; display: inline-block; }
@@ -97,7 +96,7 @@
             <div class="header-cell title-area">CHECKLIST MONITORING TOOLING SUPPORT</div>
             <div class="header-cell meta-area">
                 <table class="meta-table">
-                    <tr><td style="width: 110px;">NO DOKUMEN</td><td>: AF.SP 05.14.REV-00</td></tr>
+                    <tr><td style="width: 120px;">NO DOKUMEN</td><td>: AF.SP 05.14.REV-00</td></tr>
                     <tr><td>TANGGAL TERBIT</td><td>: 02 AGUSTUS 2024</td></tr>
                     <tr><td>HALAMAN</td><td>: 1/1</td></tr>
                 </table>
