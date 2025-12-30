@@ -86,11 +86,11 @@
             border-radius: 4px;
         }
 
-        /* HEADER - POSISI DITURUNKAN LEBIH JAUH */
+        /* HEADER - DIRAPATKAN */
         .header {
             position: relative;
             margin-bottom: 0;
-            height: 100px; /* Ditambah agar area penurunan lebih luas */
+            height: 70px; /* Tinggi dikurangi agar lebih rapat */
         }
 
         .logo-area {
@@ -99,28 +99,30 @@
             gap: 12px;
             position: absolute;
             left: 0;
-            top: 40px; /* DITURUNKAN LEBIH JAUH */
+            top: 10px; /* Posisi logo disesuaikan agar dekat dengan meta */
         }
 
         .logo { width: 95px; height: auto; }
-        .company-name { font-size: 14px; font-weight: bold; }
+        
+        /* Nama PT dan Judul - Normal (Tidak Bold) */
+        .company-name { font-size: 14px; font-weight: normal !important; }
 
         .title {
             font-size: 26px;
-            font-weight: bold;
+            font-weight: normal !important; 
             text-align: center;
             width: 100%;
             margin: 0;
-            padding-top: 40px; /* Judul diturunkan sejajar logo */
+            padding-top: 10px;
         }
 
-        /* META SECTION - JARAK 10MM DARI LOGO */
+        /* META SECTION - DIRAPATKAN KE AREA LOGO */
         .meta-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-end; 
-            margin-bottom: 2px; /* Menempel dengan tabel */
-            margin-top: 38px;  /* Jarak sekitar 10mm dari header logo di atasnya */
+            margin-bottom: 25px; /* Jarak 1 baris kolom ke tabel */
+            margin-top: 5px;   /* Jarak dipersempit agar dekat dengan logo di atasnya */
         }
 
         /* TEKS IDENTITAS MESIN NORMAL (TIDAK BOLD) */
@@ -230,7 +232,7 @@
             <div><span class="label">LOKASI MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
         </div>
 
-        <div class="doc-info" style="font-weight: normal !important;">
+        <div class="doc-info">
             <div><span class="doc-label">No Dokumen</span>: AF.SP 05.18.Rev-00</div>
             <div><span class="doc-label">Tanggal Terbit</span>: 02 Agustus 2024</div>
             <div><span class="doc-label">Halaman</span>: 1/1</div>
