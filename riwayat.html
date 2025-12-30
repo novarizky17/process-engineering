@@ -41,10 +41,11 @@
             font-size: 10.5pt;
             outline: none;
             background: transparent;
-            font-weight: normal !important; /* MEMAKSA TIDAK BOLD */
+            font-weight: normal !important;
             color: #000;
         }
 
+        /* INPUT TABEL - NORMAL (TIDAK BOLD) */
         .table-input {
             border: none;
             width: 95%;
@@ -57,7 +58,7 @@
             font-weight: normal !important;
         }
 
-        /* AREA PENCARIAN */
+        /* PANEL PENCARIAN */
         .search-area {
             background: #1e293b;
             padding: 15px;
@@ -88,7 +89,7 @@
 
         .header {
             position: relative;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             height: 45px;
         }
 
@@ -113,19 +114,20 @@
             padding-top: 6px;
         }
 
-        /* META SECTION - DIATUR AGAR MENEMPEL KE KOLOM */
+        /* META SECTION - TURUN DAN MENEMPEL KE TABEL */
         .meta-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-end; /* ALIGN KE BAWAH */
-            margin-bottom: 2px; /* JARAK SANGAT KECIL AGAR MENEMPEL KOLOM */
-            margin-top: 60px; /* TETAP TURUN DARI HEADER */
+            margin-bottom: 5px; /* JARAK MENEMPEL DENGAN TABEL */
+            margin-top: 65px; /* JARAK TURUN DARI HEADER */
         }
 
+        /* TEKS IDENTITAS MESIN NORMAL (TIDAK BOLD) */
         .machine-info div { 
-            margin-bottom: 4px; 
+            margin-bottom: 6px; 
             font-size: 10.5pt; 
-            font-weight: normal !important; /* PASTI TIDAK BOLD */
+            font-weight: normal !important; 
         }
         
         .label { 
@@ -135,18 +137,17 @@
         }
 
         #d_mesin {
-            font-weight: normal !important; /* PASTI TIDAK BOLD */
+            font-weight: normal !important; 
         }
 
         .doc-info { text-align: left; font-size: 10.5pt; font-weight: normal !important; }
-        .doc-info div { margin-bottom: 2px; }
+        .doc-info div { margin-bottom: 4px; }
         .doc-label { font-weight: bold; display: inline-block; width: 140px; }
 
         /* TABEL UTAMA - ISI TIDAK BOLD */
         .main-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 0; /* MEMASTIKAN MENEMPEL */
             margin-bottom: 25px;
         }
 
@@ -166,7 +167,7 @@
             text-align: center;
             vertical-align: middle;
             height: 25px;
-            font-weight: normal !important;
+            font-weight: normal !important; /* ISI TABEL NORMAL */
         }
 
         /* TANDA TANGAN */
@@ -235,7 +236,7 @@
             <div><span class="label">LOKASI MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
         </div>
 
-        <div class="doc-info">
+        <div class="doc-info" style="font-weight: normal !important;">
             <div><span class="doc-label">No Dokumen</span>: AF.SP 05.18.Rev-00</div>
             <div><span class="doc-label">Tanggal Terbit</span>: 02 Agustus 2024</div>
             <div><span class="doc-label">Halaman</span>: 1/1</div>
@@ -256,6 +257,7 @@
         </thead>
         <tbody id="table_content">
             <script>
+                // Generate baris kosong default
                 for(let i=0; i<20; i++) {
                     document.write(`<tr>
                         <td>&nbsp;</td>
