@@ -8,10 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Pengaturan Kertas A4 Portrait */
-        @page { 
-            size: A4 portrait; 
-            margin: 0; 
-        }
+        @page { size: A4 portrait; margin: 0; }
 
         body { 
             background-color: #f1f5f9; 
@@ -60,7 +57,7 @@
         .logo-box { width: 130px; text-align: center; }
         .logo-box img { width: 100px; margin: 0 auto; }
         .title-cell { text-align: center; line-height: 1.3; }
-        .company-name { font-weight: bold; font-size: 11pt; border-bottom: 1px solid black; padding-bottom: 2px; }
+        .company-name { font-weight: bold; font-size: 11pt; border-bottom: 1.5px solid black; padding-bottom: 2px; }
         .report-title { font-weight: bold; font-size: 10.5pt; text-transform: uppercase; margin-top: 3px; }
         
         .meta-cell { width: 240px; padding: 0 !important; }
@@ -84,13 +81,13 @@
         .section-label { font-weight: bold; margin-top: 12px; margin-bottom: 6px; display: block; color: #000; text-decoration: underline; }
         .dotted-item { display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px dotted #000; min-height: 22px; padding-bottom: 1px; margin-bottom: 4px; color: #000; }
 
-        /* Tabel Part */
+        /* Tabel Part - Struktur Asli */
         .part-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 8px; color: #000; }
         .part-table th, .part-table td { border: 1.5px solid black; padding: 5px; text-align: center; }
         .part-table th { font-size: 9pt; font-weight: bold; background-color: #f2f2f2; }
         .tindak-lanjut-layout { display: flex; justify-content: space-around; width: 100%; }
 
-        /* GRID TANDA TANGAN SEJAJAR */
+        /* GRID TANDA TANGAN ASLI DENGAN KOTAK */
         .sig-grid { 
             display: grid; 
             grid-template-columns: 1fr 1fr 1fr; 
@@ -206,19 +203,25 @@
                 <div class="sig-box">
                     <div class="sig-header">Dikerjakan Oleh:</div>
                     <div class="sig-area"><img id="view-sig-eng"></div>
-                    <div class="sig-name-container"><span id="view-name-eng" class="engineer-name-style"></span></div>
+                    <div class="sig-name-container">
+                        <span id="view-name-eng" class="engineer-name-style"></span>
+                    </div>
                     <div class="sig-footer">ENGINEER</div>
                 </div>
                 <div class="sig-box">
                     <div class="sig-header">Diperiksa Oleh:</div>
                     <div class="sig-area"><img id="view-sig-spt"></div>
-                    <div class="sig-name-container"><span id="view-name-spt" class="name-under-sig"></span></div>
+                    <div class="sig-name-container">
+                        <span id="view-name-spt" class="name-under-sig"></span>
+                    </div>
                     <div class="sig-footer">SPV / SUPERINTENDENT</div>
                 </div>
                 <div class="sig-box">
                     <div class="sig-header">Mengetahui:</div>
                     <div class="sig-area"><img id="view-sig-mn"></div>
-                    <div class="sig-name-container"><span id="view-name-mn" class="name-under-sig"></span></div>
+                    <div class="sig-name-container">
+                        <span id="view-name-mn" class="name-under-sig"></span>
+                    </div>
                     <div class="sig-footer">MANAGER</div>
                 </div>
             </div>
