@@ -86,11 +86,11 @@
             border-radius: 4px;
         }
 
-        /* HEADER - POSISI LOGO DAN NAMA PT DITURUNKAN */
+        /* HEADER - LOGO DITURUNKAN */
         .header {
             position: relative;
-            margin-bottom: 5px;
-            height: 60px; /* Tinggi ditambah agar area lebih lega */
+            margin-bottom: 0;
+            height: 80px; /* Tinggi ditambah untuk memberi ruang penurunan */
         }
 
         .logo-area {
@@ -99,11 +99,11 @@
             gap: 12px;
             position: absolute;
             left: 0;
-            top: 15px; /* DITURUNKAN 15px dari atas */
+            top: 25px; /* Logo diturunkan lebih jauh */
         }
 
-        .logo { width: 90px; height: auto; }
-        .company-name { font-size: 13px; font-weight: bold; }
+        .logo { width: 95px; height: auto; }
+        .company-name { font-size: 14px; font-weight: bold; }
 
         .title {
             font-size: 24px;
@@ -111,18 +111,19 @@
             text-align: center;
             width: 100%;
             margin: 0;
-            padding-top: 15px; /* Judul juga diturunkan agar sejajar */
+            padding-top: 25px; /* Judul sejajar logo */
         }
 
-        /* META SECTION - TEKS NORMAL & MENEMPEL TABEL */
+        /* META SECTION - JARAK 10MM DARI LOGO & MENEMPEL TABEL */
         .meta-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-end; 
             margin-bottom: 2px; /* Hampir menempel dengan tabel */
-            margin-top: 60px;  /* Jarak dari header */
+            margin-top: 38px; /* Mengatur jarak sekitar 10mm dari area logo di atasnya */
         }
 
+        /* TEKS IDENTITAS MESIN NORMAL (TIDAK BOLD) */
         .machine-info div { 
             margin-bottom: 4px; 
             font-size: 10.5pt; 
@@ -132,12 +133,12 @@
         .label { 
             font-weight: normal !important; 
             display: inline-block; 
-            width: 160px; 
+            width: 165px; 
         }
 
         .doc-info { text-align: left; font-size: 10.5pt; font-weight: normal !important; }
         .doc-info div { margin-bottom: 2px; }
-        .doc-label { font-weight: normal !important; display: inline-block; width: 140px; }
+        .doc-label { font-weight: normal !important; display: inline-block; width: 145px; }
 
         .main-table {
             width: 100%;
@@ -229,7 +230,7 @@
             <div><span class="label">LOKASI MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
         </div>
 
-        <div class="doc-info">
+        <div class="doc-info" style="font-weight: normal !important;">
             <div><span class="doc-label">No Dokumen</span>: AF.SP 05.18.Rev-00</div>
             <div><span class="doc-label">Tanggal Terbit</span>: 02 Agustus 2024</div>
             <div><span class="doc-label">Halaman</span>: 1/1</div>
