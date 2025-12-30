@@ -32,7 +32,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        /* INPUT TITIK-TITIK - SEKARANG DIBUAT BOLD */
+        /* INPUT TITIK-TITIK - NORMAL (TIDAK BOLD) */
         .input-dot {
             border: none;
             border-bottom: 1px dotted black;
@@ -41,7 +41,7 @@
             font-size: 10.5pt;
             outline: none;
             background: transparent;
-            font-weight: bold !important; /* Diubah menjadi Bold sesuai permintaan */
+            font-weight: normal !important; 
             color: #000;
         }
 
@@ -86,7 +86,7 @@
             border-radius: 4px;
         }
 
-        /* HEADER - LOGO & NAMA PT DITURUNKAN */
+        /* HEADER - POSISI LOGO DITURUNKAN */
         .header {
             position: relative;
             margin-bottom: 0;
@@ -114,36 +114,36 @@
             padding-top: 30px; 
         }
 
-        /* META SECTION - KASIH JARAK 1 SPASI (25px) DAN TEKS BOLD */
+        /* META SECTION - JARAK AMAN & TIDAK BOLD */
         .meta-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-end; 
             margin-bottom: 5px; 
-            margin-top: 25px;  /* Memberi jarak 1 spasi (sekitar 10mm/25px) agar tidak nempel */
+            margin-top: 25px; /* Jarak 1 spasi agar tidak terlalu nempel logo */
         }
 
-        /* IDENTITAS MESIN DIBUAT BOLD */
+        /* SELURUH IDENTITAS MESIN - TIDAK BOLD (NORMAL) */
         .machine-info div { 
             margin-bottom: 4px; 
             font-size: 10.5pt; 
-            font-weight: bold !important; /* Dibuat Bold sesuai permintaan */
+            font-weight: normal !important; 
         }
         
         .label { 
-            font-weight: bold !important; 
+            font-weight: normal !important; /* Label Nama Mesin dll diatur Normal */
             display: inline-block; 
             width: 165px; 
         }
 
         #d_mesin {
-            font-weight: bold !important; /* Nama Mesin dari database juga Bold */
+            font-weight: normal !important; 
         }
 
-        /* INFO DOKUMEN DIBUAT BOLD */
-        .doc-info { text-align: left; font-size: 10.5pt; font-weight: bold !important; }
+        /* INFO DOKUMEN - TIDAK BOLD (NORMAL) */
+        .doc-info { text-align: left; font-size: 10.5pt; font-weight: normal !important; }
         .doc-info div { margin-bottom: 2px; }
-        .doc-label { font-weight: bold !important; display: inline-block; width: 140px; }
+        .doc-label { font-weight: normal !important; display: inline-block; width: 140px; }
 
         .main-table {
             width: 100%;
