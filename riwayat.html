@@ -32,7 +32,6 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        /* INPUT TITIK-TITIK - NORMAL (TIDAK BOLD) */
         .input-dot {
             border: none;
             border-bottom: 1px dotted black;
@@ -45,7 +44,6 @@
             color: #000;
         }
 
-        /* GAYA SELECT BOX UNTUK KOLOM KETERANGAN */
         .table-select {
             border: none;
             width: 100%;
@@ -53,14 +51,13 @@
             font-family: Arial;
             font-size: 9pt;
             text-align: center;
-            text-align-last: center; /* Menengahkan teks di dalam select */
+            text-align-last: center;
             outline: none;
             background: transparent;
             cursor: pointer;
-            appearance: none; /* Menghilangkan tanda panah bawaan browser saat diprint */
+            appearance: none;
         }
 
-        /* PANEL PENCARIAN */
         .search-area {
             background: #1e293b;
             padding: 15px;
@@ -89,7 +86,6 @@
             border-radius: 4px;
         }
 
-        /* HEADER - POSISI LOGO DITURUNKAN */
         .header {
             position: relative;
             margin-bottom: 0;
@@ -117,13 +113,12 @@
             padding-top: 30px; 
         }
 
-        /* META SECTION - JARAK AMAN & TIDAK BOLD */
         .meta-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-end; 
             margin-bottom: 5px; 
-            margin-top: 25px; /* Jarak 1 spasi agar tidak terlalu nempel logo */
+            margin-top: 25px;
         }
 
         .machine-info div { 
@@ -136,10 +131,6 @@
             font-weight: normal !important; 
             display: inline-block; 
             width: 165px; 
-        }
-
-        #d_mesin {
-            font-weight: normal !important; 
         }
 
         .doc-info { text-align: left; font-size: 10.5pt; font-weight: normal !important; }
@@ -195,9 +186,8 @@
 <body>
 
 <div class="container">
-
     <div class="search-area no-print">
-        <input type="text" id="mesin_search" placeholder="NAMA MESIN..." style="width: 200px;">
+        <input type="text" id="mesin_search" placeholder="NAMA MESIN...">
         <select id="bulan_search">
             <option value="">- Semua Bulan -</option>
             <option value="01">Januari</option><option value="02">Februari</option>
@@ -211,10 +201,6 @@
             <option value="2024">2024</option>
             <option value="2025" selected>2025</option>
             <option value="2026">2026</option>
-            <option value="2027">2027</option>
-            <option value="2028">2028</option>
-            <option value="2029">2029</option>
-            <option value="2030">2030</option>
         </select>
         <button onclick="fetchData()" class="btn-action">CARI DATA</button>
         <button onclick="window.print()" class="btn-action" style="background:#10b981">CETAK</button>
@@ -236,7 +222,6 @@
             <div><span class="label">TAHUN PEMBUATAN</span>: <input type="text" class="input-dot" placeholder="..."></div>
             <div><span class="label">LOKASI MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
         </div>
-
         <div class="doc-info">
             <div><span class="doc-label">No Dokumen</span>: AF.SP 05.18.Rev-00</div>
             <div><span class="doc-label">Tanggal Terbit</span>: 02 Agustus 2024</div>
@@ -257,26 +242,7 @@
             </tr>
         </thead>
         <tbody id="table_content">
-            <script>
-                const selectHTML = `
-                    <select class="table-select">
-                        <option value=""></option>
-                        <option value="OK">OK</option>
-                        <option value="NG">NG</option>
-                    </select>
-                `;
-                for(let i=0; i<20; i++) {
-                    document.write(`<tr>
-                        <td>&nbsp;</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>${selectHTML}</td>
-                        <td></td>
-                    </tr>`);
-                }
-            </script>
-        </tbody>
+            </tbody>
     </table>
 
     <div class="signature-section">
@@ -305,6 +271,21 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
     const _sb = supabase.createClient(SB_URL, SB_KEY);
 
+    const selectHTML = `
+        <select class="table-select">
+            <option value=""></option>
+            <option value="OK">OK</option>
+            <option value="NG">NG</option>
+        </select>
+    `;
+
+    // Fungsi format tanggal lokal
+    function formatTgl(isoString) {
+        if (!isoString) return "-";
+        const d = new Date(isoString);
+        return d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
     async function fetchData() {
         const mesin = document.getElementById('mesin_search').value.trim().toUpperCase();
         const bulan = document.getElementById('bulan_search').value;
@@ -312,51 +293,41 @@
 
         if(!mesin) return alert("Masukkan Nama Mesin!");
 
+        // Perbaikan Query: Menggunakan order by terbaru
         let query = _sb.from('laporan_maintenance').select(`
-                created_at, nama_mesin, engineer_name, jam_mulai,
+                id, jam_mulai, created_at, nama_mesin, engineer_name,
                 maintenance_problems(description),
                 maintenance_actions(description),
                 maintenance_parts(nama_part, qty)
             `).eq('nama_mesin', mesin);
 
         if(bulan) {
-            const startDate = `${tahun}-${bulan}-01T00:00:00`;
-            const endDate = `${tahun}-${bulan}-31T23:59:59`;
-            query = query.gte('jam_mulai', startDate).lte('jam_mulai', endDate);
+            const lastDay = new Date(tahun, bulan, 0).getDate();
+            query = query.gte('jam_mulai', `${tahun}-${bulan}-01T00:00:00Z`)
+                         .lte('jam_mulai', `${tahun}-${bulan}-${lastDay}T23:59:59Z`);
         } else {
-            query = query.gte('jam_mulai', `${tahun}-01-01`).lte('jam_mulai', `${tahun}-12-31`);
+            query = query.gte('jam_mulai', `${tahun}-01-01T00:00:00Z`)
+                         .lte('jam_mulai', `${tahun}-12-31T23:59:59Z`);
         }
 
-        const { data: reports, error } = await query.order('jam_mulai', { ascending: true });
+        const { data: reports, error } = await query.order('jam_mulai', { ascending: false });
 
-        if (error) return alert("Gagal mengambil data.");
+        if (error) return alert("Error: " + error.message);
         
         const tbody = document.getElementById('table_content');
         tbody.innerHTML = '';
         
-        const selectHTML = `
-            <select class="table-select">
-                <option value=""></option>
-                <option value="OK">OK</option>
-                <option value="NG">NG</option>
-            </select>
-        `;
-
         if (reports && reports.length > 0) {
             document.getElementById('d_mesin').innerText = reports[0].nama_mesin;
             
             reports.forEach(row => {
                 const tr = document.createElement('tr');
-                const tglRaw = row.jam_mulai ? row.jam_mulai.split('T')[0] : row.created_at.split('T')[0];
-                const [y, m, d] = tglRaw.split('-');
-                const date = `${d}/${m}/${y}`;
-
                 const masalah = row.maintenance_problems.map(p => p.description).join(', ');
                 const tindakan = row.maintenance_actions.map(a => a.description).join(', ');
                 const parts = row.maintenance_parts.map(pt => `${pt.nama_part} (${pt.qty})`).join(', ');
 
                 tr.innerHTML = `
-                    <td>${date}</td>
+                    <td>${formatTgl(row.jam_mulai || row.created_at)}</td>
                     <td style="text-align:left">${masalah}</td>
                     <td style="text-align:left">${tindakan}</td>
                     <td style="text-align:left">${parts}</td>
@@ -367,15 +338,26 @@
             });
         }
 
+        // Pastikan tabel selalu punya 20 baris untuk tampilan cetak
         const remaining = 20 - (reports ? reports.length : 0);
         for (let i = 0; i < (remaining < 0 ? 0 : remaining); i++) {
             tbody.innerHTML += `<tr>
                 <td>&nbsp;</td><td></td><td></td><td></td>
-                <td>${selectHTML}</td>
-                <td></td>
+                <td>${selectHTML}</td><td></td>
             </tr>`;
         }
     }
+
+    // Load baris kosong saat pertama buka
+    window.onload = () => {
+        const tbody = document.getElementById('table_content');
+        for(let i=0; i<20; i++) {
+            tbody.innerHTML += `<tr>
+                <td>&nbsp;</td><td></td><td></td><td></td>
+                <td>${selectHTML}</td><td></td>
+            </tr>`;
+        }
+    };
 </script>
 </body>
 </html>
