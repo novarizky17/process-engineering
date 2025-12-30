@@ -34,7 +34,7 @@
         
         .view-row { display: flex; align-items: center; margin-bottom: 8px; font-weight: bold; }
         .view-label { width: 230px; flex-shrink: 0; }
-        .view-line { border-bottom: 1px solid black; flex-grow: 1; padding: 0 5px; font-weight: normal; }
+        .view-line { border-bottom: 1px solid black; flex-grow: 1; padding: 0 5px; font-weight: normal; color: #000; }
         
         .box-container { display: flex; align-items: center; gap: 5px; }
         .check-box { 
@@ -77,6 +77,7 @@
             border-bottom: 1px solid black;
             display: inline-block;
             min-width: 120px;
+            color: #000;
         }
 
         .sig-footer { border-top: 1.5px solid black; padding: 6px; font-weight: bold; font-size: 9pt; text-transform: uppercase; background: #fff; }
@@ -89,6 +90,7 @@
             border-bottom: 1px solid black;
             display: inline-block;
             min-width: 120px;
+            color: #000;
         }
 
         .note-line { border-bottom: 1px solid black; min-height: 22px; width: 100%; margin-bottom: 2px; font-style: italic; display: flex; align-items: flex-end; }
@@ -199,7 +201,6 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        // FUNGSI BARU: HANYA TANGGAL
         function fmtOnlyDate(iso) {
             if(!iso) return "-";
             try {
@@ -217,10 +218,10 @@
             if(data) {
                 list.innerHTML = data.map(row => `
                     <tr class="border-b hover:bg-slate-50 transition text-xs">
-                        <td class="p-3 border font-mono">${fmtOnlyDate(row.created_at)}</td>
-                        <td class="p-3 border font-bold uppercase">${row.nama_mesin}</td>
-                        <td class="p-3 border text-center font-bold text-blue-700">${row.job_type}</td>
-                        <td class="p-3 border uppercase text-slate-600">${row.engineer_name}</td>
+                        <td class="p-3 border font-mono text-black">${fmtOnlyDate(row.created_at)}</td>
+                        <td class="p-3 border font-bold uppercase text-black">${row.nama_mesin}</td>
+                        <td class="p-3 border text-center font-bold text-black">${row.job_type}</td>
+                        <td class="p-3 border uppercase text-black">${row.engineer_name}</td>
                         <td class="p-3 border text-center"><span class="text-[9px] bg-green-50 text-green-600 px-2 py-0.5 rounded font-bold border border-green-100 uppercase">${row.status}</span></td>
                         <td class="p-3 border text-center">
                             <button onclick='viewReport(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1 rounded text-[10px] font-bold uppercase shadow">Review</button>
@@ -239,23 +240,23 @@
             container.innerHTML = `
                 <div class="view-row">
                     <span class="view-label">Nama Mesin, Tools/equipment :</span>
-                    <span class="view-line uppercase font-bold text-blue-900">${row.nama_mesin}</span>
+                    <span class="view-line uppercase font-bold text-black">${row.nama_mesin}</span>
                     <div class="ml-4 flex gap-4 text-[9pt]">
                         <div class="box-container"><div class="check-box">${row.job_type === 'Perawatan' ? '✔' : ''}</div> Perawatan</div>
                         <div class="box-container"><div class="check-box">${row.job_type === 'Overhaul' ? '✔' : ''}</div> Over Haul</div>
                     </div>
                 </div>
-                <div class="view-row"><span class="view-label">Tanggal Mulai :</span><span class="view-line">${fmtOnlyDate(row.jam_mulai)}</span></div>
-                <div class="view-row"><span class="view-label">Tanggal Selesai :</span><span class="view-line">${fmtOnlyDate(row.jam_selesai)}</span></div>
+                <div class="view-row"><span class="view-label">Tanggal Mulai :</span><span class="view-line text-black">${fmtOnlyDate(row.jam_mulai)}</span></div>
+                <div class="view-row"><span class="view-label">Tanggal Selesai :</span><span class="view-line text-black">${fmtOnlyDate(row.jam_selesai)}</span></div>
 
                 <span class="section-label">Diskripsi Permasalahan Mesin Tools/Equipment :</span>
                 <div class="grid grid-cols-2 gap-x-10">
-                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[9pt]"><div class="check-box">${prob[i]?.is_checked ? '✔' : ''}</div> ${prob[i]?.description || ''}</div>`).join('')}
+                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[9pt] text-black"><div class="check-box">${prob[i]?.is_checked ? '✔' : ''}</div> ${prob[i]?.description || ''}</div>`).join('')}
                 </div>
 
                 <span class="section-label">Pekerjaan Yang Dilakukan & Tindakan Yang Diambil :</span>
                 <div class="grid grid-cols-2 gap-x-10">
-                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[9pt]"><div class="check-box">${act[i]?.is_checked ? '✔' : ''}</div> ${act[i]?.description || ''}</div>`).join('')}
+                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-[9pt] text-black"><div class="check-box">${act[i]?.is_checked ? '✔' : ''}</div> ${act[i]?.description || ''}</div>`).join('')}
                 </div>
 
                 <span class="section-label">Kerusakan Part :</span>
@@ -266,11 +267,11 @@
                     <tbody>
                         ${Array.from({length: 5}, (_, i) => `
                             <tr>
-                                <td>${i+1}</td>
-                                <td class="text-left px-2 uppercase font-medium text-[8.5pt]">${part[i]?.nama_part || ''}</td>
-                                <td>${part[i]?.qty || ''}</td>
+                                <td class="text-black">${i+1}</td>
+                                <td class="text-left px-2 uppercase font-medium text-[8.5pt] text-black">${part[i]?.nama_part || ''}</td>
+                                <td class="text-black">${part[i]?.qty || ''}</td>
                                 <td>
-                                    <div class="tindak-lanjut-layout">
+                                    <div class="tindak-lanjut-layout text-black">
                                         <div class="box-container"><div class="check-box">${part[i]?.tindak_lanjut === 'Ganti' ? '✔' : ''}</div> Ganti Baru</div>
                                         <div class="box-container"><div class="check-box">${part[i]?.tindak_lanjut === 'Repair' ? '✔' : ''}</div> Repair</div>
                                     </div>
@@ -282,8 +283,8 @@
 
                 <div class="mt-4">
                     <span class="section-label">Rekomendasi & Catatan :</span>
-                    <div class="note-line">Engineer: ${row.rekomendasi_catatan || ''}</div>
-                    <div class="note-line">${row.spt_notes || ''}</div>
+                    <div class="note-line text-black">Engineer: ${row.rekomendasi_catatan || ''}</div>
+                    <div class="note-line text-black">${row.spt_notes || ''}</div>
                     <div class="note-line"></div><div class="note-line"></div><div class="note-line"></div>
                 </div>
             `;
