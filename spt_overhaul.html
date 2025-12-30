@@ -3,101 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Superintendent - Approval Overhaul</title>
+    <title>Manager - Final Approval Overhaul</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f1f5f9; }
-        .sig-canvas { border: 2px dashed #003366; background: #fff; width: 100%; height: 160px; touch-action: none; cursor: crosshair; border-radius: 8px; }
-        .table-custom th { background: #003366; color: white; text-transform: uppercase; font-size: 0.8rem; padding: 12px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f8fafc; }
+        .table-manager th { background: #1e293b; color: white; text-transform: uppercase; font-size: 0.75rem; padding: 12px; }
         .modal { 
             display: none; 
             position: fixed; 
             z-index: 100; 
             inset: 0; 
-            background: rgba(0,0,0,0.6); 
+            background: rgba(0,0,0,0.7); 
             align-items: center; 
             justify-content: center; 
-            padding: 1rem; 
+            padding: 1.5rem; 
         }
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        .approved { background: #d4edda; color: #155724; }
-        .pending { background: #fff3cd; color: #856404; }
-        .rejected { background: #f8d7da; color: #721c24; }
+        .status-badge { padding: 2px 8px; border-radius: 12px; font-weight: bold; font-size: 10px; text-transform: uppercase; }
+        .approved-all { background: #dcfce7; color: #15803d; }
+        .partial { background: #e0f2fe; color: #0369a1; }
+        .rejected { background: #fee2e2; color: #b91c1c; }
     </style>
 </head>
 <body>
 
-<header class="bg-[#003366] text-white p-4 flex justify-between items-center shadow-lg">
+<header class="bg-[#1e293b] text-white p-4 flex justify-between items-center shadow-md">
     <div class="flex items-center gap-4">
-        <button onclick="window.location.href='laporan.html'" class="text-sm bg-blue-800 px-3 py-1 rounded hover:bg-blue-700 transition">← DASHBOARD</button>
-        <h1 class="text-xl font-bold uppercase tracking-tight">Superintendent - Approval System</h1>
+        <button onclick="window.location.href='laporan.html'" class="text-xs bg-slate-700 px-3 py-1.5 rounded hover:bg-slate-600 transition">← DASHBOARD</button>
+        <h1 class="text-xl font-bold tracking-tight">MANAGER - FINAL APPROVAL</h1>
     </div>
-    <button onclick="fetchLaporan()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700 font-bold text-sm shadow-md">REFRESH DATA</button>
+    <button onclick="fetchLaporan()" class="bg-blue-600 px-4 py-2 rounded font-bold text-sm hover:bg-blue-700 transition shadow-lg">REFRESH DATA</button>
 </header>
 
 <div class="container mx-auto p-6">
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-        <table class="w-full text-left border-collapse table-custom">
+    <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
+        <table class="w-full text-left border-collapse table-manager">
             <thead>
                 <tr>
                     <th>Tanggal Input</th>
-                    <th>Nama Mesin / Tools</th>
-                    <th>Job Type</th>
+                    <th>Mesin / Equipment</th>
+                    <th>Tipe</th>
                     <th>Engineer</th>
                     <th>Status</th>
-                    <th>Aksi</th>
+                    <th class="text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody id="listLaporan">
-                <tr><td colspan="6" class="p-8 text-center text-gray-500 italic">Memuat data laporan...</td></tr>
+                <tr><td colspan="6" class="p-12 text-center text-slate-400 italic font-medium">Mencari data laporan maintenance...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<div id="modalReview" class="modal">
-    <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
-        <div class="bg-slate-50 p-4 border-b flex justify-between items-center">
-            <h2 class="text-lg font-bold text-[#003366]">Detail Review Laporan Maintenance</h2>
-            <button onclick="closeModal()" class="text-2xl font-bold hover:text-red-500 transition">&times;</button>
+<div id="modalManager" class="modal">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
+        <div class="bg-slate-50 p-5 border-b flex justify-between items-center">
+            <h2 class="text-xl font-bold text-slate-800">Final Review & Decision</h2>
+            <button onclick="closeModal()" class="text-3xl font-light hover:text-red-500 transition">&times;</button>
         </div>
         
-        <div class="p-6 overflow-y-auto flex-grow" id="modalContent"></div>
+        <div class="p-8 overflow-y-auto flex-grow" id="modalContent"></div>
 
-        <div id="approvalPanel" class="p-6 bg-slate-50 border-t shadow-inner" style="display: none;">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-xs font-bold text-[#003366] uppercase mb-1">Nama Pemeriksa (Superintendent):</label>
-                    <input type="text" id="spt_name" class="w-full border-2 border-slate-200 rounded-lg p-2 text-sm focus:border-blue-500 outline-none uppercase font-bold" placeholder="NAMA LENGKAP ANDA">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-[#003366] uppercase mb-1">Catatan / Rekomendasi (Wajib jika Reject):</label>
-                    <textarea id="spt_notes" class="w-full border-2 border-slate-200 rounded-lg p-2 text-sm focus:border-blue-500 outline-none transition-all" rows="2" placeholder="Hasil evaluasi atau alasan penolakan..."></textarea>
-                </div>
+        <div class="px-8 pb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-blue-50 p-4 rounded-xl border-l-4 border-blue-500">
+                <p class="text-[10px] font-black text-blue-800 uppercase mb-1">Catatan Engineer (Pelaksana):</p>
+                <p id="view_eng_notes_modal" class="text-sm italic text-slate-700 font-medium"></p>
             </div>
-
-            <p class="font-bold text-[#003366] mb-2 text-center uppercase text-[10px]">Tanda Tangan Superintendent / SPV</p>
-            <div class="relative">
-                <canvas id="sig-spt" class="sig-canvas mb-4 shadow-sm"></canvas>
-                <button onclick="clearCanvas()" class="absolute top-2 right-2 text-xs bg-red-100 text-red-600 px-3 py-1 rounded-md shadow-sm font-bold">RESET</button>
-            </div>
-
-            <div class="flex gap-4">
-                <button onclick="processReview('Rejected')" class="flex-1 bg-red-600 text-white py-3 rounded-xl font-black text-lg hover:bg-red-700 shadow-xl transform active:scale-95 transition-all uppercase">REJECT LAPORAN</button>
-                <button onclick="processReview('Approved')" class="flex-[2] bg-green-600 text-white py-3 rounded-xl font-black text-lg hover:bg-green-700 shadow-xl transform active:scale-95 transition-all uppercase">APPROVE & SELESAIKAN</button>
+            <div class="bg-slate-100 p-4 rounded-xl border-l-4 border-slate-500">
+                <p class="text-[10px] font-black text-slate-500 uppercase mb-1">Evaluasi Superintendent (Pemeriksa):</p>
+                <p id="view_spt_name_modal" class="text-xs font-bold text-slate-800 uppercase mb-1"></p>
+                <p id="view_spt_notes_modal" class="text-sm italic text-slate-600 font-medium"></p>
             </div>
         </div>
 
-        <div id="historyPanel" class="p-6 bg-slate-50 border-t text-center" style="display: none;">
-            <div class="max-w-md mx-auto">
-                <p id="history_status_text" class="font-black uppercase mb-1 text-sm tracking-widest"></p>
-                <div class="bg-white p-3 rounded-lg border shadow-sm mb-4 text-left" id="history_box_color">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Pemeriksa & Catatan:</p>
-                    <p id="view_spt_name" class="text-sm font-bold text-slate-800 uppercase"></p>
-                    <p id="view_spt_notes" class="text-xs italic text-slate-600 mt-1"></p>
+        <div class="p-8 bg-slate-50 border-t">
+            <div id="managerActionButtons" class="flex flex-col md:flex-row gap-4 items-center justify-center">
+                <div id="decisionPending" class="flex gap-4 w-full justify-center">
+                    <button onclick="saveDecision('Rejected')" class="flex-1 max-w-xs bg-red-600 text-white py-4 rounded-xl font-black text-lg hover:bg-red-700 shadow-xl transform active:scale-95 transition-all uppercase tracking-wider">REJECT (TOLAK)</button>
+                    <button onclick="saveDecision('Final_Approved')" class="flex-1 max-w-xs bg-green-600 text-white py-4 rounded-xl font-black text-lg hover:bg-green-700 shadow-xl transform active:scale-95 transition-all uppercase tracking-wider">APPROVE (SETUJU)</button>
                 </div>
-                <img id="view-sig-spt" class="h-24 mx-auto border-2 bg-white p-2 rounded-lg shadow-md" alt="TTD SPT">
+                <div id="decisionDone" class="hidden text-center w-full">
+                    <div class="inline-block px-8 py-3 rounded-full font-black text-xl border-4" id="finalStatusBadge"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -109,13 +96,15 @@
     const _sb = supabase.createClient(SB_URL, SB_KEY);
 
     let currentId = null;
-    let canvas, ctx, drawing = false;
 
+    // SINKRONISASI JAM LOKAL (WIB/WITA/WIT)
     function formatIndoDateOnly(isoString) {
         if (!isoString) return "-";
         try {
-            const datePart = isoString.split('T')[0]; 
-            const [y, m, d] = datePart.split('-');
+            const date = new Date(isoString);
+            const d = String(date.getDate()).padStart(2, '0');
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const y = date.getFullYear();
             return `${d}/${m}/${y}`;
         } catch (e) { return isoString; }
     }
@@ -123,180 +112,119 @@
     function formatIndoDateTime(isoString) {
         if (!isoString) return "-";
         try {
-            const parts = isoString.split('T');
-            if (parts.length < 2) return isoString;
-            const [y, m, d] = parts[0].split('-');
-            const timePart = parts[1].substring(0, 5); 
-            return `${d}/${m}/${y} | ${timePart}`;
+            const date = new Date(isoString);
+            return date.toLocaleString('id-ID', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: false
+            }).replace(/\./g, ':');
         } catch (e) { return isoString; }
     }
 
     async function fetchLaporan() {
-        const { data } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
+        const { data, error } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
         const list = document.getElementById('listLaporan');
         
-        if (data && data.length === 0) {
-            list.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-400 italic">Belum ada laporan masuk.</td></tr>';
+        if (error) {
+            console.error("Supabase Error:", error);
+            list.innerHTML = `<tr><td colspan="6" class="p-12 text-center text-red-500 font-bold uppercase">Gagal Memuat Data - Cek Koneksi</td></tr>`;
             return;
         }
 
         if (data) {
             list.innerHTML = data.map(row => {
-                let badgeClass = 'pending';
-                if (row.status === 'Approved') badgeClass = 'approved';
+                let badgeClass = 'partial';
+                if (row.status === 'Final_Approved') badgeClass = 'approved-all';
                 if (row.status === 'Rejected') badgeClass = 'rejected';
 
                 return `
-                <tr class="border-b hover:bg-slate-50 transition-colors text-sm">
+                <tr class="border-b hover:bg-slate-50 transition-all text-sm">
                     <td class="p-4 font-medium text-slate-500">${formatIndoDateOnly(row.created_at)}</td>
-                    <td class="p-4 font-bold text-slate-700 uppercase">${row.nama_mesin || '-'}</td>
-                    <td class="p-4 font-semibold text-blue-700">${row.job_type || '-'}</td>
-                    <td class="p-4 font-medium">${row.engineer_name || '-'}</td>
+                    <td class="p-4 font-bold text-slate-800 uppercase">${row.nama_mesin}</td>
+                    <td class="p-4">${row.job_type}</td>
+                    <td class="p-4">${row.engineer_name}</td>
                     <td class="p-4"><span class="status-badge ${badgeClass}">${row.status}</span></td>
-                    <td class="p-4"><button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1.5 rounded-md text-xs font-bold hover:bg-blue-800 transition-all shadow-md">REVIEW</button></td>
+                    <td class="p-4 text-center">
+                        <button onclick='viewDetail(${JSON.stringify(row)})' class="bg-[#1e293b] text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-md hover:scale-105 transition-transform">PROSES DATA</button>
+                    </td>
                 </tr>
             `}).join('');
         }
     }
 
-    async function openReview(row) {
+    async function viewDetail(row) {
         currentId = row.id;
-        const cont = document.getElementById('modalContent');
-        
         const { data: prob } = await _sb.from('maintenance_problems').select('*').eq('maintenance_id', row.id);
         const { data: act } = await _sb.from('maintenance_actions').select('*').eq('maintenance_id', row.id);
         const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
 
+        const cont = document.getElementById('modalContent');
         cont.innerHTML = `
-            <div class="grid grid-cols-2 gap-4 mb-6 border bg-slate-50 p-4 rounded-xl shadow-sm">
-                <div><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Mesin / Equipment</p><p class="font-bold text-[#003366] text-lg uppercase">${row.nama_mesin}</p></div>
-                <div><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Tipe Pekerjaan</p><p class="font-bold text-blue-700 text-lg uppercase">${row.job_type}</p></div>
-                <div><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Engineer</p><p class="font-bold uppercase">${row.engineer_name}</p></div>
-                <div><p class="text-[10px] text-gray-400 uppercase font-black tracking-widest">Periode Kerja</p>
-                     <p class="text-xs font-bold text-slate-700">${formatIndoDateTime(row.jam_mulai)} <span class="text-blue-500">s/d</span> ${formatIndoDateTime(row.jam_selesai)}</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Equipment</p><p class="font-bold text-slate-800 uppercase">${row.nama_mesin}</p></div>
+                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Tipe</p><p class="font-bold text-blue-600">${row.job_type}</p></div>
+                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Engineer</p><p class="font-bold text-slate-800 uppercase">${row.engineer_name}</p></div>
+                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Periode Kerja</p>
+                    <p class="text-[10px] font-bold text-slate-700">${formatIndoDateTime(row.jam_mulai)} <span class="text-blue-500">s/d</span> ${formatIndoDateTime(row.jam_selesai)}</p>
                 </div>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm"><p class="font-bold text-[#003366] border-b mb-2 pb-1 text-sm uppercase italic font-mono tracking-tighter">1. Deskripsi Masalah:</p>
-                     <ul class="list-disc pl-5 text-xs space-y-1 italic text-slate-600">${prob.length ? prob.map(p => `<li>${p.description}</li>`).join('') : '<li>N/A</li>'}</ul>
-                </div>
-                <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm"><p class="font-bold text-[#003366] border-b mb-2 pb-1 text-sm uppercase italic font-mono tracking-tighter">2. Tindakan Diamabil:</p>
-                     <ul class="list-disc pl-5 text-xs space-y-1 italic text-slate-600">${act.length ? act.map(a => `<li>${a.description}</li>`).join('') : '<li>N/A</li>'}</ul>
-                </div>
-            </div>
-            
-            <div class="mb-6 bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
-                <p class="font-bold text-[#003366] border-b mb-2 pb-1 text-sm uppercase italic font-mono tracking-tighter">3. Penggantian Suku Cadang:</p>
-                <div class="overflow-x-auto border rounded-lg">
-                    <table class="w-full text-[11px] text-left">
-                        <thead class="bg-slate-50"><tr><th class="p-2 border-b">Part Name</th><th class="p-2 border-b text-center">Qty</th><th class="p-2 border-b text-center">Tindakan</th></tr></thead>
-                        <tbody>${part.length ? part.map(pt => `<tr class="border-b"><td class="p-2 font-medium uppercase">${pt.nama_part}</td><td class="p-2 text-center font-bold text-blue-600">${pt.qty}</td><td class="p-2 text-center"><span class="bg-slate-100 px-2 py-0.5 rounded-full font-bold text-[9px] uppercase">${pt.tindak_lanjut}</span></td></tr>`).join('') : '<tr><td colspan="3" class="p-4 text-center italic text-gray-400">Tidak ada penggantian part</td></tr>'}</tbody>
-                    </table>
-                </div>
+                <div><h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">1. Deskripsi Masalah</h3><ul class="text-xs space-y-1 italic text-slate-600">${prob.map(p => `<li>• ${p.description}</li>`).join('')}</ul></div>
+                <div><h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">2. Tindakan Perbaikan</h3><ul class="text-xs space-y-1 italic text-slate-600">${act.map(a => `<li>• ${a.description}</li>`).join('')}</ul></div>
             </div>
 
-            <div class="bg-yellow-50 p-4 border-l-4 border-yellow-400 rounded shadow-sm">
-                <p class="text-[10px] font-black text-yellow-700 uppercase mb-1 tracking-tighter">Rekomendasi & Catatan Engineer:</p>
-                <p class="text-sm italic text-slate-700 font-medium">"${row.rekomendasi_catatan || 'Tidak ada catatan.'}"</p>
+            <div class="mb-6">
+                <h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">3. Suku Cadang Terpasang</h3>
+                <table class="w-full text-[10px] text-left border">
+                    <tr class="bg-slate-100"><th class="p-2">Part Name</th><th class="p-2 text-center">Qty</th><th class="p-2 text-center">Tindak Lanjut</th></tr>
+                    ${part.length ? part.map(pt => `<tr class="border-t"><td class="p-2 uppercase">${pt.nama_part}</td><td class="p-2 text-center font-bold text-blue-600">${pt.qty}</td><td class="p-2 text-center uppercase text-[9px]">${pt.tindak_lanjut}</td></tr>`).join('') : '<tr><td colspan="3" class="p-4 text-center italic text-slate-400">Tidak ada penggantian suku cadang</td></tr>'}
+                </table>
             </div>
         `;
-        
-        const isReviewed = (row.status === 'Approved' || row.status === 'Rejected');
-        document.getElementById('approvalPanel').style.display = isReviewed ? 'none' : 'block';
-        document.getElementById('historyPanel').style.display = isReviewed ? 'block' : 'none';
-        
-        if (isReviewed) {
-            const hText = document.getElementById('history_status_text');
-            const hBox = document.getElementById('history_box_color');
-            const hSig = document.getElementById('view-sig-spt');
-            
-            if(row.status === 'Approved') {
-                hText.innerText = "Laporan Telah Disetujui";
-                hText.className = "text-green-700 font-black uppercase mb-1 text-sm tracking-widest";
-                hBox.className = "bg-white p-3 rounded-lg border border-green-200 shadow-sm mb-4 text-left";
-                hSig.className = "h-24 mx-auto border-2 border-green-200 bg-white p-2 rounded-lg shadow-md";
-            } else {
-                hText.innerText = "Laporan Telah Ditolak";
-                hText.className = "text-red-700 font-black uppercase mb-1 text-sm tracking-widest";
-                hBox.className = "bg-white p-3 rounded-lg border border-red-200 shadow-sm mb-4 text-left";
-                hSig.className = "h-24 mx-auto border-2 border-red-200 bg-white p-2 rounded-lg shadow-md";
-            }
 
-            document.getElementById('view-sig-spt').src = row.signature_superintendent || '';
-            document.getElementById('view_spt_name').innerText = row.spt_name || "-";
-            document.getElementById('view_spt_notes').innerText = row.spt_notes || "Tidak ada catatan.";
-        } else {
-            document.getElementById('spt_name').value = "";
-            document.getElementById('spt_notes').value = "";
+        // Menampilkan Catatan Engineer & Superintendent
+        document.getElementById('view_eng_notes_modal').innerText = `"${row.rekomendasi_catatan || 'Tidak ada catatan.'}"`;
+        document.getElementById('view_spt_name_modal').innerText = "Diperiksa Oleh: " + (row.spt_name || "-");
+        document.getElementById('view_spt_notes_modal').innerText = `"${row.spt_notes || 'Tidak ada catatan khusus.'}"`;
+
+        const isDecided = (row.status === 'Final_Approved' || row.status === 'Rejected');
+        document.getElementById('decisionPending').style.display = isDecided ? 'none' : 'flex';
+        document.getElementById('decisionDone').style.display = isDecided ? 'block' : 'none';
+
+        if(isDecided) {
+            const badge = document.getElementById('finalStatusBadge');
+            if(row.status === 'Final_Approved') {
+                badge.innerText = "DATA DISETUJUI (APPROVED)";
+                badge.className = "inline-block px-8 py-3 rounded-full font-black text-xl border-4 border-green-600 text-green-600";
+            } else {
+                badge.innerText = "DATA DITOLAK (REJECTED)";
+                badge.className = "inline-block px-8 py-3 rounded-full font-black text-xl border-4 border-red-600 text-red-600";
+            }
         }
 
-        document.getElementById('modalReview').style.display = 'flex';
-        
-        canvas = document.getElementById('sig-spt');
-        ctx = canvas.getContext('2d');
-        setTimeout(() => {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
-            ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
-        }, 100);
+        document.getElementById('modalManager').style.display = 'flex';
     }
 
-    async function processReview(newStatus) {
-        const signature = canvas.toDataURL();
-        const name = document.getElementById('spt_name').value.trim();
-        const notes = document.getElementById('spt_notes').value.trim();
-        
-        const blank = document.createElement('canvas');
-        blank.width = canvas.width; blank.height = canvas.height;
-        
-        if (!name) return alert("Mohon isi Nama Superintendent!");
-        if (newStatus === 'Rejected' && !notes) return alert("Mohon isi Catatan/Alasan penolakan jika laporan di-Reject!");
-        if (signature === blank.toDataURL()) return alert("Tanda tangan Superintendent wajib diisi!");
-
-        const confirmMsg = newStatus === 'Approved' ? "Setujui laporan ini?" : "Tolak laporan ini?";
-        if(!confirm(confirmMsg)) return;
+    async function saveDecision(statusValue) {
+        const confirmText = statusValue === 'Final_Approved' ? "Anda yakin ingin menyetujui laporan ini?" : "Anda yakin ingin menolak laporan ini?";
+        if (!confirm(confirmText)) return;
 
         const { error } = await _sb.from('laporan_maintenance')
-            .update({ 
-                status: newStatus, 
-                signature_superintendent: signature,
-                spt_name: name,
-                spt_notes: notes 
-            })
+            .update({ status: statusValue })
             .eq('id', currentId);
 
-        if (!error) { 
-            alert(`Laporan Berhasil di-${newStatus}!`); 
-            closeModal(); 
-            fetchLaporan(); 
-        } else { 
-            alert("Gagal: " + error.message); 
+        if (!error) {
+            alert(`Berhasil! Laporan telah di-${statusValue}`);
+            closeModal();
+            fetchLaporan();
+        } else {
+            alert("Terjadi kesalahan: " + error.message);
         }
     }
 
-    function clearCanvas() { if(ctx) ctx.clearRect(0,0,canvas.width,canvas.height); }
-    function getP(e) { 
-        const r = canvas.getBoundingClientRect(); 
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - r.left, y: clientY - r.top }; 
-    }
-    
-    function startDraw(e) { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }
-    function moveDraw(e) { if(drawing) { e.preventDefault(); const p=getP(e); ctx.lineTo(p.x,p.y); ctx.stroke(); } }
-    function stopDraw() { drawing=false; }
-
-    document.addEventListener('mousedown', (e) => { if(e.target === canvas) startDraw(e); });
-    document.addEventListener('mousemove', (e) => { if(e.target === canvas) moveDraw(e); });
-    window.addEventListener('mouseup', stopDraw);
-
-    document.addEventListener('touchstart', (e) => { if(e.target === canvas) startDraw(e); }, {passive: false});
-    document.addEventListener('touchmove', (e) => { if(e.target === canvas) moveDraw(e); }, {passive: false});
-    window.addEventListener('touchend', stopDraw);
-
-    function closeModal() { document.getElementById('modalReview').style.display = 'none'; clearCanvas(); }
+    function closeModal() { document.getElementById('modalManager').style.display = 'none'; }
     window.onload = fetchLaporan;
 </script>
+
 </body>
 </html>
