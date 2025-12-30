@@ -34,7 +34,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            position: relative; /* Ditambahkan untuk posisi tombol tutup */
+            position: relative; 
         }
 
         /* Gaya Tombol Tutup Review */
@@ -275,6 +275,7 @@
             const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
 
             const container = document.getElementById('reportContent');
+            /* Menghilangkan teks "Engineer: " di bagian Rekomendasi & Catatan */
             container.innerHTML = `
                 <div class="view-row">
                     <span class="view-label">Nama Mesin, Tools/equipment :</span>
@@ -321,7 +322,7 @@
 
                 <div class="mt-4">
                     <span class="section-label">Rekomendasi & Catatan :</span>
-                    <div class="note-line text-black font-medium">Engineer: ${row.rekomendasi_catatan || ''}</div>
+                    <div class="note-line text-black font-medium">${row.rekomendasi_catatan || ''}</div>
                     <div class="note-line text-black font-medium">${row.spt_notes || ''}</div>
                 </div>
             `;
