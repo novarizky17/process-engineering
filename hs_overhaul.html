@@ -7,22 +7,54 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @page { size: A4 portrait; margin: 0; }
-        body { background-color: #f1f5f9; margin: 0; padding: 15px; font-family: Arial, sans-serif; font-size: 9.5pt; color: #000; }
+        /* Pengaturan Kertas A4 Portrait */
+        @page { 
+            size: A4 portrait; 
+            margin: 0; 
+        }
+
+        body { 
+            background-color: #f1f5f9; 
+            margin: 0; 
+            padding: 15px; 
+            font-family: Arial, sans-serif; 
+            font-size: 9.5pt; 
+            color: #000; 
+        }
         
+        /* Layout Dokumen Utama - Full 1 Halaman */
         .document-page { 
-            width: 210mm; height: 296mm; background: white; margin: 0 auto; 
-            padding: 10mm; border: 1.5px solid #000; box-sizing: border-box; 
-            display: flex; flex-direction: column; overflow: hidden; position: relative;
+            width: 210mm; 
+            height: 296mm; 
+            background: white; 
+            margin: 0 auto; 
+            padding: 10mm; 
+            border: 1.5px solid #000; 
+            box-sizing: border-box; 
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative; 
         }
 
+        /* Gaya Tombol Tutup Review */
         .btn-close-review {
-            position: absolute; top: 15px; right: 15px; z-index: 50;
-            background: #ef4444; color: white; padding: 6px 12px;
-            border-radius: 4px; font-weight: bold; font-size: 11px;
-            text-transform: uppercase; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 50;
+            background: #ef4444;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+        .btn-close-review:hover { background: #dc2626; }
 
+        /* Header ISO Standar */
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; border: 2.5px solid black; }
         .header-table td { border: 1px solid black; padding: 5px 10px; vertical-align: middle; color: #000; }
         .logo-box { width: 130px; text-align: center; }
@@ -34,37 +66,80 @@
         .meta-cell { width: 240px; padding: 0 !important; }
         .meta-table { width: 100%; border-collapse: collapse; }
         .meta-table td { border: none !important; border-bottom: 1.5px solid black !important; padding: 3px 8px !important; font-size: 8.5pt; font-weight: bold; }
+        .meta-table tr:last-child td { border-bottom: none !important; }
         
+        /* Baris Informasi Data */
         .view-row { display: flex; align-items: center; margin-bottom: 6px; font-weight: bold; color: #000; }
         .view-label { width: 220px; flex-shrink: 0; }
         .view-line { border-bottom: 1.5px solid black; flex-grow: 1; padding: 0 5px; font-weight: normal; color: #000; height: 22px; }
         
         .box-container { display: flex; align-items: center; gap: 6px; }
-        .check-box { width: 15px; height: 15px; border: 1.5px solid black; display: inline-flex; align-items: center; justify-content: center; background: white; font-size: 9pt; font-weight: bold; flex-shrink: 0; }
+        .check-box { 
+            width: 15px; height: 15px; border: 1.5px solid black; 
+            display: inline-flex; align-items: center; justify-content: center; 
+            background: white; font-size: 9pt; font-weight: bold; flex-shrink: 0; 
+        }
         
         .section-label { font-weight: bold; margin-top: 12px; margin-bottom: 6px; display: block; color: #000; text-decoration: underline; }
-        .dotted-item { display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px dotted #000; min-height: 22px; margin-bottom: 4px; color: #000; }
+        .dotted-item { display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px dotted #000; min-height: 22px; padding-bottom: 1px; margin-bottom: 4px; color: #000; }
 
-        /* Tabel Part - DIKEMBALIKAN KE STRUKTUR ASLI */
+        /* Tabel Part */
         .part-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-top: 8px; color: #000; }
-        .part-table th, .part-table td { border: 1.5px solid black; padding: 5px; text-align: center; }
+        .part-table th, .part-table td { border: 1px solid black; padding: 5px; text-align: center; }
         .part-table th { font-size: 9pt; font-weight: bold; background-color: #f2f2f2; }
         .tindak-lanjut-layout { display: flex; justify-content: space-around; width: 100%; }
 
-        /* TANDA TANGAN TANPA KOTAK */
-        .sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; margin-top: auto; width: 100%; border: none; }
-        .sig-box { text-align: center; display: flex; flex-direction: column; height: 180px; position: relative; box-sizing: border-box; border: none; }
-        .sig-header { font-weight: bold; font-size: 9pt; padding: 8px; background: transparent; border: none; }
-        .sig-area { flex-grow: 1; padding: 10px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .sig-area img { max-height: 80px; width: auto; margin-bottom: 2px; }
+        /* GRID TANDA TANGAN SEJAJAR */
+        .sig-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            border: 2px solid black; 
+            margin-top: auto; 
+            width: 100%;
+        }
+        .sig-box { 
+            border-right: 2px solid black; 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            height: 180px; 
+            position: relative; 
+            box-sizing: border-box;
+        }
+        .sig-box:last-child { border-right: none; }
+        .sig-header { 
+            font-weight: bold; font-size: 9pt; padding: 8px; 
+            border-bottom: 2px solid black; background: #f2f2f2; 
+        }
+        .sig-area { 
+            flex-grow: 1; padding: 10px;
+            display: flex; justify-content: center; align-items: flex-start;
+        }
+        .sig-area img { max-height: 80px; width: auto; }
 
-        /* NAMA DI ATAS GARIS */
-        .sig-name-container { position: absolute; bottom: 31px; left: 0; right: 0; text-align: center; display: flex; flex-direction: column; align-items: center; }
-        .name-text { font-weight: bold; font-size: 9pt; text-transform: uppercase; color: #000; margin-bottom: 2px; }
-        .sig-line-horizontal { border-top: 1.8px solid black; width: 80%; }
-        .sig-footer { padding: 6px; font-weight: bold; font-size: 9pt; text-transform: uppercase; background: transparent; margin-top: auto; }
+        /* Nama Dikunci Sejajar */
+        .sig-name-container {
+            position: absolute;
+            bottom: 35px; 
+            left: 0;
+            right: 0;
+            text-align: center;
+        }
+        
+        .name-under-sig, .engineer-name-style { 
+            font-weight: bold; font-size: 9pt; text-transform: uppercase; 
+            border-top: 2px solid black; 
+            width: 85%; margin: 0 auto; padding-top: 3px; display: block; color: #000; 
+        }
+        .sig-footer { 
+            border-top: 2px solid black; padding: 6px; 
+            font-weight: bold; font-size: 9pt; text-transform: uppercase; 
+            background: #f2f2f2; margin-top: auto; 
+        }
 
         .note-line { border-bottom: 1.5px solid black; min-height: 20px; width: 100%; margin-bottom: 2px; font-style: italic; display: flex; align-items: flex-end; color: #000; }
+
+        /* Modal */
         .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; overflow-y: auto; }
         
         @media print { 
@@ -89,7 +164,12 @@
             <table class="w-full text-left text-sm border-collapse">
                 <thead>
                     <tr class="bg-slate-100 uppercase text-[10px]">
-                        <th class="p-3 border">Tanggal</th><th class="p-3 border">Nama Mesin</th><th class="p-3 border text-center">Tipe</th><th class="p-3 border">Engineer</th><th class="p-3 border text-center">Status</th><th class="p-3 border text-center">Aksi</th>
+                        <th class="p-3 border">Tanggal</th>
+                        <th class="p-3 border">Nama Mesin</th>
+                        <th class="p-3 border text-center">Tipe</th>
+                        <th class="p-3 border">Engineer</th>
+                        <th class="p-3 border text-center">Status</th>
+                        <th class="p-3 border text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="listHistory">
@@ -105,8 +185,14 @@
             
             <table class="header-table">
                 <tr>
-                    <td rowspan="2" class="logo-box"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo AKG"><div class="text-[9pt] font-bold mt-1">AKG®</div></td>
-                    <td class="title-cell"><div class="company-name">PT. AMARILIS KARISMA GEMILANG</div><div class="report-title">LAPORAN PERAWATAN & OVER HAUL MESIN TOOLS / EQUIPMENT</div></td>
+                    <td rowspan="2" class="logo-box">
+                        <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo AKG">
+                        <div class="text-[9pt] font-bold mt-1">AKG®</div>
+                    </td>
+                    <td class="title-cell">
+                        <div class="company-name">PT. AMARILIS KARISMA GEMILANG</div>
+                        <div class="report-title">LAPORAN PERAWATAN & OVER HAUL MESIN TOOLS / EQUIPMENT</div>
+                    </td>
                     <td class="meta-cell">
                         <table class="meta-table">
                             <tr><td class="w-24">No Dokumen</td><td>: AF.SP 05.01</td></tr>
@@ -124,24 +210,32 @@
                 <div class="sig-box">
                     <div class="sig-header">Dikerjakan Oleh:</div>
                     <div class="sig-area"><img id="view-sig-eng"></div>
-                    <div class="sig-name-container"><span id="view-name-eng" class="name-text"></span><div class="sig-line-horizontal"></div></div>
+                    <div class="sig-name-container">
+                        <span id="view-name-eng" class="engineer-name-style"></span>
+                    </div>
                     <div class="sig-footer">ENGINEER</div>
                 </div>
                 <div class="sig-box">
                     <div class="sig-header">Diperiksa Oleh:</div>
                     <div class="sig-area"><img id="view-sig-spt"></div>
-                    <div class="sig-name-container"><span id="view-name-spt" class="name-text"></span><div class="sig-line-horizontal"></div></div>
+                    <div class="sig-name-container">
+                        <span id="view-name-spt" class="name-under-sig"></span>
+                    </div>
                     <div class="sig-footer">SPV / SUPERINTENDENT</div>
                 </div>
                 <div class="sig-box">
                     <div class="sig-header">Mengetahui:</div>
                     <div class="sig-area"><img id="view-sig-mn"></div>
-                    <div class="sig-name-container"><span id="view-name-mn" class="name-text"></span><div class="sig-line-horizontal"></div></div>
+                    <div class="sig-name-container">
+                        <span id="view-name-mn" class="name-under-sig"></span>
+                    </div>
                     <div class="sig-footer">MANAGER</div>
                 </div>
             </div>
 
-            <div class="mt-4 text-right no-print"><button onclick="window.print()" class="bg-[#003366] text-white px-10 py-2 rounded font-black uppercase text-sm shadow-xl hover:bg-black transition">Cetak Laporan</button></div>
+            <div class="mt-4 text-right no-print">
+                <button onclick="window.print()" class="bg-[#003366] text-white px-10 py-2 rounded font-black uppercase text-sm shadow-xl hover:bg-black transition">Cetak Laporan</button>
+            </div>
         </div>
     </div>
 
@@ -150,7 +244,11 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        function fmtDate(iso) { if(!iso) return "-"; const d = new Date(iso); return d.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'}); }
+        function fmtDate(iso) {
+            if(!iso) return "-";
+            const d = new Date(iso);
+            return d.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'});
+        }
 
         async function fetchHistory() {
             const { data } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
@@ -163,7 +261,9 @@
                         <td class="p-3 border text-center font-bold text-black">${row.job_type}</td>
                         <td class="p-3 border uppercase text-black font-medium">${row.engineer_name}</td>
                         <td class="p-3 border text-center"><span class="text-[9px] bg-green-50 text-green-600 px-2 py-0.5 rounded font-bold border border-green-100 uppercase">${row.status}</span></td>
-                        <td class="p-3 border text-center"><button onclick='viewReport(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1 rounded text-[10px] font-bold uppercase shadow">Review</button></td>
+                        <td class="p-3 border text-center">
+                            <button onclick='viewReport(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 py-1 rounded text-[10px] font-bold uppercase shadow">Review</button>
+                        </td>
                     </tr>
                 `).join('');
             }
@@ -175,29 +275,66 @@
             const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
 
             const container = document.getElementById('reportContent');
+            /* Menghilangkan teks "Engineer: " di bagian Rekomendasi & Catatan */
             container.innerHTML = `
-                <div class="view-row"><span class="view-label">Nama Mesin, Tools/equipment :</span><span class="view-line uppercase font-bold text-black">${row.nama_mesin}</span>
-                    <div class="ml-4 flex gap-6 text-[10pt]"><div class="box-container"><div class="check-box">${row.job_type === 'Perawatan' ? '✔' : ''}</div> Perawatan</div><div class="box-container"><div class="check-box">${row.job_type === 'Overhaul' ? '✔' : ''}</div> Over Haul</div></div>
+                <div class="view-row">
+                    <span class="view-label">Nama Mesin, Tools/equipment :</span>
+                    <span class="view-line uppercase font-bold text-black">${row.nama_mesin}</span>
+                    <div class="ml-4 flex gap-6 text-[10pt]">
+                        <div class="box-container"><div class="check-box">${row.job_type === 'Perawatan' ? '✔' : ''}</div> Perawatan</div>
+                        <div class="box-container"><div class="check-box">${row.job_type === 'Overhaul' ? '✔' : ''}</div> Over Haul</div>
+                    </div>
                 </div>
                 <div class="view-row"><span class="view-label">Tanggal Mulai :</span><span class="view-line text-black font-medium">${fmtDate(row.jam_mulai)}</span></div>
                 <div class="view-row"><span class="view-label">Tanggal Selesai :</span><span class="view-line text-black font-medium">${fmtDate(row.jam_selesai)}</span></div>
+
                 <span class="section-label">Diskripsi Permasalahan Mesin Tools/Equipment :</span>
-                <div class="grid grid-cols-2 gap-x-10">${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-black"><div class="check-box">${prob[i]?.is_checked ? '✔' : ''}</div> ${prob[i]?.description || ''}</div>`).join('')}</div>
+                <div class="grid grid-cols-2 gap-x-10">
+                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-black"><div class="check-box">${prob[i]?.is_checked ? '✔' : ''}</div> ${prob[i]?.description || ''}</div>`).join('')}
+                </div>
+
                 <span class="section-label">Pekerjaan Yang Dilakukan & Tindakan Yang Diambil :</span>
-                <div class="grid grid-cols-2 gap-x-10">${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-black"><div class="check-box">${act[i]?.is_checked ? '✔' : ''}</div> ${act[i]?.description || ''}</div>`).join('')}</div>
-                
+                <div class="grid grid-cols-2 gap-x-10">
+                    ${Array.from({length: 8}, (_, i) => `<div class="dotted-item text-black"><div class="check-box">${act[i]?.is_checked ? '✔' : ''}</div> ${act[i]?.description || ''}</div>`).join('')}
+                </div>
+
                 <span class="section-label">Kerusakan Part :</span>
-                <table class="part-table"><thead><tr><th style="width: 40px;">NO</th><th>Nama Part</th><th style="width: 60px;">QTY</th><th style="width: 250px;">Tindak Lanjut</th></tr></thead>
-                <tbody>${Array.from({length: 5}, (_, i) => `<tr><td>${i+1}</td><td class="text-left px-2 uppercase font-medium text-black">${part[i]?.nama_part || ''}</td><td class="text-black">${part[i]?.qty || ''}</td><td><div class="tindak-lanjut-layout text-black"><div class="box-container"><div class="check-box">${part[i]?.tindak_lanjut === 'Ganti' ? '✔' : ''}</div> Ganti Baru</div><div class="box-container"><div class="check-box">${part[i]?.tindak_lanjut === 'Repair' ? '✔' : ''}</div> Repair</div></div></td></tr>`).join('')}</tbody></table>
-                <div class="mt-4"><span class="section-label">Rekomendasi & Catatan :</span><div class="note-line text-black font-medium">${row.rekomendasi_catatan || ''}</div><div class="note-line text-black font-medium">${row.spt_notes || ''}</div></div>
+                <table class="part-table">
+                    <thead>
+                        <tr><th style="width: 40px;">NO</th><th>Nama Part</th><th style="width: 60px;">QTY</th><th style="width: 250px;">Tindak Lanjut</th></tr>
+                    </thead>
+                    <tbody>
+                        ${Array.from({length: 5}, (_, i) => `
+                            <tr>
+                                <td class="text-black">${i+1}</td>
+                                <td class="text-left px-2 uppercase font-medium text-black">${part[i]?.nama_part || ''}</td>
+                                <td class="text-black">${part[i]?.qty || ''}</td>
+                                <td>
+                                    <div class="tindak-lanjut-layout text-black">
+                                        <div class="box-container"><div class="check-box">${part[i]?.tindak_lanjut === 'Ganti' ? '✔' : ''}</div> Ganti Baru</div>
+                                        <div class="box-container"><div class="check-box">${part[i]?.tindak_lanjut === 'Repair' ? '✔' : ''}</div> Repair</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div class="mt-4">
+                    <span class="section-label">Rekomendasi & Catatan :</span>
+                    <div class="note-line text-black font-medium">${row.rekomendasi_catatan || ''}</div>
+                    <div class="note-line text-black font-medium">${row.spt_notes || ''}</div>
+                </div>
             `;
 
             document.getElementById('view-sig-eng').src = row.signature_engineer || '';
             document.getElementById('view-sig-spt').src = row.signature_superintendent || '';
             document.getElementById('view-sig-mn').src = row.signature_manager || '';
+            
             document.getElementById('view-name-eng').innerText = row.engineer_name || "";
             document.getElementById('view-name-spt').innerText = row.spt_name || "";
             document.getElementById('view-name-mn').innerText = row.manager_name || "";
+
             document.getElementById('modalReview').style.display = 'flex';
         }
 
