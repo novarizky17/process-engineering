@@ -45,16 +45,19 @@
             color: #000;
         }
 
-        .table-input {
+        /* GAYA SELECT BOX UNTUK KOLOM KETERANGAN */
+        .table-select {
             border: none;
-            width: 95%;
+            width: 100%;
             height: 100%;
             font-family: Arial;
             font-size: 9pt;
             text-align: center;
+            text-align-last: center; /* Menengahkan teks di dalam select */
             outline: none;
             background: transparent;
-            font-weight: normal;
+            cursor: pointer;
+            appearance: none; /* Menghilangkan tanda panah bawaan browser saat diprint */
         }
 
         /* PANEL PENCARIAN */
@@ -106,7 +109,7 @@
         .company-name { font-size: 14px; font-weight: bold; }
 
         .title {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: bold; 
             text-align: center;
             width: 100%;
@@ -123,7 +126,6 @@
             margin-top: 25px; /* Jarak 1 spasi agar tidak terlalu nempel logo */
         }
 
-        /* SELURUH IDENTITAS MESIN - TIDAK BOLD (NORMAL) */
         .machine-info div { 
             margin-bottom: 4px; 
             font-size: 10.5pt; 
@@ -131,7 +133,7 @@
         }
         
         .label { 
-            font-weight: normal !important; /* Label Nama Mesin dll diatur Normal */
+            font-weight: normal !important; 
             display: inline-block; 
             width: 165px; 
         }
@@ -140,7 +142,6 @@
             font-weight: normal !important; 
         }
 
-        /* INFO DOKUMEN - TIDAK BOLD (NORMAL) */
         .doc-info { text-align: left; font-size: 10.5pt; font-weight: normal !important; }
         .doc-info div { margin-bottom: 2px; }
         .doc-label { font-weight: normal !important; display: inline-block; width: 140px; }
@@ -162,7 +163,7 @@
 
         .main-table td {
             border: 1px solid black;
-            padding: 6px;
+            padding: 4px;
             font-size: 9.5pt;
             text-align: center;
             vertical-align: middle;
@@ -187,6 +188,7 @@
             .no-print, .search-area { display: none !important; }
             .container { width: 100%; box-shadow: none; padding: 0; }
             .input-dot { border-bottom: none; }
+            .table-select { appearance: none; -webkit-appearance: none; border: none; }
         }
     </style>
 </head>
@@ -256,13 +258,20 @@
         </thead>
         <tbody id="table_content">
             <script>
+                const selectHTML = `
+                    <select class="table-select">
+                        <option value=""></option>
+                        <option value="OK">OK</option>
+                        <option value="NG">NG</option>
+                    </select>
+                `;
                 for(let i=0; i<20; i++) {
                     document.write(`<tr>
                         <td>&nbsp;</td>
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td><input type="text" class="table-input"></td>
+                        <td>${selectHTML}</td>
                         <td></td>
                     </tr>`);
                 }
@@ -325,6 +334,14 @@
         const tbody = document.getElementById('table_content');
         tbody.innerHTML = '';
         
+        const selectHTML = `
+            <select class="table-select">
+                <option value=""></option>
+                <option value="OK">OK</option>
+                <option value="NG">NG</option>
+            </select>
+        `;
+
         if (reports && reports.length > 0) {
             document.getElementById('d_mesin').innerText = reports[0].nama_mesin;
             
@@ -343,7 +360,7 @@
                     <td style="text-align:left">${masalah}</td>
                     <td style="text-align:left">${tindakan}</td>
                     <td style="text-align:left">${parts}</td>
-                    <td><input type="text" class="table-input"></td>
+                    <td>${selectHTML}</td>
                     <td>${row.engineer_name}</td>
                 `;
                 tbody.appendChild(tr);
@@ -354,7 +371,7 @@
         for (let i = 0; i < (remaining < 0 ? 0 : remaining); i++) {
             tbody.innerHTML += `<tr>
                 <td>&nbsp;</td><td></td><td></td><td></td>
-                <td><input type="text" class="table-input"></td>
+                <td>${selectHTML}</td>
                 <td></td>
             </tr>`;
         }
