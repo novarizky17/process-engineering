@@ -59,38 +59,34 @@
         .part-table th { font-size: 8.5pt; font-weight: bold; background-color: #f2f2f2; }
         .tindak-lanjut-layout { display: flex; justify-content: space-around; width: 100%; }
 
-        /* Grid Tanda Tangan Sesuai Instruksi */
+        /* Grid Tanda Tangan */
         .sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 2px solid black; margin-top: 30px; }
         .sig-box { border-right: 2px solid black; text-align: center; display: flex; flex-direction: column; min-height: 140px; }
         .sig-box:last-child { border-right: none; }
         .sig-header { font-weight: bold; font-size: 9.5pt; padding: 8px; border-bottom: 1.5px solid black; background: #fafafa; }
         
-        /* Area Tanda Tangan */
         .sig-area { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px; }
         .sig-area img { max-height: 70px; margin-bottom: 2px; }
         
-        /* Nama Terang dengan Garis Bawah */
         .name-under-sig { 
             font-weight: bold; 
             font-size: 8.5pt; 
             text-transform: uppercase; 
             margin-top: auto; 
             padding-bottom: 1px;
-            border-bottom: 1px solid black; /* GARIS DI BAWAH NAMA */
+            border-bottom: 1px solid black;
             display: inline-block;
             min-width: 120px;
         }
 
-        /* Footer Label */
         .sig-footer { border-top: 1.5px solid black; padding: 6px; font-weight: bold; font-size: 9pt; text-transform: uppercase; background: #fff; }
         
-        /* Style Khusus Nama Engineer (Di atas Footer) */
         .engineer-name-style { 
             font-weight: bold; 
             font-size: 9pt; 
             text-transform: uppercase; 
             margin-top: auto;
-            border-bottom: 1px solid black; /* GARIS DI BAWAH NAMA */
+            border-bottom: 1px solid black;
             display: inline-block;
             min-width: 120px;
         }
@@ -203,11 +199,16 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        function fmtDate(iso) {
+        // FUNGSI BARU: HANYA TANGGAL
+        function fmtOnlyDate(iso) {
             if(!iso) return "-";
-            const [d, t] = iso.split('T');
-            const [y, m, day] = d.split('-');
-            return `${day}/${m}/${y} | ${t.substring(0,5)}`;
+            try {
+                const date = new Date(iso);
+                const d = String(date.getDate()).padStart(2, '0');
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const y = date.getFullYear();
+                return `${d}/${m}/${y}`;
+            } catch (e) { return iso; }
         }
 
         async function fetchHistory() {
@@ -216,7 +217,7 @@
             if(data) {
                 list.innerHTML = data.map(row => `
                     <tr class="border-b hover:bg-slate-50 transition text-xs">
-                        <td class="p-3 border font-mono">${fmtDate(row.created_at)}</td>
+                        <td class="p-3 border font-mono">${fmtOnlyDate(row.created_at)}</td>
                         <td class="p-3 border font-bold uppercase">${row.nama_mesin}</td>
                         <td class="p-3 border text-center font-bold text-blue-700">${row.job_type}</td>
                         <td class="p-3 border uppercase text-slate-600">${row.engineer_name}</td>
@@ -244,8 +245,8 @@
                         <div class="box-container"><div class="check-box">${row.job_type === 'Overhaul' ? '✔' : ''}</div> Over Haul</div>
                     </div>
                 </div>
-                <div class="view-row"><span class="view-label">Tanggal, Jam Mulai :</span><span class="view-line">${fmtDate(row.jam_mulai)}</span></div>
-                <div class="view-row"><span class="view-label">Tanggal, Jam Selesai :</span><span class="view-line">${fmtDate(row.jam_selesai)}</span></div>
+                <div class="view-row"><span class="view-label">Tanggal Mulai :</span><span class="view-line">${fmtOnlyDate(row.jam_mulai)}</span></div>
+                <div class="view-row"><span class="view-label">Tanggal Selesai :</span><span class="view-line">${fmtOnlyDate(row.jam_selesai)}</span></div>
 
                 <span class="section-label">Diskripsi Permasalahan Mesin Tools/Equipment :</span>
                 <div class="grid grid-cols-2 gap-x-10">
