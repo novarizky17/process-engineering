@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HISTORY CHECKLIST (MONTHLY) - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @page { size: A4 landscape; margin: 8mm; }
         @media print {
@@ -14,7 +15,7 @@
             .check-symbol { color: black !important; -webkit-print-color-adjust: exact; }
             .status-text { color: black !important; }
         }
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #000; }
+        body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
         .document-page { background: white; width: 1250px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
         
         /* HEADER */
@@ -91,7 +92,7 @@
             <div class="header-cell logo-area"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO AKG"></div>
             <div class="header-cell title-area">CHECKLIST MONITORING TOOLING SUPPORT</div>
             <div class="header-cell meta-area">
-                <div>NO DOKUMEN : AF.SP 05.14.REV-00<br>TANGGAL TERBIT : 02 AGUSTUS 2024<br>HALAMAN : 1/1</div>
+                <div></div>
             </div>
         </div>
 
@@ -215,7 +216,6 @@
 
             const dateFilter = `${thn}-${bln}`;
             
-            // Penyesuaian variabel pencarian ke kolom database terbaru
             const { data, error } = await _sb.from('checklist')
                 .select('*, pelaksana(*)')
                 .eq('status', 'Approved');
@@ -224,7 +224,6 @@
 
             const filteredData = data.filter(item => {
                 if (!item.pelaksana || !item.pelaksana.tanggal_checklist) return false;
-                // Menggunakan kolom nama_tools dan capacity
                 const mMatch = item.pelaksana.nama_tools?.toLowerCase().includes(tools.toLowerCase());
                 const tMatch = capacity ? item.pelaksana.capacity?.toLowerCase().includes(capacity.toLowerCase()) : true;
                 const dMatch = item.pelaksana.tanggal_checklist.startsWith(dateFilter);
