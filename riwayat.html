@@ -32,15 +32,16 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
+        /* Input titik-titik - Dipastikan NORMAL (Tidak Bold) */
         .input-dot {
             border: none;
             border-bottom: 1px dotted black;
-            width: 250px;
+            width: 350px; /* Diperpanjang sesuai gambar a5ff2b */
             font-family: Arial;
             font-size: 10.5pt;
             outline: none;
             background: transparent;
-            font-weight: normal; /* Dipastikan tidak bold */
+            font-weight: normal; 
         }
 
         .table-input {
@@ -52,6 +53,7 @@
             text-align: center;
             outline: none;
             background: transparent;
+            font-weight: normal;
         }
 
         .search-area {
@@ -109,34 +111,34 @@
             padding-top: 6px;
         }
 
-        /* META SECTION - Diatur agar agak turun sedikit */
+        /* META SECTION - Diturunkan lebih bawah sesuai gambar */
         .meta-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 15px;
-            margin-top: 35px; /* Diturunkan sedikit dari sebelumnya */
+            margin-bottom: 20px;
+            margin-top: 45px; /* Jarak ditambah agar lebih turun */
         }
 
         .machine-info div { 
-            margin-bottom: 4px; 
+            margin-bottom: 6px; 
             font-size: 10.5pt; 
-            font-weight: normal; /* Teks identitas mesin tidak bold */
+            font-weight: normal; 
         }
         
         .label { 
-            font-weight: bold; /* Label tetap bold agar rapi */
+            font-weight: bold; 
             display: inline-block; 
-            width: 145px; 
+            width: 155px; 
         }
 
         #d_mesin {
-            font-weight: normal; /* Nama mesin hasil database tidak bold */
+            font-weight: normal; 
         }
 
-        .doc-info { text-align: left; font-size: 10.5pt; }
-        .doc-info div { margin-bottom: 3px; }
-        .doc-label { font-weight: bold; display: inline-block; width: 150px; }
+        .doc-info { text-align: left; font-size: 10.5pt; font-weight: normal; }
+        .doc-info div { margin-bottom: 4px; }
+        .doc-label { font-weight: bold; display: inline-block; width: 140px; }
 
         .main-table {
             width: 100%;
@@ -144,17 +146,24 @@
             margin-bottom: 25px;
         }
 
-        .main-table th, .main-table td {
+        .main-table th {
             border: 1px solid black;
-            padding: 4px 6px;
+            padding: 6px;
+            font-size: 9.5pt;
+            text-align: center;
+            background-color: #f8fafc;
+            font-weight: bold;
+        }
+
+        .main-table td {
+            border: 1px solid black;
+            padding: 6px;
             font-size: 9.5pt;
             text-align: center;
             vertical-align: middle;
             height: 25px;
             font-weight: normal; /* Isi tabel tidak bold */
         }
-
-        .main-table th { background-color: #f8fafc; font-weight: bold; }
 
         .signature-section { margin-top: 20px; }
         .signature-row {
@@ -290,7 +299,7 @@
         if(!mesin) return alert("Masukkan Nama Mesin!");
 
         let query = _sb.from('laporan_maintenance').select(`
-                created_at, nama_mesin, engineer_name,
+                created_at, nama_mesin, engineer_name, jam_mulai,
                 maintenance_problems(description),
                 maintenance_actions(description),
                 maintenance_parts(nama_part, qty)
@@ -299,12 +308,12 @@
         if(bulan) {
             const startDate = `${tahun}-${bulan}-01T00:00:00`;
             const endDate = `${tahun}-${bulan}-31T23:59:59`;
-            query = query.gte('created_at', startDate).lte('created_at', endDate);
+            query = query.gte('jam_mulai', startDate).lte('jam_mulai', endDate);
         } else {
-            query = query.gte('created_at', `${tahun}-01-01`).lte('created_at', `${tahun}-12-31`);
+            query = query.gte('jam_mulai', `${tahun}-01-01`).lte('jam_mulai', `${tahun}-12-31`);
         }
 
-        const { data: reports, error } = await query.order('created_at', { ascending: true });
+        const { data: reports, error } = await query.order('jam_mulai', { ascending: true });
 
         if (error) return alert("Gagal mengambil data.");
         
@@ -316,7 +325,10 @@
             
             reports.forEach(row => {
                 const tr = document.createElement('tr');
-                const date = new Date(row.created_at).toLocaleDateString('id-ID');
+                const tglRaw = row.jam_mulai ? row.jam_mulai.split('T')[0] : row.created_at.split('T')[0];
+                const [y, m, d] = tglRaw.split('-');
+                const date = `${d}/${m}/${y}`;
+
                 const masalah = row.maintenance_problems.map(p => p.description).join(', ');
                 const tindakan = row.maintenance_actions.map(a => a.description).join(', ');
                 const parts = row.maintenance_parts.map(pt => `${pt.nama_part} (${pt.qty})`).join(', ');
@@ -338,10 +350,7 @@
         const remaining = 20 - (reports ? reports.length : 0);
         for (let i = 0; i < (remaining < 0 ? 0 : remaining); i++) {
             tbody.innerHTML += `<tr>
-                <td>&nbsp;</td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>&nbsp;</td><td></td><td></td><td></td>
                 <td><input type="text" class="table-input"></td>
                 <td></td>
             </tr>`;
