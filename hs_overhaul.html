@@ -244,10 +244,12 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        function fmtDate(iso) {
+        // Fungsi format Tanggal dan Jam lengkap
+        function fmtDateTime(iso) {
             if(!iso) return "-";
             const d = new Date(iso);
-            return d.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'});
+            return d.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'}) + " / " + 
+                   d.toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit', hour12: false});
         }
 
         async function fetchHistory() {
@@ -256,7 +258,7 @@
             if(data) {
                 list.innerHTML = data.map(row => `
                     <tr class="border-b hover:bg-slate-50 transition text-xs">
-                        <td class="p-3 border font-mono text-black">${fmtDate(row.created_at)}</td>
+                        <td class="p-3 border font-mono text-black">${fmtDateTime(row.created_at)}</td>
                         <td class="p-3 border font-bold uppercase text-black">${row.nama_mesin}</td>
                         <td class="p-3 border text-center font-bold text-black">${row.job_type}</td>
                         <td class="p-3 border uppercase text-black font-medium">${row.engineer_name}</td>
@@ -275,7 +277,6 @@
             const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
 
             const container = document.getElementById('reportContent');
-            /* Menghilangkan teks "Engineer: " di bagian Rekomendasi & Catatan */
             container.innerHTML = `
                 <div class="view-row">
                     <span class="view-label">Nama Mesin, Tools/equipment :</span>
@@ -285,8 +286,8 @@
                         <div class="box-container"><div class="check-box">${row.job_type === 'Overhaul' ? '✔' : ''}</div> Over Haul</div>
                     </div>
                 </div>
-                <div class="view-row"><span class="view-label">Tanggal Mulai :</span><span class="view-line text-black font-medium">${fmtDate(row.jam_mulai)}</span></div>
-                <div class="view-row"><span class="view-label">Tanggal Selesai :</span><span class="view-line text-black font-medium">${fmtDate(row.jam_selesai)}</span></div>
+                <div class="view-row"><span class="view-label">Tanggal / Jam Mulai :</span><span class="view-line text-black font-medium">${fmtDateTime(row.jam_mulai)}</span></div>
+                <div class="view-row"><span class="view-label">Tanggal / Jam Selesai :</span><span class="view-line text-black font-medium">${fmtDateTime(row.jam_selesai)}</span></div>
 
                 <span class="section-label">Diskripsi Permasalahan Mesin Tools/Equipment :</span>
                 <div class="grid grid-cols-2 gap-x-10">
