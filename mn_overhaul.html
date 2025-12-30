@@ -97,11 +97,14 @@
 
     let currentId = null;
 
+    // SINKRONISASI JAM LOKAL (WIB/WITA/WIT)
     function formatIndoDateOnly(isoString) {
         if (!isoString) return "-";
         try {
-            const datePart = isoString.split('T')[0]; 
-            const [y, m, d] = datePart.split('-');
+            const date = new Date(isoString);
+            const d = String(date.getDate()).padStart(2, '0');
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const y = date.getFullYear();
             return `${d}/${m}/${y}`;
         } catch (e) { return isoString; }
     }
@@ -109,18 +112,24 @@
     function formatIndoDateTime(isoString) {
         if (!isoString) return "-";
         try {
-            const parts = isoString.split('T');
-            if (parts.length < 2) return isoString;
-            const [y, m, d] = parts[0].split('-');
-            const timePart = parts[1].substring(0, 5); 
-            return `${d}/${m}/${y} | ${timePart}`;
+            const date = new Date(isoString);
+            return date.toLocaleString('id-ID', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit', hour12: false
+            }).replace(/\./g, ':');
         } catch (e) { return isoString; }
     }
 
     async function fetchLaporan() {
-        const { data } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
+        const { data, error } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
         const list = document.getElementById('listLaporan');
         
+        if (error) {
+            console.error("Supabase Error:", error);
+            list.innerHTML = `<tr><td colspan="6" class="p-12 text-center text-red-500 font-bold uppercase">Gagal Memuat Data - Cek Koneksi</td></tr>`;
+            return;
+        }
+
         if (data) {
             list.innerHTML = data.map(row => {
                 let badgeClass = 'partial';
@@ -173,7 +182,7 @@
             </div>
         `;
 
-        // Menampilkan Rekomendasi Engineer & Catatan Superintendent
+        // Menampilkan Catatan Engineer & Superintendent
         document.getElementById('view_eng_notes_modal').innerText = `"${row.rekomendasi_catatan || 'Tidak ada catatan.'}"`;
         document.getElementById('view_spt_name_modal').innerText = "Diperiksa Oleh: " + (row.spt_name || "-");
         document.getElementById('view_spt_notes_modal').innerText = `"${row.spt_notes || 'Tidak ada catatan khusus.'}"`;
@@ -209,7 +218,7 @@
             closeModal();
             fetchLaporan();
         } else {
-            alert("Terjadi kesalahan saat menyimpan data.");
+            alert("Terjadi kesalahan: " + error.message);
         }
     }
 
