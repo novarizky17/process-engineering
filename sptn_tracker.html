@@ -36,10 +36,14 @@
                 <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider">Berikan Project Baru</h2>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Project Name</label>
                     <input type="text" id="in-project" placeholder="Nama Project / Mesin" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none transition-all">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Daftar Tugas</label>
+                    <input type="text" id="in-tugas" placeholder="Detail Pekerjaan" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none transition-all">
                 </div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Assigned To</label>
@@ -73,9 +77,8 @@
                     <thead>
                         <tr class="bg-slate-50/80 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em] border-b border-slate-100">
                             <th class="px-8 py-5">Project</th>
-                            <th class="px-6 py-5">Assigned To</th>
-                            <th class="px-6 py-5 text-center">Start Date</th>
-                            <th class="px-6 py-5 text-center">Due Date (Target)</th>
+                            <th class="px-6 py-5">Daftar Tugas</th> <th class="px-6 py-5 text-center">Assigned To</th>
+                            <th class="px-6 py-5 text-center">Timeline Target</th>
                             <th class="px-6 py-5 text-center">Status Aktual</th>
                             <th class="px-8 py-5 text-center">Over Date</th>
                             <th class="px-4 py-5 text-center">Aksi</th>
@@ -93,9 +96,9 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        // Simpan tugas baru oleh Superintendent
         async function saveToDatabase() {
             const project = document.getElementById('in-project').value;
+            const tugas = document.getElementById('in-tugas').value;
             const name = document.getElementById('in-name').value;
             const start = document.getElementById('in-start').value;
             const due = document.getElementById('in-due').value;
@@ -104,10 +107,11 @@
 
             const { error } = await _sb.from('management_tracker').insert([{ 
                 project_name: project, 
+                task_desc: tugas, // MENYIMPAN DAFTAR TUGAS
                 assigned_to: name, 
                 start_date: start, 
                 due_date: due,
-                status: 'Waiting Progress' // Status default sebelum personil update
+                status: 'Waiting Progress'
             }]);
 
             if (error) alert(error.message);
@@ -115,10 +119,10 @@
                 alert("Project berhasil diberikan!");
                 fetchProjectData();
                 document.getElementById('in-project').value = "";
+                document.getElementById('in-tugas').value = "";
             }
         }
 
-        // Hapus tugas
         async function deleteData(id) {
             if(confirm('Batalkan project ini?')) {
                 await _sb.from('management_tracker').delete().eq('id', id);
@@ -126,7 +130,6 @@
             }
         }
 
-        // Ambil data untuk melihat progres aktual
         async function fetchProjectData() {
             const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
             if (error) return;
@@ -135,8 +138,6 @@
             tbody.innerHTML = data.map(row => {
                 const today = new Date();
                 const dueDate = new Date(row.due_date);
-                
-                // Jika sudah ada actual_finish dari personil, gunakan itu. Jika belum, gunakan hari ini.
                 const endDate = row.actual_finish ? new Date(row.actual_finish) : today;
                 const diffDays = Math.ceil((endDate - dueDate) / (1000 * 60 * 60 * 24));
                 
@@ -151,16 +152,19 @@
                         '<span class="text-slate-300 font-medium italic">Monitoring...</span>';
                 }
 
-                let statusClass = "bg-slate-100 text-slate-400";
+                let statusClass = "bg-slate-100 text-slate-400 border border-slate-200";
                 if(row.status === 'Done') statusClass = "bg-emerald-50 text-emerald-600 border-emerald-100";
                 if(row.status === 'In Progress') statusClass = "bg-blue-50 text-blue-600 border-blue-100";
 
                 return `
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="px-8 py-6 font-extrabold text-slate-800 uppercase tracking-tight">${row.project_name}</td>
-                        <td class="px-6 py-6 font-bold text-slate-700 uppercase text-xs">${row.assigned_to}</td>
-                        <td class="px-6 py-6 text-center font-mono text-[10px] text-slate-400">${row.start_date || '-'}</td>
-                        <td class="px-6 py-6 text-center font-mono text-[10px] text-slate-900 font-bold">${row.due_date}</td>
+                        <td class="px-6 py-6 font-medium text-slate-500 text-xs uppercase">${row.task_desc || '-'}</td>
+                        <td class="px-6 py-6 text-center font-bold text-slate-700 uppercase text-xs">${row.assigned_to}</td>
+                        <td class="px-6 py-6 text-center">
+                            <span class="text-[10px] font-bold text-slate-400 block">${row.start_date || '-'}</span>
+                            <span class="text-[10px] font-black text-slate-700 block mt-1">TARGET: ${row.due_date}</span>
+                        </td>
                         <td class="px-6 py-6 text-center">
                             <span class="px-3 py-1 rounded-full font-extrabold text-[9px] uppercase tracking-wider border ${statusClass}">${row.status}</span>
                         </td>
