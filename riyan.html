@@ -59,13 +59,13 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em]">
                             <th class="px-8 py-5">Project Name</th>
-                            <th class="px-6 py-5 text-center">Due Date</th>
+                            <th class="px-6 py-5">Daftar Tugas</th> <th class="px-6 py-5 text-center">Due Date</th>
                             <th class="px-6 py-5 text-center">Ganti Status</th>
                             <th class="px-8 py-5 text-center">Konfirmasi Selesai</th>
                         </tr>
                     </thead>
                     <tbody id="riyan-work-body" class="divide-y divide-slate-50 text-sm">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -85,26 +85,23 @@
 
             if (error) return console.error(error);
 
-            // Update Statistik
             document.getElementById('stat-active').innerText = data.filter(r => r.status !== 'Done').length;
             document.getElementById('stat-finished').innerText = data.filter(r => r.status === 'Done').length;
 
             const tbody = document.getElementById('riyan-work-body');
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-slate-400 font-medium">Belum ada tugas project.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-medium">Belum ada tugas project.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = data.map(row => {
                 const isDone = row.status === 'Done';
-                
-                // Style select berdasarkan status
                 let borderClass = row.status === 'In Progress' ? "border-blue-500 text-blue-600 bg-blue-50" : "border-slate-200 text-slate-600";
 
                 return `
                     <tr class="hover:bg-slate-50/50 transition-colors">
                         <td class="px-8 py-6 font-extrabold text-slate-800 uppercase tracking-tight">${row.project_name}</td>
-                        <td class="px-6 py-6 text-center font-mono text-[11px] text-slate-900 font-bold">${row.due_date}</td>
+                        <td class="px-6 py-6 font-medium text-slate-500 text-xs uppercase">${row.task_desc || '-'}</td> <td class="px-6 py-6 text-center font-mono text-[11px] text-slate-900 font-bold">${row.due_date}</td>
                         <td class="px-6 py-6 text-center">
                             ${isDone ? 
                                 `<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 font-black text-[9px] uppercase">PROJECT SELESAI</span>` : 
@@ -128,7 +125,6 @@
             }).join('');
         }
 
-        // Fungsi Ganti Status (Pending / In Progress)
         async function updateStatus(id, newStatus) {
             const { error } = await _sb
                 .from('management_tracker')
@@ -139,12 +135,9 @@
             else fetchRiyanTasks();
         }
 
-        // Fungsi Tombol Done (Selesaikan)
         async function markAsDone(id) {
             if (!confirm("Konfirmasi: Project ini benar-benar sudah selesai?")) return;
-
             const tglSelesai = new Date().toISOString().split('T')[0];
-
             const { error } = await _sb
                 .from('management_tracker')
                 .update({ 
