@@ -111,7 +111,6 @@
     let currentId = null;
     let canvas, ctx, drawing = false;
 
-    // PERBAIKAN SINKRONISASI JAM LOKAL
     function formatIndoDateOnly(isoString) {
         if (!isoString) return "-";
         try {
@@ -141,13 +140,13 @@
         if (data) {
             list.innerHTML = data.map(row => {
                 let badgeClass = 'pending';
-                if (row.status === 'Approved') badgeClass = 'approved';
+                if (row.status.includes('Approved')) badgeClass = 'approved'; // Berubah jadi hijau jika mengandung kata Approved
                 if (row.status === 'Rejected') badgeClass = 'rejected';
 
                 return `
                 <tr class="border-b hover:bg-slate-50 transition-colors text-sm">
                     <td class="p-4 font-medium text-slate-500">${formatIndoDateOnly(row.created_at)}</td>
-                    <td class="p-4 font-bold text-slate-700 uppercase">${row.nama_mesin || '-'}</td>
+                    <td class="p-4 font-bold text-slate-800 uppercase">${row.nama_mesin || '-'}</td>
                     <td class="p-4 font-semibold text-blue-700">${row.job_type || '-'}</td>
                     <td class="p-4 font-medium">${row.engineer_name || '-'}</td>
                     <td class="p-4"><span class="status-badge ${badgeClass}">${row.status}</span></td>
@@ -174,7 +173,6 @@
                      <p class="text-xs font-bold text-slate-700">${formatIndoDateTime(row.jam_mulai)} <span class="text-blue-500">s/d</span> ${formatIndoDateTime(row.jam_selesai)}</p>
                 </div>
             </div>
-            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm"><p class="font-bold text-[#003366] border-b mb-2 pb-1 text-sm uppercase italic font-mono tracking-tighter">1. Deskripsi Masalah:</p>
                      <ul class="list-disc pl-5 text-xs space-y-1 italic text-slate-600">${prob.length ? prob.map(p => `<li>${p.description}</li>`).join('') : '<li>N/A</li>'}</ul>
@@ -183,7 +181,6 @@
                      <ul class="list-disc pl-5 text-xs space-y-1 italic text-slate-600">${act.length ? act.map(a => `<li>${a.description}</li>`).join('') : '<li>N/A</li>'}</ul>
                 </div>
             </div>
-            
             <div class="mb-6 bg-white p-3 rounded-lg border border-slate-100 shadow-sm">
                 <p class="font-bold text-[#003366] border-b mb-2 pb-1 text-sm uppercase italic font-mono tracking-tighter">3. Penggantian Suku Cadang:</p>
                 <div class="overflow-x-auto border rounded-lg">
@@ -193,14 +190,16 @@
                     </table>
                 </div>
             </div>
-
             <div class="bg-yellow-50 p-4 border-l-4 border-yellow-400 rounded shadow-sm">
                 <p class="text-[10px] font-black text-yellow-700 uppercase mb-1 tracking-tighter">Rekomendasi & Catatan Engineer:</p>
                 <p class="text-sm italic text-slate-700 font-medium">"${row.rekomendasi_catatan || 'Tidak ada catatan.'}"</p>
             </div>
         `;
         
-        const isReviewed = (row.status === 'Approved' || row.status === 'Rejected');
+        // PERBAIKAN LOGIKA DISINI:
+        // Hanya izinkan panel approval jika status masih 'Pending'. Jika status sudah 'Approved' (oleh SPT) atau 'Manager Approved' (oleh MN), sembunyikan tombol.
+        const isReviewed = (row.status !== 'Pending'); 
+        
         document.getElementById('approvalPanel').style.display = isReviewed ? 'none' : 'block';
         document.getElementById('historyPanel').style.display = isReviewed ? 'block' : 'none';
         
@@ -209,7 +208,7 @@
             const hBox = document.getElementById('history_box_color');
             const hSig = document.getElementById('view-sig-spt');
             
-            if(row.status === 'Approved') {
+            if(row.status.includes('Approved')) { // Mencakup 'Approved' dan 'Manager Approved'
                 hText.innerText = "Laporan Telah Disetujui";
                 hText.className = "text-green-700 font-black uppercase mb-1 text-sm tracking-widest";
                 hBox.className = "bg-white p-3 rounded-lg border border-green-200 shadow-sm mb-4 text-left";
