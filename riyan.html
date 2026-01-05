@@ -59,9 +59,10 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em]">
                             <th class="px-8 py-5">Project / Tugas</th>
-                            <th class="px-6 py-5 text-center">Due Date</th>
+                            <th class="px-4 py-5 text-center">Priority</th> <th class="px-6 py-5 text-center">Due Date</th>
                             <th class="px-6 py-5 text-center">Ganti Status</th>
-                            <th class="px-6 py-5">Keterangan / Comment (Wajib)</th> <th class="px-8 py-5 text-center">Aksi</th>
+                            <th class="px-6 py-5">Keterangan / Comment (Wajib)</th>
+                            <th class="px-8 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="riyan-work-body" class="divide-y divide-slate-50 text-sm">
@@ -90,12 +91,18 @@
 
             const tbody = document.getElementById('riyan-work-body');
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-medium">Belum ada tugas project.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-slate-400 font-medium">Belum ada tugas project.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = data.map(row => {
                 const isDone = row.status === 'Done';
+                
+                // Indikator Warna Priority
+                let priorityClass = "bg-slate-100 text-slate-500";
+                if(row.priority === 'High') priorityClass = "bg-red-100 text-red-600 border border-red-200";
+                if(row.priority === 'Mid') priorityClass = "bg-blue-100 text-blue-600 border border-blue-200";
+
                 let borderClass = row.status === 'In Progress' ? "border-blue-500 text-blue-600 bg-blue-50" : "border-slate-200 text-slate-600";
 
                 return `
@@ -103,6 +110,9 @@
                         <td class="px-8 py-6">
                             <span class="block font-extrabold text-slate-800 uppercase tracking-tight">${row.project_name}</span>
                             <span class="text-[10px] text-slate-400 font-medium uppercase italic">${row.task_desc || '-'}</span>
+                        </td>
+                        <td class="px-4 py-6 text-center">
+                            <span class="px-3 py-1 rounded-lg font-black text-[9px] uppercase tracking-tighter ${priorityClass}">${row.priority || 'Mid'}</span>
                         </td>
                         <td class="px-6 py-6 text-center font-mono text-[11px] text-slate-900 font-bold">${row.due_date}</td>
                         <td class="px-6 py-6 text-center">
@@ -140,26 +150,19 @@
         }
 
         async function markAsDone(id) {
-            // Ambil isi keterangan dari textarea
             const comment = document.getElementById(`comment-${id}`).value;
-
-            // Validasi: Wajib isi
             if (!comment || comment.trim().length < 5) {
                 alert("Harap isi KETERANGAN/COMMENT hasil kerja (minimal 5 karakter) sebelum menyelesaikan project!");
                 return;
             }
-
             if (!confirm("Konfirmasi: Project ini benar-benar sudah selesai dengan keterangan tersebut?")) return;
-
             const tglSelesai = new Date().toISOString().split('T')[0];
-
-            // Update status, tanggal selesai, dan komentar ke database
             const { error } = await _sb
                 .from('management_tracker')
                 .update({ 
                     status: 'Done',
                     actual_finish: tglSelesai,
-                    worker_comment: comment // Simpan komentar
+                    worker_comment: comment 
                 })
                 .eq('id', id);
 
