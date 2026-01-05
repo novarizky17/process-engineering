@@ -14,7 +14,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 600px; /* Diperkecil karena kolom berkurang */
             margin: 0 auto;
             background: white;
             padding: 30px;
@@ -34,6 +34,7 @@
             color: #3f51b5;
             text-transform: uppercase;
             letter-spacing: 2px;
+            font-size: 1.5em;
         }
 
         table {
@@ -44,7 +45,7 @@
 
         th, td {
             border: 1px solid #ddd;
-            padding: 15px;
+            padding: 18px;
             text-align: center;
         }
 
@@ -62,37 +63,46 @@
         .name-tag {
             font-weight: bold;
             display: inline-block;
-            padding: 5px 12px;
+            padding: 8px 20px;
             border-radius: 20px;
-            font-size: 0.9em;
+            font-size: 1em;
+            min-width: 120px;
         }
 
-        /* Warna berbeda untuk tiap personil agar mudah dibaca */
+        /* Warna berbeda untuk tiap personil */
         .tag-isqi { background-color: #e3f2fd; color: #1976d2; border: 1px solid #1976d2; }
         .tag-riyan { background-color: #f1f8e9; color: #388e3c; border: 1px solid #388e3c; }
         .tag-jumawan { background-color: #fff3e0; color: #f57c00; border: 1px solid #f57c00; }
         .tag-barok { background-color: #f3e5f5; color: #7b1fa2; border: 1px solid #7b1fa2; }
+        .tag-team { background-color: #eeeeee; color: #444444; border: 1px solid #444444; }
 
-        .btn-back {
-            display: inline-block;
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
             margin-top: 20px;
+        }
+
+        .btn {
             text-decoration: none;
-            background: #555;
-            color: white;
             padding: 10px 20px;
             border-radius: 5px;
             font-weight: bold;
             transition: 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
         }
 
-        .btn-back:hover {
-            background: #222;
-        }
+        .btn-back { background: #555; color: white; }
+        .btn-back:hover { background: #222; }
+        .btn-print { background: #3f51b5; color: white; }
+        .btn-print:hover { background: #283593; }
 
         @media print {
-            .btn-back { display: none; }
+            .btn-group { display: none; }
             body { background: white; padding: 0; }
-            .container { box-shadow: none; border: 1px solid #ccc; }
+            .container { box-shadow: none; border: 1px solid #ccc; width: 100%; max-width: none; }
         }
     </style>
 </head>
@@ -109,44 +119,40 @@
             <tr>
                 <th>Waktu</th>
                 <th>Personil Pelaksana</th>
-                <th>Keterangan Tugas</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td><strong>MINGGU I</strong></td>
                 <td><span class="name-tag tag-isqi">ISQI</span></td>
-                <td>Pengecekan Stand Label & Wiring</td>
             </tr>
             <tr>
                 <td><strong>MINGGU II</strong></td>
                 <td><span class="name-tag tag-riyan">RIYAN</span></td>
-                <td>Pengecekan Stacking & Mechanical</td>
             </tr>
             <tr>
                 <td><strong>MINGGU III</strong></td>
                 <td><span class="name-tag tag-jumawan">MAS JUMAWAN</span></td>
-                <td>Pengecekan Conveyor & Motor</td>
             </tr>
             <tr>
                 <td><strong>MINGGU IV</strong></td>
                 <td><span class="name-tag tag-barok">MAS BAROK</span></td>
-                <td>Pengecekan Dosing & Dummy System</td>
             </tr>
             <tr>
                 <td><strong>MINGGU V*</strong></td>
-                <td><span class="name-tag tag-isqi">TEAM SUPPORT</span></td>
-                <td>General Cleaning & Audit Bulanan</td>
+                <td><span class="name-tag tag-team">TEAM SUPPORT</span></td>
             </tr>
         </tbody>
     </table>
 
-    <p style="font-size: 0.8em; color: #666; font-style: italic;">
-        *Minggu V disesuaikan dengan kalender bulan berjalan. Jadwal ini berlaku rutin setiap bulan.
+    <p style="font-size: 0.8em; color: #666; font-style: italic; text-align: center;">
+        *Minggu V disesuaikan dengan kalender berjalan. Jadwal berlaku rutin setiap bulan.
     </p>
 
-    <a href="center.html" class="btn-back"> Kembali ke Menu</a>
-    <button onclick="window.print()" class="btn-back" style="background: #3f51b5; border:none; cursor:pointer;"> Print Jadwal</button>
+    <div class="btn-group">
+        <a href="center.html" class="btn btn-back">Kembali ke Menu</a>
+        <button onclick="window.print()" class="btn btn-print">Print Jadwal</button>
+    </div>
 </div>
 
 </body>
