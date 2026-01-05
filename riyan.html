@@ -15,7 +15,7 @@
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.5rem center;
-            background-size: 1.2em;
+            background-size: 1.1em;
         }
     </style>
 </head>
@@ -27,7 +27,7 @@
                 <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-black text-white backdrop-blur-md border border-white/30 uppercase">R</div>
                 <div>
                     <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Panel Kerja Riyan</h1>
-                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Update Status & Penyelesaian Project</p>
+                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Update Status & Laporan Keterangan Project</p>
                 </div>
             </div>
             <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all backdrop-blur-md border border-white/20">
@@ -58,10 +58,10 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em]">
-                            <th class="px-8 py-5">Project Name</th>
-                            <th class="px-6 py-5">Daftar Tugas</th> <th class="px-6 py-5 text-center">Due Date</th>
+                            <th class="px-8 py-5">Project / Tugas</th>
+                            <th class="px-6 py-5 text-center">Due Date</th>
                             <th class="px-6 py-5 text-center">Ganti Status</th>
-                            <th class="px-8 py-5 text-center">Konfirmasi Selesai</th>
+                            <th class="px-6 py-5">Keterangan / Comment (Wajib)</th> <th class="px-8 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="riyan-work-body" class="divide-y divide-slate-50 text-sm">
@@ -100,11 +100,14 @@
 
                 return `
                     <tr class="hover:bg-slate-50/50 transition-colors">
-                        <td class="px-8 py-6 font-extrabold text-slate-800 uppercase tracking-tight">${row.project_name}</td>
-                        <td class="px-6 py-6 font-medium text-slate-500 text-xs uppercase">${row.task_desc || '-'}</td> <td class="px-6 py-6 text-center font-mono text-[11px] text-slate-900 font-bold">${row.due_date}</td>
+                        <td class="px-8 py-6">
+                            <span class="block font-extrabold text-slate-800 uppercase tracking-tight">${row.project_name}</span>
+                            <span class="text-[10px] text-slate-400 font-medium uppercase italic">${row.task_desc || '-'}</span>
+                        </td>
+                        <td class="px-6 py-6 text-center font-mono text-[11px] text-slate-900 font-bold">${row.due_date}</td>
                         <td class="px-6 py-6 text-center">
                             ${isDone ? 
-                                `<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 font-black text-[9px] uppercase">PROJECT SELESAI</span>` : 
+                                `<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 font-black text-[9px] uppercase tracking-widest">FINISHED</span>` : 
                                 `<select 
                                     onchange="updateStatus('${row.id}', this.value)" 
                                     class="status-select px-4 py-2 rounded-xl text-[10px] uppercase font-black border-2 transition-all outline-none cursor-pointer ${borderClass}"
@@ -114,10 +117,16 @@
                                 </select>`
                             }
                         </td>
+                        <td class="px-6 py-6">
+                            ${isDone ? 
+                                `<p class="text-[11px] text-slate-500 italic leading-relaxed font-medium bg-slate-50 p-2 rounded-lg border border-slate-100">"${row.worker_comment || 'Tanpa keterangan'}"</p>` : 
+                                `<textarea id="comment-${row.id}" placeholder="Ketik laporan hasil kerja di sini..." class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-[11px] focus:bg-white outline-none resize-none transition-all" rows="2"></textarea>`
+                            }
+                        </td>
                         <td class="px-8 py-6 text-center">
                             ${isDone ? 
-                                `<span class="text-slate-400 font-bold text-[10px] uppercase tracking-tighter italic">Done on ${row.actual_finish}</span>` : 
-                                `<button onclick="markAsDone('${row.id}')" class="bg-blue-600 hover:bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold text-[10px] uppercase shadow-lg transition-all transform active:scale-95">Selesaikan</button>`
+                                `<span class="text-slate-400 font-bold text-[10px] uppercase tracking-tighter">Done on ${row.actual_finish}</span>` : 
+                                `<button onclick="markAsDone('${row.id}')" class="bg-blue-600 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-lg transition-all transform active:scale-95 shadow-blue-100">Selesaikan</button>`
                             }
                         </td>
                     </tr>
@@ -126,29 +135,37 @@
         }
 
         async function updateStatus(id, newStatus) {
-            const { error } = await _sb
-                .from('management_tracker')
-                .update({ status: newStatus })
-                .eq('id', id);
-
-            if (error) alert("Gagal update status!");
-            else fetchRiyanTasks();
+            const { error } = await _sb.from('management_tracker').update({ status: newStatus }).eq('id', id);
+            if (error) alert("Gagal update!"); else fetchRiyanTasks();
         }
 
         async function markAsDone(id) {
-            if (!confirm("Konfirmasi: Project ini benar-benar sudah selesai?")) return;
+            // Ambil isi keterangan dari textarea
+            const comment = document.getElementById(`comment-${id}`).value;
+
+            // Validasi: Wajib isi
+            if (!comment || comment.trim().length < 5) {
+                alert("Harap isi KETERANGAN/COMMENT hasil kerja (minimal 5 karakter) sebelum menyelesaikan project!");
+                return;
+            }
+
+            if (!confirm("Konfirmasi: Project ini benar-benar sudah selesai dengan keterangan tersebut?")) return;
+
             const tglSelesai = new Date().toISOString().split('T')[0];
+
+            // Update status, tanggal selesai, dan komentar ke database
             const { error } = await _sb
                 .from('management_tracker')
                 .update({ 
                     status: 'Done',
-                    actual_finish: tglSelesai 
+                    actual_finish: tglSelesai,
+                    worker_comment: comment // Simpan komentar
                 })
                 .eq('id', id);
 
             if (error) alert("Gagal menyelesaikan project!");
             else {
-                alert("Project berhasil diselesaikan!");
+                alert("Berhasil! Project selesai dan laporan keterangan tersimpan.");
                 fetchRiyanTasks();
             }
         }
