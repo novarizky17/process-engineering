@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Mingguan - Pengecekan Tooling</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #3f51b5;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+
+        h1 {
+            margin: 0;
+            color: #3f51b5;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #3f51b5;
+            color: white;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .name-tag {
+            font-weight: bold;
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        /* Warna berbeda untuk tiap personil agar mudah dibaca */
+        .tag-isqi { background-color: #e3f2fd; color: #1976d2; border: 1px solid #1976d2; }
+        .tag-riyan { background-color: #f1f8e9; color: #388e3c; border: 1px solid #388e3c; }
+        .tag-jumawan { background-color: #fff3e0; color: #f57c00; border: 1px solid #f57c00; }
+        .tag-barok { background-color: #f3e5f5; color: #7b1fa2; border: 1px solid #7b1fa2; }
+
+        .btn-back {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            background: #555;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-back:hover {
+            background: #222;
+        }
+
+        @media print {
+            .btn-back { display: none; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Jadwal Pengecekan Mingguan</h1>
+        <p>Tooling Support - Maintenance Schedule</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Waktu</th>
+                <th>Personil Pelaksana</th>
+                <th>Keterangan Tugas</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>MINGGU I</strong></td>
+                <td><span class="name-tag tag-isqi">ISQI</span></td>
+                <td>Pengecekan Stand Label & Wiring</td>
+            </tr>
+            <tr>
+                <td><strong>MINGGU II</strong></td>
+                <td><span class="name-tag tag-riyan">RIYAN</span></td>
+                <td>Pengecekan Stacking & Mechanical</td>
+            </tr>
+            <tr>
+                <td><strong>MINGGU III</strong></td>
+                <td><span class="name-tag tag-jumawan">MAS JUMAWAN</span></td>
+                <td>Pengecekan Conveyor & Motor</td>
+            </tr>
+            <tr>
+                <td><strong>MINGGU IV</strong></td>
+                <td><span class="name-tag tag-barok">MAS BAROK</span></td>
+                <td>Pengecekan Dosing & Dummy System</td>
+            </tr>
+            <tr>
+                <td><strong>MINGGU V*</strong></td>
+                <td><span class="name-tag tag-isqi">TEAM SUPPORT</span></td>
+                <td>General Cleaning & Audit Bulanan</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p style="font-size: 0.8em; color: #666; font-style: italic;">
+        *Minggu V disesuaikan dengan kalender bulan berjalan. Jadwal ini berlaku rutin setiap bulan.
+    </p>
+
+    <a href="center.html" class="btn-back"> Kembali ke Menu</a>
+    <button onclick="window.print()" class="btn-back" style="background: #3f51b5; border:none; cursor:pointer;"> Print Jadwal</button>
+</div>
+
+</body>
+</html>
