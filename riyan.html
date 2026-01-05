@@ -27,7 +27,7 @@
                 <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-black text-white backdrop-blur-md border border-white/30 uppercase">R</div>
                 <div>
                     <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Panel Kerja Riyan</h1>
-                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Update Status & Laporan Keterangan Project</p>
+                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Pencatatan Jam & Status Progress Project</p>
                 </div>
             </div>
             <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all backdrop-blur-md border border-white/20">
@@ -59,9 +59,10 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em]">
                             <th class="px-8 py-5">Project / Tugas</th>
-                            <th class="px-4 py-5 text-center">Priority</th> <th class="px-6 py-5 text-center">Due Date</th>
+                            <th class="px-4 py-5 text-center">Priority</th>
+                            <th class="px-4 py-5 text-center">Start/Finish (Jam)</th> <th class="px-6 py-5 text-center">Due Date</th>
                             <th class="px-6 py-5 text-center">Ganti Status</th>
-                            <th class="px-6 py-5">Keterangan / Comment (Wajib)</th>
+                            <th class="px-6 py-5">Keterangan / Comment</th>
                             <th class="px-8 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -91,14 +92,13 @@
 
             const tbody = document.getElementById('riyan-work-body');
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-slate-400 font-medium">Belum ada tugas project.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-slate-400 font-medium">Belum ada tugas project.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = data.map(row => {
                 const isDone = row.status === 'Done';
                 
-                // Indikator Warna Priority
                 let priorityClass = "bg-slate-100 text-slate-500";
                 if(row.priority === 'High') priorityClass = "bg-red-100 text-red-600 border border-red-200";
                 if(row.priority === 'Mid') priorityClass = "bg-blue-100 text-blue-600 border border-blue-200";
@@ -113,6 +113,16 @@
                         </td>
                         <td class="px-4 py-6 text-center">
                             <span class="px-3 py-1 rounded-lg font-black text-[9px] uppercase tracking-tighter ${priorityClass}">${row.priority || 'Mid'}</span>
+                        </td>
+                        <td class="px-4 py-6 text-center">
+                            <div class="flex flex-col gap-1 items-center">
+                                ${isDone ? 
+                                    `<span class="text-[11px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">S: ${row.work_start_time || '--:--'}</span>
+                                     <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">F: ${row.work_end_time || '--:--'}</span>` :
+                                    `<input type="time" id="start-time-${row.id}" value="${row.work_start_time || ''}" class="bg-slate-50 border border-slate-200 rounded text-[10px] p-1 outline-none focus:border-blue-500">
+                                     <input type="time" id="end-time-${row.id}" value="${row.work_end_time || ''}" class="bg-slate-50 border border-slate-200 rounded text-[10px] p-1 outline-none focus:border-blue-500">`
+                                }
+                            </div>
                         </td>
                         <td class="px-6 py-6 text-center font-mono text-[11px] text-slate-900 font-bold">${row.due_date}</td>
                         <td class="px-6 py-6 text-center">
@@ -130,7 +140,7 @@
                         <td class="px-6 py-6">
                             ${isDone ? 
                                 `<p class="text-[11px] text-slate-500 italic leading-relaxed font-medium bg-slate-50 p-2 rounded-lg border border-slate-100">"${row.worker_comment || 'Tanpa keterangan'}"</p>` : 
-                                `<textarea id="comment-${row.id}" placeholder="Ketik laporan hasil kerja di sini..." class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-[11px] focus:bg-white outline-none resize-none transition-all" rows="2"></textarea>`
+                                `<textarea id="comment-${row.id}" placeholder="Laporan hasil..." class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-[11px] focus:bg-white outline-none resize-none transition-all" rows="2"></textarea>`
                             }
                         </td>
                         <td class="px-8 py-6 text-center">
@@ -151,24 +161,38 @@
 
         async function markAsDone(id) {
             const comment = document.getElementById(`comment-${id}`).value;
-            if (!comment || comment.trim().length < 5) {
-                alert("Harap isi KETERANGAN/COMMENT hasil kerja (minimal 5 karakter) sebelum menyelesaikan project!");
+            const startTime = document.getElementById(`start-time-${id}`).value;
+            const endTime = document.getElementById(`end-time-${id}`).value;
+
+            // Validasi input
+            if (!startTime || !endTime) {
+                alert("Harap isi jam START dan jam FINISH terlebih dahulu!");
                 return;
             }
-            if (!confirm("Konfirmasi: Project ini benar-benar sudah selesai dengan keterangan tersebut?")) return;
+
+            if (!comment || comment.trim().length < 5) {
+                alert("Harap isi KETERANGAN hasil kerja minimal 5 karakter!");
+                return;
+            }
+
+            if (!confirm("Konfirmasi: Selesaikan project ini?")) return;
+
             const tglSelesai = new Date().toISOString().split('T')[0];
+
             const { error } = await _sb
                 .from('management_tracker')
                 .update({ 
                     status: 'Done',
                     actual_finish: tglSelesai,
-                    worker_comment: comment 
+                    worker_comment: comment,
+                    work_start_time: startTime, // Simpan jam mulai
+                    work_end_time: endTime     // Simpan jam selesai
                 })
                 .eq('id', id);
 
-            if (error) alert("Gagal menyelesaikan project!");
+            if (error) alert("Gagal menyimpan!");
             else {
-                alert("Berhasil! Project selesai dan laporan keterangan tersimpan.");
+                alert("Berhasil disimpan!");
                 fetchRiyanTasks();
             }
         }
