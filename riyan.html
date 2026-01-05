@@ -22,19 +22,19 @@
 <body class="min-h-screen pb-12">
 
     <div class="gradient-blue w-full pt-12 pb-24 px-8 mb-[-80px] shadow-2xl">
-        <div class="max-w-[95%] mx-auto flex justify-between items-end">
+        <div class="max-w-[98%] mx-auto flex justify-between items-end">
             <div class="flex items-center gap-6">
                 <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-black text-white backdrop-blur-md border border-white/30 uppercase">R</div>
                 <div>
                     <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Panel Kerja Riyan</h1>
-                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Pencatatan Jam, Activity & Keterangan Lapangan</p>
+                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Pencatatan Jam, Activity & Progress Lapangan</p>
                 </div>
             </div>
             <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all border border-white/20"> Kembali </a>
         </div>
     </div>
 
-    <div class="max-w-[95%] mx-auto px-4">
+    <div class="max-w-[98%] mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 relative z-10">
             <div class="bg-white p-8 rounded-3xl shadow-xl border-l-8 border-amber-500">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Project Aktif</p>
@@ -49,7 +49,7 @@
         <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
             <div class="p-6 border-b border-slate-50 flex justify-between items-center">
                 <h2 class="text-lg font-bold text-slate-800 uppercase tracking-tight">Daftar Penugasan</h2>
-                <button onclick="fetchRiyanTasks()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl text-[10px] font-bold uppercase transition-all">Refresh</button>
+                <button onclick="fetchRiyanTasks()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl text-[10px] font-bold uppercase transition-all">Refresh Data</button>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -57,10 +57,12 @@
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em]">
                             <th class="px-6 py-5">Project</th>
                             <th class="px-4 py-5 text-center">Due Date</th>
-                            <th class="px-4 py-5 text-center">Start</th> <th class="px-4 py-5 text-center">Finish</th> <th class="px-6 py-5">Activity</th>
+                            <th class="px-4 py-5 text-center">Start</th>
+                            <th class="px-4 py-5 text-center">Finish</th>
+                            <th class="px-6 py-5">Activity</th>
                             <th class="px-4 py-5 text-center">Progress</th>
-                            <th class="px-6 py-5">Keterangan (Hold)</th> <th class="px-6 py-5 text-center">Aksi</th>
-                        </tr>
+                            <th class="px-6 py-5">Keterangan (Hold)</th>
+                            <th class="px-6 py-5 text-center">Status</th> </tr>
                     </thead>
                     <tbody id="riyan-work-body" class="divide-y divide-slate-50 text-sm"></tbody>
                 </table>
@@ -124,8 +126,8 @@
                         </td>
 
                         <td class="px-6 py-6 text-center">
-                            ${isDone ? `<span class="text-slate-400 font-bold text-[10px] uppercase tracking-tighter">Done</span>` : 
-                            `<button onclick="markAsDone('${row.id}')" class="bg-blue-600 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase transition-all transform active:scale-95 shadow-md">Selesai</button>`}
+                            ${isDone ? `<span class="text-slate-400 font-bold text-[10px] uppercase tracking-widest italic">Selesai</span>` : 
+                            `<button onclick="markAsDone('${row.id}')" class="bg-blue-600 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-xl font-bold text-[10px] uppercase transition-all transform active:scale-95 shadow-md">Update</button>`}
                         </td>
                     </tr>
                 `;
@@ -149,8 +151,8 @@
             const startTime = document.getElementById(`start-time-${id}`).value;
             const endTime = document.getElementById(`end-time-${id}`).value;
 
-            if (!startTime || !endTime) return alert("Isi jam Start & Finish!");
-            if (!confirm("Selesaikan project?")) return;
+            if (!startTime || !endTime) return alert("Mohon isi jam Start & Finish!");
+            if (!confirm("Tandai project sebagai selesai?")) return;
 
             const { error } = await _sb.from('management_tracker').update({ 
                 status: 'Done', 
@@ -160,7 +162,10 @@
                 work_start_time: startTime, 
                 work_end_time: endTime 
             }).eq('id', id);
-            if (!error) fetchRiyanTasks();
+            if (!error) {
+                alert("Berhasil diperbarui!");
+                fetchRiyanTasks();
+            }
         }
 
         window.onload = fetchRiyanTasks;
