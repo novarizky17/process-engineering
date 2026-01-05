@@ -20,8 +20,8 @@
             padding: 1.5rem; 
         }
         .status-badge { padding: 2px 8px; border-radius: 12px; font-weight: bold; font-size: 10px; text-transform: uppercase; }
-        .approved-all { background: #dcfce7; color: #15803d; }
-        .partial { background: #e0f2fe; color: #0369a1; }
+        .approved-mn { background: #dcfce7; color: #15803d; }
+        .approved-spt { background: #e0f2fe; color: #0369a1; }
         .rejected { background: #fee2e2; color: #b91c1c; }
     </style>
 </head>
@@ -80,7 +80,7 @@
             <div id="managerActionButtons" class="flex flex-col md:flex-row gap-4 items-center justify-center">
                 <div id="decisionPending" class="flex gap-4 w-full justify-center">
                     <button onclick="saveDecision('Rejected')" class="flex-1 max-w-xs bg-red-600 text-white py-4 rounded-xl font-black text-lg hover:bg-red-700 shadow-xl transform active:scale-95 transition-all uppercase tracking-wider">REJECT (TOLAK)</button>
-                    <button onclick="saveDecision('Final_Approved')" class="flex-1 max-w-xs bg-green-600 text-white py-4 rounded-xl font-black text-lg hover:bg-green-700 shadow-xl transform active:scale-95 transition-all uppercase tracking-wider">APPROVE (SETUJU)</button>
+                    <button onclick="saveDecision('Manager Approved')" class="flex-1 max-w-xs bg-green-600 text-white py-4 rounded-xl font-black text-lg hover:bg-green-700 shadow-xl transform active:scale-95 transition-all uppercase tracking-wider">APPROVE (SETUJU)</button>
                 </div>
                 <div id="decisionDone" class="hidden text-center w-full">
                     <div class="inline-block px-8 py-3 rounded-full font-black text-xl border-4" id="finalStatusBadge"></div>
@@ -97,48 +97,24 @@
 
     let currentId = null;
 
-    // SINKRONISASI JAM LOKAL (WIB/WITA/WIT)
-    function formatIndoDateOnly(isoString) {
-        if (!isoString) return "-";
-        try {
-            const date = new Date(isoString);
-            const d = String(date.getDate()).padStart(2, '0');
-            const m = String(date.getMonth() + 1).padStart(2, '0');
-            const y = date.getFullYear();
-            return `${d}/${m}/${y}`;
-        } catch (e) { return isoString; }
-    }
-
-    function formatIndoDateTime(isoString) {
-        if (!isoString) return "-";
-        try {
-            const date = new Date(isoString);
-            return date.toLocaleString('id-ID', {
-                day: '2-digit', month: '2-digit', year: 'numeric',
-                hour: '2-digit', minute: '2-digit', hour12: false
-            }).replace(/\./g, ':');
-        } catch (e) { return isoString; }
-    }
-
     async function fetchLaporan() {
-        const { data, error } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
+        // Manager hanya melihat data yang sudah di-Approve Superintendent, atau yang sudah di-Final Approve Manager
+        const { data, error } = await _sb.from('laporan_maintenance')
+            .select('*')
+            .or('status.eq.Approved,status.eq.Manager Approved,status.eq.Rejected')
+            .order('created_at', { ascending: false });
+
         const list = document.getElementById('listLaporan');
         
-        if (error) {
-            console.error("Supabase Error:", error);
-            list.innerHTML = `<tr><td colspan="6" class="p-12 text-center text-red-500 font-bold uppercase">Gagal Memuat Data - Cek Koneksi</td></tr>`;
-            return;
-        }
-
         if (data) {
             list.innerHTML = data.map(row => {
-                let badgeClass = 'partial';
-                if (row.status === 'Final_Approved') badgeClass = 'approved-all';
+                let badgeClass = 'approved-spt';
+                if (row.status === 'Manager Approved') badgeClass = 'approved-mn';
                 if (row.status === 'Rejected') badgeClass = 'rejected';
 
                 return `
                 <tr class="border-b hover:bg-slate-50 transition-all text-sm">
-                    <td class="p-4 font-medium text-slate-500">${formatIndoDateOnly(row.created_at)}</td>
+                    <td class="p-4 font-medium text-slate-500">${new Date(row.created_at).toLocaleDateString()}</td>
                     <td class="p-4 font-bold text-slate-800 uppercase">${row.nama_mesin}</td>
                     <td class="p-4">${row.job_type}</td>
                     <td class="p-4">${row.engineer_name}</td>
@@ -155,7 +131,6 @@
         currentId = row.id;
         const { data: prob } = await _sb.from('maintenance_problems').select('*').eq('maintenance_id', row.id);
         const { data: act } = await _sb.from('maintenance_actions').select('*').eq('maintenance_id', row.id);
-        const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
 
         const cont = document.getElementById('modalContent');
         cont.innerHTML = `
@@ -163,68 +138,51 @@
                 <div><p class="text-[9px] text-slate-400 uppercase font-bold">Equipment</p><p class="font-bold text-slate-800 uppercase">${row.nama_mesin}</p></div>
                 <div><p class="text-[9px] text-slate-400 uppercase font-bold">Tipe</p><p class="font-bold text-blue-600">${row.job_type}</p></div>
                 <div><p class="text-[9px] text-slate-400 uppercase font-bold">Engineer</p><p class="font-bold text-slate-800 uppercase">${row.engineer_name}</p></div>
-                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Periode Kerja</p>
-                    <p class="text-[10px] font-bold text-slate-700">${formatIndoDateTime(row.jam_mulai)} <span class="text-blue-500">s/d</span> ${formatIndoDateTime(row.jam_selesai)}</p>
-                </div>
             </div>
-            
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div><h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">1. Deskripsi Masalah</h3><ul class="text-xs space-y-1 italic text-slate-600">${prob.map(p => `<li>• ${p.description}</li>`).join('')}</ul></div>
-                <div><h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">2. Tindakan Perbaikan</h3><ul class="text-xs space-y-1 italic text-slate-600">${act.map(a => `<li>• ${a.description}</li>`).join('')}</ul></div>
-            </div>
-
-            <div class="mb-6">
-                <h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">3. Suku Cadang Terpasang</h3>
-                <table class="w-full text-[10px] text-left border">
-                    <tr class="bg-slate-100"><th class="p-2">Part Name</th><th class="p-2 text-center">Qty</th><th class="p-2 text-center">Tindak Lanjut</th></tr>
-                    ${part.length ? part.map(pt => `<tr class="border-t"><td class="p-2 uppercase">${pt.nama_part}</td><td class="p-2 text-center font-bold text-blue-600">${pt.qty}</td><td class="p-2 text-center uppercase text-[9px]">${pt.tindak_lanjut}</td></tr>`).join('') : '<tr><td colspan="3" class="p-4 text-center italic text-slate-400">Tidak ada penggantian suku cadang</td></tr>'}
-                </table>
+                <div><h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">Masalah</h3><ul class="text-xs space-y-1 italic text-slate-600">${prob.map(p => `<li>• ${p.description}</li>`).join('')}</ul></div>
+                <div><h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">Tindakan</h3><ul class="text-xs space-y-1 italic text-slate-600">${act.map(a => `<li>• ${a.description}</li>`).join('')}</ul></div>
             </div>
         `;
 
-        // Menampilkan Catatan Engineer & Superintendent
         document.getElementById('view_eng_notes_modal').innerText = `"${row.rekomendasi_catatan || 'Tidak ada catatan.'}"`;
-        document.getElementById('view_spt_name_modal').innerText = "Diperiksa Oleh: " + (row.spt_name || "-");
-        document.getElementById('view_spt_notes_modal').innerText = `"${row.spt_notes || 'Tidak ada catatan khusus.'}"`;
+        document.getElementById('view_spt_name_modal').innerText = "Pemeriksa: " + (row.spt_name || "-");
+        document.getElementById('view_spt_notes_modal').innerText = `"${row.spt_notes || 'Tidak ada catatan.'}"`;
 
-        const isDecided = (row.status === 'Final_Approved' || row.status === 'Rejected');
+        // Logika tampilan tombol
+        const isDecided = (row.status === 'Manager Approved' || row.status === 'Rejected');
         document.getElementById('decisionPending').style.display = isDecided ? 'none' : 'flex';
         document.getElementById('decisionDone').style.display = isDecided ? 'block' : 'none';
 
         if(isDecided) {
             const badge = document.getElementById('finalStatusBadge');
-            if(row.status === 'Final_Approved') {
-                badge.innerText = "DATA DISETUJUI (APPROVED)";
-                badge.className = "inline-block px-8 py-3 rounded-full font-black text-xl border-4 border-green-600 text-green-600";
-            } else {
-                badge.innerText = "DATA DITOLAK (REJECTED)";
-                badge.className = "inline-block px-8 py-3 rounded-full font-black text-xl border-4 border-red-600 text-red-600";
-            }
+            badge.innerText = row.status === 'Manager Approved' ? "DATA DISETUJUI" : "DATA DITOLAK";
+            badge.className = row.status === 'Manager Approved' ? 
+                "inline-block px-8 py-3 rounded-full font-black text-xl border-4 border-green-600 text-green-600" : 
+                "inline-block px-8 py-3 rounded-full font-black text-xl border-4 border-red-600 text-red-600";
         }
 
         document.getElementById('modalManager').style.display = 'flex';
     }
 
     async function saveDecision(statusValue) {
-        const confirmText = statusValue === 'Final_Approved' ? "Anda yakin ingin menyetujui laporan ini?" : "Anda yakin ingin menolak laporan ini?";
-        if (!confirm(confirmText)) return;
+        if (!confirm(`Konfirmasi keputusan: ${statusValue}?`)) return;
 
         const { error } = await _sb.from('laporan_maintenance')
             .update({ status: statusValue })
             .eq('id', currentId);
 
         if (!error) {
-            alert(`Berhasil! Laporan telah di-${statusValue}`);
+            alert(`Berhasil di-${statusValue}`);
             closeModal();
             fetchLaporan();
         } else {
-            alert("Terjadi kesalahan: " + error.message);
+            alert("Gagal: " + error.message);
         }
     }
 
     function closeModal() { document.getElementById('modalManager').style.display = 'none'; }
     window.onload = fetchLaporan;
 </script>
-
 </body>
 </html>
