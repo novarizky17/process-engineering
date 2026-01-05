@@ -19,28 +19,29 @@
         .container {
             text-align: center;
             background-color: white;
-            padding: 60px 100px;
+            padding: 50px 80px; /* Sedikit disesuaikan untuk menampung lebih banyak tombol */
             border-radius: 20px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-            max-width: 600px;
+            max-width: 650px;
+            width: 90%;
         }
 
         h1 {
             color: #1a1a1a;
-            margin-bottom: 60px;
-            font-size: 3em;
+            margin-bottom: 40px;
+            font-size: 2.8em;
             font-weight: bold;
         }
 
         .button-group {
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 20px; /* Jarak antar tombol disesuaikan */
         }
 
         .btn {
-            padding: 20px 50px;
-            font-size: 1.5em;
+            padding: 18px 40px;
+            font-size: 1.3em;
             font-weight: bold;
             color: white;
             border: none;
@@ -49,6 +50,17 @@
             transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
+        }
+
+        /* Tombol Jadwal Mingguan (Baru) */
+        .btn-jadwal {
+            background-color: #3f51b5; /* Indigo */
+        }
+
+        .btn-jadwal:hover {
+            background-color: #303f9f;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(63, 81, 181, 0.4);
         }
 
         .btn-laporan {
@@ -87,6 +99,8 @@
         <h1>Menu Utama</h1>
         
         <div class="button-group">
+            <a href="jadwal_mingguan.html" class="btn btn-jadwal">Jadwal Mingguan</a>
+            
             <a href="laporan.html" class="btn btn-laporan">Laporan Perawatan</a>
             <a href="riwayat.html" class="btn btn-kartu">Kartu Riwayat</a>
             <a href="dashboard.html" class="btn btn-checklist">Form Checklist</a>
