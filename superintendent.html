@@ -22,6 +22,8 @@
 
     .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
     .btn-primary { background: #007bff; color: white; }
+    /* Gaya tombol kembali */
+    .btn-back { background: #6c757d; color: white; text-decoration: none; font-size: 14px; margin-right: 10px; display: inline-flex; align-items: center; }
     .btn-success { background: #28a745; color: white; width: 45%; }
     .btn-danger { background: #dc3545; color: white; width: 45%; }
 
@@ -44,7 +46,10 @@
 
 <header>
   <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
-  <button class="btn btn-primary" onclick="loadData()">Refresh Data</button>
+  <div>
+    <a href="dashboard.html" class="btn btn-back">← Kembali ke Dashboard</a>
+    <button class="btn btn-primary" onclick="loadData()">Refresh Data</button>
+  </div>
 </header>
 
 <div class="container">
@@ -94,10 +99,10 @@
       <div id="historySection" style="display:none; text-align:center;">
         <h3 id="historyLabel"></h3>
         <div id="historySigArea">
-           <img id="historySigImg" style="max-width:300px; border:1px solid #ddd; padding:5px; background:white;">
+            <img id="historySigImg" style="max-width:300px; border:1px solid #ddd; padding:5px; background:white;">
         </div>
         <div id="historyRejectArea" style="background:#fff1f0; padding:15px; border-radius:8px; display:none;">
-           <strong>Alasan Reject:</strong> <span id="historyReason"></span>
+            <strong>Alasan Reject:</strong> <span id="historyReason"></span>
         </div>
       </div>
     </div>
@@ -122,7 +127,6 @@
     { section: "5. DUMMY", prefix: "dummy_", fields: ["vacuum", "condition", "flange", "instalasi", "tubbing"] }
   ];
 
-  // Tanda tangan logic
   let drawing = false;
   function getP(e) {
     const r = canvas.getBoundingClientRect();
