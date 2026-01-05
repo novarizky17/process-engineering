@@ -27,7 +27,7 @@
                 <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-black text-white backdrop-blur-md border border-white/30 uppercase">R</div>
                 <div>
                     <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Panel Kerja Riyan</h1>
-                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Pencatatan Jam & Status Progress Project</p>
+                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Input Jam Kerja & Progress Project</p>
                 </div>
             </div>
             <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all backdrop-blur-md border border-white/20">
@@ -60,14 +60,13 @@
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em]">
                             <th class="px-8 py-5">Project / Tugas</th>
                             <th class="px-4 py-5 text-center">Priority</th>
-                            <th class="px-4 py-5 text-center">Start/Finish (Jam)</th> <th class="px-6 py-5 text-center">Due Date</th>
-                            <th class="px-6 py-5 text-center">Ganti Status</th>
-                            <th class="px-6 py-5">Keterangan / Comment</th>
+                            <th class="px-4 py-5 text-center">Jam Start</th> <th class="px-4 py-5 text-center">Jam Finish</th> <th class="px-6 py-5 text-center">Ganti Status</th>
+                            <th class="px-6 py-5">Laporan Keterangan (Wajib)</th>
                             <th class="px-8 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="riyan-work-body" class="divide-y divide-slate-50 text-sm">
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </div>
@@ -92,13 +91,14 @@
 
             const tbody = document.getElementById('riyan-work-body');
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-slate-400 font-medium">Belum ada tugas project.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-slate-400 font-medium">Belum ada tugas project untuk Riyan.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = data.map(row => {
                 const isDone = row.status === 'Done';
                 
+                // Prioritas
                 let priorityClass = "bg-slate-100 text-slate-500";
                 if(row.priority === 'High') priorityClass = "bg-red-100 text-red-600 border border-red-200";
                 if(row.priority === 'Mid') priorityClass = "bg-blue-100 text-blue-600 border border-blue-200";
@@ -110,21 +110,23 @@
                         <td class="px-8 py-6">
                             <span class="block font-extrabold text-slate-800 uppercase tracking-tight">${row.project_name}</span>
                             <span class="text-[10px] text-slate-400 font-medium uppercase italic">${row.task_desc || '-'}</span>
+                            <span class="block mt-1 text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Target: ${row.due_date}</span>
                         </td>
                         <td class="px-4 py-6 text-center">
                             <span class="px-3 py-1 rounded-lg font-black text-[9px] uppercase tracking-tighter ${priorityClass}">${row.priority || 'Mid'}</span>
                         </td>
                         <td class="px-4 py-6 text-center">
-                            <div class="flex flex-col gap-1 items-center">
-                                ${isDone ? 
-                                    `<span class="text-[11px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">S: ${row.work_start_time || '--:--'}</span>
-                                     <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">F: ${row.work_end_time || '--:--'}</span>` :
-                                    `<input type="time" id="start-time-${row.id}" value="${row.work_start_time || ''}" class="bg-slate-50 border border-slate-200 rounded text-[10px] p-1 outline-none focus:border-blue-500">
-                                     <input type="time" id="end-time-${row.id}" value="${row.work_end_time || ''}" class="bg-slate-50 border border-slate-200 rounded text-[10px] p-1 outline-none focus:border-blue-500">`
-                                }
-                            </div>
+                            ${isDone ? 
+                                `<span class="text-[11px] font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded">${row.work_start_time || '--:--'}</span>` :
+                                `<input type="time" id="start-time-${row.id}" value="${row.work_start_time || ''}" class="bg-white border border-slate-300 rounded-lg text-xs p-1.5 outline-none focus:border-blue-500 font-bold shadow-sm">`
+                            }
                         </td>
-                        <td class="px-6 py-6 text-center font-mono text-[11px] text-slate-900 font-bold">${row.due_date}</td>
+                        <td class="px-4 py-6 text-center">
+                            ${isDone ? 
+                                `<span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">${row.work_end_time || '--:--'}</span>` :
+                                `<input type="time" id="end-time-${row.id}" value="${row.work_end_time || ''}" class="bg-white border border-slate-300 rounded-lg text-xs p-1.5 outline-none focus:border-blue-500 font-bold shadow-sm">`
+                            }
+                        </td>
                         <td class="px-6 py-6 text-center">
                             ${isDone ? 
                                 `<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 font-black text-[9px] uppercase tracking-widest">FINISHED</span>` : 
@@ -140,12 +142,12 @@
                         <td class="px-6 py-6">
                             ${isDone ? 
                                 `<p class="text-[11px] text-slate-500 italic leading-relaxed font-medium bg-slate-50 p-2 rounded-lg border border-slate-100">"${row.worker_comment || 'Tanpa keterangan'}"</p>` : 
-                                `<textarea id="comment-${row.id}" placeholder="Laporan hasil..." class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-[11px] focus:bg-white outline-none resize-none transition-all" rows="2"></textarea>`
+                                `<textarea id="comment-${row.id}" placeholder="Ketik hasil kerja..." class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-[11px] focus:bg-white outline-none resize-none transition-all shadow-inner" rows="2"></textarea>`
                             }
                         </td>
                         <td class="px-8 py-6 text-center">
                             ${isDone ? 
-                                `<span class="text-slate-400 font-bold text-[10px] uppercase tracking-tighter">Done on ${row.actual_finish}</span>` : 
+                                `<span class="text-slate-400 font-bold text-[10px] uppercase tracking-tighter">Done: ${row.actual_finish}</span>` : 
                                 `<button onclick="markAsDone('${row.id}')" class="bg-blue-600 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-lg transition-all transform active:scale-95 shadow-blue-100">Selesaikan</button>`
                             }
                         </td>
@@ -164,7 +166,7 @@
             const startTime = document.getElementById(`start-time-${id}`).value;
             const endTime = document.getElementById(`end-time-${id}`).value;
 
-            // Validasi input
+            // Validasi data yang diisi Riyan
             if (!startTime || !endTime) {
                 alert("Harap isi jam START dan jam FINISH terlebih dahulu!");
                 return;
@@ -175,7 +177,7 @@
                 return;
             }
 
-            if (!confirm("Konfirmasi: Selesaikan project ini?")) return;
+            if (!confirm("Project sudah selesai dengan benar?")) return;
 
             const tglSelesai = new Date().toISOString().split('T')[0];
 
@@ -185,14 +187,14 @@
                     status: 'Done',
                     actual_finish: tglSelesai,
                     worker_comment: comment,
-                    work_start_time: startTime, // Simpan jam mulai
-                    work_end_time: endTime     // Simpan jam selesai
+                    work_start_time: startTime, // Simpan jam start dari Riyan
+                    work_end_time: endTime     // Simpan jam finish dari Riyan
                 })
                 .eq('id', id);
 
             if (error) alert("Gagal menyimpan!");
             else {
-                alert("Berhasil disimpan!");
+                alert("Laporan berhasil dikirim dan Project selesai!");
                 fetchRiyanTasks();
             }
         }
