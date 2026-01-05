@@ -27,7 +27,7 @@
                 <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-black text-white backdrop-blur-md border border-white/30 uppercase">R</div>
                 <div>
                     <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Panel Kerja Riyan</h1>
-                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Pencatatan Jam & Activity Lapangan</p>
+                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Update Progress & Activity Lapangan</p>
                 </div>
             </div>
             <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all backdrop-blur-md border border-white/20">
@@ -37,7 +37,6 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-8">
-        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 relative z-10">
             <div class="bg-white p-8 rounded-3xl shadow-xl border-l-8 border-amber-500">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Project Aktif</p>
@@ -64,11 +63,11 @@
                             <th class="px-4 py-5 text-center">Jam Start</th>
                             <th class="px-4 py-5 text-center">Jam Finish</th>
                             <th class="px-6 py-5 uppercase text-center">Activity</th> 
-                            <th class="px-6 py-5 text-center uppercase tracking-widest">Progress</th> <th class="px-8 py-5 text-center">Aksi</th>
+                            <th class="px-6 py-5 text-center uppercase tracking-widest">Progress</th>
+                            <th class="px-8 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="riyan-work-body" class="divide-y divide-slate-50 text-sm">
-                    </tbody>
+                    <tbody id="riyan-work-body" class="divide-y divide-slate-50 text-sm"></tbody>
                 </table>
             </div>
         </div>
@@ -80,33 +79,17 @@
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
         async function fetchRiyanTasks() {
-            const { data, error } = await _sb
-                .from('management_tracker')
-                .select('*')
-                .eq('assigned_to', 'RIYAN')
-                .order('created_at', { ascending: false });
-
+            const { data, error } = await _sb.from('management_tracker').select('*').eq('assigned_to', 'RIYAN').order('created_at', { ascending: false });
             if (error) return console.error(error);
 
             document.getElementById('stat-active').innerText = data.filter(r => r.status !== 'Done').length;
             document.getElementById('stat-finished').innerText = data.filter(r => r.status === 'Done').length;
 
             const tbody = document.getElementById('riyan-work-body');
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="p-10 text-center text-slate-400 font-medium">Belum ada tugas untuk Riyan.</td></tr>`;
-                return;
-            }
-
             tbody.innerHTML = data.map(row => {
                 const isDone = row.status === 'Done';
-                
-                let priorityClass = "bg-slate-100 text-slate-500";
-                if(row.priority === 'High') priorityClass = "bg-red-100 text-red-600 border border-red-200";
-                if(row.priority === 'Mid') priorityClass = "bg-blue-100 text-blue-600 border border-blue-200";
-
-                let borderClass = "border-slate-200 text-slate-600";
-                if (row.status === 'In Progress') borderClass = "border-blue-500 text-blue-600 bg-blue-50";
-                if (row.status === 'Hold') borderClass = "border-rose-400 text-rose-600 bg-rose-50";
+                let priorityClass = row.priority === 'High' ? "bg-red-100 text-red-600 border border-red-200" : (row.priority === 'Mid' ? "bg-blue-100 text-blue-600 border border-blue-200" : "bg-slate-100 text-slate-500");
+                let borderClass = row.status === 'In Progress' ? "border-blue-500 text-blue-600 bg-blue-50" : (row.status === 'Hold' ? "border-rose-400 text-rose-600 bg-rose-50" : "border-slate-200 text-slate-600");
 
                 return `
                     <tr class="hover:bg-slate-50/50 transition-colors">
@@ -114,56 +97,44 @@
                             <span class="block font-extrabold text-slate-800 uppercase tracking-tight">${row.project_name}</span>
                             <span class="text-[10px] text-slate-400 font-medium uppercase italic">${row.task_desc || '-'}</span>
                         </td>
-                        <td class="px-4 py-6 text-center">
-                            <span class="px-3 py-1 rounded-lg font-black text-[9px] uppercase tracking-tighter ${priorityClass}">${row.priority || 'Mid'}</span>
-                        </td>
-                        <td class="px-4 py-6 text-center font-mono text-[11px] text-slate-900 font-bold">
-                            ${row.due_date}
-                        </td>
-                        <td class="px-4 py-6 text-center">
-                            ${isDone ? 
-                                `<span class="text-[11px] font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded">${row.work_start_time || '--:--'}</span>` :
-                                `<input type="time" id="start-time-${row.id}" value="${row.work_start_time || ''}" class="bg-white border border-slate-300 rounded-lg text-xs p-1.5 outline-none focus:border-blue-500 font-bold shadow-sm">`
-                            }
-                        </td>
-                        <td class="px-4 py-6 text-center">
-                            ${isDone ? 
-                                `<span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">${row.work_end_time || '--:--'}</span>` :
-                                `<input type="time" id="end-time-${row.id}" value="${row.work_end_time || ''}" class="bg-white border border-slate-300 rounded-lg text-xs p-1.5 outline-none focus:border-blue-500 font-bold shadow-sm">`
-                            }
-                        </td>
-                        <td class="px-6 py-6">
-                            ${isDone ? 
-                                `<p class="text-[11px] text-slate-500 italic leading-relaxed font-medium bg-slate-50 p-2 rounded-lg border border-slate-100 max-w-[200px]">"${row.worker_comment || '-'}"</p>` : 
-                                `<textarea id="comment-${row.id}" placeholder="Activity" class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-[11px] focus:bg-white outline-none resize-none transition-all shadow-inner" rows="2">${row.worker_comment && row.worker_comment !== '-' ? row.worker_comment : ''}</textarea>`
-                            }
-                        </td>
+                        <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-lg font-black text-[9px] uppercase tracking-tighter ${priorityClass}">${row.priority || 'Mid'}</span></td>
+                        <td class="px-4 py-6 text-center font-mono text-[11px] text-slate-900 font-bold">${row.due_date}</td>
+                        <td class="px-4 py-6 text-center">${isDone ? `<span class="text-[11px] font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded">${row.work_start_time || '--:--'}</span>` : `<input type="time" id="start-time-${row.id}" value="${row.work_start_time || ''}" class="bg-white border border-slate-300 rounded-lg text-xs p-1.5 outline-none focus:border-blue-500 font-bold shadow-sm">`}</td>
+                        <td class="px-4 py-6 text-center">${isDone ? `<span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">${row.work_end_time || '--:--'}</span>` : `<input type="time" id="end-time-${row.id}" value="${row.work_end_time || ''}" class="bg-white border border-slate-300 rounded-lg text-xs p-1.5 outline-none focus:border-blue-500 font-bold shadow-sm">`}</td>
+                        <td class="px-6 py-6">${isDone ? `<p class="text-[11px] text-slate-500 italic leading-relaxed font-medium bg-slate-50 p-2 rounded-lg border border-slate-100 max-w-[200px]">"${row.worker_comment || '-'}"</p>` : `<textarea id="comment-${row.id}" placeholder="Activity..." class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-[11px] focus:bg-white outline-none resize-none transition-all shadow-inner" rows="2">${row.worker_comment && row.worker_comment !== '-' ? row.worker_comment : ''}</textarea>`}</td>
                         <td class="px-6 py-6 text-center">
-                            ${isDone ? 
-                                `<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 font-black text-[9px] uppercase tracking-widest">FINISHED</span>` : 
-                                `<select 
-                                    onchange="updateStatus('${row.id}', this.value)" 
-                                    class="status-select px-4 py-2 rounded-xl text-[10px] uppercase font-black border-2 transition-all outline-none cursor-pointer ${borderClass}"
-                                >
+                            ${isDone ? `<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 font-black text-[9px] uppercase tracking-widest">FINISHED</span>` : 
+                                `<select onchange="handleStatusChange('${row.id}', this.value)" class="status-select px-4 py-2 rounded-xl text-[10px] uppercase font-black border-2 transition-all outline-none cursor-pointer ${borderClass}">
                                     <option value="Pending" ${row.status === 'Pending' ? 'selected' : ''}>Pending</option>
                                     <option value="In Progress" ${row.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
                                     <option value="Hold" ${row.status === 'Hold' ? 'selected' : ''}>Hold</option>
-                                </select>`
-                            }
+                                </select>`}
                         </td>
-                        <td class="px-8 py-6 text-center">
-                            ${isDone ? 
-                                `<span class="text-slate-400 font-bold text-[10px] uppercase tracking-widest italic">Selesai</span>` : 
-                                `<button onclick="markAsDone('${row.id}')" class="bg-blue-600 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-lg transition-all transform active:scale-95">Selesaikan</button>`
-                            }
-                        </td>
+                        <td class="px-8 py-6 text-center">${isDone ? `<span class="text-slate-400 font-bold text-[10px] uppercase tracking-widest italic">Selesai</span>` : `<button onclick="markAsDone('${row.id}')" class="bg-blue-600 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-lg transition-all transform active:scale-95">Selesaikan</button>`}</td>
                     </tr>
                 `;
             }).join('');
         }
 
-        async function updateStatus(id, newStatus) {
-            const { error } = await _sb.from('management_tracker').update({ status: newStatus }).eq('id', id);
+        function handleStatusChange(id, status) {
+            if (status === 'Hold') {
+                const reason = prompt("Silakan masukkan alasan kenapa project ini di-HOLD:");
+                if (!reason) {
+                    alert("Alasan HOLD wajib diisi!");
+                    fetchRiyanTasks();
+                    return;
+                }
+                updateStatus(id, 'Hold', reason);
+            } else {
+                updateStatus(id, status);
+            }
+        }
+
+        async function updateStatus(id, newStatus, holdReason = null) {
+            const updateData = { status: newStatus };
+            if (holdReason) updateData.worker_comment = `[HOLD REASON]: ${holdReason}`;
+            
+            const { error } = await _sb.from('management_tracker').update(updateData).eq('id', id);
             if (error) alert("Gagal update!"); else fetchRiyanTasks();
         }
 
@@ -171,32 +142,18 @@
             const comment = document.getElementById(`comment-${id}`).value;
             const startTime = document.getElementById(`start-time-${id}`).value;
             const endTime = document.getElementById(`end-time-${id}`).value;
+            if (!startTime || !endTime) return alert("Mohon isi jam Start dan jam Finish!");
+            if (!confirm("Konfirmasi: Selesaikan project?")) return;
 
-            if (!startTime || !endTime) {
-                alert("Mohon isi jam Start dan jam Finish!");
-                return;
-            }
-
-            if (!confirm("Konfirmasi: Tandai project sebagai selesai?")) return;
-
-            const tglSelesai = new Date().toISOString().split('T')[0];
-
-            const { error } = await _sb
-                .from('management_tracker')
-                .update({ 
-                    status: 'Done',
-                    actual_finish: tglSelesai,
-                    worker_comment: comment || '-', 
-                    work_start_time: startTime,
-                    work_end_time: endTime 
-                })
-                .eq('id', id);
-
-            if (error) alert("Gagal menyimpan!");
-            else {
-                alert("Berhasil diperbarui!");
-                fetchRiyanTasks();
-            }
+            const { error } = await _sb.from('management_tracker').update({ 
+                status: 'Done', 
+                actual_finish: new Date().toISOString().split('T')[0], 
+                worker_comment: comment || '-', 
+                work_start_time: startTime, 
+                work_end_time: endTime 
+            }).eq('id', id);
+            
+            if (error) alert("Gagal menyimpan!"); else fetchRiyanTasks();
         }
 
         window.onload = fetchRiyanTasks;
