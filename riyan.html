@@ -27,7 +27,7 @@
                 <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-black text-white backdrop-blur-md border border-white/30 uppercase">R</div>
                 <div>
                     <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Panel Kerja Riyan</h1>
-                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Input Jam Kerja & Progress Project</p>
+                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Input Jam Kerja & Laporan Progress Lapangan</p>
                 </div>
             </div>
             <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all backdrop-blur-md border border-white/20">
@@ -60,8 +60,10 @@
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em]">
                             <th class="px-8 py-5">Project / Tugas</th>
                             <th class="px-4 py-5 text-center">Priority</th>
-                            <th class="px-4 py-5 text-center">Jam Start</th> <th class="px-4 py-5 text-center">Jam Finish</th> <th class="px-6 py-5 text-center">Ganti Status</th>
-                            <th class="px-6 py-5">Laporan Keterangan (Wajib)</th>
+                            <th class="px-4 py-5 text-center">Due Date</th> <th class="px-4 py-5 text-center">Jam Start</th>
+                            <th class="px-4 py-5 text-center">Jam Finish</th>
+                            <th class="px-6 py-5 text-center">Status</th>
+                            <th class="px-6 py-5">Laporan Hasil Kerja (Wajib)</th>
                             <th class="px-8 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -91,7 +93,7 @@
 
             const tbody = document.getElementById('riyan-work-body');
             if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-slate-400 font-medium">Belum ada tugas project untuk Riyan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-10 text-center text-slate-400 font-medium">Belum ada tugas untuk Riyan.</td></tr>`;
                 return;
             }
 
@@ -110,10 +112,12 @@
                         <td class="px-8 py-6">
                             <span class="block font-extrabold text-slate-800 uppercase tracking-tight">${row.project_name}</span>
                             <span class="text-[10px] text-slate-400 font-medium uppercase italic">${row.task_desc || '-'}</span>
-                            <span class="block mt-1 text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Target: ${row.due_date}</span>
                         </td>
                         <td class="px-4 py-6 text-center">
                             <span class="px-3 py-1 rounded-lg font-black text-[9px] uppercase tracking-tighter ${priorityClass}">${row.priority || 'Mid'}</span>
+                        </td>
+                        <td class="px-4 py-6 text-center font-mono text-[11px] text-slate-900 font-bold">
+                            ${row.due_date}
                         </td>
                         <td class="px-4 py-6 text-center">
                             ${isDone ? 
@@ -147,8 +151,8 @@
                         </td>
                         <td class="px-8 py-6 text-center">
                             ${isDone ? 
-                                `<span class="text-slate-400 font-bold text-[10px] uppercase tracking-tighter">Done: ${row.actual_finish}</span>` : 
-                                `<button onclick="markAsDone('${row.id}')" class="bg-blue-600 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-lg transition-all transform active:scale-95 shadow-blue-100">Selesaikan</button>`
+                                `<span class="text-slate-400 font-bold text-[10px] uppercase tracking-tighter tracking-widest">Selesai</span>` : 
+                                `<button onclick="markAsDone('${row.id}')" class="bg-blue-600 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-lg transition-all transform active:scale-95">Kirim Laporan</button>`
                             }
                         </td>
                     </tr>
@@ -166,18 +170,17 @@
             const startTime = document.getElementById(`start-time-${id}`).value;
             const endTime = document.getElementById(`end-time-${id}`).value;
 
-            // Validasi data yang diisi Riyan
             if (!startTime || !endTime) {
                 alert("Harap isi jam START dan jam FINISH terlebih dahulu!");
                 return;
             }
 
             if (!comment || comment.trim().length < 5) {
-                alert("Harap isi KETERANGAN hasil kerja minimal 5 karakter!");
+                alert("Harap isi LAPORAN HASIL KERJA minimal 5 karakter!");
                 return;
             }
 
-            if (!confirm("Project sudah selesai dengan benar?")) return;
+            if (!confirm("Konfirmasi: Selesaikan project ini dan kirim laporan?")) return;
 
             const tglSelesai = new Date().toISOString().split('T')[0];
 
@@ -187,14 +190,14 @@
                     status: 'Done',
                     actual_finish: tglSelesai,
                     worker_comment: comment,
-                    work_start_time: startTime, // Simpan jam start dari Riyan
-                    work_end_time: endTime     // Simpan jam finish dari Riyan
+                    work_start_time: startTime,
+                    work_end_time: endTime 
                 })
                 .eq('id', id);
 
-            if (error) alert("Gagal menyimpan!");
+            if (error) alert("Gagal menyimpan data!");
             else {
-                alert("Laporan berhasil dikirim dan Project selesai!");
+                alert("Laporan berhasil terkirim!");
                 fetchRiyanTasks();
             }
         }
