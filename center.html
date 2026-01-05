@@ -19,7 +19,7 @@
         .container {
             text-align: center;
             background-color: white;
-            padding: 50px 80px; /* Sedikit disesuaikan untuk menampung lebih banyak tombol */
+            padding: 40px 60px;
             border-radius: 20px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
             max-width: 650px;
@@ -28,20 +28,20 @@
 
         h1 {
             color: #1a1a1a;
-            margin-bottom: 40px;
-            font-size: 2.8em;
+            margin-bottom: 30px;
+            font-size: 2.5em;
             font-weight: bold;
         }
 
         .button-group {
             display: flex;
             flex-direction: column;
-            gap: 20px; /* Jarak antar tombol disesuaikan */
+            gap: 15px; /* Jarak antar tombol dioptimalkan */
         }
 
         .btn {
-            padding: 18px 40px;
-            font-size: 1.3em;
+            padding: 16px 40px;
+            font-size: 1.2em;
             font-weight: bold;
             color: white;
             border: none;
@@ -52,7 +52,17 @@
             display: inline-block;
         }
 
-        /* Tombol Jadwal Mingguan (Baru) */
+        /* Tombol Management Tracker (Baru) */
+        .btn-tracker {
+            background-color: #002D62; /* Navy Blue */
+        }
+
+        .btn-tracker:hover {
+            background-color: #001f44;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 45, 98, 0.4);
+        }
+
         .btn-jadwal {
             background-color: #3f51b5; /* Indigo */
         }
@@ -99,8 +109,9 @@
         <h1>Menu Utama</h1>
         
         <div class="button-group">
-            <a href="jadwal_mingguan.html" class="btn btn-jadwal">Jadwal Mingguan</a>
+            <a href="management_tracker.html" class="btn btn-tracker">Management Tracker</a>
             
+            <a href="jadwal_mingguan.html" class="btn btn-jadwal">Jadwal Mingguan</a>
             <a href="laporan.html" class="btn btn-laporan">Laporan Perawatan</a>
             <a href="riwayat.html" class="btn btn-kartu">Kartu Riwayat</a>
             <a href="dashboard.html" class="btn btn-checklist">Form Checklist</a>
