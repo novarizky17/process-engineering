@@ -27,7 +27,7 @@
                 <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-black text-white backdrop-blur-md border border-white/30 uppercase">R</div>
                 <div>
                     <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Panel Kerja Riyan</h1>
-                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Pencatatan Jam, Activity & Keterangan Hold</p>
+                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Pencatatan Jam, Activity & Tugas Lapangan</p>
                 </div>
             </div>
             <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all border border-white/20"> Kembali </a>
@@ -55,12 +55,11 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em]">
-                            <th class="px-6 py-5">Project</th>
-                            <th class="px-4 py-5 text-center">Due Date</th>
+                            <th class="px-6 py-5">Project / Mesin</th>
+                            <th class="px-6 py-5">Daftar Tugas</th> <th class="px-4 py-5 text-center">Due Date</th>
                             <th class="px-4 py-5 text-center">Start</th>
                             <th class="px-4 py-5 text-center">Finish</th>
                             <th class="px-6 py-5">Activity</th>
-                            <th class="px-4 py-5 text-center">Progress</th>
                             <th class="px-6 py-5">Keterangan (Hold)</th>
                             <th class="px-6 py-5 text-center">Status</th>
                         </tr>
@@ -92,6 +91,7 @@
                 return `
                     <tr class="hover:bg-slate-50/50 transition-colors">
                         <td class="px-6 py-6 font-bold uppercase text-slate-800">${row.project_name}</td>
+                        <td class="px-6 py-6 font-medium text-slate-500 text-[11px] uppercase">${row.task_desc || '-'}</td> 
                         <td class="px-4 py-6 text-center font-mono text-[11px] font-bold">${row.due_date}</td>
                         <td class="px-4 py-6 text-center">
                             ${isDone ? `<span class="font-bold text-slate-600">${row.work_start_time || '--:--'}</span>` : 
@@ -105,22 +105,23 @@
                             ${isDone ? `<p class="italic text-slate-500">"${row.worker_comment || '-'}"</p>` : 
                             `<textarea id="comment-${row.id}" class="w-full border rounded p-2 text-[11px] outline-none" rows="2">${row.worker_comment || ''}</textarea>`}
                         </td>
-                        <td class="px-4 py-6 text-center">
-                            ${isDone ? `<span class="text-emerald-600 font-black text-[9px] uppercase">FINISHED</span>` : 
-                            `<select id="status-val-${row.id}" class="status-select px-3 py-2 rounded-xl text-[10px] font-black border-2 outline-none ${borderClass}">
-                                <option value="Pending" ${row.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                                <option value="In Progress" ${row.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
-                                <option value="Hold" ${row.status === 'Hold' ? 'selected' : ''}>Hold</option>
-                                <option value="Done">Done (Selesai)</option>
-                            </select>`}
-                        </td>
                         <td class="px-6 py-6">
                             ${isDone ? `<p class="text-rose-500 text-[11px]">${row.hold_reason || '-'}</p>` : 
                             `<textarea id="hold-reason-${row.id}" class="w-full border rounded p-2 text-[11px] outline-none" rows="2">${row.hold_reason || ''}</textarea>`}
                         </td>
                         <td class="px-6 py-6 text-center">
-                            ${isDone ? `<span class="text-slate-400 font-bold text-[10px] uppercase">Locked</span>` : 
-                            `<button onclick="saveAllData('${row.id}')" class="bg-blue-600 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold text-[10px] uppercase shadow-md transition-all">Simpan</button>`}
+                            ${isDone ? `<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 font-black text-[9px] uppercase">FINISHED</span>` : 
+                                `
+                                <div class="flex flex-col gap-2">
+                                    <select id="status-val-${row.id}" class="status-select px-3 py-2 rounded-xl text-[10px] font-black border-2 outline-none ${borderClass}">
+                                        <option value="Pending" ${row.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                        <option value="In Progress" ${row.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                        <option value="Hold" ${row.status === 'Hold' ? 'selected' : ''}>Hold</option>
+                                        <option value="Done">Selesai</option>
+                                    </select>
+                                    <button onclick="saveAllData('${row.id}')" class="bg-blue-600 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold text-[10px] uppercase shadow-md transition-all">Simpan</button>
+                                </div>
+                                `}
                         </td>
                     </tr>
                 `;
@@ -134,10 +135,9 @@
             const eTime = document.getElementById(`end-time-${id}`).value;
             const selectedStatus = document.getElementById(`status-val-${id}`).value;
 
-            // Jika pilih status "Done", wajib isi jam
             if (selectedStatus === 'Done') {
                 if (!sTime || !eTime) {
-                    alert("Untuk status 'Done', Jam Start & Finish wajib diisi!");
+                    alert("Untuk status 'Selesai', Jam Start & Finish wajib diisi!");
                     return;
                 }
                 if (!confirm("Tandai project ini benar-benar selesai?")) return;
@@ -151,18 +151,14 @@
                 work_end_time: eTime || null
             };
 
-            // Jika status Done, set tanggal selesai
             if (selectedStatus === 'Done') {
                 updatePayload.actual_finish = new Date().toISOString().split('T')[0];
             }
 
-            const { error } = await _sb.from('management_tracker')
-                .update(updatePayload)
-                .eq('id', id);
+            const { error } = await _sb.from('management_tracker').update(updatePayload).eq('id', id);
 
-            if (error) {
-                alert("Gagal menyimpan: " + error.message);
-            } else {
+            if (error) alert("Gagal menyimpan: " + error.message);
+            else {
                 alert("Data berhasil diupdate!");
                 fetchRiyanTasks();
             }
