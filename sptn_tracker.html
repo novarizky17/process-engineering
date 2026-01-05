@@ -36,14 +36,14 @@
                 <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider">Berikan Project Baru</h2>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Project Name</label>
-                    <input type="text" id="in-project" placeholder="Nama Project / Mesin" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none transition-all">
+                    <input type="text" id="in-project" placeholder="Nama Project" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none transition-all">
                 </div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Daftar Tugas</label>
-                    <input type="text" id="in-tugas" placeholder="Detail Pekerjaan" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none transition-all">
+                    <input type="text" id="in-tugas" placeholder="Detail Kerja" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none transition-all">
                 </div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Assigned To</label>
@@ -51,14 +51,23 @@
                         <option value="">Pilih Personil</option>
                         <option value="RIYAN">RIYAN</option>
                         <option value="ISQI">ISQI</option>
-                        <option value="JUMAWAN">JUMAWAN</option> </select>
+                        <option value="JUMAWAN">JUMAWAN</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Priority</label>
+                    <select id="in-priority" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold focus:bg-white outline-none">
+                        <option value="Low">Low</option>
+                        <option value="Mid" selected>Mid</option>
+                        <option value="High">High</option>
+                    </select>
                 </div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Start Date</label>
                     <input type="date" id="in-start" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none">
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Target Due Date</label>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Target Due</label>
                     <input type="date" id="in-due" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none">
                 </div>
             </div>
@@ -77,9 +86,10 @@
                         <tr class="bg-slate-50/80 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em] border-b border-slate-100">
                             <th class="px-8 py-5">Project</th>
                             <th class="px-6 py-5">Daftar Tugas</th>
+                            <th class="px-4 py-5 text-center">Priority</th>
                             <th class="px-6 py-5 text-center">Assigned To</th>
-                            <th class="px-6 py-5 text-center">Timeline Target</th>
-                            <th class="px-6 py-5 text-center">Status Aktual</th>
+                            <th class="px-6 py-5 text-center">Timeline</th>
+                            <th class="px-6 py-5 text-center">Status</th>
                             <th class="px-8 py-5 text-center">Over Date</th>
                             <th class="px-4 py-5 text-center">Aksi</th>
                         </tr>
@@ -100,6 +110,7 @@
             const project = document.getElementById('in-project').value;
             const tugas = document.getElementById('in-tugas').value;
             const name = document.getElementById('in-name').value;
+            const priority = document.getElementById('in-priority').value;
             const start = document.getElementById('in-start').value;
             const due = document.getElementById('in-due').value;
 
@@ -109,6 +120,7 @@
                 project_name: project, 
                 task_desc: tugas, 
                 assigned_to: name, 
+                priority: priority, // MENYIMPAN PRIORITY
                 start_date: start, 
                 due_date: due,
                 status: 'Waiting Progress'
@@ -152,14 +164,22 @@
                         '<span class="text-slate-300 font-medium italic">Monitoring...</span>';
                 }
 
+                // Styling Priority Badge
+                let priorityClass = "bg-slate-100 text-slate-500";
+                if(row.priority === 'High') priorityClass = "bg-red-100 text-red-600 border border-red-200";
+                if(row.priority === 'Mid') priorityClass = "bg-blue-100 text-blue-600 border border-blue-200";
+
                 let statusClass = "bg-slate-100 text-slate-400 border border-slate-200";
                 if(row.status === 'Done') statusClass = "bg-emerald-50 text-emerald-600 border-emerald-100";
-                if(row.status === 'In Progress') statusClass = "bg-blue-50 text-blue-600 border-blue-100";
+                if(row.status === 'In Progress') statusClass = "bg-orange-50 text-orange-600 border-orange-100";
 
                 return `
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="px-8 py-6 font-extrabold text-slate-800 uppercase tracking-tight">${row.project_name}</td>
                         <td class="px-6 py-6 font-medium text-slate-500 text-xs uppercase">${row.task_desc || '-'}</td>
+                        <td class="px-4 py-6 text-center">
+                            <span class="px-3 py-1 rounded-lg font-black text-[9px] uppercase tracking-tighter ${priorityClass}">${row.priority || 'Mid'}</span>
+                        </td>
                         <td class="px-6 py-6 text-center font-bold text-slate-700 uppercase text-xs">${row.assigned_to}</td>
                         <td class="px-6 py-6 text-center">
                             <span class="text-[10px] font-bold text-slate-400 block">${row.start_date || '-'}</span>
