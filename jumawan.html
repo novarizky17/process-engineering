@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Panel - Jumawan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .gradient-orange { background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%); }
+        .status-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center;
+            background-size: 1.1em;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <div class="gradient-orange w-full pt-12 pb-24 px-8 mb-[-80px] shadow-2xl">
+        <div class="max-w-7xl mx-auto flex justify-between items-end">
+            <div class="flex items-center gap-6">
+                <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-black text-white backdrop-blur-md border border-white/30 uppercase">J</div>
+                <div>
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Panel Kerja Jumawan</h1>
+                    <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Update Status & Laporan Keterangan Project</p>
+                </div>
+            </div>
+            <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all backdrop-blur-md border border-white/20">
+                Kembali
+            </a>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-8">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 relative z-10">
+            <div class="bg-white p-8 rounded-3xl shadow-xl border-l-8 border-amber-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Project Aktif</p>
+                <h3 id="stat-active" class="text-4xl font-black text-slate-800">0</h3>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-xl border-l-8 border-emerald-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Selesai</p>
+                <h3 id="stat-finished" class="text-4xl font-black text-emerald-600">0</h3>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
+            <div class="p-8 border-b border-slate-50 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-slate-800 uppercase tracking-tight">Daftar Penugasan Jumawan</h2>
+                <button onclick="fetchJumawanTasks()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl text-[10px] font-bold uppercase transition-all">Refresh Data</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em]">
+                            <th class="px-8 py-5">Project / Tugas</th>
+                            <th class="px-6 py-5 text-center">Due Date</th>
+                            <th class="px-6 py-5 text-center">Ganti Status</th>
+                            <th class="px-6 py-5">Keterangan / Comment (Wajib)</th>
+                            <th class="px-8 py-5 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jumawan-work-body" class="divide-y divide-slate-50 text-sm">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
+        const _sb = supabase.createClient(SB_URL, SB_KEY);
+
+        async function fetchJumawanTasks() {
+            // Filter diubah menjadi JUMAWAN (Tanpa "Mas")
+            const { data, error } = await _sb
+                .from('management_tracker')
+                .select('*')
+                .eq('assigned_to', 'JUMAWAN')
+                .order('created_at', { ascending: false });
+
+            if (error) return console.error(error);
+
+            document.getElementById('stat-active').innerText = data.filter(r => r.status !== 'Done').length;
+            document.getElementById('stat-finished').innerText = data.filter(r => r.status === 'Done').length;
+
+            const tbody = document.getElementById('jumawan-work-body');
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 font-medium">Belum ada tugas project untuk Jumawan.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.map(row => {
+                const isDone = row.status === 'Done';
+                let borderClass = row.status === 'In Progress' ? "border-orange-500 text-orange-600 bg-orange-50" : "border-slate-200 text-slate-600";
+
+                return `
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-8 py-6">
+                            <span class="block font-extrabold text-slate-800 uppercase tracking-tight">${row.project_name}</span>
+                            <span class="text-[10px] text-slate-400 font-medium uppercase italic">${row.task_desc || '-'}</span>
+                        </td>
+                        <td class="px-6 py-6 text-center font-mono text-[11px] text-slate-900 font-bold">${row.due_date}</td>
+                        <td class="px-6 py-6 text-center">
+                            ${isDone ? 
+                                `<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 font-black text-[9px] uppercase tracking-widest">FINISHED</span>` : 
+                                `<select 
+                                    onchange="updateStatus('${row.id}', this.value)" 
+                                    class="status-select px-4 py-2 rounded-xl text-[10px] uppercase font-black border-2 transition-all outline-none cursor-pointer ${borderClass}"
+                                >
+                                    <option value="Pending" ${row.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="In Progress" ${row.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                </select>`
+                            }
+                        </td>
+                        <td class="px-6 py-6">
+                            ${isDone ? 
+                                `<p class="text-[11px] text-slate-500 italic font-medium bg-slate-100 p-2 rounded-lg">"${row.worker_comment || 'Tanpa keterangan'}"</p>` : 
+                                `<textarea id="comment-${row.id}" placeholder="Tulis laporan kerja..." class="w-full bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-[11px] focus:bg-white outline-none resize-none transition-all" rows="2"></textarea>`
+                            }
+                        </td>
+                        <td class="px-8 py-6 text-center">
+                            ${isDone ? 
+                                `<span class="text-slate-400 font-bold text-[10px] uppercase tracking-tighter">Done on ${row.actual_finish}</span>` : 
+                                `<button onclick="markAsDone('${row.id}')" class="bg-orange-600 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-lg transition-all transform active:scale-95 shadow-orange-100">Selesaikan</button>`
+                            }
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function updateStatus(id, newStatus) {
+            const { error } = await _sb.from('management_tracker').update({ status: newStatus }).eq('id', id);
+            if (error) alert("Gagal update!"); else fetchJumawanTasks();
+        }
+
+        async function markAsDone(id) {
+            const comment = document.getElementById(`comment-${id}`).value;
+            if (!comment || comment.trim().length < 5) {
+                alert("Harap isi KETERANGAN laporan kerja sebelum menyelesaikan project!");
+                return;
+            }
+            if (!confirm("Konfirmasi: Project ini sudah selesai?")) return;
+            const tglSelesai = new Date().toISOString().split('T')[0];
+            const { error } = await _sb
+                .from('management_tracker')
+                .update({ 
+                    status: 'Done',
+                    actual_finish: tglSelesai,
+                    worker_comment: comment
+                })
+                .eq('id', id);
+
+            if (error) alert("Gagal menyelesaikan!");
+            else {
+                alert("Berhasil! Laporan Jumawan telah diperbarui.");
+                fetchJumawanTasks();
+            }
+        }
+        window.onload = fetchJumawanTasks;
+    </script>
+</body>
+</html>
