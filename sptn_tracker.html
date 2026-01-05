@@ -3,110 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Superintendent Project Tracker - Input Langsung</title>
+    <title>Superintendent Tracker - Premium Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #f8fafc; 
-            padding: 20px; 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f1f5f9; 
         }
-        .table-header {
-            background-color: #001f3f; 
-            color: white;
-            text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
+
+        .gradient-navy {
+            background: linear-gradient(135deg, #001f3f 0%, #003366 100%);
         }
-        input, select {
-            border: 1px solid #cbd5e1;
-            padding: 8px;
-            border-radius: 6px;
-            width: 100%;
-            font-size: 0.85rem;
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        input:focus, select:focus {
+            ring: 2px;
+            ring-color: #3b82f6;
+            border-color: #3b82f6;
             outline: none;
-        }
-        input:focus { border-color: #001f3f; }
-        label {
-            font-size: 0.7rem;
-            font-weight: bold;
-            color: #64748b;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-            display: block;
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen pb-12">
 
-    <div class="max-w-7xl mx-auto">
-        <div class="mb-6 flex justify-between items-center">
-            <h1 class="text-xl font-black text-slate-800 uppercase">Project Tracker</h1>
-            <a href="management_tracker.html" class="bg-slate-700 text-white px-5 py-2 rounded-lg font-bold text-xs uppercase hover:bg-black transition shadow-lg">
+    <div class="gradient-navy w-full pt-12 pb-24 px-8 mb-[-80px] shadow-2xl">
+        <div class="max-w-7xl mx-auto flex justify-between items-end">
+            <div>
+                <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Project Tracker</h1>
+                <p class="text-blue-200 text-sm mt-1 font-medium tracking-wide">Monitoring & Management Pelaksanaan Tugas</p>
+            </div>
+            <a href="management_tracker.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all backdrop-blur-md border border-white/20">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Kembali
             </a>
         </div>
+    </div>
 
-        <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div>
-                    <label>Project</label>
-                    <input type="text" id="in-project" placeholder="Nama Project">
+    <div class="max-w-7xl mx-auto px-8">
+        
+        <div class="glass-card p-8 rounded-3xl shadow-xl mb-10 relative z-10">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-2 h-6 bg-blue-600 rounded-full"></div>
+                <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider">Input Project Baru</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Project Name</label>
+                    <input type="text" id="in-project" placeholder="Nama Mesin / Project" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm transition-all focus:bg-white">
                 </div>
-                <div>
-                    <label>Daftar Tugas</label>
-                    <input type="text" id="in-tugas" placeholder="Jenis Tugas">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Task Description</label>
+                    <input type="text" id="in-tugas" placeholder="Detail Tugas" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm transition-all focus:bg-white">
                 </div>
-                <div>
-                    <label>Assigned To</label>
-                    <input type="text" id="in-name" placeholder="Nama Personil">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Assigned To</label>
+                    <input type="text" id="in-name" placeholder="Nama Personil" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm transition-all focus:bg-white">
                 </div>
-                <div>
-                    <label>Start Date</label>
-                    <input type="date" id="in-start">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Start Date</label>
+                    <input type="date" id="in-start" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm transition-all focus:bg-white">
                 </div>
-                <div>
-                    <label>Due Date</label>
-                    <input type="date" id="in-due">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Due Date</label>
+                    <input type="date" id="in-due" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm transition-all focus:bg-white">
                 </div>
-                <div>
-                    <label>Status</label>
-                    <select id="in-status">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Project Status</label>
+                    <select id="in-status" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm transition-all focus:bg-white">
                         <option value="In Progress">In Progress</option>
                         <option value="Pending">Pending</option>
                         <option value="Done">Done</option>
                     </select>
                 </div>
             </div>
-            <div class="mt-4 flex justify-end">
-                <button onclick="addRow()" class="bg-blue-600 text-white px-8 py-2 rounded-lg font-bold text-xs uppercase hover:bg-blue-800 shadow-md">
-                    Tambah ke Tabel
+            
+            <div class="mt-8 flex justify-end">
+                <button onclick="addRow()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase tracking-widest shadow-lg shadow-blue-200 transition-all hover:-translate-y-1">
+                    Tambah Ke Tabel
                 </button>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="table-header">
-                        <th class="p-4 border-b border-slate-700">Project</th>
-                        <th class="p-4 border-b border-slate-700">Daftar Tugas</th>
-                        <th class="p-4 border-b border-slate-700">Assigned To</th>
-                        <th class="p-4 border-b border-slate-700 text-center">Start Date</th>
-                        <th class="p-4 border-b border-slate-700 text-center">Due Date</th>
-                        <th class="p-4 border-b border-slate-700 text-center">Status</th>
-                        <th class="p-4 border-b border-slate-700 text-center">Over Date</th>
-                    </tr>
-                </thead>
-                <tbody id="project-body" class="text-sm text-slate-700">
-                    </tbody>
-            </table>
+        <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/80 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em] border-b border-slate-100">
+                            <th class="px-8 py-5">Project</th>
+                            <th class="px-6 py-5">Tugas</th>
+                            <th class="px-6 py-5">Personil</th>
+                            <th class="px-6 py-5 text-center">Timeline</th>
+                            <th class="px-6 py-5 text-center">Status</th>
+                            <th class="px-8 py-5 text-center">Over Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="project-body" class="divide-y divide-slate-50">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="empty-state" class="mt-20 text-center">
+            <p class="text-slate-400 text-sm font-medium uppercase tracking-widest italic opacity-50">Belum Ada Data Project Tersimpan</p>
         </div>
     </div>
 
     <script>
         function addRow() {
-            // Ambil data dari kotak ketikan
             const project = document.getElementById('in-project').value;
             const tugas = document.getElementById('in-tugas').value;
             const name = document.getElementById('in-name').value;
@@ -115,42 +126,64 @@
             const status = document.getElementById('in-status').value;
 
             if(!project || !due) {
-                alert("Minimal isi nama Project dan Due Date!");
+                alert("Mohon isi minimal nama Project dan Due Date.");
                 return;
             }
 
-            // Hitung Over Date (Keterlambatan)
-            let overDateText = "-";
+            document.getElementById('empty-state').classList.add('hidden');
+
+            // Hitung Keterlambatan
             const today = new Date();
             const dueDate = new Date(due);
             const diffTime = today - dueDate;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            if (diffDays > 0) {
-                overDateText = `<span class="text-red-600 font-bold">${diffDays} Hari</span>`;
+            
+            let overDateContent;
+            if (status === 'Done') {
+                overDateContent = '<span class="text-slate-400 font-bold text-[10px] tracking-tighter">FINISH</span>';
+            } else if (diffDays > 0) {
+                overDateContent = `<span class="bg-red-50 text-red-600 px-3 py-1 rounded-lg font-bold text-[11px] border border-red-100">${diffDays} HARI</span>`;
             } else {
-                overDateText = `<span class="text-green-600 font-bold">On Time</span>`;
+                overDateContent = '<span class="text-emerald-500 font-bold text-[11px]">ON TIME</span>';
             }
 
-            // Masukkan ke dalam tabel
+            // Badge Warna Status
+            let statusClass = "bg-slate-100 text-slate-600";
+            if(status === 'In Progress') statusClass = "bg-blue-50 text-blue-600 border border-blue-100";
+            if(status === 'Done') statusClass = "bg-emerald-50 text-emerald-600 border border-emerald-100";
+            if(status === 'Pending') statusClass = "bg-amber-50 text-amber-600 border border-amber-100";
+
             const tbody = document.getElementById('project-body');
             const newRow = `
-                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                    <td class="p-4 font-black uppercase">${project}</td>
-                    <td class="p-4 uppercase text-xs text-slate-500">${tugas}</td>
-                    <td class="p-4 font-bold uppercase text-xs">${name}</td>
-                    <td class="p-4 text-center font-mono text-xs">${start}</td>
-                    <td class="p-4 text-center font-mono text-xs">${due}</td>
-                    <td class="p-4 text-center">
-                        <span class="px-2 py-1 rounded bg-slate-100 font-bold text-[10px] uppercase border border-slate-300">${status}</span>
+                <tr class="hover:bg-slate-50/50 transition-colors group">
+                    <td class="px-8 py-6">
+                        <span class="block text-sm font-extrabold text-slate-800 uppercase tracking-tight">${project}</span>
                     </td>
-                    <td class="p-4 text-center text-xs">${overDateText}</td>
+                    <td class="px-6 py-6">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">${tugas || '-'}</span>
+                    </td>
+                    <td class="px-6 py-6">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">${name.charAt(0).toUpperCase()}</div>
+                            <span class="text-xs font-bold text-slate-700 uppercase">${name || '-'}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-6 text-center">
+                        <span class="text-[10px] font-bold text-slate-400 block">${start || '-'}</span>
+                        <span class="text-[10px] font-black text-slate-700 block mt-1">S/D ${due}</span>
+                    </td>
+                    <td class="px-6 py-6 text-center">
+                        <span class="px-4 py-1.5 rounded-full font-extrabold text-[9px] uppercase tracking-wider ${statusClass}">${status}</span>
+                    </td>
+                    <td class="px-8 py-6 text-center">
+                        ${overDateContent}
+                    </td>
                 </tr>
             `;
 
-            tbody.innerHTML += newRow;
+            tbody.insertAdjacentHTML('afterbegin', newRow);
 
-            // Kosongkan kembali form setelah isi
+            // Reset Input
             document.getElementById('in-project').value = "";
             document.getElementById('in-tugas').value = "";
             document.getElementById('in-name').value = "";
