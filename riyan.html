@@ -63,9 +63,8 @@
                             <th class="px-4 py-5 text-center">Due Date</th>
                             <th class="px-4 py-5 text-center">Jam Start</th>
                             <th class="px-4 py-5 text-center">Jam Finish</th>
-                            <th class="px-6 py-5 uppercase text-center">Activity</th>
-                            <th class="px-6 py-5 text-center">Status</th>
-                            <th class="px-8 py-5 text-center">Aksi</th>
+                            <th class="px-6 py-5 uppercase text-center">Activity</th> 
+                            <th class="px-6 py-5 text-center uppercase tracking-widest">Progress</th> <th class="px-8 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="riyan-work-body" class="divide-y divide-slate-50 text-sm">
@@ -105,7 +104,6 @@
                 if(row.priority === 'High') priorityClass = "bg-red-100 text-red-600 border border-red-200";
                 if(row.priority === 'Mid') priorityClass = "bg-blue-100 text-blue-600 border border-blue-200";
 
-                // Logika warna dropdown status
                 let borderClass = "border-slate-200 text-slate-600";
                 if (row.status === 'In Progress') borderClass = "border-blue-500 text-blue-600 bg-blue-50";
                 if (row.status === 'Hold') borderClass = "border-rose-400 text-rose-600 bg-rose-50";
