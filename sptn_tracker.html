@@ -3,32 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Superintendent Tracker - Premium Dashboard</title>
+    <title>Superintendent Tracker - Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #f1f5f9; 
-        }
-
-        .gradient-navy {
-            background: linear-gradient(135deg, #001f3f 0%, #003366 100%);
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        input:focus, select:focus {
-            ring: 2px;
-            ring-color: #3b82f6;
-            border-color: #3b82f6;
-            outline: none;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .gradient-navy { background: linear-gradient(135deg, #001f3f 0%, #003366 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -36,8 +18,8 @@
     <div class="gradient-navy w-full pt-12 pb-24 px-8 mb-[-80px] shadow-2xl">
         <div class="max-w-7xl mx-auto flex justify-between items-end">
             <div>
-                <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Project Tracker</h1>
-                <p class="text-blue-200 text-sm mt-1 font-medium tracking-wide">Monitoring & Management Pelaksanaan Tugas</p>
+                <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Project Management Tracker</h1>
+                <p class="text-blue-200 text-sm mt-1 font-medium tracking-wide">Monitoring & Management Pelaksanaan Tugas Internal</p>
             </div>
             <a href="management_tracker.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all backdrop-blur-md border border-white/20">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -57,27 +39,27 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Project Name</label>
-                    <input type="text" id="in-project" placeholder="Nama Mesin / Project" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm transition-all focus:bg-white">
+                    <input type="text" id="in-project" placeholder="Nama Project" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none">
                 </div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Task Description</label>
-                    <input type="text" id="in-tugas" placeholder="Detail Tugas" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm transition-all focus:bg-white">
+                    <input type="text" id="in-tugas" placeholder="Detail Tugas" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none">
                 </div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Assigned To</label>
-                    <input type="text" id="in-name" placeholder="Nama Personil" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm transition-all focus:bg-white">
+                    <input type="text" id="in-name" placeholder="Nama Personil" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none">
                 </div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Start Date</label>
-                    <input type="date" id="in-start" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm transition-all focus:bg-white">
+                    <input type="date" id="in-start" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none">
                 </div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Due Date</label>
-                    <input type="date" id="in-due" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm transition-all focus:bg-white">
+                    <input type="date" id="in-due" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none">
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Project Status</label>
-                    <select id="in-status" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm transition-all focus:bg-white">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Status</label>
+                    <select id="in-status" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm focus:bg-white outline-none">
                         <option value="In Progress">In Progress</option>
                         <option value="Pending">Pending</option>
                         <option value="Done">Done</option>
@@ -86,8 +68,8 @@
             </div>
             
             <div class="mt-8 flex justify-end">
-                <button onclick="addRow()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase tracking-widest shadow-lg shadow-blue-200 transition-all hover:-translate-y-1">
-                    Tambah Ke Tabel
+                <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase tracking-widest shadow-lg shadow-blue-200 transition-all hover:-translate-y-1">
+                    Simpan Project
                 </button>
             </div>
         </div>
@@ -105,19 +87,21 @@
                             <th class="px-8 py-5 text-center">Over Date</th>
                         </tr>
                     </thead>
-                    <tbody id="project-body" class="divide-y divide-slate-50">
+                    <tbody id="project-body" class="divide-y divide-slate-50 text-sm">
                         </tbody>
                 </table>
             </div>
         </div>
-        
-        <div id="empty-state" class="mt-20 text-center">
-            <p class="text-slate-400 text-sm font-medium uppercase tracking-widest italic opacity-50">Belum Ada Data Project Tersimpan</p>
-        </div>
     </div>
 
     <script>
-        function addRow() {
+        // Konfigurasi Supabase
+        const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
+        const _sb = supabase.createClient(SB_URL, SB_KEY);
+
+        // Fungsi Simpan Data Baru
+        async function saveToDatabase() {
             const project = document.getElementById('in-project').value;
             const tugas = document.getElementById('in-tugas').value;
             const name = document.getElementById('in-name').value;
@@ -125,69 +109,73 @@
             const due = document.getElementById('in-due').value;
             const status = document.getElementById('in-status').value;
 
-            if(!project || !due) {
-                alert("Mohon isi minimal nama Project dan Due Date.");
-                return;
+            if(!project || !due) return alert("Nama Project dan Due Date wajib diisi!");
+
+            const { data, error } = await _sb
+                .from('management_tracker') // Mengarah ke tabel baru
+                .insert([{ 
+                    project_name: project, 
+                    task_desc: tugas, 
+                    assigned_to: name, 
+                    start_date: start, 
+                    due_date: due, 
+                    status: status 
+                }]);
+
+            if (error) alert("Error: " + error.message);
+            else {
+                alert("Project Berhasil Disimpan!");
+                fetchProjectData(); // Refresh tabel
+                // Reset Input
+                document.getElementById('in-project').value = "";
+                document.getElementById('in-tugas').value = "";
+                document.getElementById('in-name').value = "";
             }
+        }
 
-            document.getElementById('empty-state').classList.add('hidden');
+        // Fungsi Ambil Data
+        async function fetchProjectData() {
+            const { data, error } = await _sb
+                .from('management_tracker')
+                .select('*')
+                .order('created_at', { ascending: false });
 
-            // Hitung Keterlambatan
-            const today = new Date();
-            const dueDate = new Date(due);
-            const diffTime = today - dueDate;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            let overDateContent;
-            if (status === 'Done') {
-                overDateContent = '<span class="text-slate-400 font-bold text-[10px] tracking-tighter">FINISH</span>';
-            } else if (diffDays > 0) {
-                overDateContent = `<span class="bg-red-50 text-red-600 px-3 py-1 rounded-lg font-bold text-[11px] border border-red-100">${diffDays} HARI</span>`;
-            } else {
-                overDateContent = '<span class="text-emerald-500 font-bold text-[11px]">ON TIME</span>';
-            }
-
-            // Badge Warna Status
-            let statusClass = "bg-slate-100 text-slate-600";
-            if(status === 'In Progress') statusClass = "bg-blue-50 text-blue-600 border border-blue-100";
-            if(status === 'Done') statusClass = "bg-emerald-50 text-emerald-600 border border-emerald-100";
-            if(status === 'Pending') statusClass = "bg-amber-50 text-amber-600 border border-amber-100";
+            if (error) return console.error(error);
 
             const tbody = document.getElementById('project-body');
-            const newRow = `
-                <tr class="hover:bg-slate-50/50 transition-colors group">
-                    <td class="px-8 py-6">
-                        <span class="block text-sm font-extrabold text-slate-800 uppercase tracking-tight">${project}</span>
-                    </td>
-                    <td class="px-6 py-6">
-                        <span class="text-xs font-semibold text-slate-500 uppercase">${tugas || '-'}</span>
-                    </td>
-                    <td class="px-6 py-6">
-                        <div class="flex items-center gap-2">
-                            <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">${name.charAt(0).toUpperCase()}</div>
-                            <span class="text-xs font-bold text-slate-700 uppercase">${name || '-'}</span>
-                        </div>
-                    </td>
-                    <td class="px-6 py-6 text-center">
-                        <span class="text-[10px] font-bold text-slate-400 block">${start || '-'}</span>
-                        <span class="text-[10px] font-black text-slate-700 block mt-1">S/D ${due}</span>
-                    </td>
-                    <td class="px-6 py-6 text-center">
-                        <span class="px-4 py-1.5 rounded-full font-extrabold text-[9px] uppercase tracking-wider ${statusClass}">${status}</span>
-                    </td>
-                    <td class="px-8 py-6 text-center">
-                        ${overDateContent}
-                    </td>
-                </tr>
-            `;
+            tbody.innerHTML = data.map(row => {
+                const today = new Date();
+                const dueDate = new Date(row.due_date);
+                const diffDays = Math.ceil((today - dueDate) / (1000 * 60 * 60 * 24));
+                
+                let overDateContent = '<span class="text-emerald-500 font-bold text-[11px]">ON TIME</span>';
+                if (row.status === 'Done') overDateContent = '<span class="text-slate-400 font-bold text-[10px]">FINISH</span>';
+                else if (diffDays > 0) overDateContent = `<span class="bg-red-50 text-red-600 px-3 py-1 rounded-lg font-bold text-[11px]">${diffDays} HARI</span>`;
 
-            tbody.insertAdjacentHTML('afterbegin', newRow);
+                let statusClass = "bg-blue-50 text-blue-600 border border-blue-100";
+                if(row.status === 'Done') statusClass = "bg-emerald-50 text-emerald-600 border border-emerald-100";
+                if(row.status === 'Pending') statusClass = "bg-amber-50 text-amber-600 border border-amber-100";
 
-            // Reset Input
-            document.getElementById('in-project').value = "";
-            document.getElementById('in-tugas').value = "";
-            document.getElementById('in-name').value = "";
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-8 py-6 font-extrabold text-slate-800 uppercase tracking-tight">${row.project_name}</td>
+                        <td class="px-6 py-6 text-xs font-semibold text-slate-500 uppercase">${row.task_desc || '-'}</td>
+                        <td class="px-6 py-6 font-bold text-slate-700 uppercase text-xs">${row.assigned_to || '-'}</td>
+                        <td class="px-6 py-6 text-center">
+                            <span class="text-[10px] font-bold text-slate-400 block">${row.start_date || '-'}</span>
+                            <span class="text-[10px] font-black text-slate-700 block mt-1">S/D ${row.due_date}</span>
+                        </td>
+                        <td class="px-6 py-6 text-center">
+                            <span class="px-4 py-1.5 rounded-full font-extrabold text-[9px] uppercase tracking-wider ${statusClass}">${row.status}</span>
+                        </td>
+                        <td class="px-8 py-6 text-center">${overDateContent}</td>
+                    </tr>
+                `;
+            }).join('');
         }
+
+        // Jalankan saat halaman dibuka
+        window.onload = fetchProjectData;
     </script>
 </body>
 </html>
