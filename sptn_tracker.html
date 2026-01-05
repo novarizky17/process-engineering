@@ -16,10 +16,10 @@
 <body class="min-h-screen pb-12">
 
     <div class="gradient-navy w-full pt-12 pb-24 px-8 mb-[-80px] shadow-2xl">
-        <div class="max-w-7xl mx-auto flex justify-between items-end">
+        <div class="max-w-[98%] mx-auto flex justify-between items-end">
             <div>
                 <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Project Assignment</h1>
-                <p class="text-blue-200 text-sm mt-1 font-medium tracking-wide">Pemberian Tugas dan Penetapan Target Due Date</p>
+                <p class="text-blue-200 text-sm mt-1 font-medium tracking-wide">Pemberian Tugas dan Monitoring Keterangan Hold</p>
             </div>
             <a href="management_tracker.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all backdrop-blur-md border border-white/20">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-8">
+    <div class="max-w-[98%] mx-auto px-8">
         
         <div class="glass-card p-8 rounded-3xl shadow-xl mb-10 relative z-10">
             <div class="flex items-center gap-3 mb-6">
@@ -89,8 +89,8 @@
                             <th class="px-4 py-5 text-center">Priority</th>
                             <th class="px-6 py-5 text-center">Assigned To</th>
                             <th class="px-6 py-5 text-center">Timeline</th>
-                            <th class="px-6 py-5 text-center">Status</th>
-                            <th class="px-8 py-5 text-center">Over Date</th>
+                            <th class="px-6 py-5 text-center">Progress</th>
+                            <th class="px-8 py-5">Keterangan (Hold Reason)</th> <th class="px-8 py-5 text-center">Over Date</th>
                             <th class="px-4 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -120,10 +120,10 @@
                 project_name: project, 
                 task_desc: tugas, 
                 assigned_to: name, 
-                priority: priority, // MENYIMPAN PRIORITY
+                priority: priority,
                 start_date: start, 
                 due_date: due,
-                status: 'Waiting Progress'
+                status: 'Pending'
             }]);
 
             if (error) alert(error.message);
@@ -164,14 +164,14 @@
                         '<span class="text-slate-300 font-medium italic">Monitoring...</span>';
                 }
 
-                // Styling Priority Badge
                 let priorityClass = "bg-slate-100 text-slate-500";
                 if(row.priority === 'High') priorityClass = "bg-red-100 text-red-600 border border-red-200";
                 if(row.priority === 'Mid') priorityClass = "bg-blue-100 text-blue-600 border border-blue-200";
 
                 let statusClass = "bg-slate-100 text-slate-400 border border-slate-200";
                 if(row.status === 'Done') statusClass = "bg-emerald-50 text-emerald-600 border-emerald-100";
-                if(row.status === 'In Progress') statusClass = "bg-orange-50 text-orange-600 border-orange-100";
+                if(row.status === 'In Progress') statusClass = "bg-blue-50 text-blue-600 border-blue-100";
+                if(row.status === 'Hold') statusClass = "bg-rose-50 text-rose-600 border-rose-100";
 
                 return `
                     <tr class="hover:bg-slate-50 transition-colors">
@@ -187,6 +187,12 @@
                         </td>
                         <td class="px-6 py-6 text-center">
                             <span class="px-3 py-1 rounded-full font-extrabold text-[9px] uppercase tracking-wider border ${statusClass}">${row.status}</span>
+                        </td>
+                        <td class="px-8 py-6">
+                            ${row.status === 'Hold' ? 
+                                `<p class="text-[11px] text-rose-600 font-bold leading-relaxed bg-rose-50 p-2 rounded-lg border border-rose-100 italic">"${row.hold_reason || 'Belum mengisi alasan hold'}"</p>` : 
+                                `<span class="text-slate-300 text-[10px] italic">No Hold</span>`
+                            }
                         </td>
                         <td class="px-8 py-6 text-center text-xs font-bold">${overDateContent}</td>
                         <td class="px-4 py-6 text-center">
