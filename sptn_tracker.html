@@ -3,56 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Superintendent Project Tracker - Input Manual</title>
+    <title>Project Summary Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f8fafc; padding: 20px; }
-        .bg-navy { background-color: #001f3f; }
-        input, select { border: 1px solid #cbd5e1; padding: 8px; border-radius: 6px; width: 100%; font-size: 0.85rem; text-transform: uppercase; }
-        label { font-size: 0.75rem; font-weight: bold; color: #475569; margin-bottom: 4px; display: block; }
         .status-badge { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; border: 1px solid; }
+        /* Animasi untuk status terlambat */
+        .overdue-alert { color: #dc2626; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-black text-slate-900 uppercase">Project Management Tracker</h1>
-            <a href="management_tracker.html" class="bg-slate-600 text-white px-4 py-2 rounded text-xs font-bold uppercase hover:bg-black transition">Kembali</a>
-        </div>
-
-        <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-8">
-            <h2 class="text-sm font-black text-navy uppercase mb-4 border-b pb-2">Tambah Project / Tugas Baru</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                <div>
-                    <label>Project / Nama Mesin</label>
-                    <input type="text" id="in-mesin" placeholder="Contoh: HYDRAULIC PUMP">
-                </div>
-                <div>
-                    <label>Daftar Tugas</label>
-                    <select id="in-job">
-                        <option value="PERAWATAN">PERAWATAN</option>
-                        <option value="OVERHAUL">OVERHAUL</option>
-                        <option value="REPAIR">REPAIR</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Assigned To (Personil)</label>
-                    <input type="text" id="in-eng" placeholder="Nama Engineer">
-                </div>
-                <div>
-                    <label>Start Date</label>
-                    <input type="date" id="in-start">
-                </div>
-                <div>
-                    <label>Due Date</label>
-                    <input type="date" id="in-due">
-                </div>
-            </div>
-            <div class="mt-4 flex justify-end">
-                <button onclick="saveProject()" class="bg-navy text-white px-8 py-2 rounded-lg font-bold text-xs uppercase hover:opacity-90 shadow-lg">Simpan ke Database</button>
-            </div>
+        <div class="mb-4 flex justify-end">
+            <a href="management_tracker.html" class="bg-slate-600 text-white px-4 py-1.5 rounded text-[10px] font-bold uppercase hover:bg-black transition shadow-sm">
+                Kembali ke Dashboard
+            </a>
         </div>
 
         <div class="bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden">
@@ -70,7 +37,10 @@
                         </tr>
                     </thead>
                     <tbody id="project-body" class="text-sm">
-                        </tbody>
+                        <tr>
+                            <td colspan="7" class="p-10 text-center text-slate-400 italic">Memuat data dari server...</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -81,54 +51,56 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        // FUNGSI SIMPAN MANUAL
-        async function saveProject() {
-            const mesin = document.getElementById('in-mesin').value;
-            const job = document.getElementById('in-job').value;
-            const eng = document.getElementById('in-eng').value;
-            const start = document.getElementById('in-start').value;
-            const due = document.getElementById('in-due').value;
-
-            if(!mesin || !eng || !due) return alert("Mohon isi Nama Mesin, Personil, dan Due Date!");
-
-            const { error } = await _sb.from('laporan_maintenance').insert([{
-                nama_mesin: mesin,
-                job_type: job,
-                engineer_name: eng,
-                jam_mulai: start,
-                jam_selesai: due,
-                status: 'Pending'
-            }]);
-
-            if (error) alert("Gagal simpan: " + error.message);
-            else {
-                alert("Project Berhasil Ditambahkan!");
-                location.reload(); // Refresh untuk update tabel
-            }
-        }
-
+        // Fungsi menghitung keterlambatan berdasarkan tanggal hari ini
         function calculateOverdue(dueDate) {
             if (!dueDate) return "-";
             const due = new Date(dueDate);
             const today = new Date();
-            const diffDays = Math.ceil((today - due) / (1000 * 60 * 60 * 24));
-            return diffDays > 0 ? `<span class="text-red-600 font-bold">${diffDays} Hari</span>` : `<span class="text-green-600 font-bold">On Time</span>`;
+            const diffTime = today - due;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays > 0) {
+                return `<span class="overdue-alert">${diffDays} Hari</span>`;
+            }
+            return `<span class="text-green-600 font-bold">On Time</span>`;
         }
 
         async function fetchProjectData() {
-            const { data } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
+            const { data, error } = await _sb
+                .from('laporan_maintenance')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                return;
+            }
+
             const tbody = document.getElementById('project-body');
-            tbody.innerHTML = data.map(row => `
-                <tr class="border-b border-slate-100 hover:bg-blue-50 transition">
-                    <td class="p-4 font-black uppercase text-slate-800">${row.nama_mesin}</td>
-                    <td class="p-4 text-[10px] font-bold text-slate-500 uppercase">${row.job_type}</td>
-                    <td class="p-4 font-bold uppercase text-xs">${row.engineer_name}</td>
-                    <td class="p-4 text-center font-mono text-xs">${row.jam_mulai || '-'}</td>
-                    <td class="p-4 text-center font-mono text-xs">${row.jam_selesai || '-'}</td>
-                    <td class="p-4 text-center"><span class="status-badge ${row.status === 'Approved' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'}">${row.status}</span></td>
-                    <td class="p-4 text-center text-xs">${row.status !== 'Approved' ? calculateOverdue(row.jam_selesai) : 'SELESAI'}</td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = data.map(row => {
+                // Formatting tanggal agar lebih bersih
+                const start = row.jam_mulai ? new Date(row.jam_mulai).toLocaleDateString('id-ID') : '-';
+                const due = row.jam_selesai ? new Date(row.jam_selesai).toLocaleDateString('id-ID') : '-';
+
+                return `
+                    <tr class="border-b border-slate-100 hover:bg-blue-50/50 transition">
+                        <td class="p-4 font-black uppercase text-slate-800 tracking-tight">${row.nama_mesin || 'N/A'}</td>
+                        <td class="p-4 text-[10px] font-bold text-slate-500 uppercase">${row.job_type || 'GENERAL'}</td>
+                        <td class="p-4 font-bold uppercase text-xs text-slate-700">${row.engineer_name || '-'}</td>
+                        <td class="p-4 text-center font-mono text-xs text-slate-500">${start}</td>
+                        <td class="p-4 text-center font-mono text-xs text-slate-500">${due}</td>
+                        <td class="p-4 text-center">
+                            <span class="status-badge ${
+                                row.status === 'Approved' ? 'bg-green-50 text-green-700 border-green-200' : 
+                                'bg-amber-50 text-amber-700 border-amber-200'
+                            }">${row.status || 'PENDING'}</span>
+                        </td>
+                        <td class="p-4 text-center text-xs">
+                            ${row.status === 'Approved' ? '<span class="text-slate-400">SELESAI</span>' : calculateOverdue(row.jam_selesai)}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         window.onload = fetchProjectData;
