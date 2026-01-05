@@ -27,7 +27,7 @@
                 <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-black text-white backdrop-blur-md border border-white/30 uppercase">R</div>
                 <div>
                     <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Panel Kerja Riyan</h1>
-                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Pencatatan Jam, Activity & Progress Lapangan</p>
+                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Pencatatan Jam, Activity & Keterangan Hold</p>
                 </div>
             </div>
             <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all border border-white/20"> Kembali </a>
@@ -60,9 +60,10 @@
                             <th class="px-4 py-5 text-center">Start</th>
                             <th class="px-4 py-5 text-center">Finish</th>
                             <th class="px-6 py-5">Activity</th>
-                            <th class="px-4 py-5 text-center">Progress</th>
+                            <th class="px-4 py-5 text-center uppercase tracking-widest">Progress</th>
                             <th class="px-6 py-5">Keterangan (Hold)</th>
-                            <th class="px-6 py-5 text-center">Status</th> </tr>
+                            <th class="px-6 py-5 text-center uppercase tracking-widest">Status</th>
+                        </tr>
                     </thead>
                     <tbody id="riyan-work-body" class="divide-y divide-slate-50 text-sm"></tbody>
                 </table>
@@ -77,7 +78,7 @@
 
         async function fetchRiyanTasks() {
             const { data, error } = await _sb.from('management_tracker').select('*').eq('assigned_to', 'RIYAN').order('created_at', { ascending: false });
-            if (error) return;
+            if (error) return console.error(error);
 
             document.getElementById('stat-active').innerText = data.filter(r => r.status !== 'Done').length;
             document.getElementById('stat-finished').innerText = data.filter(r => r.status === 'Done').length;
@@ -98,12 +99,12 @@
                         
                         <td class="px-4 py-6 text-center">
                             ${isDone ? `<span class="text-[11px] font-bold text-slate-700">${row.work_start_time || '--:--'}</span>` : 
-                            `<input type="time" id="start-time-${row.id}" value="${row.work_start_time || ''}" class="bg-white border rounded p-1.5 text-xs outline-none focus:border-blue-500 shadow-sm font-bold">`}
+                            `<input type="time" id="start-time-${row.id}" value="${row.work_start_time || ''}" class="bg-white border rounded p-1.5 text-xs outline-none focus:border-blue-500 font-bold shadow-sm">`}
                         </td>
 
                         <td class="px-4 py-6 text-center">
                             ${isDone ? `<span class="text-[11px] font-bold text-emerald-600">${row.work_end_time || '--:--'}</span>` : 
-                            `<input type="time" id="end-time-${row.id}" value="${row.work_end_time || ''}" class="bg-white border rounded p-1.5 text-xs outline-none focus:border-blue-500 shadow-sm font-bold">`}
+                            `<input type="time" id="end-time-${row.id}" value="${row.work_end_time || ''}" class="bg-white border rounded p-1.5 text-xs outline-none focus:border-blue-500 font-bold shadow-sm">`}
                         </td>
 
                         <td class="px-6 py-6">
@@ -122,7 +123,7 @@
 
                         <td class="px-6 py-6">
                             ${isDone ? `<p class="text-[11px] text-rose-500 font-medium max-w-[150px] italic">${row.hold_reason || '-'}</p>` : 
-                            `<textarea id="hold-reason-${row.id}" placeholder="Alasan jika Hold..." class="w-full bg-white border ${isHold ? 'border-rose-300 bg-rose-50' : 'border-slate-200'} p-2 rounded-lg text-[11px] outline-none resize-none shadow-inner" rows="2">${row.hold_reason || ''}</textarea>`}
+                            `<textarea id="hold-reason-${row.id}" placeholder="Alasan Hold..." class="w-full bg-white border ${isHold ? 'border-rose-300 bg-rose-50' : 'border-slate-200'} p-2 rounded-lg text-[11px] outline-none resize-none shadow-inner" rows="2">${row.hold_reason || ''}</textarea>`}
                         </td>
 
                         <td class="px-6 py-6 text-center">
@@ -134,35 +135,49 @@
             }).join('');
         }
 
+        // Fungsi Update Otomatis saat ganti Progress atau pencet Update
         async function updateStatusOnly(id, newStatus) {
             const comment = document.getElementById(`comment-${id}`).value;
             const holdReason = document.getElementById(`hold-reason-${id}`).value;
-            const { error } = await _sb.from('management_tracker').update({ 
-                status: newStatus, 
-                worker_comment: comment || '-',
-                hold_reason: holdReason || null 
-            }).eq('id', id);
-            if (!error) fetchRiyanTasks();
+            const sTime = document.getElementById(`start-time-${id}`).value;
+            const eTime = document.getElementById(`end-time-${id}`).value;
+
+            const { error } = await _sb.from('management_tracker')
+                .update({ 
+                    status: newStatus, 
+                    worker_comment: comment || '-',
+                    hold_reason: holdReason || null,
+                    work_start_time: sTime || null,
+                    work_end_time: eTime || null
+                })
+                .eq('id', id);
+
+            if (error) alert("Gagal Simpan: " + error.message);
+            else fetchRiyanTasks();
         }
 
         async function markAsDone(id) {
             const comment = document.getElementById(`comment-${id}`).value;
             const holdReason = document.getElementById(`hold-reason-${id}`).value;
-            const startTime = document.getElementById(`start-time-${id}`).value;
-            const endTime = document.getElementById(`end-time-${id}`).value;
+            const sTime = document.getElementById(`start-time-${id}`).value;
+            const eTime = document.getElementById(`end-time-${id}`).value;
 
-            if (!startTime || !endTime) return alert("Mohon isi jam Start & Finish!");
-            if (!confirm("Tandai project sebagai selesai?")) return;
+            if (!sTime || !eTime) return alert("Mohon isi jam Start & Finish!");
+            if (!confirm("Konfirmasi selesai project?")) return;
 
-            const { error } = await _sb.from('management_tracker').update({ 
-                status: 'Done', 
-                actual_finish: new Date().toISOString().split('T')[0], 
-                worker_comment: comment || '-', 
-                hold_reason: holdReason || null,
-                work_start_time: startTime, 
-                work_end_time: endTime 
-            }).eq('id', id);
-            if (!error) {
+            const { error } = await _sb.from('management_tracker')
+                .update({ 
+                    status: 'Done', 
+                    actual_finish: new Date().toISOString().split('T')[0], 
+                    worker_comment: comment || '-', 
+                    hold_reason: holdReason || null,
+                    work_start_time: sTime, 
+                    work_end_time: eTime 
+                })
+                .eq('id', id);
+
+            if (error) alert("Gagal menyimpan!");
+            else {
                 alert("Berhasil diperbarui!");
                 fetchRiyanTasks();
             }
