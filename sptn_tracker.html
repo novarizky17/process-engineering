@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Superintendent Project Tracker - Manual</title>
+    <title>Superintendent Project Tracker - Input Langsung</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { 
@@ -12,28 +12,77 @@
             padding: 20px; 
         }
         .table-header {
-            background-color: #001f3f; /* Navy Dark */
+            background-color: #001f3f; 
             color: white;
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 0.05em;
         }
-        .status-badge {
-            padding: 2px 10px;
-            border-radius: 4px;
-            font-weight: 800;
+        input, select {
+            border: 1px solid #cbd5e1;
+            padding: 8px;
+            border-radius: 6px;
+            width: 100%;
+            font-size: 0.85rem;
+            outline: none;
+        }
+        input:focus { border-color: #001f3f; }
+        label {
             font-size: 0.7rem;
+            font-weight: bold;
+            color: #64748b;
             text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
         }
     </style>
 </head>
 <body>
 
-    <div class="max-w-full mx-auto">
-        <div class="mb-6 flex justify-end">
+    <div class="max-w-7xl mx-auto">
+        <div class="mb-6 flex justify-between items-center">
+            <h1 class="text-xl font-black text-slate-800 uppercase">Project Tracker</h1>
             <a href="management_tracker.html" class="bg-slate-700 text-white px-5 py-2 rounded-lg font-bold text-xs uppercase hover:bg-black transition shadow-lg">
-                Kembali ke Dashboard
+                Kembali
             </a>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div>
+                    <label>Project</label>
+                    <input type="text" id="in-project" placeholder="Nama Project">
+                </div>
+                <div>
+                    <label>Daftar Tugas</label>
+                    <input type="text" id="in-tugas" placeholder="Jenis Tugas">
+                </div>
+                <div>
+                    <label>Assigned To</label>
+                    <input type="text" id="in-name" placeholder="Nama Personil">
+                </div>
+                <div>
+                    <label>Start Date</label>
+                    <input type="date" id="in-start">
+                </div>
+                <div>
+                    <label>Due Date</label>
+                    <input type="date" id="in-due">
+                </div>
+                <div>
+                    <label>Status</label>
+                    <select id="in-status">
+                        <option value="In Progress">In Progress</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Done">Done</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button onclick="addRow()" class="bg-blue-600 text-white px-8 py-2 rounded-lg font-bold text-xs uppercase hover:bg-blue-800 shadow-md">
+                    Tambah ke Tabel
+                </button>
+            </div>
         </div>
 
         <div class="bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
@@ -49,38 +98,63 @@
                         <th class="p-4 border-b border-slate-700 text-center">Over Date</th>
                     </tr>
                 </thead>
-                <tbody class="text-sm text-slate-700">
-                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-                        <td class="p-4 font-black uppercase">Nama Project Anda</td>
-                        <td class="p-4 font-medium uppercase text-xs text-slate-500">Jenis Pekerjaan</td>
-                        <td class="p-4 font-bold uppercase text-xs">Nama Personil</td>
-                        <td class="p-4 text-center font-mono text-xs">01/01/2026</td>
-                        <td class="p-4 text-center font-mono text-xs">05/01/2026</td>
-                        <td class="p-4 text-center">
-                            <span class="status-badge bg-amber-100 text-amber-700 border border-amber-300">In Progress</span>
-                        </td>
-                        <td class="p-4 text-center font-bold text-red-600">-</td>
-                    </tr>
-
-                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition font-italic">
-                        <td class="p-4 text-slate-300 italic">(Ketik Project)</td>
-                        <td class="p-4 text-slate-300 italic">(Ketik Tugas)</td>
-                        <td class="p-4 text-slate-300 italic">(Ketik Nama)</td>
-                        <td class="p-4 text-center text-slate-300">-</td>
-                        <td class="p-4 text-center text-slate-300">-</td>
-                        <td class="p-4 text-center text-slate-300">-</td>
-                        <td class="p-4 text-center text-slate-300">-</td>
-                    </tr>
-                </tbody>
+                <tbody id="project-body" class="text-sm text-slate-700">
+                    </tbody>
             </table>
-        </div>
-
-        <div class="mt-4 text-center">
-            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest italic">
-                Halaman ini bersifat manual. Untuk mengubah data, silakan edit langsung pada file HTML.
-            </p>
         </div>
     </div>
 
+    <script>
+        function addRow() {
+            // Ambil data dari kotak ketikan
+            const project = document.getElementById('in-project').value;
+            const tugas = document.getElementById('in-tugas').value;
+            const name = document.getElementById('in-name').value;
+            const start = document.getElementById('in-start').value;
+            const due = document.getElementById('in-due').value;
+            const status = document.getElementById('in-status').value;
+
+            if(!project || !due) {
+                alert("Minimal isi nama Project dan Due Date!");
+                return;
+            }
+
+            // Hitung Over Date (Keterlambatan)
+            let overDateText = "-";
+            const today = new Date();
+            const dueDate = new Date(due);
+            const diffTime = today - dueDate;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 0) {
+                overDateText = `<span class="text-red-600 font-bold">${diffDays} Hari</span>`;
+            } else {
+                overDateText = `<span class="text-green-600 font-bold">On Time</span>`;
+            }
+
+            // Masukkan ke dalam tabel
+            const tbody = document.getElementById('project-body');
+            const newRow = `
+                <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                    <td class="p-4 font-black uppercase">${project}</td>
+                    <td class="p-4 uppercase text-xs text-slate-500">${tugas}</td>
+                    <td class="p-4 font-bold uppercase text-xs">${name}</td>
+                    <td class="p-4 text-center font-mono text-xs">${start}</td>
+                    <td class="p-4 text-center font-mono text-xs">${due}</td>
+                    <td class="p-4 text-center">
+                        <span class="px-2 py-1 rounded bg-slate-100 font-bold text-[10px] uppercase border border-slate-300">${status}</span>
+                    </td>
+                    <td class="p-4 text-center text-xs">${overDateText}</td>
+                </tr>
+            `;
+
+            tbody.innerHTML += newRow;
+
+            // Kosongkan kembali form setelah isi
+            document.getElementById('in-project').value = "";
+            document.getElementById('in-tugas').value = "";
+            document.getElementById('in-name').value = "";
+        }
+    </script>
 </body>
 </html>
