@@ -63,12 +63,8 @@
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To</label>
                     <select id="in-name" class="edit-input !p-3 !text-sm">
                         <option value="">Pilih Personil</option>
-                        <option value="RYAN">RYAN</option>
-                        <option value="ISQI">ISQI</option>
-                        <option value="JUMAWAN">JUMAWAN</option>
-                        <option value="EKO">EKO</option>
-                        <option value="TATA">TATA</option>
-                        <option value="BAROK">BAROK</option>
+                        <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option>
+                        <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
                     </select>
                 </div>
                 <div class="space-y-2">
@@ -85,9 +81,25 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-4 mb-6">
-            <div class="flex-grow relative">
-                <input type="text" id="search-input" oninput="filterTable()" placeholder="Cari berdasarkan nama project atau tugas..." class="w-full bg-white border border-slate-200 pl-4 pr-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="relative">
+                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Cari Project / Tugas</label>
+                <input type="text" id="search-input" oninput="filterTable()" placeholder="Ketik nama project..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Filter Personil</label>
+                <select id="filter-personil" onchange="filterTable()" class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm">
+                    <option value="">Semua Personil</option>
+                    <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option>
+                    <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Filter Priority</label>
+                <select id="filter-priority" onchange="filterTable()" class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm">
+                    <option value="">Semua Priority</option>
+                    <option value="Low">Low</option><option value="Mid">Mid</option><option value="High">High</option>
+                </select>
             </div>
         </div>
 
@@ -131,12 +143,8 @@
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Assigned To</label>
                     <select id="rev-name" class="edit-input font-bold">
-                        <option value="RYAN">RYAN</option>
-                        <option value="ISQI">ISQI</option>
-                        <option value="JUMAWAN">JUMAWAN</option>
-                        <option value="EKO">EKO</option>
-                        <option value="TATA">TATA</option>
-                        <option value="BAROK">BAROK</option>
+                        <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option>
+                        <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
                     </select>
                 </div>
                 <div>
@@ -159,7 +167,7 @@
             </div>
 
             <div class="flex gap-3 mt-8">
-                <button onclick="updateData()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold uppercase text-xs transition-all">Simpan Perubahan</button>
+                <button onclick="updateData()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold uppercase text-xs transition-all active:scale-95">Simpan Perubahan</button>
                 <button onclick="deleteDataInModal()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-6 rounded-xl border border-rose-100 font-bold text-xs uppercase">Hapus</button>
             </div>
         </div>
@@ -207,12 +215,20 @@
             }).join('');
         }
 
+        // FUNGSI FILTER MULTI-KRITERIA (SEARCH + PERSONIL + PRIORITY)
         function filterTable() {
             const query = document.getElementById('search-input').value.toLowerCase();
-            const filtered = allData.filter(item => 
-                item.project_name.toLowerCase().includes(query) || 
-                (item.task_desc && item.task_desc.toLowerCase().includes(query))
-            );
+            const personil = document.getElementById('filter-personil').value;
+            const priority = document.getElementById('filter-priority').value;
+
+            const filtered = allData.filter(item => {
+                const matchesSearch = item.project_name.toLowerCase().includes(query) || 
+                                     (item.task_desc && item.task_desc.toLowerCase().includes(query));
+                const matchesPersonil = personil === "" || item.assigned_to === personil;
+                const matchesPriority = priority === "" || item.priority === priority;
+
+                return matchesSearch && matchesPersonil && matchesPriority;
+            });
             renderTable(filtered);
         }
 
