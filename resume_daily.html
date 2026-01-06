@@ -25,6 +25,7 @@
         .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); }
         .modal-content { background: white; margin: 3% auto; padding: 0; border-radius: 24px; width: 95%; max-width: 600px; overflow: hidden; animation: slideIn 0.3s; }
+        @keyframes slideIn { from {transform: translateY(-30px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -70,18 +71,18 @@
             </div>
         </section>
 
-        <section class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <select id="filter-user" onchange="applyFilters()" class="bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-orange-500">
+        <section class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
                 <option value="">-- Semua Personil --</option>
                 <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option>
                 <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
             </select>
-            <select id="filter-status" onchange="applyFilters()" class="bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl font-bold outline-none focus:ring-2 focus:ring-orange-500">
+            <select id="filter-status" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
                 <option value="">-- Semua Status --</option>
                 <option value="Pending">Pending</option><option value="In Progress">In Progress</option>
                 <option value="Hold">Hold</option><option value="Done">Done</option>
             </select>
-            <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Project atau Tugas..." class="bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl outline-none focus:ring-2 focus:ring-orange-500">
+            <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Project atau Tugas..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
         </section>
 
         <section class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden text-sm text-nowrap">
@@ -100,6 +101,30 @@
             </div>
         </section>
     </main>
+
+    <div id="detailModal" class="modal">
+        <div class="modal-content shadow-2xl">
+            <div class="bg-slate-900 p-6 text-white flex justify-between items-center">
+                <div><h2 class="text-lg font-black uppercase">Detail Laporan</h2><p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p></div>
+                <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl ml-4">&times;</button>
+            </div>
+            <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto text-sm">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Personil</label><p id="det-pic" class="text-sm font-black text-slate-800"></p></div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Priority</label><p id="det-priority" class="text-[11px] font-black uppercase"></p></div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Status</label><p id="det-status" class="text-[11px] font-black uppercase"></p></div>
+                </div>
+                <div><label class="text-[9px] font-black text-slate-400 uppercase">Deskripsi Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap"></p></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
+                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Finish Work</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
+                </div>
+                <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed"></div></div>
+                <div id="hold-section" class="hidden"><label class="text-[9px] font-black text-rose-500 uppercase">Keterangan Kendala</label><div id="det-hold" class="bg-rose-50 p-5 rounded-xl text-sm font-bold border border-rose-100 whitespace-pre-wrap leading-relaxed"></div></div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs shadow-lg active:scale-95 transition-all">Tutup Laporan</button></div>
+        </div>
+    </div>
 
     <table id="hidden-excel-table" style="display:none"></table>
 
@@ -129,29 +154,38 @@
             applyFilters();
         }
 
-        // FUNGSI EKSPOR DENGAN BORDER & HEADER RAPI
+        // FUNGSI EKSPOR EXCEL DENGAN BORDER & HEADER BERWARNA
         function exportToExcel() {
-            if (filteredData.length === 0) return alert("Tidak ada data");
+            if (filteredData.length === 0) return alert("Tidak ada data untuk diunduh");
+            
             const hiddenTable = document.getElementById('hidden-excel-table');
             
-            // Header tabel dengan gaya CSS inline agar dikenali sebagai border
-            let html = `<thead><tr>
-                <th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000; font-weight: bold;">PROJECT NAME</th>
-                <th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000; font-weight: bold;">PERSONIL</th>
-                <th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000; font-weight: bold;">STATUS</th>
-                <th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000; font-weight: bold;">START TIME</th>
-                <th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000; font-weight: bold;">FINISH TIME</th>
-                <th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000; font-weight: bold;">UPDATE LAPORAN</th>
-            </tr></thead><tbody>`;
+            // Membuat struktur HTML table agar Excel mendeteksi garis (border)
+            let html = `<thead>
+                <tr>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">PROJECT NAME</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">PERSONIL</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">PRIORITY</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">STATUS</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">START TIME</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">FINISH TIME</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">TUGAS</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">LAPORAN KERJA</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">KENDALA</th>
+                </tr>
+            </thead><tbody>`;
 
             filteredData.forEach(item => {
                 html += `<tr>
                     <td style="border: 1px solid #000000;">${(item.project_name || "").toUpperCase()}</td>
-                    <td style="border: 1px solid #000000;">${item.assigned_to}</td>
-                    <td style="border: 1px solid #000000;">${item.status}</td>
+                    <td style="border: 1px solid #000000; text-align: center;">${item.assigned_to}</td>
+                    <td style="border: 1px solid #000000; text-align: center;">${item.priority || "Mid"}</td>
+                    <td style="border: 1px solid #000000; text-align: center;">${item.status}</td>
                     <td style="border: 1px solid #000000;">${formatDateTimeClean(item.work_start_time)}</td>
                     <td style="border: 1px solid #000000;">${formatDateTimeClean(item.work_end_time)}</td>
+                    <td style="border: 1px solid #000000;">${item.task_desc || "-"}</td>
                     <td style="border: 1px solid #000000;">${item.worker_comment || "-"}</td>
+                    <td style="border: 1px solid #000000;">${item.hold_reason || "-"}</td>
                 </tr>`;
             });
             html += `</tbody>`;
@@ -160,12 +194,12 @@
             const workbook = XLSX.utils.table_to_book(hiddenTable);
             const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
-            // MENGATUR LEBAR KOLOM SECARA OTOMATIS
+            // Atur lebar kolom otomatis agar rapi
             worksheet['!cols'] = [
-                { wch: 25 }, { wch: 15 }, { wch: 12 }, { wch: 20 }, { wch: 20 }, { wch: 50 }
+                {wch: 25}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 20}, {wch: 20}, {wch: 30}, {wch: 40}, {wch: 30}
             ];
 
-            XLSX.writeFile(workbook, `Daily_Report_${new Date().toLocaleDateString('id-ID')}.xlsx`);
+            XLSX.writeFile(workbook, `Report_Tooling_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
 
         function updatePersonnelGrid() {
@@ -185,7 +219,8 @@
         }
 
         function switchChart(type) {
-            ['person', 'pending', 'progress', 'hold', 'done'].forEach(id => document.getElementById('btn-' + id).classList.remove('btn-active'));
+            const btns = ['person', 'pending', 'progress', 'hold', 'done'];
+            btns.forEach(id => document.getElementById('btn-' + id).classList.remove('btn-active'));
             const activeId = type === 'person' ? 'btn-person' : (type === 'Pending' ? 'btn-pending' : (type === 'In Progress' ? 'btn-progress' : (type === 'Hold' ? 'btn-hold' : 'btn-done')));
             document.getElementById(activeId).classList.add('btn-active');
             renderChart(type);
@@ -199,7 +234,7 @@
             let labels, datasets;
             if (type === 'person') {
                 labels = personnel;
-                datasets = [{ label: 'Total Project', data: personnel.map(name => rawData.filter(r => r.assigned_to === name).length), backgroundColor: personColors, borderRadius: 12 }];
+                datasets = [{ label: 'Total Task', data: personnel.map(name => rawData.filter(r => r.assigned_to === name).length), backgroundColor: personColors, borderRadius: 12 }];
             } else {
                 const statusColors = { 'Pending': '#94a3b8', 'In Progress': '#3b82f6', 'Hold': '#f43f5e', 'Done': '#10b981' };
                 labels = personnel;
@@ -229,11 +264,29 @@
                     <td class="px-6 py-6 font-bold uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div></td>
                     <td class="px-4 py-6 text-center font-black text-slate-500">${row.assigned_to}</td>
                     <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase ${sClass}">${row.status}</span></td>
-                    <td class="px-6 py-6 text-center"><button onclick='alert("Detail tersedia di Excel")' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all active:scale-95">Review</button></td>
+                    <td class="px-6 py-6 text-center"><button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md">Review</button></td>
                 </tr>`;
             }).join('');
         }
 
+        function openDetail(row) {
+            document.getElementById('det-project-name').innerText = row.project_name;
+            document.getElementById('det-pic').innerText = row.assigned_to;
+            document.getElementById('det-task').innerText = row.task_desc || 'Tidak ada deskripsi.';
+            document.getElementById('det-status').innerText = row.status;
+            document.getElementById('det-status').className = `text-[11px] font-black uppercase ${row.status === 'Done' ? 'text-emerald-600' : (row.status === 'Hold' ? 'text-rose-600' : 'text-blue-600')}`;
+            document.getElementById('det-priority').innerText = row.priority || 'Mid';
+            document.getElementById('det-priority').className = `text-[11px] font-black uppercase ${row.priority === 'High' ? 'text-red-600' : 'text-blue-600'}`;
+            document.getElementById('det-start').innerText = formatDateTimeClean(row.work_start_time);
+            document.getElementById('det-finish').innerText = formatDateTimeClean(row.work_end_time);
+            document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan.";
+            const holdSec = document.getElementById('hold-section');
+            if(row.hold_reason) { holdSec.classList.remove('hidden'); document.getElementById('det-hold').innerText = row.hold_reason; } 
+            else { holdSec.classList.add('hidden'); }
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
         function selectPerson(name) { document.getElementById('filter-user').value = name; applyFilters(); }
         window.onload = fetchAllData;
     </script>
