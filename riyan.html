@@ -28,7 +28,7 @@
                 <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-black text-white backdrop-blur-md border border-white/30 uppercase">R</div>
                 <div>
                     <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Panel Kerja Riyan</h1>
-                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Pencatatan Tanggal & Jam Lokal (WIB)</p>
+                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Fix: Jam Tetap Sesuai Input (WIB)</p>
                 </div>
             </div>
             <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all border border-white/20"> Kembali </a>
@@ -52,7 +52,7 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em]">
-                            <th class="px-6 py-5">Project & Tugas</th> 
+                            <th class="px-6 py-5">Project & Daftar Tugas</th> 
                             <th class="px-4 py-5 text-center">Priority</th> 
                             <th class="px-4 py-5 text-center">Due Date</th>
                             <th class="px-4 py-5 text-center">Start Date & Time</th>
@@ -73,16 +73,20 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        // PERBAIKAN: Fungsi ini sekarang mengambil waktu lokal tanpa konversi UTC yang salah
+        // PERBAIKAN TOTAL: Fungsi format untuk Input (mencegah geser 7 jam)
         function formatToInputDateTime(dateStr) {
             if (!dateStr) return '';
             const d = new Date(dateStr);
-            // Menyesuaikan offset waktu lokal agar jam tidak bergeser saat tampil kembali
-            const tzoffset = d.getTimezoneOffset() * 60000; 
-            const localISOTime = (new Date(d.getTime() - tzoffset)).toISOString().slice(0, 16);
-            return localISOTime;
+            // Paksa ambil nilai jam asli tanpa konversi UTC
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
         }
 
+        // Fungsi format untuk Tampilan Selesai
         function formatDisplayDate(dateStr) {
             if (!dateStr) return '--:--';
             const d = new Date(dateStr);
@@ -110,24 +114,27 @@
                         </td>
                         <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-lg font-black text-[9px] ${pClass}">${row.priority || 'Mid'}</span></td>
                         <td class="px-4 py-6 text-center font-mono text-[11px] font-bold">${row.due_date}</td>
+                        
                         <td class="px-4 py-6 text-center">
                             ${isDone ? `<span class="text-[10px] font-bold text-slate-700">${formatDisplayDate(row.work_start_time)}</span>` : 
                             `<input type="datetime-local" id="start-time-${row.id}" value="${formatToInputDateTime(row.work_start_time)}" class="bg-white border rounded p-1 text-[10px] font-bold outline-none focus:border-blue-500 w-full">`}
                         </td>
+
                         <td class="px-4 py-6 text-center">
                             ${isDone ? `<span class="text-[10px] font-bold text-emerald-600">${formatDisplayDate(row.work_end_time)}</span>` : 
                             `<input type="datetime-local" id="end-time-${row.id}" value="${formatToInputDateTime(row.work_end_time)}" class="bg-white border rounded p-1 text-[10px] font-bold outline-none focus:border-blue-500 w-full">`}
                         </td>
+
                         <td class="px-6 py-6">
                             ${isDone ? `<p class="italic text-slate-500 text-[11px]">"${row.worker_comment || '-'}"</p>` : 
                             `<textarea id="comment-${row.id}" class="w-full border rounded p-2 text-[11px] outline-none" rows="2">${row.worker_comment && row.worker_comment !== '-' ? row.worker_comment : ''}</textarea>`}
                         </td>
                         <td class="px-6 py-6">
-                            ${isDone ? `<p class="text-rose-500 text-[11px]">${row.hold_reason || '-'}</p>` : 
+                            ${isDone ? `<p class="text-rose-500 text-[11px] font-medium">${row.hold_reason || '-'}</p>` : 
                             `<textarea id="hold-reason-${row.id}" placeholder="Wajib jika Hold" class="w-full border ${isHold ? 'border-rose-400 bg-rose-50' : 'border-slate-200'} rounded p-2 text-[11px] outline-none" rows="2">${row.hold_reason || ''}</textarea>`}
                         </td>
                         <td class="px-6 py-6 text-center">
-                            ${isDone ? `<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 font-black text-[9px] uppercase border border-emerald-100">FINISHED</span>` : 
+                            ${isDone ? `<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 font-black text-[9px] uppercase tracking-widest">FINISHED</span>` : 
                                 `<div class="flex flex-col gap-2 min-w-[120px]">
                                     <select id="status-val-${row.id}" class="status-select px-3 py-2 rounded-xl text-[10px] font-black border-2 outline-none ${borderClass}">
                                         <option value="Pending" ${row.status === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -156,12 +163,13 @@
                 if (!confirm("Konfirmasi Selesai?")) return;
             }
 
+            // PERBAIKAN: Kirim string waktu apa adanya, biarkan database menyimpannya
             const updatePayload = {
                 status: selectedStatus,
                 worker_comment: comment || '-',
                 hold_reason: holdReason || null,
-                work_start_time: sTime === "" ? null : sTime,
-                work_end_time: eTime === "" ? null : eTime
+                work_start_time: sTime || null,
+                work_end_time: eTime || null
             };
 
             if (selectedStatus === 'Done') updatePayload.actual_finish = new Date().toISOString().split('T')[0];
