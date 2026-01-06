@@ -48,8 +48,7 @@
                     <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Assigned To</label>
                     <select id="in-name" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm outline-none">
                         <option value="">Pilih Personil</option>
-                        <option value="RIYAN">RIYAN</option>
-                        <option value="ISQI">ISQI</option>
+                        <option value="RYAN">RYAN</option> <option value="ISQI">ISQI</option>
                         <option value="JUMAWAN">JUMAWAN</option>
                     </select>
                 </div>
@@ -89,8 +88,9 @@
                             <th class="px-4 py-5 text-center">Due Date</th>
                             <th class="px-4 py-5 text-center">Progress</th>
                             <th class="px-6 py-5 text-center">Over Date</th>
-                            <th class="px-6 py-5">Activity</th>
-                            <th class="px-6 py-5">Keterangan</th> <th class="px-6 py-5 text-center">Aksi</th>
+                            <th class="px-6 py-5">Activity</th> 
+                            <th class="px-6 py-5">Keterangan (Hold)</th> 
+                            <th class="px-6 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="project-body" class="divide-y divide-slate-50 text-sm"></tbody>
@@ -166,8 +166,7 @@
                         </td>
                         <td class="px-4 py-6 text-center">
                             <select onchange="updateInline('${row.id}', 'assigned_to', this.value)" class="text-[10px] font-bold uppercase rounded p-1 border">
-                                <option value="RIYAN" ${row.assigned_to === 'RIYAN' ? 'selected' : ''}>RIYAN</option>
-                                <option value="ISQI" ${row.assigned_to === 'ISQI' ? 'selected' : ''}>ISQI</option>
+                                <option value="RYAN" ${row.assigned_to === 'RYAN' ? 'selected' : ''}>RYAN</option> <option value="ISQI" ${row.assigned_to === 'ISQI' ? 'selected' : ''}>ISQI</option>
                                 <option value="JUMAWAN" ${row.assigned_to === 'JUMAWAN' ? 'selected' : ''}>JUMAWAN</option>
                             </select>
                         </td>
@@ -177,11 +176,9 @@
                         </td>
                         <td class="px-6 py-6 text-center font-bold">${overDateContent}</td>
                         <td class="px-6 py-6 font-medium text-slate-600 text-[11px] uppercase">${row.worker_comment || '-'}</td>
-                        
                         <td class="px-6 py-6 font-medium ${row.status === 'Hold' ? 'text-rose-600 font-bold italic' : 'text-slate-500'} text-[11px]">
                             ${row.hold_reason || '-'}
                         </td>
-
                         <td class="px-6 py-6 text-center">
                             <button onclick="deleteData('${row.id}')" class="text-slate-300 hover:text-red-600 transition-colors">
                                 <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
