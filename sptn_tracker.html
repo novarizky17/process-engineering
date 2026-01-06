@@ -11,7 +11,8 @@
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
         .gradient-navy { background: linear-gradient(135deg, #001f3f 0%, #003366 100%); }
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        .edit-input { background: #fff; border: 1px solid #3b82f6; border-radius: 4px; padding: 2px 4px; width: 100%; font-size: 11px; outline: none; }
+        .edit-input { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; width: 100%; font-size: 11px; outline: none; transition: all 0.2s; }
+        .edit-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -87,7 +88,7 @@
                             <th class="px-4 py-5 text-center">Personil</th>
                             <th class="px-4 py-5 text-center">Due Date</th>
                             <th class="px-4 py-5 text-center">Progress</th>
-                            <th class="px-6 py-5">Keterangan (Hold Reason)</th>
+                            <th class="px-6 py-5 text-center">Over Date</th> <th class="px-6 py-5">Keterangan</th>
                             <th class="px-6 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -131,8 +132,26 @@
 
             const tbody = document.getElementById('project-body');
             tbody.innerHTML = data.map(row => {
+                // Perhitungan Over Date
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const dueDate = new Date(row.due_date);
+                const endDate = row.actual_finish ? new Date(row.actual_finish) : today;
+                const diffDays = Math.ceil((endDate - dueDate) / (1000 * 60 * 60 * 24));
+
+                let overDateContent = '';
+                if (row.status === 'Done') {
+                    overDateContent = diffDays > 0 ? 
+                        `<span class="bg-red-50 text-red-600 px-3 py-1 rounded-lg font-bold text-[10px]">LATE ${diffDays}D</span>` : 
+                        '<span class="text-emerald-500 font-bold text-[10px]">ON TIME</span>';
+                } else {
+                    overDateContent = diffDays > 0 ? 
+                        `<span class="text-red-600 font-black">${diffDays} Days Late</span>` : 
+                        '<span class="text-slate-300 italic">On Schedule</span>';
+                }
+
                 let pClass = row.priority === 'High' ? "bg-red-100 text-red-600" : (row.priority === 'Mid' ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500");
-                let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600" : "bg-blue-50 text-blue-600");
+                let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-100" : "bg-blue-50 text-blue-600 border-blue-100");
 
                 return `
                     <tr class="hover:bg-slate-50 transition-colors">
@@ -153,8 +172,11 @@
                             </select>
                         </td>
                         <td class="px-4 py-6 text-center"><input type="date" value="${row.due_date}" onchange="updateInline('${row.id}', 'due_date', this.value)" class="text-[10px] font-bold border rounded p-1"></td>
-                        <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-full font-black text-[9px] uppercase border ${sClass}">${row.status}</span></td>
-                        <td class="px-6 py-6 font-medium text-rose-600 italic text-[11px]">${row.hold_reason || '-'}</td>
+                        <td class="px-4 py-6 text-center">
+                            <span class="px-3 py-1 rounded-full font-black text-[9px] uppercase border ${sClass}">${row.status}</span>
+                        </td>
+                        <td class="px-6 py-6 text-center font-bold">${overDateContent}</td>
+                        <td class="px-6 py-6 font-medium text-rose-600 italic text-[11px]">${row.hold_reason || row.worker_comment || '-'}</td>
                         <td class="px-6 py-6 text-center">
                             <button onclick="deleteData('${row.id}')" class="text-slate-300 hover:text-red-600 transition-colors">
                                 <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -167,7 +189,7 @@
 
         async function updateInline(id, field, value) {
             const { error } = await _sb.from('management_tracker').update({ [field]: value }).eq('id', id);
-            if (error) alert("Update gagal!");
+            if (error) alert("Update gagal!"); else fetchProjectData();
         }
 
         async function deleteData(id) {
