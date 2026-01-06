@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Daily Report - Interactive Analytics</title>
+    <title>Resume Daily Report - Analytics Status</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -25,7 +25,7 @@
         <div class="max-w-[98%] mx-auto flex justify-between items-end">
             <div>
                 <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Resume Daily Report</h1>
-                <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Pilih Mode Visualisasi Data Anda</p>
+                <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Monitoring Progres & Status Kerja Tim</p>
             </div>
             <a href="management_tracker.html" class="bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-white/20 transition-all">Kembali</a>
         </div>
@@ -36,10 +36,10 @@
             
             <div class="lg:col-span-2 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">Visualisasi Data</h3>
+                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">Visualisasi Progres</h3>
                     <div class="flex bg-slate-100 p-1 rounded-xl">
                         <button id="btn-person" onclick="switchChart('person')" class="btn-toggle px-4 py-2 rounded-lg text-[10px] font-black uppercase btn-active">Per Personil</button>
-                        <button id="btn-total" onclick="switchChart('total')" class="btn-toggle px-4 py-2 rounded-lg text-[10px] font-black uppercase text-slate-500">Total Keseluruhan</button>
+                        <button id="btn-total" onclick="switchChart('total')" class="btn-toggle px-4 py-2 rounded-lg text-[10px] font-black uppercase text-slate-500">Total Status</button>
                     </div>
                 </div>
                 <div class="h-[250px]">
@@ -48,20 +48,36 @@
             </div>
 
             <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
-                <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest mb-4 text-center">Data Tim</h3>
+                <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest mb-4 text-center">Summary Task</h3>
                 <div id="personnel-stats" class="grid grid-cols-2 gap-3"></div>
             </div>
         </div>
 
         <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <select id="filter-user" onchange="applyFilters()" class="bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
-                    <option value="">-- Semua Personil --</option>
-                    <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option>
-                    <option value="JUMAWAN">JUMAWAN</option><option value="EKO">EKO</option>
-                    <option value="TATA">TATA</option><option value="BAROK">BAROK</option>
-                </select>
-                <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Project atau Detail Tugas..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Filter Personil</label>
+                    <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
+                        <option value="">-- Semua Personil --</option>
+                        <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option>
+                        <option value="JUMAWAN">JUMAWAN</option><option value="EKO">EKO</option>
+                        <option value="TATA">TATA</option><option value="BAROK">BAROK</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Filter Status</label>
+                    <select id="filter-status" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
+                        <option value="">-- Semua Status --</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Hold">Hold</option>
+                        <option value="Done">Done</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Cari Project/Tugas</label>
+                    <input type="text" id="search-report" oninput="applyFilters()" placeholder="Ketik nama project..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
             </div>
         </div>
 
@@ -93,16 +109,16 @@
                 <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl">&times;</button>
             </div>
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
                         <label class="text-[9px] font-black text-slate-400 uppercase">Personil</label>
                         <p id="det-pic" class="text-sm font-black text-slate-800"></p>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
                         <label class="text-[9px] font-black text-slate-400 uppercase">Priority</label>
                         <p id="det-priority" class="text-xs font-black uppercase"></p>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
                         <label class="text-[9px] font-black text-slate-400 uppercase">Status</label>
                         <p id="det-status" class="text-xs font-black uppercase"></p>
                     </div>
@@ -142,7 +158,6 @@
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let rawData = [];
         let projectChart = null;
-        let currentChartType = 'person'; // Default view
 
         function formatDateTime(str) {
             if (!str) return 'Belum Diinput';
@@ -173,62 +188,55 @@
             }).join('');
         }
 
-        // FUNGSI UNTUK PINDAH TAMPILAN DIAGRAM
         function switchChart(type) {
-            currentChartType = type;
             document.getElementById('btn-person').className = `btn-toggle px-4 py-2 rounded-lg text-[10px] font-black uppercase ${type === 'person' ? 'btn-active' : 'text-slate-500'}`;
             document.getElementById('btn-total').className = `btn-toggle px-4 py-2 rounded-lg text-[10px] font-black uppercase ${type === 'total' ? 'btn-active' : 'text-slate-500'}`;
             renderChart(type);
         }
 
+        // PERBAIKAN DIAGRAM UNTUK MENAMPILKAN STATUS
         function renderChart(type) {
-            const personnel = ["RYAN", "ISQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
             const ctx = document.getElementById('projectChart').getContext('2d');
             if (projectChart) projectChart.destroy();
 
-            let labels = [];
-            let datasets = [];
+            let labels, datasets;
 
             if (type === 'person') {
-                // Tampilan Per Orang
+                const personnel = ["RYAN", "ISQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
                 labels = personnel;
                 datasets = [{
-                    label: 'Jumlah Task',
+                    label: 'Total Task',
                     data: personnel.map(name => rawData.filter(r => r.assigned_to === name).length),
-                    backgroundColor: '#3b82f6',
-                    borderRadius: 10
+                    backgroundColor: '#3b82f6', borderRadius: 8
                 }];
             } else {
-                // Tampilan Total Seluruh Tim
-                const totalTasks = rawData.length;
-                const totalProjects = [...new Set(rawData.map(t => t.project_name))].length;
-                labels = ['Total Task (Laporan)', 'Total Project (Unit)'];
+                // TAMPILAN STATUS (PENDING, PROGRESS, HOLD, DONE)
+                const statuses = ["Pending", "In Progress", "Hold", "Done"];
+                labels = statuses;
                 datasets = [{
-                    label: 'Total Keseluruhan',
-                    data: [totalTasks, totalProjects],
-                    backgroundColor: ['#ea580c', '#6366f1'],
-                    borderRadius: 10
+                    label: 'Total Status Keseluruhan',
+                    data: statuses.map(s => rawData.filter(r => r.status === s).length),
+                    backgroundColor: ['#94a3b8', '#3b82f6', '#f43f5e', '#10b981'],
+                    borderRadius: 8
                 }];
             }
 
             projectChart = new Chart(ctx, {
                 type: 'bar',
                 data: { labels: labels, datasets: datasets },
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: (type === 'total' ? 5 : 2) } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
 
         function applyFilters() {
             const user = document.getElementById('filter-user').value;
+            const status = document.getElementById('filter-status').value;
             const search = document.getElementById('search-report').value.toLowerCase();
             const filtered = rawData.filter(item => {
                 const matchUser = user === "" || item.assigned_to === user;
+                const matchStatus = status === "" || item.status === status;
                 const matchSearch = item.project_name.toLowerCase().includes(search) || (item.task_desc && item.task_desc.toLowerCase().includes(search));
-                return matchUser && matchSearch;
+                return matchUser && matchStatus && matchSearch;
             });
             renderTable(filtered);
         }
@@ -239,7 +247,7 @@
                 let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-blue-50 text-blue-600 border-blue-200");
                 let pClass = row.priority === 'High' ? 'text-red-600' : (row.priority === 'Mid' ? 'text-blue-600' : 'text-slate-500');
                 return `<tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-6 font-bold uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 font-medium normal-case italic mt-1">${row.task_desc || '-'}</div></td>
+                    <td class="px-6 py-6 font-bold uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1">${row.task_desc || '-'}</div></td>
                     <td class="px-4 py-6 text-center font-black text-slate-500">${row.assigned_to}</td>
                     <td class="px-4 py-6 text-center font-black text-[10px] uppercase ${pClass}">${row.priority || 'Mid'}</td>
                     <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase ${sClass}">${row.status}</span></td>
@@ -256,7 +264,7 @@
             document.getElementById('det-priority').innerText = row.priority || 'Mid';
             document.getElementById('det-start').innerText = formatDateTime(row.work_start_time);
             document.getElementById('det-finish').innerText = formatDateTime(row.work_end_time);
-            document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
+            document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan.";
             const holdSec = document.getElementById('hold-section');
             if(row.hold_reason) { holdSec.classList.remove('hidden'); document.getElementById('det-hold').innerText = row.hold_reason; } 
             else { holdSec.classList.add('hidden'); }
