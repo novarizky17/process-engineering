@@ -15,7 +15,7 @@
         .edit-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
         
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-        .modal-content { background: white; margin: 5% auto; padding: 24px; border-radius: 20px; width: 90%; max-width: 500px; animation: slideIn 0.3s; }
+        .modal-content { background: white; margin: 2% auto; padding: 24px; border-radius: 20px; width: 95%; max-width: 650px; animation: slideIn 0.3s; }
         @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
     </style>
 </head>
@@ -34,19 +34,19 @@
     <div class="max-w-[98%] mx-auto px-8">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 relative z-10">
             <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-blue-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">In Progress</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">In Progress</p>
                 <h3 id="stat-progress" class="text-3xl font-black text-slate-800">0</h3>
             </div>
             <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-amber-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Pending</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pending</p>
                 <h3 id="stat-pending" class="text-3xl font-black text-slate-800">0</h3>
             </div>
             <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-rose-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Hold</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hold</p>
                 <h3 id="stat-hold" class="text-3xl font-black text-rose-600">0</h3>
             </div>
             <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-emerald-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase">Total Selesai</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Selesai</p>
                 <h3 id="stat-done" class="text-3xl font-black text-emerald-600">0</h3>
             </div>
         </div>
@@ -57,44 +57,26 @@
                 <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider">Assign Project Baru</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Project Name</label>
-                    <input type="text" id="in-project" placeholder="Nama Project" class="edit-input !p-3 !text-sm">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label>
-                    <input type="text" id="in-tugas" placeholder="Detail Kerja" class="edit-input !p-3 !text-sm">
-                </div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Project Name</label><input type="text" id="in-project" class="edit-input !p-3 !text-sm"></div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label><input type="text" id="in-tugas" class="edit-input !p-3 !text-sm"></div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To</label>
                     <select id="in-name" class="edit-input !p-3 !text-sm">
                         <option value="">Pilih Personil</option>
-                        <option value="RYAN">RYAN</option>
-                        <option value="ISQI">ISQI</option>
-                        <option value="JUMAWAN">JUMAWAN</option>
+                        <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option>
                     </select>
                 </div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Priority</label>
                     <select id="in-priority" class="edit-input !p-3 !text-sm">
-                        <option value="Low">Low</option>
-                        <option value="Mid" selected>Mid</option>
-                        <option value="High">High</option>
+                        <option value="Low">Low</option><option value="Mid" selected>Mid</option><option value="High">High</option>
                     </select>
                 </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Start Date</label>
-                    <input type="date" id="in-start" class="edit-input !p-3 !text-sm">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Target Due</label>
-                    <input type="date" id="in-due" class="edit-input !p-3 !text-sm">
-                </div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Start Date</label><input type="date" id="in-start" class="edit-input !p-3 !text-sm"></div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Target Due</label><input type="date" id="in-due" class="edit-input !p-3 !text-sm"></div>
             </div>
             <div class="mt-6 flex justify-end">
-                <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase shadow-lg transition-all active:scale-95">
-                    Assign Project Sekarang
-                </button>
+                <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase shadow-lg transition-all transform active:scale-95">Assign Project</button>
             </div>
         </div>
 
@@ -109,9 +91,7 @@
                             <th class="px-4 py-5 text-center">Due Date</th>
                             <th class="px-4 py-5 text-center">Status</th>
                             <th class="px-4 py-5 text-center">Over Date</th>
-                            <th class="px-6 py-5">Activity</th> 
-                            <th class="px-6 py-5">Keterangan</th> 
-                            <th class="px-6 py-5 text-center">Aksi</th>
+                            <th class="px-6 py-5 text-center">Review</th>
                         </tr>
                     </thead>
                     <tbody id="project-body" class="divide-y divide-slate-50 text-sm"></tbody>
@@ -122,23 +102,67 @@
 
     <div id="reviewModal" class="modal">
         <div class="modal-content shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black text-slate-800 uppercase">Review Project</h2>
-                <button onclick="closeModal()" class="text-slate-400 text-2xl">&times;</button>
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <div>
+                    <h2 class="text-xl font-black text-slate-800 uppercase">Review & Detail Project</h2>
+                    <p class="text-[10px] text-blue-600 font-bold uppercase tracking-widest">Panel Kontrol Superintendent</p>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
             </div>
-            <div class="space-y-4">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input type="hidden" id="rev-id">
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Project Name</label><input type="text" id="rev-project" class="edit-input !text-sm font-bold uppercase"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Deskripsi Tugas</label><textarea id="rev-tugas" class="edit-input !text-sm h-20 resize-none"></textarea></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">Assigned To</label><select id="rev-name" class="edit-input"><option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option></select></div>
-                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">Priority</label><select id="rev-priority" class="edit-input font-bold"><option value="Low">Low</option><option value="Mid">Mid</option><option value="High">High</option></select></div>
+                
+                <div class="md:col-span-2">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Project Name</label>
+                    <input type="text" id="rev-project" class="edit-input !text-sm font-bold uppercase">
                 </div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Due Date</label><input type="date" id="rev-due" class="edit-input"></div>
-                <div class="flex gap-2 pt-4">
-                    <button onclick="updateData()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold uppercase text-xs transition-all">Simpan Perubahan</button>
-                    <button onclick="deleteDataInModal()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-5 rounded-xl border border-rose-100">Hapus</button>
+
+                <div class="md:col-span-2">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Deskripsi Tugas</label>
+                    <textarea id="rev-tugas" class="edit-input !text-sm h-16 resize-none"></textarea>
                 </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Assigned To</label>
+                    <select id="rev-name" class="edit-input font-bold">
+                        <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Priority</label>
+                    <select id="rev-priority" class="edit-input font-bold">
+                        <option value="Low">Low</option><option value="Mid">Mid</option><option value="High">High</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Due Date</label>
+                    <input type="date" id="rev-due" class="edit-input">
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Status Sekarang</label>
+                    <div id="rev-status-badge" class="mt-1"></div>
+                </div>
+
+                <div class="md:col-span-2 space-y-4 pt-2 border-t mt-2">
+                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
+                        <label class="text-[10px] font-black text-blue-400 uppercase">Activity (Laporan Lapangan)</label>
+                        <textarea id="rev-activity" class="edit-input !bg-transparent border-none font-semibold text-blue-800 uppercase italic h-16 w-full resize-none"></textarea>
+                    </div>
+
+                    <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
+                        <label class="text-[10px] font-black text-rose-400 uppercase">Keterangan (Hold Reason)</label>
+                        <textarea id="rev-hold" class="edit-input !bg-transparent border-none font-bold text-rose-600 italic h-16 w-full resize-none"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3 mt-8">
+                <button onclick="updateData()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold uppercase text-xs shadow-lg transition-all active:scale-95">Simpan Perubahan</button>
+                <button onclick="deleteDataInModal()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-6 rounded-xl border border-rose-100 font-bold text-xs uppercase">Hapus</button>
             </div>
         </div>
     </div>
@@ -163,7 +187,8 @@
                 const dueDate = new Date(row.due_date);
                 const endDate = row.actual_finish ? new Date(row.actual_finish) : today;
                 const diffDays = Math.ceil((endDate - dueDate) / (1000 * 60 * 60 * 24));
-                let overLabel = row.status === 'Done' ? (diffDays > 0 ? `<span class="text-red-500 font-bold">LATE ${diffDays}D</span>` : '<span class="text-emerald-500 font-bold">ON TIME</span>') : (diffDays > 0 ? `<span class="text-red-600 font-black">${diffDays}D Late</span>` : '<span class="text-slate-300 italic text-[10px]">On Schedule</span>');
+                
+                let overLabel = row.status === 'Done' ? (diffDays > 0 ? `<span class="text-red-500 font-bold">LATE ${diffDays}D</span>` : '<span class="text-emerald-500 font-bold">ON TIME</span>') : (diffDays > 0 ? `<span class="text-red-600 font-black">${diffDays}D Late</span>` : '<span class="text-slate-300 italic">On Schedule</span>');
                 let pColor = row.priority === 'High' ? 'text-red-600' : (row.priority === 'Mid' ? 'text-blue-600' : 'text-slate-500');
                 let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-100" : "bg-blue-50 text-blue-600 border-blue-100");
 
@@ -175,31 +200,12 @@
                         <td class="px-4 py-6 text-center">${row.due_date}</td>
                         <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black uppercase border ${sClass}">${row.status}</span></td>
                         <td class="px-4 py-6 text-center font-bold">${overLabel}</td>
-                        <td class="px-6 py-6 font-medium text-slate-600 text-[11px] uppercase">${row.worker_comment || '-'}</td>
-                        <td class="px-6 py-6 font-medium ${row.status === 'Hold' ? 'text-rose-600 font-bold italic' : 'text-slate-500'} text-[11px]">${row.hold_reason || '-'}</td>
                         <td class="px-6 py-6 text-center">
                             <button onclick='openReviewModal(${JSON.stringify(row)})' class="bg-slate-800 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm">Review</button>
                         </td>
                     </tr>
                 `;
             }).join('');
-        }
-
-        async function saveToDatabase() {
-            const project = document.getElementById('in-project').value;
-            const tugas = document.getElementById('in-tugas').value;
-            const name = document.getElementById('in-name').value;
-            const priority = document.getElementById('in-priority').value;
-            const due = document.getElementById('in-due').value;
-
-            if(!project || !name || !due) return alert("Lengkapi data!");
-
-            const { error } = await _sb.from('management_tracker').insert([{ 
-                project_name: project, task_desc: tugas, assigned_to: name, priority: priority, due_date: due, status: 'Pending' 
-            }]);
-
-            if (error) alert(error.message);
-            else { fetchProjectData(); clearInputs(); }
         }
 
         function openReviewModal(row) {
@@ -209,32 +215,55 @@
             document.getElementById('rev-name').value = row.assigned_to;
             document.getElementById('rev-priority').value = row.priority || 'Mid';
             document.getElementById('rev-due').value = row.due_date;
+            
+            // Masukkan data ke textarea modal agar bisa diedit
+            document.getElementById('rev-activity').value = row.worker_comment || '';
+            document.getElementById('rev-hold').value = row.hold_reason || '';
+            
+            const sClass = row.status === 'Done' ? "bg-emerald-100 text-emerald-700" : (row.status === 'Hold' ? "bg-rose-100 text-rose-700" : "bg-blue-100 text-blue-700");
+            document.getElementById('rev-status-badge').innerHTML = `<span class="px-4 py-1 rounded-full font-black text-[10px] uppercase ${sClass}">${row.status}</span>`;
+            
             document.getElementById('reviewModal').style.display = 'block';
         }
 
         function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
 
         async function updateData() {
+            const id = document.getElementById('rev-id').value;
             const { error } = await _sb.from('management_tracker').update({
                 project_name: document.getElementById('rev-project').value,
                 task_desc: document.getElementById('rev-tugas').value,
                 assigned_to: document.getElementById('rev-name').value,
                 priority: document.getElementById('rev-priority').value,
-                due_date: document.getElementById('rev-due').value
-            }).eq('id', document.getElementById('rev-id').value);
+                due_date: document.getElementById('rev-due').value,
+                worker_comment: document.getElementById('rev-activity').value, // Simpan Activity
+                hold_reason: document.getElementById('rev-hold').value // Simpan Keterangan
+            }).eq('id', id);
+            
             if (!error) { closeModal(); fetchProjectData(); }
         }
 
+        async function saveToDatabase() {
+            const payload = {
+                project_name: document.getElementById('in-project').value,
+                task_desc: document.getElementById('in-tugas').value,
+                assigned_to: document.getElementById('in-name').value,
+                priority: document.getElementById('in-priority').value,
+                start_date: document.getElementById('in-start').value,
+                due_date: document.getElementById('in-due').value,
+                status: 'Pending'
+            };
+            if(!payload.project_name || !payload.assigned_to) return alert("Isi Data!");
+            await _sb.from('management_tracker').insert([payload]);
+            fetchProjectData();
+            document.getElementById('in-project').value = "";
+        }
+
         async function deleteDataInModal() {
-            if(confirm("Hapus project ini?")) {
+            if(confirm("Hapus project?")) {
                 await _sb.from('management_tracker').delete().eq('id', document.getElementById('rev-id').value);
                 closeModal(); fetchProjectData();
             }
-        }
-
-        function clearInputs() {
-            document.getElementById('in-project').value = "";
-            document.getElementById('in-tugas').value = "";
         }
 
         window.onload = fetchProjectData;
