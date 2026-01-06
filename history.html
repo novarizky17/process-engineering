@@ -38,10 +38,9 @@
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
 
-        /* PERBAIKAN UKURAN FONT SESUAI INSTRUKSI */
-        .status-text { font-weight: bold; font-size: 9pt; } /* Tetap di 9pt */
+        .status-text { font-weight: bold; font-size: 9pt; }
         .ng-color { color: #d32f2f; }
-        .ng-text-desc { font-size: 8pt; line-height: 1.2; word-wrap: break-word; color: #d32f2f; font-weight: bold; } /* Diperbesar ke 8pt */
+        .ng-text-desc { font-size: 8pt; line-height: 1.2; word-wrap: break-word; color: #d32f2f; font-weight: bold; }
 
         .col-no { width: 30px; }
         .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
@@ -62,7 +61,7 @@
         .diketahui-box { width: 30%; text-align: center; margin-left: auto; }
         .sig-frame { border: 1.5px solid black; width: 160px; height: 80px; margin: 5px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
         .sig-frame img { max-height: 75px; width: auto; filter: grayscale(1) contrast(3) brightness(0.4); }
-        .name-line { border-top: 1.5px solid black; width: 180px; margin: 0 auto; padding-top: 3px; font-weight: bold; color: #000; }
+        .name-line { border-top: 1.5px solid black; width: 220px; margin: 0 auto; padding-top: 3px; font-weight: bold; color: #000; text-align: center; }
     </style>
 </head>
 <body>
@@ -151,7 +150,7 @@
                 <p style="font-weight: bold; margin-bottom: 5px;">DIKETAHUI</p>
                 <div class="sig-frame" id="super-sig"></div>
                 <div id="super-name" class="name-line">( ........................ )</div>
-                <p style="font-size: 8pt; margin-top: 2px;">MECHANIC SUPERINTENDENT</p>
+                <p style="font-size: 8pt; margin-top: 2px;">PROCESS ENGINEERING</p>
             </div>
         </div>
     </div>
@@ -295,7 +294,8 @@
             const sigFrame = document.getElementById('super-sig');
             if(latest && latest.signature) {
                 sigFrame.innerHTML = `<img src="${latest.signature}">`;
-                document.getElementById('super-name').innerText = "( SUPERINTENDENT )";
+                // Menampilkan nama superintendent yang tersimpan di database
+                document.getElementById('super-name').innerText = `( ${latest.nama_superintendent || 'SUPERINTENDENT'} )`;
             } else {
                 sigFrame.innerHTML = "";
                 document.getElementById('super-name').innerText = "( ........................ )";
