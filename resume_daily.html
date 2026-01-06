@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Daily Report - Tooling Support</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .gradient-orange { background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%); }
+    </style>
+</head>
+<body class="min-h-screen pb-12">
+
+    <div class="gradient-orange w-full pt-12 pb-24 px-8 mb-[-80px] shadow-2xl">
+        <div class="max-w-[98%] mx-auto flex justify-between items-end">
+            <div>
+                <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Resume Daily Report</h1>
+                <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Rekapitulasi Aktivitas & Performa Harian Tim</p>
+            </div>
+            <a href="management_tracker.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all border border-white/20 backdrop-blur-sm">
+                Kembali
+            </a>
+        </div>
+    </div>
+
+    <div class="max-w-[98%] mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 relative z-10">
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-slate-700">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Task</p>
+                <h3 id="stat-total" class="text-3xl font-black text-slate-800">0</h3>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-blue-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Efficiency</p>
+                <h3 id="stat-efficiency" class="text-3xl font-black text-blue-600">0%</h3>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-rose-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Masih Hold</p>
+                <h3 id="stat-hold" class="text-3xl font-black text-rose-600">0</h3>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-emerald-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Selesai (Done)</p>
+                <h3 id="stat-done" class="text-3xl font-black text-emerald-600">0</h3>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Cari Data</label>
+                    <input type="text" id="search-report" oninput="applyFilters()" placeholder="Project atau Aktivitas..." class="w-full bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Personil</label>
+                    <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
+                        <option value="">Semua Personil</option>
+                        <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option>
+                        <option value="JUMAWAN">JUMAWAN</option><option value="EKO">EKO</option>
+                        <option value="TATA">TATA</option><option value="BAROK">BAROK</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Status</label>
+                    <select id="filter-status" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
+                        <option value="">Semua Status</option>
+                        <option value="Done">Selesai (Done)</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Hold">Hold</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button onclick="fetchAllData()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded-xl text-xs uppercase shadow-lg transition-all active:scale-95">
+                        Refresh Database
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest border-b border-slate-100">
+                            <th class="px-6 py-5">Tanggal Dibuat</th>
+                            <th class="px-6 py-5">Project / Tugas</th>
+                            <th class="px-4 py-5 text-center">Personil</th>
+                            <th class="px-6 py-5">Aktivitas Terakhir</th>
+                            <th class="px-4 py-5 text-center">Waktu Kerja</th>
+                            <th class="px-4 py-5 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resume-body" class="divide-y divide-slate-50 text-sm">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
+        const _sb = supabase.createClient(SB_URL, SB_KEY);
+        let rawData = [];
+
+        async function fetchAllData() {
+            const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
+            if (error) return console.error(error);
+            rawData = data;
+            applyFilters();
+        }
+
+        function calculateDuration(start, end) {
+            if (!start || !end) return "-";
+            const s = new Date(start);
+            const e = new Date(end);
+            const diffMs = e - s;
+            if (diffMs < 0) return "-";
+            const diffHrs = Math.floor(diffMs / 3600000);
+            const diffMins = Math.round((diffMs % 3600000) / 60000);
+            return `${diffHrs}j ${diffMins}m`;
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('search-report').value.toLowerCase();
+            const userFilter = document.getElementById('filter-user').value;
+            const statusFilter = document.getElementById('filter-status').value;
+
+            const filtered = rawData.filter(item => {
+                const matchSearch = item.project_name.toLowerCase().includes(searchTerm) || (item.worker_comment && item.worker_comment.toLowerCase().includes(searchTerm));
+                const matchUser = userFilter === "" || item.assigned_to === userFilter;
+                const matchStatus = statusFilter === "" || item.status === statusFilter;
+                return matchSearch && matchUser && matchStatus;
+            });
+
+            renderTable(filtered);
+            updateDashboard(filtered);
+        }
+
+        function updateDashboard(data) {
+            const total = data.length;
+            const done = data.filter(r => r.status === 'Done').length;
+            const hold = data.filter(r => r.status === 'Hold').length;
+            const efficiency = total > 0 ? Math.round((done / total) * 100) : 0;
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-done').innerText = done;
+            document.getElementById('stat-hold').innerText = hold;
+            document.getElementById('stat-efficiency').innerText = efficiency + "%";
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('resume-body');
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-slate-400 italic">Tidak ada data ditemukan</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.map(row => {
+                const date = new Date(row.created_at).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
+                let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-100" : "bg-blue-50 text-blue-600 border-blue-100");
+                
+                return `
+                    <tr class="hover:bg-slate-50/50 transition-colors">
+                        <td class="px-6 py-6 font-medium text-slate-400 text-xs">${date}</td>
+                        <td class="px-6 py-6 font-bold uppercase text-slate-800">
+                            ${row.project_name}
+                            <div class="text-[9px] text-slate-400 font-normal normal-case mt-1 tracking-tight">${row.task_desc || '-'}</div>
+                        </td>
+                        <td class="px-4 py-6 text-center font-black text-[11px] text-slate-600">${row.assigned_to}</td>
+                        <td class="px-6 py-6">
+                            <div class="text-xs text-slate-600 italic leading-relaxed max-w-xs">
+                                ${row.worker_comment || '<span class="text-slate-300">Belum ada laporan</span>'}
+                                ${row.hold_reason ? `<div class="text-rose-500 font-bold mt-1">Kendala: ${row.hold_reason}</div>` : ''}
+                            </div>
+                        </td>
+                        <td class="px-4 py-6 text-center font-mono text-[10px] font-bold text-slate-500">
+                            ${calculateDuration(row.work_start_time, row.work_end_time)}
+                        </td>
+                        <td class="px-4 py-6 text-center">
+                            <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase border ${sClass}">${row.status}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.onload = fetchAllData;
+    </script>
+</body>
+</html>
