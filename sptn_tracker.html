@@ -13,7 +13,6 @@
         .review-card { cursor: pointer; transition: all 0.2s; border: 1px solid #e2e8f0; }
         .review-card:hover { transform: translateY(-3px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1); border-color: #3b82f6; }
         
-        /* Modal Styles */
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
         .modal-content { background: white; margin: 5% auto; padding: 0; border-radius: 24px; width: 90%; max-width: 600px; overflow: hidden; animation: slideIn 0.3s ease-out; }
         @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -28,14 +27,16 @@
         <div class="max-w-[95%] mx-auto flex justify-between items-center">
             <div>
                 <h1 class="text-2xl font-black text-white tracking-tight uppercase">Project Review Board</h1>
-                <p class="text-slate-400 text-xs mt-1 font-medium tracking-wide">Klik kartu untuk meninjau atau mengedit data</p>
+                <p class="text-slate-400 text-xs mt-1 font-medium tracking-wide">Monitoring & Penugasan Support</p>
             </div>
-            <a href="management_tracker.html" class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-xl font-bold text-[10px] uppercase border border-white/10 transition-all">Kembali</a>
+            <div class="flex gap-3">
+                <button onclick="openAddModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-xl font-bold text-[10px] uppercase shadow-lg transition-all active:scale-95 border border-blue-400">Assign New Project</button>
+                <a href="management_tracker.html" class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-xl font-bold text-[10px] uppercase border border-white/10 transition-all">Kembali</a>
+            </div>
         </div>
     </div>
 
     <div class="max-w-[95%] mx-auto px-6">
-        
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 relative z-10">
             <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-blue-500">
                 <p class="text-[9px] font-bold text-slate-400 uppercase">In Progress</p>
@@ -63,29 +64,27 @@
         <div class="modal-content shadow-2xl">
             <div class="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800 uppercase">Review & Edit Data</h2>
-                    <p id="modal-id-display" class="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-0.5"></p>
+                    <h2 id="modal-title" class="text-lg font-bold text-slate-800 uppercase">Form Project</h2>
+                    <p id="modal-subtitle" class="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-0.5"></p>
                 </div>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
             </div>
             
             <div class="p-6 space-y-4">
                 <input type="hidden" id="edit-id">
-                
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Project Name</label>
-                    <input type="text" id="edit-project" class="form-input font-bold uppercase">
+                    <input type="text" id="edit-project" class="form-input font-bold uppercase" placeholder="Input Nama Project...">
                 </div>
-                
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Tugas / Deskripsi</label>
-                    <textarea id="edit-tugas" class="form-input h-20 resize-none"></textarea>
+                    <textarea id="edit-tugas" class="form-input h-20 resize-none" placeholder="Detail pekerjaan..."></textarea>
                 </div>
-
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Assigned To</label>
                         <select id="edit-name" class="form-input font-bold">
+                            <option value="">Pilih Personil</option>
                             <option value="RYAN">RYAN</option>
                             <option value="ISQI">ISQI</option>
                             <option value="JUMAWAN">JUMAWAN</option>
@@ -96,19 +95,11 @@
                         <input type="date" id="edit-due" class="form-input">
                     </div>
                 </div>
-
-                <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
-                    <label class="text-[10px] font-bold text-blue-400 uppercase">Status & Progress</label>
-                    <div class="flex justify-between items-center mt-1">
-                        <span id="modal-status-text" class="text-sm font-black text-blue-800 uppercase"></span>
-                        <span id="modal-over-text" class="text-[10px] font-bold"></span>
-                    </div>
-                </div>
             </div>
 
             <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex gap-3">
-                <button onclick="updateData()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-lg transition-all active:scale-95">Update Project</button>
-                <button onclick="deleteDataInModal()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-4 rounded-xl border border-rose-100 transition-all">
+                <button id="btn-save-action" onclick="saveAction()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-lg transition-all active:scale-95">Simpan Data</button>
+                <button id="btn-delete" onclick="deleteDataInModal()" class="hidden bg-rose-50 hover:bg-rose-100 text-rose-600 px-4 rounded-xl border border-rose-100 transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 </button>
             </div>
@@ -139,7 +130,7 @@
                 let sClass = row.status === 'Done' ? "bg-emerald-500" : (row.status === 'Hold' ? "bg-rose-500" : (row.status === 'In Progress' ? "bg-blue-500" : "bg-slate-400"));
 
                 return `
-                    <div onclick='openEditModal(${JSON.stringify(row)}, "${diffDays}")' class="review-card bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm">
+                    <div onclick='openEditModal(${JSON.stringify(row)})' class="review-card bg-white rounded-2xl p-5 relative overflow-hidden shadow-sm">
                         <div class="absolute top-0 left-0 w-1.5 h-full ${sClass}"></div>
                         <div class="flex justify-between mb-2">
                             <span class="text-[10px] font-black text-slate-800 uppercase tracking-tighter">${row.assigned_to}</span>
@@ -156,23 +147,36 @@
             }).join('');
         }
 
-        function openEditModal(row, diffDays) {
+        // Fungsi Buka Modal untuk Assign Baru
+        function openAddModal() {
+            document.getElementById('edit-id').value = "";
+            document.getElementById('modal-title').innerText = "Assign New Project";
+            document.getElementById('modal-subtitle').innerText = "Create Project Entry";
+            document.getElementById('edit-project').value = "";
+            document.getElementById('edit-tugas').value = "";
+            document.getElementById('edit-name').value = "";
+            document.getElementById('edit-due').value = "";
+            document.getElementById('btn-delete').classList.add('hidden');
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        // Fungsi Buka Modal untuk Edit
+        function openEditModal(row) {
             document.getElementById('edit-id').value = row.id;
-            document.getElementById('modal-id-display').innerText = `Record ID: ${row.id}`;
+            document.getElementById('modal-title').innerText = "Edit Project Data";
+            document.getElementById('modal-subtitle').innerText = `ID: ${row.id} | Status: ${row.status}`;
             document.getElementById('edit-project').value = row.project_name;
             document.getElementById('edit-tugas').value = row.task_desc || '';
             document.getElementById('edit-name').value = row.assigned_to;
             document.getElementById('edit-due').value = row.due_date;
-            document.getElementById('modal-status-text').innerText = row.status;
-            document.getElementById('modal-over-text').innerText = diffDays > 0 ? `${diffDays} DAYS LATE` : "ON SCHEDULE";
-            document.getElementById('modal-over-text').className = diffDays > 0 ? "text-[10px] font-bold text-red-500" : "text-[10px] font-bold text-emerald-500";
-            
+            document.getElementById('btn-delete').classList.remove('hidden');
             document.getElementById('editModal').style.display = 'block';
         }
 
         function closeModal() { document.getElementById('editModal').style.display = 'none'; }
 
-        async function updateData() {
+        // Logic Gabungan untuk Insert atau Update
+        async function saveAction() {
             const id = document.getElementById('edit-id').value;
             const payload = {
                 project_name: document.getElementById('edit-project').value,
@@ -181,9 +185,16 @@
                 due_date: document.getElementById('edit-due').value
             };
 
-            const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
-            if (!error) { closeModal(); fetchProjectData(); }
-            else { alert("Gagal update!"); }
+            if(!payload.project_name || !payload.assigned_to || !payload.due_date) return alert("Mohon lengkapi data!");
+
+            if(id) { // Jika ada ID, maka Update
+                const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
+                if (!error) { closeModal(); fetchProjectData(); }
+            } else { // Jika ID kosong, maka Insert Baru
+                payload.status = 'Pending';
+                const { error } = await _sb.from('management_tracker').insert([payload]);
+                if (!error) { closeModal(); fetchProjectData(); }
+            }
         }
 
         async function deleteDataInModal() {
