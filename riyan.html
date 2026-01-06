@@ -56,7 +56,9 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em]">
-                            <th class="px-6 py-5">Project & Daftar Tugas</th> <th class="px-4 py-5 text-center">Priority</th> <th class="px-4 py-5 text-center">Due Date</th>
+                            <th class="px-6 py-5">Project & Daftar Tugas</th> 
+                            <th class="px-4 py-5 text-center">Priority</th> 
+                            <th class="px-4 py-5 text-center">Due Date</th>
                             <th class="px-4 py-5 text-center">Start Date & Time</th>
                             <th class="px-4 py-5 text-center">Finish Date & Time</th>
                             <th class="px-6 py-5">Activity</th>
@@ -74,6 +76,18 @@
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
+
+        // Fungsi penting untuk memformat data agar mau tampil di input datetime-local
+        function formatToInputDateTime(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
 
         function formatDisplayDate(dateStr) {
             if (!dateStr) return '--:--';
@@ -93,7 +107,6 @@
                 const isDone = row.status === 'Done';
                 const isHold = row.status === 'Hold';
                 
-                // Styling Priority
                 let priorityClass = "bg-slate-100 text-slate-500";
                 if(row.priority === 'High') priorityClass = "bg-red-100 text-red-600 border border-red-200";
                 if(row.priority === 'Mid') priorityClass = "bg-blue-100 text-blue-600 border border-blue-200";
@@ -106,23 +119,18 @@
                             <span class="block font-bold uppercase text-slate-800">${row.project_name}</span>
                             <span class="block font-medium text-slate-500 text-[11px] uppercase mt-1 leading-relaxed">${row.task_desc || '-'}</span>
                         </td>
-                        
                         <td class="px-4 py-6 text-center">
                             <span class="px-3 py-1 rounded-lg font-black text-[9px] uppercase tracking-tighter ${priorityClass}">${row.priority || 'Mid'}</span>
                         </td>
-
                         <td class="px-4 py-6 text-center font-mono text-[11px] font-bold">${row.due_date}</td>
-                        
                         <td class="px-4 py-6 text-center">
                             ${isDone ? `<span class="text-[10px] font-bold text-slate-700">${formatDisplayDate(row.work_start_time)}</span>` : 
-                            `<input type="datetime-local" id="start-time-${row.id}" value="${row.work_start_time || ''}" class="bg-white border rounded p-1 text-[10px] font-bold outline-none focus:border-blue-500 w-full">`}
+                            `<input type="datetime-local" id="start-time-${row.id}" value="${formatToInputDateTime(row.work_start_time)}" class="bg-white border rounded p-1 text-[10px] font-bold outline-none focus:border-blue-500 w-full">`}
                         </td>
-
                         <td class="px-4 py-6 text-center">
                             ${isDone ? `<span class="text-[10px] font-bold text-emerald-600">${formatDisplayDate(row.work_end_time)}</span>` : 
-                            `<input type="datetime-local" id="end-time-${row.id}" value="${row.work_end_time || ''}" class="bg-white border rounded p-1 text-[10px] font-bold outline-none focus:border-blue-500 w-full">`}
+                            `<input type="datetime-local" id="end-time-${row.id}" value="${formatToInputDateTime(row.work_end_time)}" class="bg-white border rounded p-1 text-[10px] font-bold outline-none focus:border-blue-500 w-full">`}
                         </td>
-
                         <td class="px-6 py-6">
                             ${isDone ? `<p class="italic text-slate-500 text-[11px]">"${row.worker_comment || '-'}"</p>` : 
                             `<textarea id="comment-${row.id}" class="w-full border rounded p-2 text-[11px] outline-none" rows="2">${row.worker_comment && row.worker_comment !== '-' ? row.worker_comment : ''}</textarea>`}
