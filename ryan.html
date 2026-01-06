@@ -55,6 +55,22 @@
             </div>
         </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="relative">
+                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Cari Project / Tugas</label>
+                <input type="text" id="search-input" oninput="filterTable()" placeholder="Ketik nama project atau detail tugas..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Filter Priority</label>
+                <select id="filter-priority" onchange="filterTable()" class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm">
+                    <option value="">Semua Priority</option>
+                    <option value="Low">Low</option>
+                    <option value="Mid">Mid</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
+        </div>
+
         <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
             <div class="p-6 border-b border-slate-50 flex justify-between items-center">
                 <h2 class="text-lg font-bold text-slate-800 uppercase tracking-tight">Daftar Penugasan</h2>
@@ -84,14 +100,13 @@
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
+        let allTasks = []; // Menyimpan data asli untuk pencarian
 
-        // Menghindari geser jam
         function cleanTimestamp(dateStr) {
             if (!dateStr) return '';
             return dateStr.replace('T', ' ').substring(0, 16);
         }
 
-        // Tampilan tanggal lokal Indonesia
         function formatDisplayFixed(dateStr) {
             if (!dateStr) return '--:--';
             const clean = cleanTimestamp(dateStr);
@@ -104,15 +119,15 @@
         async function fetchRyanTasks() {
             const { data, error } = await _sb.from('management_tracker').select('*').eq('assigned_to', 'RYAN').order('created_at', { ascending: false });
             if (error) return console.error(error);
+            
+            allTasks = data; // Simpan data ke variabel global
+            renderTasks(allTasks);
+            updateStats(allTasks);
+        }
 
-            // Update Statistik
-            document.getElementById('stat-active').innerText = data.filter(r => r.status === 'In Progress').length;
-            document.getElementById('stat-pending').innerText = data.filter(r => r.status === 'Pending').length;
-            document.getElementById('stat-hold').innerText    = data.filter(r => r.status === 'Hold').length;
-            document.getElementById('stat-finished').innerText = data.filter(r => r.status === 'Done').length;
-
+        function renderTasks(dataList) {
             const tbody = document.getElementById('ryan-work-body');
-            tbody.innerHTML = data.map(row => {
+            tbody.innerHTML = dataList.map(row => {
                 const isDone = row.status === 'Done';
                 const isHold = row.status === 'Hold';
                 let pClass = row.priority === 'High' ? "bg-red-100 text-red-600 border border-red-200" : (row.priority === 'Mid' ? "bg-blue-100 text-blue-600 border border-blue-200" : "bg-slate-100 text-slate-500");
@@ -158,6 +173,29 @@
             }).join('');
         }
 
+        // FUNGSI PENCARIAN & FILTER
+        function filterTable() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const priorityFilter = document.getElementById('filter-priority').value;
+
+            const filtered = allTasks.filter(task => {
+                const matchesSearch = task.project_name.toLowerCase().includes(query) || 
+                                     (task.task_desc && task.task_desc.toLowerCase().includes(query));
+                const matchesPriority = priorityFilter === "" || task.priority === priorityFilter;
+
+                return matchesSearch && matchesPriority;
+            });
+
+            renderTasks(filtered);
+        }
+
+        function updateStats(data) {
+            document.getElementById('stat-active').innerText = data.filter(r => r.status === 'In Progress').length;
+            document.getElementById('stat-pending').innerText = data.filter(r => r.status === 'Pending').length;
+            document.getElementById('stat-hold').innerText    = data.filter(r => r.status === 'Hold').length;
+            document.getElementById('stat-finished').innerText = data.filter(r => r.status === 'Done').length;
+        }
+
         async function saveAllData(id) {
             const comment = document.getElementById(`comment-${id}`).value;
             const holdReason = document.getElementById(`hold-reason-${id}`).value.trim();
@@ -183,7 +221,10 @@
 
             const { error } = await _sb.from('management_tracker').update(updatePayload).eq('id', id);
             if (error) alert("Gagal Simpan: " + error.message);
-            else { alert("Data Tersimpan!"); fetchRyanTasks(); }
+            else { 
+                alert("Data Tersimpan!"); 
+                fetchRyanTasks(); // Refresh data utama dan filter ulang jika ada input pencarian
+            }
         }
 
         window.onload = fetchRyanTasks;
