@@ -3,100 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Superintendent Tracker - Project Management</title>
+    <title>Superintendent Review Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
-        .gradient-navy { background: linear-gradient(135deg, #001f3f 0%, #003366 100%); }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        .edit-input { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; width: 100%; font-size: 11px; outline: none; transition: all 0.2s; }
-        .edit-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .gradient-navy { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        .edit-input { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 10px; width: 100%; font-size: 12px; outline: none; transition: all 0.2s; }
+        .edit-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .review-card { transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #e2e8f0; }
+        .review-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
     </style>
 </head>
 <body class="min-h-screen pb-12">
 
-    <div class="gradient-navy w-full pt-12 pb-24 px-8 mb-[-80px] shadow-2xl">
-        <div class="max-w-[98%] mx-auto flex justify-between items-end">
+    <div class="gradient-navy w-full pt-10 pb-20 px-8 mb-[-60px] shadow-2xl">
+        <div class="max-w-[95%] mx-auto flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Project Control Panel</h1>
-                <p class="text-blue-200 text-sm mt-1 font-medium tracking-wide">Pemberian Tugas & Monitoring Real-time</p>
+                <h1 class="text-2xl font-black text-white tracking-tight uppercase">Project Control & Review</h1>
+                <p class="text-slate-400 text-xs mt-1 font-medium tracking-wide">Monitoring Real-time & Penugasan Support</p>
             </div>
-            <a href="management_tracker.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all border border-white/20">
-                Kembali
-            </a>
+            <a href="management_tracker.html" class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-xl font-bold text-[10px] uppercase transition-all border border-white/10">Kembali</a>
         </div>
     </div>
 
-    <div class="max-w-[98%] mx-auto px-8">
-        <div class="glass-card p-8 rounded-3xl shadow-xl mb-10 relative z-10">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-2 h-6 bg-blue-600 rounded-full"></div>
-                <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider">Assign Project Baru</h2>
+    <div class="max-w-[95%] mx-auto px-6">
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 relative z-10">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-blue-500">
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">In Progress</p>
+                <h3 id="stat-progress" class="text-2xl font-black text-slate-800">0</h3>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Project Name</label>
-                    <input type="text" id="in-project" placeholder="Nama Project" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm outline-none">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Daftar Tugas</label>
-                    <input type="text" id="in-tugas" placeholder="Detail Kerja" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm outline-none">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Assigned To</label>
-                    <select id="in-name" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm outline-none">
-                        <option value="">Pilih Personil</option>
-                        <option value="RYAN">RYAN</option> <option value="ISQI">ISQI</option>
-                        <option value="JUMAWAN">JUMAWAN</option>
-                    </select>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Priority</label>
-                    <select id="in-priority" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none">
-                        <option value="Low">Low</option>
-                        <option value="Mid" selected>Mid</option>
-                        <option value="High">High</option>
-                    </select>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Start Date</label>
-                    <input type="date" id="in-start" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm outline-none">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Target Due</label>
-                    <input type="date" id="in-due" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm outline-none">
-                </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-amber-500">
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Pending</p>
+                <h3 id="stat-pending" class="text-2xl font-black text-slate-800">0</h3>
             </div>
-            <div class="mt-8 flex justify-end">
-                <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase shadow-lg transition-all transform active:scale-95">
-                    Assign Project
-                </button>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-rose-500">
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Hold</p>
+                <h3 id="stat-hold" class="text-2xl font-black text-rose-600">0</h3>
+            </div>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-emerald-500">
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Total Selesai</p>
+                <h3 id="stat-done" class="text-2xl font-black text-emerald-600">0</h3>
             </div>
         </div>
 
-        <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest border-b border-slate-100">
-                            <th class="px-6 py-5">Project</th>
-                            <th class="px-6 py-5">Tugas</th>
-                            <th class="px-4 py-5 text-center">Priority</th>
-                            <th class="px-4 py-5 text-center">Personil</th>
-                            <th class="px-4 py-5 text-center">Due Date</th>
-                            <th class="px-4 py-5 text-center">Progress</th>
-                            <th class="px-6 py-5 text-center">Over Date</th>
-                            <th class="px-6 py-5">Activity</th> 
-                            <th class="px-6 py-5">Keterangan (Hold)</th> 
-                            <th class="px-6 py-5 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="project-body" class="divide-y divide-slate-50 text-sm"></tbody>
-                </table>
+        <div class="bg-white p-6 rounded-2xl shadow-sm mb-10 border border-slate-200">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-1.5 h-5 bg-blue-600 rounded-full"></div>
+                <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Assign Project Baru</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <input type="text" id="in-project" placeholder="Nama Project" class="edit-input">
+                <input type="text" id="in-tugas" placeholder="Daftar Tugas" class="edit-input">
+                <select id="in-name" class="edit-input">
+                    <option value="">Pilih Personil</option>
+                    <option value="RYAN">RYAN</option>
+                    <option value="ISQI">ISQI</option>
+                    <option value="JUMAWAN">JUMAWAN</option>
+                </select>
+                <input type="date" id="in-due" class="edit-input">
+                <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-bold text-[10px] uppercase shadow-md transition-all active:scale-95">Simpan Data</button>
             </div>
         </div>
+
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-1.5 h-5 bg-slate-800 rounded-full"></div>
+            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Review Daftar Tugas</h2>
+        </div>
+
+        <div id="project-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+
     </div>
 
     <script>
@@ -108,14 +87,12 @@
             const project = document.getElementById('in-project').value;
             const tugas = document.getElementById('in-tugas').value;
             const name = document.getElementById('in-name').value;
-            const priority = document.getElementById('in-priority').value;
-            const start = document.getElementById('in-start').value;
             const due = document.getElementById('in-due').value;
 
             if(!project || !name || !due) return alert("Lengkapi data!");
 
             const { error } = await _sb.from('management_tracker').insert([{ 
-                project_name: project, task_desc: tugas, assigned_to: name, priority: priority, start_date: start, due_date: due, status: 'Pending' 
+                project_name: project, task_desc: tugas, assigned_to: name, due_date: due, status: 'Pending' 
             }]);
 
             if (error) alert(error.message);
@@ -125,66 +102,79 @@
         function clearInputs() {
             document.getElementById('in-project').value = "";
             document.getElementById('in-tugas').value = "";
+            document.getElementById('in-due').value = "";
         }
 
         async function fetchProjectData() {
             const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
             if (error) return;
 
-            const tbody = document.getElementById('project-body');
-            tbody.innerHTML = data.map(row => {
+            document.getElementById('stat-progress').innerText = data.filter(r => r.status === 'In Progress').length;
+            document.getElementById('stat-pending').innerText = data.filter(r => r.status === 'Pending').length;
+            document.getElementById('stat-hold').innerText = data.filter(r => r.status === 'Hold').length;
+            document.getElementById('stat-done').innerText = data.filter(r => r.status === 'Done').length;
+
+            const container = document.getElementById('project-container');
+            container.innerHTML = data.map(row => {
                 const today = new Date();
                 today.setHours(0,0,0,0);
                 const dueDate = new Date(row.due_date);
                 const endDate = row.actual_finish ? new Date(row.actual_finish) : today;
                 const diffDays = Math.ceil((endDate - dueDate) / (1000 * 60 * 60 * 24));
 
-                let overDateContent = '';
-                if (row.status === 'Done') {
-                    overDateContent = diffDays > 0 ? 
-                        `<span class="bg-red-50 text-red-600 px-3 py-1 rounded-lg font-bold text-[10px]">LATE ${diffDays}D</span>` : 
-                        '<span class="text-emerald-500 font-bold text-[10px]">ON TIME</span>';
-                } else {
-                    overDateContent = diffDays > 0 ? 
-                        `<span class="text-red-600 font-black">${diffDays} Days Late</span>` : 
-                        '<span class="text-slate-300 italic">On Schedule</span>';
-                }
-
-                let pClass = row.priority === 'High' ? "bg-red-100 text-red-600" : (row.priority === 'Mid' ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500");
-                let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-100" : "bg-blue-50 text-blue-600 border-blue-100");
+                let overDateLabel = diffDays > 0 ? `<span class="text-red-600 font-bold">LATE ${diffDays}D</span>` : `<span class="text-emerald-500 font-bold">ON TIME</span>`;
+                let sClass = row.status === 'Done' ? "bg-emerald-500" : (row.status === 'Hold' ? "bg-rose-500" : (row.status === 'In Progress' ? "bg-blue-500" : "bg-slate-400"));
 
                 return `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-6"><input type="text" value="${row.project_name}" onchange="updateInline('${row.id}', 'project_name', this.value)" class="edit-input font-bold uppercase"></td>
-                        <td class="px-6 py-6"><input type="text" value="${row.task_desc || ''}" onchange="updateInline('${row.id}', 'task_desc', this.value)" class="edit-input italic"></td>
-                        <td class="px-4 py-6 text-center">
-                            <select onchange="updateInline('${row.id}', 'priority', this.value)" class="text-[9px] font-black uppercase rounded p-1 ${pClass}">
-                                <option value="Low" ${row.priority === 'Low' ? 'selected' : ''}>Low</option>
-                                <option value="Mid" ${row.priority === 'Mid' ? 'selected' : ''}>Mid</option>
-                                <option value="High" ${row.priority === 'High' ? 'selected' : ''}>High</option>
-                            </select>
-                        </td>
-                        <td class="px-4 py-6 text-center">
-                            <select onchange="updateInline('${row.id}', 'assigned_to', this.value)" class="text-[10px] font-bold uppercase rounded p-1 border">
-                                <option value="RYAN" ${row.assigned_to === 'RYAN' ? 'selected' : ''}>RYAN</option> <option value="ISQI" ${row.assigned_to === 'ISQI' ? 'selected' : ''}>ISQI</option>
-                                <option value="JUMAWAN" ${row.assigned_to === 'JUMAWAN' ? 'selected' : ''}>JUMAWAN</option>
-                            </select>
-                        </td>
-                        <td class="px-4 py-6 text-center"><input type="date" value="${row.due_date}" onchange="updateInline('${row.id}', 'due_date', this.value)" class="text-[10px] font-bold border rounded p-1"></td>
-                        <td class="px-4 py-6 text-center">
-                            <span class="px-3 py-1 rounded-full font-black text-[9px] uppercase border ${sClass}">${row.status}</span>
-                        </td>
-                        <td class="px-6 py-6 text-center font-bold">${overDateContent}</td>
-                        <td class="px-6 py-6 font-medium text-slate-600 text-[11px] uppercase">${row.worker_comment || '-'}</td>
-                        <td class="px-6 py-6 font-medium ${row.status === 'Hold' ? 'text-rose-600 font-bold italic' : 'text-slate-500'} text-[11px]">
-                            ${row.hold_reason || '-'}
-                        </td>
-                        <td class="px-6 py-6 text-center">
-                            <button onclick="deleteData('${row.id}')" class="text-slate-300 hover:text-red-600 transition-colors">
-                                <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    <div class="review-card bg-white rounded-2xl p-5 flex flex-col gap-4 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1.5 h-full ${sClass}"></div>
+                        
+                        <div class="flex justify-between items-start">
+                            <div class="flex-grow">
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Project Name</label>
+                                <input type="text" value="${row.project_name}" onchange="updateInline('${row.id}', 'project_name', this.value)" class="edit-input font-bold uppercase !text-sm">
+                            </div>
+                            <button onclick="deleteData('${row.id}')" class="text-slate-300 hover:text-red-500 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             </button>
-                        </td>
-                    </tr>
+                        </div>
+
+                        <div>
+                            <label class="text-[9px] font-bold text-slate-400 uppercase">Tugas / Detail</label>
+                            <input type="text" value="${row.task_desc || ''}" onchange="updateInline('${row.id}', 'task_desc', this.value)" class="edit-input italic">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Personil</label>
+                                <select onchange="updateInline('${row.id}', 'assigned_to', this.value)" class="edit-input font-bold">
+                                    <option value="RYAN" ${row.assigned_to === 'RYAN' ? 'selected' : ''}>RYAN</option>
+                                    <option value="ISQI" ${row.assigned_to === 'ISQI' ? 'selected' : ''}>ISQI</option>
+                                    <option value="JUMAWAN" ${row.assigned_to === 'JUMAWAN' ? 'selected' : ''}>JUMAWAN</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Due Date</label>
+                                <input type="date" value="${row.due_date}" onchange="updateInline('${row.id}', 'due_date', this.value)" class="edit-input">
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase">Current Progress</span>
+                                <span class="px-2 py-0.5 rounded-full text-white text-[8px] font-bold uppercase ${sClass}">${row.status}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <p class="text-[10px] font-medium text-slate-600">${overDateLabel}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase">Report Field (Aktivitas)</label>
+                            <p class="text-[10px] text-slate-800 font-semibold bg-blue-50/50 p-2 rounded-lg border border-blue-100 mt-1">${row.worker_comment || 'Belum ada aktivitas'}</p>
+                            ${row.hold_reason ? `<p class="text-[10px] text-rose-600 italic bg-rose-50 p-2 rounded-lg border border-rose-100 mt-1">Keterangan: ${row.hold_reason}</p>` : ''}
+                        </div>
+                    </div>
                 `;
             }).join('');
         }
@@ -195,7 +185,7 @@
         }
 
         async function deleteData(id) {
-            if(confirm('Hapus data ini?')) {
+            if(confirm('Hapus kartu tugas ini?')) {
                 await _sb.from('management_tracker').delete().eq('id', id);
                 fetchProjectData();
             }
