@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Daily Report - Full Detail Review</title>
+    <title>Resume Daily Report - Project & Task Analytics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -25,7 +25,7 @@
         <div class="max-w-[98%] mx-auto flex justify-between items-end">
             <div>
                 <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Resume Daily Report</h1>
-                <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Monitoring Performa & Detail Laporan Lengkap</p>
+                <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Analisis Perbandingan Project & Total Task Tim</p>
             </div>
             <a href="management_tracker.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-white/20 transition-all">Kembali</a>
         </div>
@@ -34,29 +34,29 @@
     <div class="max-w-[98%] mx-auto px-4">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 relative z-10">
             <div class="lg:col-span-2 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
-                <div class="h-[250px]"><canvas id="projectChart"></canvas></div>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">Perbandingan Project vs Task</h3>
+                </div>
+                <div class="h-[280px]">
+                    <canvas id="projectChart"></canvas>
+                </div>
             </div>
+
             <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
-                <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest mb-4 text-center">Total Task</h3>
+                <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest mb-4 text-center">Summary Per Personil</h3>
                 <div id="personnel-stats" class="grid grid-cols-2 gap-3"></div>
             </div>
         </div>
 
         <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Filter Personil</label>
-                    <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
-                        <option value="">-- Semua Personil --</option>
-                        <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option>
-                        <option value="JUMAWAN">JUMAWAN</option><option value="EKO">EKO</option>
-                        <option value="TATA">TATA</option><option value="BAROK">BAROK</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Cari Project atau Tugas</label>
-                    <input type="text" id="search-report" oninput="applyFilters()" placeholder="Ketik nama project atau detail tugas..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
-                </div>
+                <select id="filter-user" onchange="applyFilters()" class="bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
+                    <option value="">-- Semua Personil --</option>
+                    <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option>
+                    <option value="JUMAWAN">JUMAWAN</option><option value="EKO">EKO</option>
+                    <option value="TATA">TATA</option><option value="BAROK">BAROK</option>
+                </select>
+                <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Nama Project atau Detail Tugas..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
             </div>
         </div>
 
@@ -87,52 +87,46 @@
                 </div>
                 <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl">&times;</button>
             </div>
-            
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Personil (PIC)</label>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                        <label class="text-[9px] font-black text-slate-400 uppercase block mb-1">Personil</label>
                         <p id="det-pic" class="text-sm font-black text-slate-800"></p>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Priority</label>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                        <label class="text-[9px] font-black text-slate-400 uppercase block mb-1">Priority</label>
                         <p id="det-priority" class="text-xs font-black uppercase"></p>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Status</label>
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">
+                        <label class="text-[9px] font-black text-slate-400 uppercase block mb-1">Status</label>
                         <p id="det-status" class="text-xs font-black uppercase"></p>
                     </div>
                 </div>
-
                 <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Deskripsi Tugas Utama</label>
+                    <label class="text-[9px] font-black text-slate-400 uppercase block mb-1">Deskripsi Tugas</label>
                     <p id="det-task" class="text-sm text-slate-600 font-medium bg-slate-50 p-4 rounded-2xl border border-slate-100"></p>
                 </div>
-
                 <div class="grid grid-cols-2 gap-6">
                     <div>
-                        <label class="text-[10px] font-black text-blue-500 uppercase block mb-1">Mulai Kerja</label>
+                        <label class="text-[9px] font-black text-blue-500 uppercase block mb-1">Start Work</label>
                         <div id="det-start" class="text-[11px] font-bold text-slate-700 bg-blue-50 p-3 rounded-xl border border-blue-100"></div>
                     </div>
                     <div>
-                        <label class="text-[10px] font-black text-emerald-500 uppercase block mb-1">Selesai Kerja</label>
+                        <label class="text-[9px] font-black text-emerald-500 uppercase block mb-1">Finish Work</label>
                         <div id="det-finish" class="text-[11px] font-bold text-slate-700 bg-emerald-50 p-3 rounded-xl border border-emerald-100"></div>
                     </div>
                 </div>
-
                 <div>
-                    <label class="text-[10px] font-black text-indigo-500 uppercase block mb-1">Laporan Aktivitas (Update Lapangan)</label>
+                    <label class="text-[9px] font-black text-indigo-500 uppercase block mb-1">Laporan Aktivitas</label>
                     <div id="det-activity" class="bg-indigo-50 text-indigo-900 p-5 rounded-2xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed"></div>
                 </div>
-
                 <div id="hold-section" class="hidden">
-                    <label class="text-[10px] font-black text-rose-500 uppercase block mb-1">Keterangan / Kendala (Hold Reason)</label>
-                    <div id="det-hold" class="bg-rose-50 text-rose-900 p-5 rounded-2xl text-sm font-bold border border-rose-100 whitespace-pre-wrap leading-relaxed"></div>
+                    <label class="text-[9px] font-black text-rose-500 uppercase block mb-1">Kendala (Hold)</label>
+                    <div id="det-hold" class="bg-rose-50 text-rose-900 p-5 rounded-2xl text-sm font-bold border border-rose-100 whitespace-pre-wrap"></div>
                 </div>
             </div>
-
             <div class="p-6 bg-slate-50 border-t border-slate-100">
-                <button onclick="closeModal()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-xs transition-all active:scale-95 shadow-lg">Tutup Detail Laporan</button>
+                <button onclick="closeModal()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg transition-all active:scale-95">Tutup Laporan</button>
             </div>
         </div>
     </div>
@@ -148,9 +142,7 @@
             if (!str) return 'Belum Diinput';
             try {
                 const dateMatch = str.match(/(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/);
-                if (dateMatch) {
-                    return dateMatch[1].split('-').reverse().join('/') + " Jam " + dateMatch[2].replace(':', '.');
-                }
+                if (dateMatch) return dateMatch[1].split('-').reverse().join('/') + " Jam " + dateMatch[2].replace(':', '.');
                 if (str.includes('/')) {
                     const time = str.split(/[T+]/)[1]?.substring(0, 5).replace(':', '.') || '--.--';
                     const date = str.split('00:00/')[1] || str;
@@ -181,18 +173,43 @@
             }).join('');
         }
 
+        // FUNGSI DIAGRAM BATANG KOMBINASI (PROJECT & TASK)
         function renderChart() {
             const personnel = ["RYAN", "ISQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
-            const counts = personnel.map(name => rawData.filter(r => r.assigned_to === name).length);
+            
+            // Hitung Data per Personil
+            const taskCounts = personnel.map(name => rawData.filter(r => r.assigned_to === name).length);
+            const projectCounts = personnel.map(name => {
+                const userTasks = rawData.filter(r => r.assigned_to === name);
+                const uniqueProjects = [...new Set(userTasks.map(t => t.project_name))];
+                return uniqueProjects.length;
+            });
+
+            // Hitung Total Keseluruhan
+            const totalTasks = rawData.length;
+            const totalProjects = [...new Set(rawData.map(t => t.project_name))].length;
+
+            const labels = [...personnel, "OVERALL"];
+            const finalTaskData = [...taskCounts, totalTasks];
+            const finalProjectData = [...projectCounts, totalProjects];
+
             const ctx = document.getElementById('projectChart').getContext('2d');
             if (projectChart) projectChart.destroy();
+            
             projectChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: personnel,
-                    datasets: [{ label: 'Total Project', data: counts, backgroundColor: ['#3b82f6', '#6366f1', '#f59e0b', '#10b981', '#f43f5e', '#475569'], borderRadius: 12 }]
+                    labels: labels,
+                    datasets: [
+                        { label: 'Total Task', data: finalTaskData, backgroundColor: '#ea580c', borderRadius: 8 },
+                        { label: 'Total Project', data: finalProjectData, backgroundColor: '#3b82f6', borderRadius: 8 }
+                    ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { display: true, position: 'top', labels: { font: { size: 10, weight: 'bold' } } } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 2 } }, x: { grid: { display: false } } }
+                }
             });
         }
 
@@ -214,10 +231,7 @@
                 let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-blue-50 text-blue-600 border-blue-200");
                 let pClass = row.priority === 'High' ? 'text-red-600' : (row.priority === 'Mid' ? 'text-blue-600' : 'text-slate-500');
                 return `<tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-6 font-bold uppercase text-slate-800">
-                        ${row.project_name}
-                        <div class="text-[9px] text-slate-400 font-medium normal-case mt-1 italic">${row.task_desc || '-'}</div>
-                    </td>
+                    <td class="px-6 py-6 font-bold uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 font-medium normal-case mt-1 italic">${row.task_desc || '-'}</div></td>
                     <td class="px-4 py-6 text-center font-black text-slate-500">${row.assigned_to}</td>
                     <td class="px-4 py-6 text-center font-black text-[10px] uppercase ${pClass}">${row.priority || 'Mid'}</td>
                     <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase ${sClass}">${row.status}</span></td>
@@ -234,23 +248,14 @@
             document.getElementById('det-task').innerText = row.task_desc || 'Tidak ada deskripsi.';
             document.getElementById('det-status').innerText = row.status;
             document.getElementById('det-status').className = `text-xs font-black uppercase ${row.status === 'Done' ? 'text-emerald-600' : (row.status === 'Hold' ? 'text-rose-600' : 'text-blue-600')}`;
-            
-            // PRIORITY DETAIL
             document.getElementById('det-priority').innerText = row.priority || 'Mid';
             document.getElementById('det-priority').className = `text-xs font-black uppercase ${row.priority === 'High' ? 'text-red-600' : (row.priority === 'Mid' ? 'text-blue-600' : 'text-slate-500')}`;
-
             document.getElementById('det-start').innerText = formatDateTime(row.work_start_time);
             document.getElementById('det-finish').innerText = formatDateTime(row.work_end_time);
             document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas lapangan.";
-            
             const holdSec = document.getElementById('hold-section');
-            if(row.hold_reason) {
-                holdSec.classList.remove('hidden');
-                document.getElementById('det-hold').innerText = row.hold_reason;
-            } else {
-                holdSec.classList.add('hidden');
-            }
-            
+            if(row.hold_reason) { holdSec.classList.remove('hidden'); document.getElementById('det-hold').innerText = row.hold_reason; } 
+            else { holdSec.classList.add('hidden'); }
             document.getElementById('detailModal').style.display = 'block';
         }
 
