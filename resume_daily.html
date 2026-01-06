@@ -31,19 +31,24 @@
 <body class="min-h-screen pb-12">
 
     <header class="gradient-orange w-full pt-12 pb-24 px-8 mb-[-80px] shadow-2xl">
-        <div class="max-w-[98%] mx-auto flex justify-between items-end">
+        <div class="max-w-[98%] mx-auto flex justify-between items-end flex-wrap gap-4">
             <div>
                 <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Resume Daily Report</h1>
                 <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Monitoring Progres & Analisis Data Terintegrasi</p>
             </div>
-            <div class="flex gap-3">
-                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-emerald-500 transition-all shadow-lg">Download Excel</button>
-                <a href="management_tracker.html" class="bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-white/20 transition-all">Kembali</a>
+            <div class="flex gap-2 flex-wrap">
+                <button onclick="exportToExcel()" class="bg-white text-emerald-700 px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-lg hover:bg-emerald-50 transition-all border border-emerald-100">
+                    Unduh Excel (.xlsx)
+                </button>
+                <button onclick="exportToCSV()" class="bg-white text-blue-700 px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase shadow-lg hover:bg-blue-50 transition-all border border-blue-100">
+                    Unduh Spreadsheet (.csv)
+                </button>
+                <a href="management_tracker.html" class="bg-black/20 text-white px-5 py-2.5 rounded-xl font-bold text-[10px] uppercase border border-white/20 transition-all hover:bg-black/30">Kembali</a>
             </div>
         </div>
     </header>
 
-    <main class="max-w-[98%] mx-auto px-4">
+    <main class="max-w-[98%] mx-auto px-4 mt-20">
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 relative z-10">
             <div class="lg:col-span-2 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
                 <div class="flex flex-col gap-4 mb-6">
@@ -71,21 +76,20 @@
             </div>
         </section>
 
-        <section class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
-                <option value="">-- Semua Personil --</option>
-                <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option>
-                <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
-            </select>
-            <select id="filter-status" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
-                <option value="">-- Semua Status --</option>
-                <option value="Pending">Pending</option><option value="In Progress">In Progress</option>
-                <option value="Hold">Hold</option><option value="Done">Done</option>
-            </select>
-            <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Project atau Tugas..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
-        </section>
-
-        <section class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden text-sm text-nowrap">
+        <section class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden text-sm">
+            <div class="p-6 border-b border-slate-100 flex flex-wrap gap-4 bg-slate-50/30">
+                <select id="filter-user" onchange="applyFilters()" class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500">
+                    <option value="">-- Semua Personil --</option>
+                    <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option>
+                    <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
+                </select>
+                <select id="filter-status" onchange="applyFilters()" class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-orange-500">
+                    <option value="">-- Semua Status --</option>
+                    <option value="Pending">Pending</option><option value="In Progress">In Progress</option>
+                    <option value="Hold">Hold</option><option value="Done">Done</option>
+                </select>
+                <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Project atau Tugas..." class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-xs flex-grow outline-none focus:ring-2 focus:ring-orange-500">
+            </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse" id="main-report-table">
                     <thead>
@@ -122,7 +126,7 @@
                 <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed"></div></div>
                 <div id="hold-section" class="hidden"><label class="text-[9px] font-black text-rose-500 uppercase">Keterangan Kendala</label><div id="det-hold" class="bg-rose-50 p-5 rounded-xl text-sm font-bold border border-rose-100 whitespace-pre-wrap leading-relaxed"></div></div>
             </div>
-            <div class="p-6 bg-slate-50 border-t"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
+            <div class="p-6 bg-slate-50 border-t"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup</button></div>
         </div>
     </div>
 
@@ -154,55 +158,51 @@
             applyFilters();
         }
 
-        // FUNGSI EKSPOR EXCEL DENGAN BORDER OTOMATIS
+        // 1. FUNGSI EKSPOR EXCEL (.xlsx) DENGAN BORDER
         function exportToExcel() {
-            if (filteredData.length === 0) return alert("Tidak ada data");
-            
+            if (filteredData.length === 0) return alert("Data kosong");
             const hiddenTable = document.getElementById('hidden-excel-table');
-            
-            // Membuat struktur HTML table agar Excel memberikan border
-            let html = `<thead>
-                <tr>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">PROJECT NAME</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">PERSONIL</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">PRIORITY</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">STATUS</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">START TIME</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">FINISH TIME</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">TUGAS</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">LAPORAN KERJA</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">KENDALA</th>
-                </tr>
-            </thead><tbody>`;
-
-            filteredData.forEach(item => {
+            let html = `<thead><tr>
+                <th style="background-color:#ea580c;color:#ffffff;border:1px solid #000;">PROJECT NAME</th>
+                <th style="background-color:#ea580c;color:#ffffff;border:1px solid #000;">PERSONIL</th>
+                <th style="background-color:#ea580c;color:#ffffff;border:1px solid #000;">STATUS</th>
+                <th style="background-color:#ea580c;color:#ffffff;border:1px solid #000;">START</th>
+                <th style="background-color:#ea580c;color:#ffffff;border:1px solid #000;">FINISH</th>
+                <th style="background-color:#ea580c;color:#ffffff;border:1px solid #000;">LAPORAN</th>
+            </tr></thead><tbody>`;
+            filteredData.forEach(i => {
                 html += `<tr>
-                    <td style="border: 1px solid #000000;">${(item.project_name || "").toUpperCase()}</td>
-                    <td style="border: 1px solid #000000;">${item.assigned_to}</td>
-                    <td style="border: 1px solid #000000;">${item.priority || "Mid"}</td>
-                    <td style="border: 1px solid #000000;">${item.status}</td>
-                    <td style="border: 1px solid #000000;">${formatDateTimeClean(item.work_start_time)}</td>
-                    <td style="border: 1px solid #000000;">${formatDateTimeClean(item.work_end_time)}</td>
-                    <td style="border: 1px solid #000000;">${item.task_desc || "-"}</td>
-                    <td style="border: 1px solid #000000;">${item.worker_comment || "-"}</td>
-                    <td style="border: 1px solid #000000;">${item.hold_reason || "-"}</td>
+                    <td style="border:1px solid #000;">${(i.project_name||"").toUpperCase()}</td>
+                    <td style="border:1px solid #000;">${i.assigned_to}</td>
+                    <td style="border:1px solid #000;">${i.status}</td>
+                    <td style="border:1px solid #000;">${formatDateTimeClean(i.work_start_time)}</td>
+                    <td style="border:1px solid #000;">${formatDateTimeClean(i.work_end_time)}</td>
+                    <td style="border:1px solid #000;">${i.worker_comment || "-"}</td>
                 </tr>`;
             });
             html += `</tbody>`;
             hiddenTable.innerHTML = html;
-
-            const workbook = XLSX.utils.table_to_book(hiddenTable);
-            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-
-            // Atur lebar kolom otomatis
-            const colWidths = [
-                {wch: 25}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 20}, {wch: 20}, {wch: 30}, {wch: 40}, {wch: 30}
-            ];
-            worksheet['!cols'] = colWidths;
-
-            XLSX.writeFile(workbook, `Report_Tooling_${new Date().toISOString().split('T')[0]}.xlsx`);
+            const wb = XLSX.utils.table_to_book(hiddenTable);
+            XLSX.writeFile(wb, `Report_Tooling_Excel_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
 
+        // 2. FUNGSI EKSPOR SPREADSHEET (.csv)
+        function exportToCSV() {
+            if (filteredData.length === 0) return alert("Data kosong");
+            const ws = XLSX.utils.json_to_sheet(filteredData.map(i => ({
+                Project: i.project_name,
+                Personil: i.assigned_to,
+                Status: i.status,
+                Start: formatDateTimeClean(i.work_start_time),
+                Finish: formatDateTimeClean(i.work_end_time),
+                Update: i.worker_comment
+            })));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Data");
+            XLSX.writeFile(wb, `Report_Tooling_Sheet_${new Date().toISOString().split('T')[0]}.csv`);
+        }
+
+        // Fungsi pendukung lainnya (Chart, Filter, Table Render)
         function updatePersonnelGrid() {
             const personnel = ["RYAN", "ISQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
             const container = document.getElementById('personnel-stats');
@@ -211,17 +211,13 @@
                 const count = rawData.filter(r => r.assigned_to === name).length;
                 totalAll += count;
                 const colorClass = 'card-' + name.toLowerCase();
-                return `<div onclick="selectPerson('${name}')" class="person-card uppercase ${colorClass}">
-                    <p class="text-[9px] font-black opacity-70 tracking-tighter">${name}</p>
-                    <h4 class="text-xl font-black">${count}</h4>
-                </div>`;
+                return `<div onclick="selectPerson('${name}')" class="person-card uppercase ${colorClass}"><p class="text-[9px] font-black opacity-70">${name}</p><h4 class="text-xl font-black">${count}</h4></div>`;
             }).join('');
             document.getElementById('grand-total-tasks').innerText = totalAll;
         }
 
         function switchChart(type) {
-            const btns = ['person', 'pending', 'progress', 'hold', 'done'];
-            btns.forEach(id => document.getElementById('btn-' + id).classList.remove('btn-active'));
+            ['person', 'pending', 'progress', 'hold', 'done'].forEach(id => document.getElementById('btn-' + id).classList.remove('btn-active'));
             const activeId = type === 'person' ? 'btn-person' : (type === 'Pending' ? 'btn-pending' : (type === 'In Progress' ? 'btn-progress' : (type === 'Hold' ? 'btn-hold' : 'btn-done')));
             document.getElementById(activeId).classList.add('btn-active');
             renderChart(type);
@@ -241,7 +237,7 @@
                 labels = personnel;
                 datasets = [{ label: 'Status ' + type, data: personnel.map(name => rawData.filter(r => r.assigned_to === name && r.status === type).length), backgroundColor: statusColors[type], borderRadius: 12 }];
             }
-            projectChart = new Chart(ctx, { type: 'bar', data: { labels, datasets }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: (type !== 'person') } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
+            projectChart = new Chart(ctx, { type: 'bar', data: { labels, datasets }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
         }
 
         function applyFilters() {
