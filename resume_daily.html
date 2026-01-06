@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Daily Report - Analytics Status</title>
+    <title>Resume Daily Report - Status Analytics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -25,7 +25,7 @@
         <div class="max-w-[98%] mx-auto flex justify-between items-end">
             <div>
                 <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Resume Daily Report</h1>
-                <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Monitoring Progres & Status Kerja Tim</p>
+                <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Analisis Detail Status Progres Tim</p>
             </div>
             <a href="management_tracker.html" class="bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-white/20 transition-all">Kembali</a>
         </div>
@@ -36,19 +36,19 @@
             
             <div class="lg:col-span-2 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">Visualisasi Progres</h3>
+                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">Visualisasi Progres Kerja</h3>
                     <div class="flex bg-slate-100 p-1 rounded-xl">
-                        <button id="btn-person" onclick="switchChart('person')" class="btn-toggle px-4 py-2 rounded-lg text-[10px] font-black uppercase btn-active">Per Personil</button>
-                        <button id="btn-total" onclick="switchChart('total')" class="btn-toggle px-4 py-2 rounded-lg text-[10px] font-black uppercase text-slate-500">Total Status</button>
+                        <button id="btn-status-all" onclick="switchChart('status-all')" class="btn-toggle px-4 py-2 rounded-lg text-[10px] font-black uppercase btn-active">Total Status</button>
+                        <button id="btn-person-status" onclick="switchChart('person-status')" class="btn-toggle px-4 py-2 rounded-lg text-[10px] font-black uppercase text-slate-500">Per Personil</button>
                     </div>
                 </div>
-                <div class="h-[250px]">
+                <div class="h-[280px]">
                     <canvas id="projectChart"></canvas>
                 </div>
             </div>
 
             <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
-                <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest mb-4 text-center">Summary Task</h3>
+                <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest mb-4 text-center">Summary Project</h3>
                 <div id="personnel-stats" class="grid grid-cols-2 gap-3"></div>
             </div>
         </div>
@@ -56,7 +56,7 @@
         <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Filter Personil</label>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">PIC</label>
                     <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
                         <option value="">-- Semua Personil --</option>
                         <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option>
@@ -65,7 +65,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Filter Status</label>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Status</label>
                     <select id="filter-status" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
                         <option value="">-- Semua Status --</option>
                         <option value="Pending">Pending</option>
@@ -76,7 +76,7 @@
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Cari Project/Tugas</label>
-                    <input type="text" id="search-report" oninput="applyFilters()" placeholder="Ketik nama project..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
+                    <input type="text" id="search-report" oninput="applyFilters()" placeholder="Ketik kata kunci..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
                 </div>
             </div>
         </div>
@@ -89,7 +89,7 @@
                             <th class="px-6 py-5">Project / Tugas</th>
                             <th class="px-4 py-5 text-center">PIC</th>
                             <th class="px-4 py-5 text-center">Priority</th>
-                            <th class="px-4 py-5 text-center">Status</th>
+                            <th class="px-4 py-5 text-center border-l">Status</th>
                             <th class="px-6 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -103,7 +103,7 @@
         <div class="modal-content shadow-2xl">
             <div class="bg-slate-900 p-6 text-white flex justify-between items-center">
                 <div>
-                    <h2 class="text-lg font-black uppercase">Detail Laporan</h2>
+                    <h2 class="text-lg font-black uppercase">Laporan Detail</h2>
                     <p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase"></p>
                 </div>
                 <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl">&times;</button>
@@ -125,29 +125,29 @@
                 </div>
                 <div>
                     <label class="text-[9px] font-black text-slate-400 uppercase">Deskripsi Tugas</label>
-                    <p id="det-task" class="text-sm text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100"></p>
+                    <p id="det-task" class="text-sm text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium"></p>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
-                        <label class="text-[9px] font-black text-blue-500 uppercase">Mulai Kerja</label>
+                        <label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label>
                         <div id="det-start" class="text-[10px] font-bold text-slate-700"></div>
                     </div>
                     <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-                        <label class="text-[9px] font-black text-emerald-500 uppercase">Selesai Kerja</label>
+                        <label class="text-[9px] font-black text-emerald-500 uppercase">Finish Work</label>
                         <div id="det-finish" class="text-[10px] font-bold text-slate-700"></div>
                     </div>
                 </div>
                 <div>
-                    <label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label>
-                    <div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap"></div>
+                    <label class="text-[9px] font-black text-indigo-500 uppercase">Aktivitas Pekerjaan</label>
+                    <div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed"></div>
                 </div>
                 <div id="hold-section" class="hidden">
-                    <label class="text-[9px] font-black text-rose-500 uppercase">Kendala (Hold)</label>
-                    <div id="det-hold" class="bg-rose-50 p-5 rounded-xl text-sm font-bold border border-rose-100"></div>
+                    <label class="text-[9px] font-black text-rose-500 uppercase">Kendala / Hold Reason</label>
+                    <div id="det-hold" class="bg-rose-50 p-5 rounded-xl text-sm font-bold border border-rose-100 leading-relaxed"></div>
                 </div>
             </div>
             <div class="p-6 bg-slate-50 border-t">
-                <button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup</button>
+                <button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-black uppercase text-xs transition-all active:scale-95 shadow-lg">Tutup Laporan</button>
             </div>
         </div>
     </div>
@@ -173,7 +173,7 @@
             if (error) return;
             rawData = data;
             updatePersonnelGrid();
-            renderChart('person');
+            renderChart('status-all');
             applyFilters();
         }
 
@@ -189,42 +189,52 @@
         }
 
         function switchChart(type) {
-            document.getElementById('btn-person').className = `btn-toggle px-4 py-2 rounded-lg text-[10px] font-black uppercase ${type === 'person' ? 'btn-active' : 'text-slate-500'}`;
-            document.getElementById('btn-total').className = `btn-toggle px-4 py-2 rounded-lg text-[10px] font-black uppercase ${type === 'total' ? 'btn-active' : 'text-slate-500'}`;
+            document.getElementById('btn-status-all').className = `btn-toggle px-4 py-2 rounded-lg text-[10px] font-black uppercase ${type === 'status-all' ? 'btn-active' : 'text-slate-500'}`;
+            document.getElementById('btn-person-status').className = `btn-toggle px-4 py-2 rounded-lg text-[10px] font-black uppercase ${type === 'person-status' ? 'btn-active' : 'text-slate-500'}`;
             renderChart(type);
         }
 
-        // PERBAIKAN DIAGRAM UNTUK MENAMPILKAN STATUS
+        // FUNGSI DIAGRAM SESUAI PERMINTAAN
         function renderChart(type) {
             const ctx = document.getElementById('projectChart').getContext('2d');
             if (projectChart) projectChart.destroy();
 
             let labels, datasets;
+            const statuses = ["Pending", "In Progress", "Hold", "Done"];
+            const colors = ['#94a3b8', '#3b82f6', '#f43f5e', '#10b981'];
 
-            if (type === 'person') {
-                const personnel = ["RYAN", "ISQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
-                labels = personnel;
-                datasets = [{
-                    label: 'Total Task',
-                    data: personnel.map(name => rawData.filter(r => r.assigned_to === name).length),
-                    backgroundColor: '#3b82f6', borderRadius: 8
-                }];
-            } else {
-                // TAMPILAN STATUS (PENDING, PROGRESS, HOLD, DONE)
-                const statuses = ["Pending", "In Progress", "Hold", "Done"];
+            if (type === 'status-all') {
+                // TAMPILAN 1: TOTAL KESELURUHAN BERDASARKAN STATUS
                 labels = statuses;
                 datasets = [{
-                    label: 'Total Status Keseluruhan',
+                    label: 'Jumlah Keseluruhan',
                     data: statuses.map(s => rawData.filter(r => r.status === s).length),
-                    backgroundColor: ['#94a3b8', '#3b82f6', '#f43f5e', '#10b981'],
-                    borderRadius: 8
+                    backgroundColor: colors, borderRadius: 10
                 }];
+            } else {
+                // TAMPILAN 2: PER PERSONIL BERDASARKAN STATUS (STACKED)
+                const personnel = ["RYAN", "ISQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
+                labels = personnel;
+                datasets = statuses.map((s, idx) => ({
+                    label: s,
+                    data: personnel.map(name => rawData.filter(r => r.assigned_to === name && r.status === s).length),
+                    backgroundColor: colors[idx],
+                    borderRadius: 5
+                }));
             }
 
             projectChart = new Chart(ctx, {
                 type: 'bar',
                 data: { labels: labels, datasets: datasets },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 9, weight: 'bold' } } } },
+                    scales: { 
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                        x: { stacked: (type === 'person-status') }, // Stacked jika per orang
+                        y: { stacked: (type === 'person-status'), beginAtZero: true }
+                    }
+                }
             });
         }
 
@@ -247,7 +257,7 @@
                 let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-blue-50 text-blue-600 border-blue-200");
                 let pClass = row.priority === 'High' ? 'text-red-600' : (row.priority === 'Mid' ? 'text-blue-600' : 'text-slate-500');
                 return `<tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-6 font-bold uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1">${row.task_desc || '-'}</div></td>
+                    <td class="px-6 py-6 font-bold uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div></td>
                     <td class="px-4 py-6 text-center font-black text-slate-500">${row.assigned_to}</td>
                     <td class="px-4 py-6 text-center font-black text-[10px] uppercase ${pClass}">${row.priority || 'Mid'}</td>
                     <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase ${sClass}">${row.status}</span></td>
@@ -264,7 +274,7 @@
             document.getElementById('det-priority').innerText = row.priority || 'Mid';
             document.getElementById('det-start').innerText = formatDateTime(row.work_start_time);
             document.getElementById('det-finish').innerText = formatDateTime(row.work_end_time);
-            document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan.";
+            document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
             const holdSec = document.getElementById('hold-section');
             if(row.hold_reason) { holdSec.classList.remove('hidden'); document.getElementById('det-hold').innerText = row.hold_reason; } 
             else { holdSec.classList.add('hidden'); }
