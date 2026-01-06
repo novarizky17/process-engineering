@@ -28,7 +28,7 @@
                 <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-black text-white backdrop-blur-md border border-white/30 uppercase">R</div>
                 <div>
                     <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Panel Kerja Ryan</h1>
-                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Pencatatan Tugas & Laporan Lapangan</p>
+                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Monitoring Tugas & Laporan Aktivitas</p>
                 </div>
             </div>
             <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all border border-white/20"> Kembali </a>
@@ -36,14 +36,22 @@
     </div>
 
     <div class="max-w-[98%] mx-auto px-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 relative z-10">
-            <div class="bg-white p-8 rounded-3xl shadow-xl border-l-8 border-amber-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Project Aktif</p>
-                <h3 id="stat-active" class="text-4xl font-black text-slate-800">0</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10 relative z-10">
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-blue-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">In Progress</p>
+                <h3 id="stat-active" class="text-3xl font-black text-slate-800">0</h3>
             </div>
-            <div class="bg-white p-8 rounded-3xl shadow-xl border-l-8 border-emerald-500">
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-amber-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pending</p>
+                <h3 id="stat-pending" class="text-3xl font-black text-slate-800">0</h3>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-rose-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hold</p>
+                <h3 id="stat-hold" class="text-3xl font-black text-rose-600">0</h3>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-emerald-500">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Selesai</p>
-                <h3 id="stat-finished" class="text-4xl font-black text-emerald-600">0</h3>
+                <h3 id="stat-finished" class="text-3xl font-black text-emerald-600">0</h3>
             </div>
         </div>
 
@@ -56,7 +64,7 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.2em]">
-                            <th class="px-6 py-5">Project & Daftar Tugas</th> 
+                            <th class="px-6 py-5">Project & Tugas</th> 
                             <th class="px-4 py-5 text-center">Priority</th> 
                             <th class="px-4 py-5 text-center">Due Date</th>
                             <th class="px-4 py-5 text-center">Start Date & Time</th>
@@ -77,11 +85,13 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
+        // Menghindari geser jam
         function cleanTimestamp(dateStr) {
             if (!dateStr) return '';
             return dateStr.replace('T', ' ').substring(0, 16);
         }
 
+        // Tampilan tanggal lokal Indonesia
         function formatDisplayFixed(dateStr) {
             if (!dateStr) return '--:--';
             const clean = cleanTimestamp(dateStr);
@@ -92,11 +102,13 @@
         }
 
         async function fetchRyanTasks() {
-            // Filter diubah menjadi 'RYAN'
             const { data, error } = await _sb.from('management_tracker').select('*').eq('assigned_to', 'RYAN').order('created_at', { ascending: false });
             if (error) return console.error(error);
 
-            document.getElementById('stat-active').innerText = data.filter(r => r.status !== 'Done').length;
+            // Update Statistik
+            document.getElementById('stat-active').innerText = data.filter(r => r.status === 'In Progress').length;
+            document.getElementById('stat-pending').innerText = data.filter(r => r.status === 'Pending').length;
+            document.getElementById('stat-hold').innerText    = data.filter(r => r.status === 'Hold').length;
             document.getElementById('stat-finished').innerText = data.filter(r => r.status === 'Done').length;
 
             const tbody = document.getElementById('ryan-work-body');
@@ -123,7 +135,7 @@
                         </td>
                         <td class="px-6 py-6">
                             ${isDone ? `<p class="italic text-slate-500 text-[11px]">"${row.worker_comment || '-'}"</p>` : 
-                            `<textarea id="comment-${row.id}" placeholder="Input aktivitas..." class="w-full border rounded p-2 text-[11px] outline-none" rows="2">${row.worker_comment && row.worker_comment !== '-' ? row.worker_comment : ''}</textarea>`}
+                            `<textarea id="comment-${row.id}" class="w-full border rounded p-2 text-[11px] outline-none" rows="2">${row.worker_comment && row.worker_comment !== '-' ? row.worker_comment : ''}</textarea>`}
                         </td>
                         <td class="px-6 py-6">
                             ${isDone ? `<p class="text-rose-500 text-[11px] font-medium">${row.hold_reason || '-'}</p>` : 
@@ -154,7 +166,6 @@
             const selectedStatus = document.getElementById(`status-val-${id}`).value;
 
             if (selectedStatus === 'Hold' && !holdReason) return alert("Alasan HOLD wajib diisi!");
-            
             if (selectedStatus === 'Done') {
                 if (!sTime || !eTime) return alert("Wajib isi Tanggal/Jam Start & Finish!");
                 if (!confirm("Konfirmasi Selesai?")) return;
@@ -171,12 +182,8 @@
             if (selectedStatus === 'Done') updatePayload.actual_finish = new Date().toISOString().split('T')[0];
 
             const { error } = await _sb.from('management_tracker').update(updatePayload).eq('id', id);
-
             if (error) alert("Gagal Simpan: " + error.message);
-            else { 
-                alert("Data Berhasil Diperbarui!"); 
-                fetchRyanTasks(); // Fungsi refresh disesuaikan
-            }
+            else { alert("Data Tersimpan!"); fetchRyanTasks(); }
         }
 
         window.onload = fetchRyanTasks;
