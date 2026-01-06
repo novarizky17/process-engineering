@@ -82,14 +82,8 @@
 
         <div class="flex items-center gap-4 mb-6">
             <div class="flex-grow relative">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </span>
                 <input type="text" id="search-input" oninput="filterTable()" placeholder="Cari berdasarkan nama project atau tugas..." class="w-full bg-white border border-slate-200 pl-11 pr-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm">
             </div>
-            <button onclick="fetchProjectData()" class="bg-white border border-slate-200 p-3 rounded-2xl text-slate-600 hover:bg-slate-50 transition-all shadow-sm">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-            </button>
         </div>
 
         <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
@@ -103,7 +97,8 @@
                             <th class="px-4 py-5 text-center">Due Date</th>
                             <th class="px-4 py-5 text-center">Status</th>
                             <th class="px-4 py-5 text-center">Over Date</th>
-                            <th class="px-6 py-5 text-center">Review</th>
+                            <th class="px-6 py-5">Activity</th>
+                            <th class="px-6 py-5">Keterangan</th> <th class="px-6 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="project-body" class="divide-y divide-slate-50 text-sm"></tbody>
@@ -140,7 +135,7 @@
                     <select id="rev-priority" class="edit-input font-bold"><option value="Low">Low</option><option value="Mid">Mid</option><option value="High">High</option></select>
                 </div>
                 <div><label class="text-[10px] font-bold text-slate-400 uppercase">Due Date</label><input type="date" id="rev-due" class="edit-input"></div>
-                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Status Sekarang</label><div id="rev-status-badge" class="mt-1"></div></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Status</label><div id="rev-status-badge" class="mt-1"></div></div>
 
                 <div class="md:col-span-2 space-y-4 pt-2 border-t mt-2">
                     <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
@@ -148,14 +143,13 @@
                         <textarea id="rev-activity" class="edit-input !bg-transparent border-none font-semibold text-blue-800 uppercase italic h-16 w-full resize-none"></textarea>
                     </div>
                     <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
-                        <label class="text-[10px] font-black text-rose-400 uppercase">Keterangan (Hold)</label>
-                        <textarea id="rev-hold" class="edit-input !bg-transparent border-none font-bold text-rose-600 italic h-16 w-full resize-none"></textarea>
+                        <label class="text-[10px] font-black text-rose-400 uppercase">Keterangan Tambahan</label> <textarea id="rev-hold" class="edit-input !bg-transparent border-none font-bold text-rose-600 italic h-16 w-full resize-none"></textarea>
                     </div>
                 </div>
             </div>
 
             <div class="flex gap-3 mt-8">
-                <button onclick="updateData()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold uppercase text-xs shadow-lg transition-all active:scale-95">Simpan Perubahan</button>
+                <button onclick="updateData()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold uppercase text-xs shadow-lg transition-all">Simpan Perubahan</button>
                 <button onclick="deleteDataInModal()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-6 rounded-xl border border-rose-100 font-bold text-xs uppercase">Hapus</button>
             </div>
         </div>
@@ -165,12 +159,12 @@
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
-        let allData = []; // Variabel untuk menampung data pencarian
+        let allData = [];
 
         async function fetchProjectData() {
             const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
             if (error) return;
-            allData = data; // Simpan ke variabel global
+            allData = data;
             renderTable(allData);
             updateStats(allData);
         }
@@ -195,6 +189,10 @@
                         <td class="px-4 py-6 text-center">${row.due_date}</td>
                         <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black uppercase border ${sClass}">${row.status}</span></td>
                         <td class="px-4 py-6 text-center font-bold">${overLabel}</td>
+                        <td class="px-6 py-6 font-medium text-slate-600 text-[11px] uppercase">${row.worker_comment || '-'}</td>
+                        <td class="px-6 py-6 font-medium ${row.status === 'Hold' ? 'text-rose-600 font-bold italic' : 'text-slate-500'} text-[11px]">
+                            ${row.hold_reason || '-'}
+                        </td>
                         <td class="px-6 py-6 text-center">
                             <button onclick='openReviewModal(${JSON.stringify(row)})' class="bg-slate-800 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm">Review</button>
                         </td>
@@ -203,7 +201,6 @@
             }).join('');
         }
 
-        // FUNGSI FILTER PENCARIAN
         function filterTable() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const filtered = allData.filter(item => 
@@ -261,7 +258,12 @@
             };
             if(!payload.project_name || !payload.assigned_to) return alert("Lengkapi data!");
             const { error } = await _sb.from('management_tracker').insert([payload]);
-            if (!error) { fetchProjectData(); document.getElementById('in-project').value = ""; }
+            if (!error) { fetchProjectData(); clearInputs(); }
+        }
+
+        function clearInputs() {
+            document.getElementById('in-project').value = "";
+            document.getElementById('in-tugas').value = "";
         }
 
         async function deleteDataInModal() {
