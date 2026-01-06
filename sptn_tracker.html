@@ -13,6 +13,11 @@
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
         .edit-input { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; width: 100%; font-size: 11px; outline: none; transition: all 0.2s; }
         .edit-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+        
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+        .modal-content { background: white; margin: 5% auto; padding: 24px; border-radius: 20px; width: 90%; max-width: 500px; animation: slideIn 0.3s; }
+        @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -23,28 +28,26 @@
                 <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Project Control Panel</h1>
                 <p class="text-blue-200 text-sm mt-1 font-medium tracking-wide">Pemberian Tugas & Monitoring Real-time</p>
             </div>
-            <a href="management_tracker.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all border border-white/20">
-                Kembali
-            </a>
+            <a href="management_tracker.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all border border-white/20">Kembali</a>
         </div>
     </div>
 
     <div class="max-w-[98%] mx-auto px-8">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 relative z-10">
             <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-blue-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">In Progress</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase">In Progress</p>
                 <h3 id="stat-progress" class="text-3xl font-black text-slate-800">0</h3>
             </div>
             <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-amber-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pending</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Pending</p>
                 <h3 id="stat-pending" class="text-3xl font-black text-slate-800">0</h3>
             </div>
             <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-rose-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hold</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Hold</p>
                 <h3 id="stat-hold" class="text-3xl font-black text-rose-600">0</h3>
             </div>
             <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-emerald-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Selesai</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase">Total Selesai</p>
                 <h3 id="stat-done" class="text-3xl font-black text-emerald-600">0</h3>
             </div>
         </div>
@@ -55,45 +58,14 @@
                 <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider">Assign Project Baru</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Project Name</label>
-                    <input type="text" id="in-project" placeholder="Nama Project" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm outline-none">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Daftar Tugas</label>
-                    <input type="text" id="in-tugas" placeholder="Detail Kerja" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm outline-none">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Assigned To</label>
-                    <select id="in-name" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm outline-none">
-                        <option value="">Pilih Personil</option>
-                        <option value="RYAN">RYAN</option> 
-                        <option value="ISQI">ISQI</option>
-                        <option value="JUMAWAN">JUMAWAN</option>
-                    </select>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Priority</label>
-                    <select id="in-priority" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm font-bold outline-none">
-                        <option value="Low">Low</option>
-                        <option value="Mid" selected>Mid</option>
-                        <option value="High">High</option>
-                    </select>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Start Date</label>
-                    <input type="date" id="in-start" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm outline-none">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-1">Target Due</label>
-                    <input type="date" id="in-due" class="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl text-sm outline-none">
-                </div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Project Name</label><input type="text" id="in-project" class="edit-input !p-3 !text-sm"></div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label><input type="text" id="in-tugas" class="edit-input !p-3 !text-sm"></div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Assigned</label><select id="in-name" class="edit-input !p-3 !text-sm"><option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option></select></div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Priority</label><select id="in-priority" class="edit-input !p-3 !text-sm"><option value="Low">Low</option><option value="Mid" selected>Mid</option><option value="High">High</option></select></div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Start</label><input type="date" id="in-start" class="edit-input !p-3 !text-sm"></div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Due</label><input type="date" id="in-due" class="edit-input !p-3 !text-sm"></div>
             </div>
-            <div class="mt-8 flex justify-end">
-                <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase shadow-lg transition-all transform active:scale-95">
-                    Assign Project
-                </button>
-            </div>
+            <button onclick="saveToDatabase()" class="mt-6 w-full bg-blue-600 text-white py-3 rounded-xl font-bold uppercase text-xs">Assign Project</button>
         </div>
 
         <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
@@ -102,14 +74,11 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest border-b border-slate-100">
                             <th class="px-6 py-5">Project</th>
-                            <th class="px-6 py-5">Tugas</th>
                             <th class="px-4 py-5 text-center">Priority</th>
                             <th class="px-4 py-5 text-center">Personil</th>
                             <th class="px-4 py-5 text-center">Due Date</th>
-                            <th class="px-4 py-5 text-center">Progress</th>
+                            <th class="px-4 py-5 text-center">Status</th>
                             <th class="px-6 py-5 text-center">Over Date</th>
-                            <th class="px-6 py-5">Activity</th> 
-                            <th class="px-6 py-5">Keterangan</th> 
                             <th class="px-6 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -119,39 +88,42 @@
         </div>
     </div>
 
+    <div id="reviewModal" class="modal">
+        <div class="modal-content shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-black text-slate-800 uppercase">Review Project</h2>
+                <button onclick="closeModal()" class="text-slate-400 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <input type="hidden" id="rev-id">
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Project Name</label><input type="text" id="rev-project" class="edit-input !text-sm font-bold"></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Deskripsi Tugas</label><textarea id="rev-tugas" class="edit-input !text-sm h-24"></textarea></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">Assigned To</label><select id="rev-name" class="edit-input"><option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option></select></div>
+                    <div><label class="text-[10px] font-bold text-slate-400 uppercase">Due Date</label><input type="date" id="rev-due" class="edit-input"></div>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Update Lapangan:</p>
+                    <p id="rev-activity" class="text-xs font-semibold text-blue-700 uppercase"></p>
+                    <p id="rev-hold" class="text-[10px] text-rose-500 italic mt-1"></p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="updateData()" class="flex-grow bg-blue-600 text-white py-3 rounded-xl font-bold uppercase text-xs">Simpan Perubahan</button>
+                    <button onclick="deleteDataInModal()" class="bg-rose-100 text-rose-600 px-4 rounded-xl">Hapus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        async function saveToDatabase() {
-            const project = document.getElementById('in-project').value;
-            const tugas = document.getElementById('in-tugas').value;
-            const name = document.getElementById('in-name').value;
-            const priority = document.getElementById('in-priority').value;
-            const start = document.getElementById('in-start').value;
-            const due = document.getElementById('in-due').value;
-
-            if(!project || !name || !due) return alert("Lengkapi data!");
-
-            const { error } = await _sb.from('management_tracker').insert([{ 
-                project_name: project, task_desc: tugas, assigned_to: name, priority: priority, start_date: start, due_date: due, status: 'Pending' 
-            }]);
-
-            if (error) alert(error.message);
-            else { fetchProjectData(); clearInputs(); }
-        }
-
-        function clearInputs() {
-            document.getElementById('in-project').value = "";
-            document.getElementById('in-tugas').value = "";
-        }
-
         async function fetchProjectData() {
             const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
             if (error) return;
 
-            // UPDATE STATISTIK (Fungsi Tambahan)
             document.getElementById('stat-progress').innerText = data.filter(r => r.status === 'In Progress').length;
             document.getElementById('stat-pending').innerText = data.filter(r => r.status === 'Pending').length;
             document.getElementById('stat-hold').innerText = data.filter(r => r.status === 'Hold').length;
@@ -161,65 +133,67 @@
             tbody.innerHTML = data.map(row => {
                 const today = new Date(); today.setHours(0,0,0,0);
                 const dueDate = new Date(row.due_date);
-                const endDate = row.actual_finish ? new Date(row.actual_finish) : today;
-                const diffDays = Math.ceil((endDate - dueDate) / (1000 * 60 * 60 * 24));
-
-                let overDateContent = '';
-                if (row.status === 'Done') {
-                    overDateContent = diffDays > 0 ? `<span class="bg-red-50 text-red-600 px-3 py-1 rounded-lg font-bold text-[10px]">LATE ${diffDays}D</span>` : '<span class="text-emerald-500 font-bold text-[10px]">ON TIME</span>';
-                } else {
-                    overDateContent = diffDays > 0 ? `<span class="text-red-600 font-black">${diffDays} Days Late</span>` : '<span class="text-slate-300 italic">On Schedule</span>';
-                }
-
-                let pClass = row.priority === 'High' ? "bg-red-100 text-red-600" : (row.priority === 'Mid' ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500");
-                let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-100" : "bg-blue-50 text-blue-600 border-blue-100");
+                const diffDays = Math.ceil((today - dueDate) / (1000 * 60 * 60 * 24));
+                let overContent = diffDays > 0 ? `<span class="text-red-600 font-bold">${diffDays}D Late</span>` : '<span class="text-slate-300 italic">On Schedule</span>';
+                let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600" : "bg-blue-50 text-blue-600");
 
                 return `
                     <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-6"><input type="text" value="${row.project_name}" onchange="updateInline('${row.id}', 'project_name', this.value)" class="edit-input font-bold uppercase"></td>
-                        <td class="px-6 py-6"><input type="text" value="${row.task_desc || ''}" onchange="updateInline('${row.id}', 'task_desc', this.value)" class="edit-input italic"></td>
-                        <td class="px-4 py-6 text-center">
-                            <select onchange="updateInline('${row.id}', 'priority', this.value)" class="text-[9px] font-black uppercase rounded p-1 ${pClass}">
-                                <option value="Low" ${row.priority === 'Low' ? 'selected' : ''}>Low</option>
-                                <option value="Mid" ${row.priority === 'Mid' ? 'selected' : ''}>Mid</option>
-                                <option value="High" ${row.priority === 'High' ? 'selected' : ''}>High</option>
-                            </select>
-                        </td>
-                        <td class="px-4 py-6 text-center">
-                            <select onchange="updateInline('${row.id}', 'assigned_to', this.value)" class="text-[10px] font-bold uppercase rounded p-1 border">
-                                <option value="RYAN" ${row.assigned_to === 'RYAN' ? 'selected' : ''}>RYAN</option> 
-                                <option value="ISQI" ${row.assigned_to === 'ISQI' ? 'selected' : ''}>ISQI</option>
-                                <option value="JUMAWAN" ${row.assigned_to === 'JUMAWAN' ? 'selected' : ''}>JUMAWAN</option>
-                            </select>
-                        </td>
-                        <td class="px-4 py-6 text-center"><input type="date" value="${row.due_date}" onchange="updateInline('${row.id}', 'due_date', this.value)" class="text-[10px] font-bold border rounded p-1"></td>
-                        <td class="px-4 py-6 text-center">
-                            <span class="px-3 py-1 rounded-full font-black text-[9px] uppercase border ${sClass}">${row.status}</span>
-                        </td>
-                        <td class="px-6 py-6 text-center font-bold">${overDateContent}</td>
-                        <td class="px-6 py-6 font-medium text-slate-600 text-[11px] uppercase">${row.worker_comment || '-'}</td>
-                        <td class="px-6 py-6 font-medium ${row.status === 'Hold' ? 'text-rose-600 font-bold italic' : 'text-slate-500'} text-[11px]">
-                            ${row.hold_reason || '-'}
-                        </td>
+                        <td class="px-6 py-6 font-bold uppercase">${row.project_name}</td>
+                        <td class="px-4 py-6 text-center text-[10px] font-bold uppercase">${row.priority}</td>
+                        <td class="px-4 py-6 text-center font-bold">${row.assigned_to}</td>
+                        <td class="px-4 py-6 text-center">${row.due_date}</td>
+                        <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black uppercase ${sClass}">${row.status}</span></td>
+                        <td class="px-6 py-6 text-center font-bold">${overContent}</td>
                         <td class="px-6 py-6 text-center">
-                            <button onclick="deleteData('${row.id}')" class="text-slate-300 hover:text-red-600 transition-colors">
-                                <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                            </button>
+                            <button onclick='openReviewModal(${JSON.stringify(row)})' class="bg-slate-800 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-blue-600 transition-all">Review</button>
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        async function updateInline(id, field, value) {
-            const { error } = await _sb.from('management_tracker').update({ [field]: value }).eq('id', id);
-            if (error) alert("Update gagal!"); else fetchProjectData();
+        function openReviewModal(row) {
+            document.getElementById('rev-id').value = row.id;
+            document.getElementById('rev-project').value = row.project_name;
+            document.getElementById('rev-tugas').value = row.task_desc || '';
+            document.getElementById('rev-name').value = row.assigned_to;
+            document.getElementById('rev-due').value = row.due_date;
+            document.getElementById('rev-activity').innerText = row.worker_comment || 'BELUM ADA UPDATE';
+            document.getElementById('rev-hold').innerText = row.hold_reason ? `Ket: ${row.hold_reason}` : '';
+            document.getElementById('reviewModal').style.display = 'block';
         }
 
-        async function deleteData(id) {
-            if(confirm('Hapus data ini?')) {
-                await _sb.from('management_tracker').delete().eq('id', id);
-                fetchProjectData();
+        function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
+
+        async function updateData() {
+            const id = document.getElementById('rev-id').value;
+            const { error } = await _sb.from('management_tracker').update({
+                project_name: document.getElementById('rev-project').value,
+                task_desc: document.getElementById('rev-tugas').value,
+                assigned_to: document.getElementById('rev-name').value,
+                due_date: document.getElementById('rev-due').value
+            }).eq('id', id);
+            if (!error) { closeModal(); fetchProjectData(); }
+        }
+
+        async function saveToDatabase() {
+            const payload = {
+                project_name: document.getElementById('in-project').value,
+                task_desc: document.getElementById('in-tugas').value,
+                assigned_to: document.getElementById('in-name').value,
+                priority: document.getElementById('in-priority').value,
+                due_date: document.getElementById('in-due').value,
+                status: 'Pending'
+            };
+            await _sb.from('management_tracker').insert([payload]);
+            fetchProjectData();
+        }
+
+        async function deleteDataInModal() {
+            if(confirm("Hapus data ini?")) {
+                await _sb.from('management_tracker').delete().eq('id', document.getElementById('rev-id').value);
+                closeModal(); fetchProjectData();
             }
         }
 
