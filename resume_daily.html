@@ -114,15 +114,15 @@
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Priority</label><p id="det-priority" class="text-[11px] font-black uppercase"></p></div>
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Status</label><p id="det-status" class="text-[11px] font-black uppercase"></p></div>
                 </div>
-                <div><label class="text-[9px] font-black text-slate-400 uppercase">Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap"></p></div>
+                <div><label class="text-[9px] font-black text-slate-400 uppercase">Deskripsi Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap"></p></div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Time</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
+                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
                     <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Finish Work</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
                 </div>
                 <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed"></div></div>
                 <div id="hold-section" class="hidden"><label class="text-[9px] font-black text-rose-500 uppercase">Keterangan Kendala</label><div id="det-hold" class="bg-rose-50 p-5 rounded-xl text-sm font-bold border border-rose-100 whitespace-pre-wrap leading-relaxed"></div></div>
             </div>
-            <div class="p-6 bg-slate-50 border-t"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
+            <div class="p-6 bg-slate-50 border-t"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs shadow-lg active:scale-95 transition-all">Tutup Laporan</button></div>
         </div>
     </div>
 
@@ -154,33 +154,33 @@
             applyFilters();
         }
 
-        // FUNGSI EKSPOR EXCEL DENGAN BORDER OTOMATIS
+        // FUNGSI EKSPOR EXCEL DENGAN BORDER & HEADER BERWARNA
         function exportToExcel() {
-            if (filteredData.length === 0) return alert("Tidak ada data");
+            if (filteredData.length === 0) return alert("Tidak ada data untuk diunduh");
             
             const hiddenTable = document.getElementById('hidden-excel-table');
             
-            // Membuat struktur HTML table agar Excel memberikan border
+            // Membuat struktur HTML table agar Excel mendeteksi garis (border)
             let html = `<thead>
                 <tr>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">PROJECT NAME</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">PERSONIL</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">PRIORITY</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">STATUS</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">START TIME</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">FINISH TIME</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">TUGAS</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">LAPORAN KERJA</th>
-                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">KENDALA</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">PROJECT NAME</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">PERSONIL</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">PRIORITY</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">STATUS</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">START TIME</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">FINISH TIME</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">TUGAS</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">LAPORAN KERJA</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">KENDALA</th>
                 </tr>
             </thead><tbody>`;
 
             filteredData.forEach(item => {
                 html += `<tr>
                     <td style="border: 1px solid #000000;">${(item.project_name || "").toUpperCase()}</td>
-                    <td style="border: 1px solid #000000;">${item.assigned_to}</td>
-                    <td style="border: 1px solid #000000;">${item.priority || "Mid"}</td>
-                    <td style="border: 1px solid #000000;">${item.status}</td>
+                    <td style="border: 1px solid #000000; text-align: center;">${item.assigned_to}</td>
+                    <td style="border: 1px solid #000000; text-align: center;">${item.priority || "Mid"}</td>
+                    <td style="border: 1px solid #000000; text-align: center;">${item.status}</td>
                     <td style="border: 1px solid #000000;">${formatDateTimeClean(item.work_start_time)}</td>
                     <td style="border: 1px solid #000000;">${formatDateTimeClean(item.work_end_time)}</td>
                     <td style="border: 1px solid #000000;">${item.task_desc || "-"}</td>
@@ -194,11 +194,10 @@
             const workbook = XLSX.utils.table_to_book(hiddenTable);
             const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
-            // Atur lebar kolom otomatis
-            const colWidths = [
+            // Atur lebar kolom otomatis agar rapi
+            worksheet['!cols'] = [
                 {wch: 25}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 20}, {wch: 20}, {wch: 30}, {wch: 40}, {wch: 30}
             ];
-            worksheet['!cols'] = colWidths;
 
             XLSX.writeFile(workbook, `Report_Tooling_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
