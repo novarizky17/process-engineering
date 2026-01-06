@@ -97,10 +97,7 @@
                             <th class="px-4 py-5 text-center">Due Date</th>
                             <th class="px-4 py-5 text-center">Status</th>
                             <th class="px-4 py-5 text-center">Over Date</th>
-                            <th class="px-6 py-5">Activity</th>
-                            <th class="px-6 py-5">Keterangan</th>
-                            <th class="px-6 py-5 text-center">Aksi</th>
-                        </tr>
+                            <th class="px-6 py-5 text-center">Tinjauan</th> </tr>
                     </thead>
                     <tbody id="project-body" class="divide-y divide-slate-50 text-sm"></tbody>
                 </table>
@@ -138,17 +135,18 @@
 
                 <div class="md:col-span-2 space-y-4 pt-2 border-t mt-2">
                     <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
-                        <label class="text-[10px] font-black text-blue-400 uppercase">Activity</label>
-                        <textarea id="rev-activity" class="edit-input !bg-transparent border-none font-semibold text-blue-800 uppercase italic h-16 w-full resize-none"></textarea>
+                        <label class="text-[10px] font-black text-blue-400 uppercase">Activity (Update Lapangan)</label>
+                        <textarea id="rev-activity" class="edit-input !bg-transparent border-none font-semibold text-blue-800 uppercase h-16 w-full resize-none"></textarea>
                     </div>
                     <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
-                        <label class="text-[10px] font-black text-rose-400 uppercase">Keterangan</label> <textarea id="rev-hold" class="edit-input !bg-transparent border-none font-bold text-rose-600 italic h-16 w-full resize-none"></textarea>
+                        <label class="text-[10px] font-black text-rose-400 uppercase">Keterangan</label>
+                        <textarea id="rev-hold" class="edit-input !bg-transparent border-none font-bold text-rose-600 italic h-16 w-full resize-none"></textarea>
                     </div>
                 </div>
             </div>
 
             <div class="flex gap-3 mt-8">
-                <button onclick="updateData()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold uppercase text-xs shadow-lg transition-all">Simpan Perubahan</button>
+                <button onclick="updateData()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold uppercase text-xs transition-all active:scale-95">Simpan Perubahan</button>
                 <button onclick="deleteDataInModal()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-6 rounded-xl border border-rose-100 font-bold text-xs uppercase">Hapus</button>
             </div>
         </div>
@@ -188,12 +186,8 @@
                         <td class="px-4 py-6 text-center">${row.due_date}</td>
                         <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black uppercase border ${sClass}">${row.status}</span></td>
                         <td class="px-4 py-6 text-center font-bold">${overLabel}</td>
-                        <td class="px-6 py-6 font-medium text-slate-600 text-[11px] uppercase">${row.worker_comment || '-'}</td>
-                        <td class="px-6 py-6 font-medium ${row.status === 'Hold' ? 'text-rose-600 font-bold italic' : 'text-slate-500'} text-[11px]">
-                            ${row.hold_reason || '-'}
-                        </td>
                         <td class="px-6 py-6 text-center">
-                            <button onclick='openReviewModal(${JSON.stringify(row)})' class="bg-slate-800 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm">Review</button>
+                            <button onclick='openReviewModal(${JSON.stringify(row)})' class="bg-blue-600 text-white px-5 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-blue-700 transition-all shadow-sm">Review</button>
                         </td>
                     </tr>
                 `;
@@ -252,6 +246,7 @@
                 task_desc: document.getElementById('in-tugas').value,
                 assigned_to: document.getElementById('in-name').value,
                 priority: document.getElementById('in-priority').value,
+                start_date: document.getElementById('in-start').value,
                 due_date: document.getElementById('in-due').value,
                 status: 'Pending'
             };
@@ -266,7 +261,7 @@
         }
 
         async function deleteDataInModal() {
-            if(confirm("Hapus project ini?")) {
+            if(confirm("Hapus project ini secara permanen?")) {
                 await _sb.from('management_tracker').delete().eq('id', document.getElementById('rev-id').value);
                 closeModal(); fetchProjectData();
             }
