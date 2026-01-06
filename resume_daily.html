@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Daily Report - Tooling Support Analytics</title>
+    <title>Resume Daily Report - Analytics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,21 +12,17 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .gradient-orange { background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%); }
-        
         .toggle-container { background-color: #f1f5f9; border-radius: 16px; padding: 6px; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
         .btn-toggle { padding: 8px 16px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; transition: all 0.3s ease; color: #64748b; border: none; cursor: pointer; }
         .btn-active { background-color: #ea580c; color: white; box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.4); }
-
         .person-card { transition: all 0.3s ease; cursor: pointer; border-radius: 1rem; padding: 1rem; text-align: center; border: 1px solid transparent; }
         .person-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        
         .card-ryan { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
         .card-isqi { background-color: #f5f3ff; border-color: #ddd6fe; color: #5b21b6; }
         .card-jumawan { background-color: #fffbeb; border-color: #fde68a; color: #92400e; }
         .card-eko { background-color: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
         .card-tata { background-color: #fff1f2; border-color: #fecdd3; color: #9f1239; }
         .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
-
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); }
         .modal-content { background: white; margin: 3% auto; padding: 0; border-radius: 24px; width: 95%; max-width: 600px; overflow: hidden; animation: slideIn 0.3s; }
         @keyframes slideIn { from {transform: translateY(-30px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
@@ -91,7 +87,7 @@
 
         <section class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden text-sm text-nowrap">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse" id="main-report-table">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b border-slate-100">
                             <th class="px-6 py-5">Project / Tugas</th>
@@ -108,30 +104,29 @@
 
     <div id="detailModal" class="modal">
         <div class="modal-content shadow-2xl">
-            <div class="bg-slate-900 p-6 text-white flex justify-between items-center text-nowrap overflow-hidden">
-                <div>
-                    <h2 class="text-lg font-black uppercase">Detail Laporan</h2>
-                    <p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p>
-                </div>
+            <div class="bg-slate-900 p-6 text-white flex justify-between items-center">
+                <div><h2 class="text-lg font-black uppercase">Detail Laporan</h2><p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p></div>
                 <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl ml-4">&times;</button>
             </div>
-            <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
+            <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto text-sm">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Personil</label><p id="det-pic" class="text-sm font-black text-slate-800"></p></div>
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Priority</label><p id="det-priority" class="text-[11px] font-black uppercase"></p></div>
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Status</label><p id="det-status" class="text-[11px] font-black uppercase"></p></div>
                 </div>
-                <div><label class="text-[9px] font-black text-slate-400 uppercase">Tugas Utama</label><p id="det-task" class="text-sm text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap"></p></div>
+                <div><label class="text-[9px] font-black text-slate-400 uppercase">Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap"></p></div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
+                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Time</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
                     <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Finish Work</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
                 </div>
                 <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed"></div></div>
                 <div id="hold-section" class="hidden"><label class="text-[9px] font-black text-rose-500 uppercase">Keterangan Kendala</label><div id="det-hold" class="bg-rose-50 p-5 rounded-xl text-sm font-bold border border-rose-100 whitespace-pre-wrap leading-relaxed"></div></div>
             </div>
-            <div class="p-6 bg-slate-50 border-t"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs shadow-lg active:scale-95 transition-all">Tutup Laporan</button></div>
+            <div class="p-6 bg-slate-50 border-t"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
         </div>
     </div>
+
+    <table id="hidden-excel-table" style="display:none"></table>
 
     <script>
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
@@ -145,54 +140,66 @@
             if (!str) return '-';
             try {
                 const dateMatch = str.match(/(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/);
-                if (dateMatch) {
-                    return dateMatch[1].split('-').reverse().join('/') + " " + dateMatch[2].replace(':', '.');
-                }
+                if (dateMatch) return dateMatch[1].split('-').reverse().join('/') + " " + dateMatch[2].replace(':', '.');
                 return str;
             } catch (e) { return str; }
         }
 
         async function fetchAllData() {
             const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
-            if (error) return console.error(error);
+            if (error) return;
             rawData = data;
             updatePersonnelGrid();
             renderChart('person');
             applyFilters();
         }
 
-        // FUNGSI EXPORT EXCEL RAPI (HEADER & KOLOM)
+        // FUNGSI EKSPOR EXCEL DENGAN BORDER OTOMATIS
         function exportToExcel() {
-            if (filteredData.length === 0) return alert("Tidak ada data untuk diunduh");
+            if (filteredData.length === 0) return alert("Tidak ada data");
             
-            // Siapkan data dengan label header yang rapi
-            const excelRows = filteredData.map(item => ({
-                "PROJECT NAME": item.project_name?.toUpperCase(),
-                "PERSONIL": item.assigned_to,
-                "PRIORITY": item.priority || "Mid",
-                "STATUS": item.status,
-                "START TIME": formatDateTimeClean(item.work_start_time),
-                "FINISH TIME": formatDateTimeClean(item.work_end_time),
-                "TUGAS": item.task_desc || "-",
-                "LAPORAN KERJA": item.worker_comment || "-",
-                "KENDALA": item.hold_reason || "-"
-            }));
+            const hiddenTable = document.getElementById('hidden-excel-table');
+            
+            // Membuat struktur HTML table agar Excel memberikan border
+            let html = `<thead>
+                <tr>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">PROJECT NAME</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">PERSONIL</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">PRIORITY</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">STATUS</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">START TIME</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">FINISH TIME</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">TUGAS</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">LAPORAN KERJA</th>
+                    <th style="background-color: #ea580c; color: #ffffff; font-weight: bold; border: 1px solid #000000;">KENDALA</th>
+                </tr>
+            </thead><tbody>`;
 
-            const worksheet = XLSX.utils.json_to_sheet(excelRows);
-            const workbook = XLSX.utils.book_new();
-            
-            // Atur lebar kolom otomatis agar tidak terpotong (Auto-fit)
-            const colWidths = Object.keys(excelRows[0]).map(key => {
-                let max = key.length + 5;
-                excelRows.forEach(row => {
-                    const cellVal = String(row[key] || "");
-                    if(cellVal.length > max) max = cellVal.length;
-                });
-                return { wch: max > 50 ? 50 : max };
+            filteredData.forEach(item => {
+                html += `<tr>
+                    <td style="border: 1px solid #000000;">${(item.project_name || "").toUpperCase()}</td>
+                    <td style="border: 1px solid #000000;">${item.assigned_to}</td>
+                    <td style="border: 1px solid #000000;">${item.priority || "Mid"}</td>
+                    <td style="border: 1px solid #000000;">${item.status}</td>
+                    <td style="border: 1px solid #000000;">${formatDateTimeClean(item.work_start_time)}</td>
+                    <td style="border: 1px solid #000000;">${formatDateTimeClean(item.work_end_time)}</td>
+                    <td style="border: 1px solid #000000;">${item.task_desc || "-"}</td>
+                    <td style="border: 1px solid #000000;">${item.worker_comment || "-"}</td>
+                    <td style="border: 1px solid #000000;">${item.hold_reason || "-"}</td>
+                </tr>`;
             });
+            html += `</tbody>`;
+            hiddenTable.innerHTML = html;
+
+            const workbook = XLSX.utils.table_to_book(hiddenTable);
+            const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
+            // Atur lebar kolom otomatis
+            const colWidths = [
+                {wch: 25}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 20}, {wch: 20}, {wch: 30}, {wch: 40}, {wch: 30}
+            ];
             worksheet['!cols'] = colWidths;
 
-            XLSX.utils.book_append_sheet(workbook, worksheet, "DailyReport");
             XLSX.writeFile(workbook, `Report_Tooling_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
 
@@ -234,11 +241,7 @@
                 labels = personnel;
                 datasets = [{ label: 'Status ' + type, data: personnel.map(name => rawData.filter(r => r.assigned_to === name && r.status === type).length), backgroundColor: statusColors[type], borderRadius: 12 }];
             }
-            projectChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels, datasets },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: (type !== 'person') } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-            });
+            projectChart = new Chart(ctx, { type: 'bar', data: { labels, datasets }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: (type !== 'person') } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
         }
 
         function applyFilters() {
