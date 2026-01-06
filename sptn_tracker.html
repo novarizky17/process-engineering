@@ -89,7 +89,8 @@
                             <th class="px-4 py-5 text-center">Due Date</th>
                             <th class="px-4 py-5 text-center">Progress</th>
                             <th class="px-6 py-5 text-center">Over Date</th>
-                            <th class="px-6 py-5">Activity</th> <th class="px-6 py-5">Keterangan (Hold)</th> <th class="px-6 py-5 text-center">Aksi</th>
+                            <th class="px-6 py-5">Activity</th>
+                            <th class="px-6 py-5">Keterangan</th> <th class="px-6 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="project-body" class="divide-y divide-slate-50 text-sm"></tbody>
@@ -175,11 +176,10 @@
                             <span class="px-3 py-1 rounded-full font-black text-[9px] uppercase border ${sClass}">${row.status}</span>
                         </td>
                         <td class="px-6 py-6 text-center font-bold">${overDateContent}</td>
-                        
                         <td class="px-6 py-6 font-medium text-slate-600 text-[11px] uppercase">${row.worker_comment || '-'}</td>
                         
-                        <td class="px-6 py-6 font-medium text-rose-600 italic text-[11px]">
-                            ${row.status === 'Hold' ? (row.hold_reason || 'Menunggu keterangan...') : '-'}
+                        <td class="px-6 py-6 font-medium ${row.status === 'Hold' ? 'text-rose-600 font-bold italic' : 'text-slate-500'} text-[11px]">
+                            ${row.hold_reason || '-'}
                         </td>
 
                         <td class="px-6 py-6 text-center">
