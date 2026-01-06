@@ -88,8 +88,8 @@
                             <th class="px-4 py-5 text-center">Personil</th>
                             <th class="px-4 py-5 text-center">Due Date</th>
                             <th class="px-4 py-5 text-center">Progress</th>
-                            <th class="px-6 py-5 text-center">Over Date</th> <th class="px-6 py-5">Keterangan</th>
-                            <th class="px-6 py-5 text-center">Aksi</th>
+                            <th class="px-6 py-5 text-center">Over Date</th>
+                            <th class="px-6 py-5">Activity</th> <th class="px-6 py-5">Keterangan (Hold)</th> <th class="px-6 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="project-body" class="divide-y divide-slate-50 text-sm"></tbody>
@@ -132,7 +132,6 @@
 
             const tbody = document.getElementById('project-body');
             tbody.innerHTML = data.map(row => {
-                // Perhitungan Over Date
                 const today = new Date();
                 today.setHours(0,0,0,0);
                 const dueDate = new Date(row.due_date);
@@ -176,7 +175,13 @@
                             <span class="px-3 py-1 rounded-full font-black text-[9px] uppercase border ${sClass}">${row.status}</span>
                         </td>
                         <td class="px-6 py-6 text-center font-bold">${overDateContent}</td>
-                        <td class="px-6 py-6 font-medium text-rose-600 italic text-[11px]">${row.hold_reason || row.worker_comment || '-'}</td>
+                        
+                        <td class="px-6 py-6 font-medium text-slate-600 text-[11px] uppercase">${row.worker_comment || '-'}</td>
+                        
+                        <td class="px-6 py-6 font-medium text-rose-600 italic text-[11px]">
+                            ${row.status === 'Hold' ? (row.hold_reason || 'Menunggu keterangan...') : '-'}
+                        </td>
+
                         <td class="px-6 py-6 text-center">
                             <button onclick="deleteData('${row.id}')" class="text-slate-300 hover:text-red-600 transition-colors">
                                 <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
