@@ -10,6 +10,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .gradient-navy { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        /* Style input agar tetap bisa diedit di dalam form/card */
         .edit-input { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 10px; width: 100%; font-size: 12px; outline: none; transition: all 0.2s; }
         .edit-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
         .review-card { transition: transform 0.2s, box-shadow 0.2s; border: 1px solid #e2e8f0; }
@@ -18,7 +19,7 @@
 </head>
 <body class="min-h-screen pb-12">
 
-    <div class="gradient-navy w-full pt-10 pb-20 px-8 mb-[-60px] shadow-2xl">
+    <div class="gradient-navy w-full pt-10 pb-20 px-8 mb-[-80px] shadow-2xl">
         <div class="max-w-[95%] mx-auto flex justify-between items-center">
             <div>
                 <h1 class="text-2xl font-black text-white tracking-tight uppercase">Project Control & Review</h1>
@@ -70,7 +71,7 @@
 
         <div class="flex items-center gap-3 mb-4">
             <div class="w-1.5 h-5 bg-slate-800 rounded-full"></div>
-            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Review Daftar Tugas</h2>
+            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Review & Edit Kartu Tugas</h2>
         </div>
 
         <div id="project-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -109,6 +110,7 @@
             const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
             if (error) return;
 
+            // Update Angka Statistik
             document.getElementById('stat-progress').innerText = data.filter(r => r.status === 'In Progress').length;
             document.getElementById('stat-pending').innerText = data.filter(r => r.status === 'Pending').length;
             document.getElementById('stat-hold').innerText = data.filter(r => r.status === 'Hold').length;
@@ -126,7 +128,7 @@
                 let sClass = row.status === 'Done' ? "bg-emerald-500" : (row.status === 'Hold' ? "bg-rose-500" : (row.status === 'In Progress' ? "bg-blue-500" : "bg-slate-400"));
 
                 return `
-                    <div class="review-card bg-white rounded-2xl p-5 flex flex-col gap-4 relative overflow-hidden">
+                    <div class="review-card bg-white rounded-2xl p-5 flex flex-col gap-4 relative overflow-hidden shadow-sm">
                         <div class="absolute top-0 left-0 w-1.5 h-full ${sClass}"></div>
                         
                         <div class="flex justify-between items-start">
@@ -140,13 +142,13 @@
                         </div>
 
                         <div>
-                            <label class="text-[9px] font-bold text-slate-400 uppercase">Tugas / Detail</label>
-                            <input type="text" value="${row.task_desc || ''}" onchange="updateInline('${row.id}', 'task_desc', this.value)" class="edit-input italic">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase">Tugas / Detail Kerja</label>
+                            <input type="text" value="${row.task_desc || ''}" onchange="updateInline('${row.id}', 'task_desc', this.value)" class="edit-input italic text-slate-600">
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="text-[9px] font-bold text-slate-400 uppercase">Personil</label>
+                                <label class="text-[9px] font-bold text-slate-400 uppercase">Assigned Personil</label>
                                 <select onchange="updateInline('${row.id}', 'assigned_to', this.value)" class="edit-input font-bold">
                                     <option value="RYAN" ${row.assigned_to === 'RYAN' ? 'selected' : ''}>RYAN</option>
                                     <option value="ISQI" ${row.assigned_to === 'ISQI' ? 'selected' : ''}>ISQI</option>
@@ -161,7 +163,7 @@
 
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                             <div class="flex justify-between items-center mb-1">
-                                <span class="text-[9px] font-bold text-slate-400 uppercase">Current Progress</span>
+                                <span class="text-[9px] font-bold text-slate-400 uppercase">Current Status</span>
                                 <span class="px-2 py-0.5 rounded-full text-white text-[8px] font-bold uppercase ${sClass}">${row.status}</span>
                             </div>
                             <div class="flex justify-between items-center">
@@ -169,10 +171,15 @@
                             </div>
                         </div>
 
-                        <div class="mt-auto">
-                            <label class="text-[9px] font-bold text-slate-400 uppercase">Report Field (Aktivitas)</label>
-                            <p class="text-[10px] text-slate-800 font-semibold bg-blue-50/50 p-2 rounded-lg border border-blue-100 mt-1">${row.worker_comment || 'Belum ada aktivitas'}</p>
-                            ${row.hold_reason ? `<p class="text-[10px] text-rose-600 italic bg-rose-50 p-2 rounded-lg border border-rose-100 mt-1">Keterangan: ${row.hold_reason}</p>` : ''}
+                        <div class="mt-auto pt-2">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase">Aktivitas Terakhir (Field)</label>
+                            <div class="text-[10px] text-slate-800 font-semibold bg-blue-50/50 p-2 rounded-lg border border-blue-100 mt-1 uppercase">
+                                ${row.worker_comment || '-'}
+                            </div>
+                            ${row.hold_reason ? `
+                            <div class="text-[10px] text-rose-600 italic bg-rose-50 p-2 rounded-lg border border-rose-100 mt-1">
+                                <strong>Keterangan:</strong> ${row.hold_reason}
+                            </div>` : ''}
                         </div>
                     </div>
                 `;
@@ -185,7 +192,7 @@
         }
 
         async function deleteData(id) {
-            if(confirm('Hapus kartu tugas ini?')) {
+            if(confirm('Hapus kartu tugas ini secara permanen?')) {
                 await _sb.from('management_tracker').delete().eq('id', id);
                 fetchProjectData();
             }
