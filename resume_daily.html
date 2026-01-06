@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Daily Report - Analytics</title>
+    <title>Resume Daily Report - Detail Analytics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,8 +12,12 @@
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .gradient-orange { background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%); }
         .person-card { transition: all 0.3s ease; cursor: pointer; }
-        .person-card:hover { transform: translateY(-5px); }
-        .active-card { border: 2px solid #ea580c !important; background-color: #fff7ed !important; }
+        .person-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        
+        /* Modal Style */
+        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+        .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; animation: slideIn 0.3s; }
+        @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -22,7 +26,7 @@
         <div class="max-w-[98%] mx-auto flex justify-between items-end">
             <div>
                 <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Resume Daily Report</h1>
-                <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Monitoring Performa & Detail Project Personil</p>
+                <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Monitoring Performa & Detail Laporan Personil</p>
             </div>
             <a href="management_tracker.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-white/20 transition-all">Kembali</a>
         </div>
@@ -31,55 +35,38 @@
     <div class="max-w-[98%] mx-auto px-4">
         
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 relative z-10">
-            
             <div class="lg:col-span-2 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">Perbandingan Project Tim</h3>
-                    <span class="text-[10px] bg-orange-100 text-orange-600 px-2 py-1 rounded font-bold">REAL-TIME</span>
-                </div>
-                <div class="h-[250px]">
-                    <canvas id="projectChart"></canvas>
-                </div>
+                <div class="h-[250px]"><canvas id="projectChart"></canvas></div>
             </div>
-
             <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
-                <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest mb-4 text-center text-nowrap">Total Project Per Personil</h3>
-                <div id="personnel-stats" class="grid grid-cols-2 gap-3">
-                    </div>
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 text-center">Total Project Per Personil</h3>
+                <div id="personnel-stats" class="grid grid-cols-2 gap-3"></div>
             </div>
         </div>
 
         <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="relative">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Pilih Personil Untuk Detail</label>
-                    <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
-                        <option value="">-- Lihat Semua Detail --</option>
-                        <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option>
-                        <option value="JUMAWAN">JUMAWAN</option><option value="EKO">EKO</option>
-                        <option value="TATA">TATA</option><option value="BAROK">BAROK</option>
-                    </select>
-                </div>
-                <div class="md:col-span-2">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2 mb-1 block">Cari Berdasarkan Nama Project</label>
-                    <input type="text" id="search-report" oninput="applyFilters()" placeholder="Ketik nama project yang ingin dicari..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
+                    <option value="">-- Tampilkan Semua Personil --</option>
+                    <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option>
+                    <option value="JUMAWAN">JUMAWAN</option><option value="EKO">EKO</option>
+                    <option value="TATA">TATA</option><option value="BAROK">BAROK</option>
+                </select>
+                <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari nama project..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
             </div>
         </div>
 
         <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
-            <div class="p-6 border-b border-slate-50 bg-slate-50/50">
-                <h2 id="table-title" class="text-sm font-black text-slate-700 uppercase tracking-tighter">Riwayat Project Semua Personil</h2>
-            </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-white text-slate-400 text-[10px] uppercase font-black tracking-widest border-b border-slate-100">
-                            <th class="px-6 py-5">Project / Deskripsi</th>
+                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black tracking-widest border-b border-slate-100">
+                            <th class="px-6 py-5">Project</th>
                             <th class="px-4 py-5 text-center">PIC</th>
-                            <th class="px-4 py-5 text-center">Durasi Kerja</th>
-                            <th class="px-6 py-5">Update Laporan</th>
+                            <th class="px-4 py-5 text-center">Start Time</th>
+                            <th class="px-4 py-5 text-center">Finish Time</th>
                             <th class="px-4 py-5 text-center">Status</th>
+                            <th class="px-6 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="resume-body" class="divide-y divide-slate-50 text-sm"></tbody>
@@ -88,131 +75,118 @@
         </div>
     </div>
 
+    <div id="reviewModal" class="modal">
+        <div class="modal-content shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-black text-slate-800 uppercase">Detail Laporan</h2>
+                <button onclick="closeModal()" class="text-slate-400 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Project Name</label>
+                    <p id="md-project" class="font-bold text-slate-800 uppercase"></p></div>
+                <div><label class="text-[10px] font-bold text-slate-400 uppercase">Tugas / Deskripsi</label>
+                    <p id="md-task" class="text-sm text-slate-600"></p></div>
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                    <label class="text-[10px] font-black text-blue-400 uppercase">Aktivitas Lapangan</label>
+                    <p id="md-activity" class="text-sm text-blue-900 italic font-medium mt-1"></p>
+                </div>
+                <div id="md-hold-box" class="bg-rose-50 p-4 rounded-xl border border-rose-100 hidden">
+                    <label class="text-[10px] font-black text-rose-400 uppercase">Keterangan Kendala</label>
+                    <p id="md-hold" class="text-sm text-rose-700 font-bold mt-1"></p>
+                </div>
+                <button onclick="closeModal()" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold uppercase text-xs mt-4">Tutup Detail</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
-        
-        let rawData = [];
-        let projectChart = null;
+        let rawData = []; let projectChart = null;
+
+        function formatTime(str) {
+            if(!str) return '<span class="text-slate-300">--:--</span>';
+            const d = new Date(str);
+            return d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+        }
 
         async function fetchAllData() {
             const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
-            if (error) return console.error(error);
+            if (error) return;
             rawData = data;
-            
             updatePersonnelGrid();
             renderChart();
             applyFilters();
         }
 
-        function updatePersonnelGrid() {
-            const personnel = ["RYAN", "ISQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
-            const container = document.getElementById('personnel-stats');
-            
-            container.innerHTML = personnel.map(name => {
-                const count = rawData.filter(r => r.assigned_to === name).length;
-                return `
-                    <div onclick="selectPerson('${name}')" class="person-card bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center hover:shadow-md">
-                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">${name}</p>
-                        <h4 class="text-xl font-black text-slate-800">${count}</h4>
-                        <p class="text-[8px] text-slate-500 font-bold uppercase mt-1">Project</p>
-                    </div>
-                `;
-            }).join('');
-        }
-
         function renderChart() {
             const personnel = ["RYAN", "ISQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
             const counts = personnel.map(name => rawData.filter(r => r.assigned_to === name).length);
-            
             const ctx = document.getElementById('projectChart').getContext('2d');
             if (projectChart) projectChart.destroy();
-
             projectChart = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: personnel,
-                    datasets: [{
-                        label: 'Jumlah Project',
-                        data: counts,
-                        backgroundColor: ['#3b82f6', '#6366f1', '#f59e0b', '#10b981', '#f43f5e', '#475569'],
-                        borderRadius: 10,
-                        barThickness: 30
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { display: false }, ticks: { stepSize: 1 } },
-                        x: { grid: { display: false } }
-                    }
-                }
+                data: { labels: personnel, datasets: [{ label: 'Total Project', data: counts, backgroundColor: '#f97316', borderRadius: 8 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
 
-        function selectPerson(name) {
-            document.getElementById('filter-user').value = name;
-            applyFilters();
-        }
-
-        function calculateDuration(start, end) {
-            if (!start || !end) return "-";
-            const s = new Date(start); const e = new Date(end);
-            const diffMs = e - s;
-            if (diffMs < 0) return "-";
-            const h = Math.floor(diffMs / 3600000);
-            const m = Math.round((diffMs % 3600000) / 60000);
-            return `${h}j ${m}m`;
+        function updatePersonnelGrid() {
+            const personnel = ["RYAN", "ISQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
+            document.getElementById('personnel-stats').innerHTML = personnel.map(name => {
+                const count = rawData.filter(r => r.assigned_to === name).length;
+                return `<div onclick="selectPerson('${name}')" class="person-card bg-slate-50 p-3 rounded-2xl border border-slate-100 text-center">
+                    <p class="text-[8px] font-black text-slate-400 uppercase">${name}</p>
+                    <h4 class="text-lg font-black text-slate-800">${count}</h4>
+                </div>`;
+            }).join('');
         }
 
         function applyFilters() {
             const user = document.getElementById('filter-user').value;
             const search = document.getElementById('search-report').value.toLowerCase();
-            
-            document.getElementById('table-title').innerText = user ? `Detail Project Personil: ${user}` : "Riwayat Project Semua Personil";
-
             const filtered = rawData.filter(item => {
                 const matchUser = user === "" || item.assigned_to === user;
                 const matchSearch = item.project_name.toLowerCase().includes(search);
                 return matchUser && matchSearch;
             });
-
             renderTable(filtered);
         }
 
         function renderTable(data) {
-            const tbody = document.getElementById('resume-body');
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-slate-400 italic">Data tidak ditemukan</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = data.map(row => {
+            document.getElementById('resume-body').innerHTML = data.map(row => {
                 let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-100" : "bg-blue-50 text-blue-600 border-blue-100");
-                return `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-6 font-bold uppercase text-slate-800">
-                            ${row.project_name}
-                            <div class="text-[9px] text-slate-400 font-medium lowercase italic">${row.task_desc || '-'}</div>
-                        </td>
-                        <td class="px-4 py-6 text-center font-black text-[11px] text-slate-500">${row.assigned_to}</td>
-                        <td class="px-4 py-6 text-center font-mono text-[10px] font-bold text-slate-600">${calculateDuration(row.work_start_time, row.work_end_time)}</td>
-                        <td class="px-6 py-6">
-                            <div class="text-xs text-slate-600 italic leading-relaxed max-w-xs">
-                                ${row.worker_comment || '<span class="text-slate-200">No report</span>'}
-                                ${row.hold_reason ? `<div class="text-rose-500 font-bold mt-1">Kendala: ${row.hold_reason}</div>` : ''}
-                            </div>
-                        </td>
-                        <td class="px-4 py-6 text-center">
-                            <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase border ${sClass}">${row.status}</span>
-                        </td>
-                    </tr>
-                `;
+                return `<tr class="hover:bg-slate-50">
+                    <td class="px-6 py-5 font-bold uppercase text-slate-800">${row.project_name}</td>
+                    <td class="px-4 py-5 text-center font-black text-[10px] text-slate-500">${row.assigned_to}</td>
+                    <td class="px-4 py-5 text-center font-mono text-[11px]">${formatTime(row.work_start_time)}</td>
+                    <td class="px-4 py-5 text-center font-mono text-[11px]">${formatTime(row.work_end_time)}</td>
+                    <td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black uppercase border ${sClass}">${row.status}</span></td>
+                    <td class="px-6 py-5 text-center">
+                        <button onclick='openReview("${row.id}")' class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm">Review</button>
+                    </td>
+                </tr>`;
             }).join('');
         }
+
+        function openReview(id) {
+            const item = rawData.find(r => r.id == id);
+            document.getElementById('md-project').innerText = item.project_name;
+            document.getElementById('md-task').innerText = item.task_desc || '-';
+            document.getElementById('md-activity').innerText = item.worker_comment || 'Belum ada laporan aktivitas.';
+            
+            const holdBox = document.getElementById('md-hold-box');
+            if(item.hold_reason) {
+                holdBox.classList.remove('hidden');
+                document.getElementById('md-hold').innerText = item.hold_reason;
+            } else { holdBox.classList.add('hidden'); }
+            
+            document.getElementById('reviewModal').style.display = 'block';
+        }
+
+        function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
+        function selectPerson(name) { document.getElementById('filter-user').value = name; applyFilters(); }
 
         window.onload = fetchAllData;
     </script>
