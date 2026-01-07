@@ -6,132 +6,124 @@
     <title>HISTORY CHECKLIST (MONTHLY) - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
-        @page { size: A4 landscape; margin: 8mm; }
-        @media print {
-            body { padding: 0; margin: 0; background: white; }
-            .no-print { display: none !important; }
-            .document-page { box-shadow: none; border: none; width: 100%; max-width: none; margin: 0; padding: 5px; }
-            tr { page-break-inside: avoid; }
+        /* Optimasi Cetak Satu Halaman */
+        @page { 
+            size: A4 landscape; 
+            margin: 5mm; 
         }
+        @media print {
+            body { padding: 0; margin: 0; background: white; -webkit-print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            .document-page { 
+                box-shadow: none; 
+                border: none; 
+                width: 100% !important; 
+                max-width: none; 
+                margin: 0; 
+                padding: 0;
+                transform: scale(0.98); /* Skala otomatis agar pas satu lembar */
+                transform-origin: top left;
+            }
+            .table-official th, .table-official td { font-size: 7pt !important; padding: 1px !important; }
+            .section-header { height: 20px !important; }
+            .sig-td { height: 50px !important; }
+            .sig-frame { height: 60px !important; }
+        }
+
         body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
-        .document-page { background: white; width: 1250px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
+        .document-page { background: white; width: 1100px; margin: 0 auto; padding: 10px; border: 1.5px solid #000; box-sizing: border-box; }
         
-        /* HEADER STYLE */
-        .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
+        .header-box { border: 2px solid black; margin-bottom: 5px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
-        .logo-area { width: 150px; padding: 5px; text-align: center; }
-        .logo-area img { width: 130px; height: auto; display: block; margin: 0 auto; }
-        .title-area { text-align: center; font-size: 16pt; font-weight: bold; padding: 10px; text-transform: uppercase; color: #000; }
+        .logo-area { width: 120px; padding: 5px; text-align: center; }
+        .logo-area img { width: 100px; height: auto; display: block; margin: 0 auto; }
+        .title-area { text-align: center; font-size: 14pt; font-weight: bold; padding: 5px; text-transform: uppercase; color: #000; }
         
-        .meta-area { width: 320px; font-size: 9pt; padding: 5px; text-transform: uppercase; color: #000; font-weight: bold; }
-        .meta-table { width: 100%; border-collapse: collapse; }
-        .meta-table td { padding: 2px 5px; vertical-align: middle; border: none !important; white-space: nowrap; height: 25px; }
+        .meta-area { width: 280px; font-size: 8pt; padding: 5px; text-transform: uppercase; font-weight: bold; }
+        .meta-table td { padding: 1px 5px; border: none !important; height: 18px; }
 
-        .meta-info { display: flex; justify-content: space-between; margin: 8px 0; font-weight: bold; font-size: 10pt; align-items: flex-end; text-transform: uppercase; color: #000; }
-        .info-label { width: 110px; display: inline-block; }
-        .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
+        .meta-info { display: flex; justify-content: space-between; margin: 5px 0; font-weight: bold; font-size: 9pt; text-transform: uppercase; }
+        .info-value { border-bottom: 1px solid black; min-width: 150px; display: inline-block; padding: 0 5px; }
         
-        /* TABLE STYLING */
-        .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
-        .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; color: #000; }
-        .table-official th { background-color: #e5e5e5; font-weight: bold; }
+        .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; }
+        .table-official th, .table-official td { border: 1px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; }
+        .table-official th { background-color: #f0f0f0; font-weight: bold; }
 
-        .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
+        .section-header { background-color: #e0e0e0 !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; height: 22px; }
         
-        /* FOOTER PARAF STYLE */
-        .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 60px; }
-        .sig-td { height: 60px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
-        .sig-td img { max-height: 55px; width: auto; filter: grayscale(1) contrast(2) brightness(0.5); margin: 0 auto; }
+        .row-title-footer { background-color: #f2f2f2; font-weight: bold; height: 55px; }
+        .sig-td { height: 55px; background-color: #fff; vertical-align: middle; text-align: center; }
+        .sig-td img { max-height: 50px; width: auto; filter: grayscale(1); margin: 0 auto; }
 
-        .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .footer-flex { display: flex; justify-content: space-between; margin-top: 15px; text-transform: uppercase; }
-        .diketahui-box { width: 30%; text-align: center; margin-left: auto; }
-        .sig-frame { border: 1.5px solid black; width: 160px; height: 80px; margin: 5px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
-        .sig-frame img { max-height: 75px; width: auto; filter: grayscale(1) contrast(3) brightness(0.4); }
-        .name-line { border-top: 1.5px solid black; width: 220px; margin: 0 auto; padding-top: 3px; font-weight: bold; color: #000; text-align: center; }
+        .footer-flex { display: flex; justify-content: flex-end; margin-top: 10px; }
+        .diketahui-box { width: 250px; text-align: center; }
+        .sig-frame { border: 1.5px solid black; width: 140px; height: 70px; margin: 2px auto; display: flex; align-items: center; justify-content: center; }
+        .sig-frame img { max-height: 65px; width: auto; filter: grayscale(1); }
+        .name-line { border-top: 1.5px solid black; width: 200px; margin: 0 auto; font-weight: bold; font-size: 9pt; }
+
+        .no-print { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; padding: 10px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
     <div class="no-print">
-        <input type="text" id="input-merk" placeholder="NAMA TOOLS / EQUIPMENT" class="border p-2 rounded uppercase font-bold w-64">
-        <input type="text" id="input-tonage" placeholder="CAPACITY" class="border p-2 rounded uppercase font-bold w-32">
-        <select id="filter-bulan" class="border p-2 rounded font-bold">
+        <input type="text" id="input-merk" placeholder="NAMA TOOLS" class="border p-2 rounded uppercase text-sm w-48">
+        <input type="text" id="input-tonage" placeholder="CAPACITY" class="border p-2 rounded uppercase text-sm w-24">
+        <select id="filter-bulan" class="border p-2 rounded text-sm">
             <option value="">PILIH BULAN</option>
             <option value="01">JANUARI</option><option value="02">FEBRUARI</option><option value="03">MARET</option>
             <option value="04">APRIL</option><option value="05">MEI</option><option value="06">JUNI</option>
             <option value="07">JULI</option><option value="08">AGUSTUS</option><option value="09">SEPTEMBER</option>
             <option value="10">OKTOBER</option><option value="11">NOVEMBER</option><option value="12">DESEMBER</option>
         </select>
-        <select id="filter-tahun" class="border p-2 rounded font-bold">
-            <script>
-                const curY = new Date().getFullYear();
-                for(let y=curY-1; y<=curY+5; y++) { 
-                    let sel = y === 2026 ? "selected" : "";
-                    document.write(`<option value="${y}" ${sel}>${y}</option>`); 
-                }
-            </script>
-        </select>
-        <button onclick="renderReport(true)" class="bg-blue-800 hover:bg-blue-900 text-white px-6 py-2 rounded font-black transition-all shadow-md uppercase text-xs">Tampilkan Laporan</button>
-        <button onclick="downloadExcel()" class="bg-green-700 hover:bg-green-800 text-white px-6 py-2 rounded font-black transition-all shadow-md uppercase text-xs">Excel</button>
-        <button onclick="window.print()" class="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded font-black transition-all shadow-md uppercase text-xs">Cetak PDF</button>
-        <button onclick="window.location.href='management_tracker.html'" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded font-black transition-all shadow-md uppercase text-xs">Kembali</button>
+        <button onclick="renderReport(true)" class="bg-blue-700 text-white px-4 py-2 rounded text-xs font-bold uppercase">Cari</button>
+        <button onclick="window.print()" class="bg-black text-white px-4 py-2 rounded text-xs font-bold uppercase">Print PDF</button>
+        <button onclick="window.location.href='management_tracker.html'" class="bg-gray-500 text-white px-4 py-2 rounded text-xs font-bold uppercase">Kembali</button>
     </div>
 
     <div class="document-page">
         <div class="header-box">
-            <div class="header-cell logo-area"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO AKG"></div>
+            <div class="header-cell logo-area"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png"></div>
             <div class="header-cell title-area">CHECKLIST MONITORING TOOLING SUPPORT</div>
             <div class="header-cell meta-area">
-                <table class="meta-table">
-                    <tr><td style="width: 120px;">NO DOKUMEN</td><td>: </td></tr>
-                    <tr><td>TANGGAL TERBIT</td><td>: </td></tr>
-                    <tr><td>HALAMAN</td><td>: 1/1</td></tr>
+                <table style="width: 100%;" class="meta-table">
+                    <tr><td>NO DOK</td><td>: AKG-TS-01</td></tr>
+                    <tr><td>TERBIT</td><td>: 07/01/2026</td></tr>
+                    <tr><td>HAL</td><td>: 1/1</td></tr>
                 </table>
             </div>
         </div>
 
         <div class="meta-info">
-            <div class="meta-info-left">
-                <div class="info-row"><span class="info-label">EQUIPMENT</span> : <span class="info-value" id="label-merk">-</span></div>
-                <div class="info-row"><span class="info-label">CAPACITY</span> : <span class="info-value" id="label-tonage">-</span></div>
-            </div>
-            <div class="meta-info-right">
-                <div class="info-row"><span class="info-label">BULAN</span> : <span class="info-value" id="label-bulan">-</span></div>
-                <div class="info-row"><span class="info-label">TAHUN</span> : <span class="info-value" id="label-tahun">-</span></div>
-            </div>
+            <div>EQUIPMENT: <span id="label-merk" class="info-value">-</span></div>
+            <div>CAPACITY: <span id="label-tonage" class="info-value">-</span></div>
+            <div>BULAN: <span id="label-bulan" class="info-value">-</span></div>
+            <div>TAHUN: <span id="label-tahun" class="info-value">2026</span></div>
         </div>
 
-        <table class="table-official" id="table-to-export">
+        <table class="table-official">
             <thead>
                 <tr>
-                    <th style="width: 35px;" rowspan="2">NO</th>
-                    <th style="width: 200px;" rowspan="2">JENIS PENGECEKAN</th>
-                    <th colspan="2">WEEK 1</th>
-                    <th colspan="2">WEEK 2</th>
-                    <th colspan="2">WEEK 3</th>
-                    <th colspan="2">WEEK 4</th>
-                    <th colspan="2">WEEK 5</th>
+                    <th style="width: 25px;" rowspan="2">NO</th>
+                    <th style="width: 180px;" rowspan="2">JENIS PENGECEKAN</th>
+                    <th colspan="2">WEEK 1</th><th colspan="2">WEEK 2</th><th colspan="2">WEEK 3</th><th colspan="2">WEEK 4</th><th colspan="2">WEEK 5</th>
                 </tr>
                 <tr>
-                    <th style="width: 50px;">OK/NG</th><th style="width: 90px;">KET</th>
-                    <th style="width: 50px;">OK/NG</th><th style="width: 90px;">KET</th>
-                    <th style="width: 50px;">OK/NG</th><th style="width: 90px;">KET</th>
-                    <th style="width: 50px;">OK/NG</th><th style="width: 90px;">KET</th>
-                    <th style="width: 50px;">OK/NG</th><th style="width: 90px;">KET</th>
+                    <th style="width: 35px;">OK/NG</th><th style="width: 60px;">KET</th>
+                    <th style="width: 35px;">OK/NG</th><th style="width: 60px;">KET</th>
+                    <th style="width: 35px;">OK/NG</th><th style="width: 60px;">KET</th>
+                    <th style="width: 35px;">OK/NG</th><th style="width: 60px;">KET</th>
+                    <th style="width: 35px;">OK/NG</th><th style="width: 60px;">KET</th>
                 </tr>
             </thead>
             <tbody id="table-content"></tbody>
             <tfoot>
                 <tr>
-                    <td colspan="2" class="row-title-footer uppercase">Paraf Pelaksana</td>
-                    <td colspan="2" class="sig-td" id="sig-w1"></td>
-                    <td colspan="2" class="sig-td" id="sig-w2"></td>
-                    <td colspan="2" class="sig-td" id="sig-w3"></td>
-                    <td colspan="2" class="sig-td" id="sig-w4"></td>
+                    <td colspan="2" class="row-title-footer">PARAF PELAKSANA</td>
+                    <td colspan="2" class="sig-td" id="sig-w1"></td><td colspan="2" class="sig-td" id="sig-w2"></td>
+                    <td colspan="2" class="sig-td" id="sig-w3"></td><td colspan="2" class="sig-td" id="sig-w4"></td>
                     <td colspan="2" class="sig-td" id="sig-w5"></td>
                 </tr>
             </tfoot>
@@ -139,10 +131,10 @@
 
         <div class="footer-flex">
             <div class="diketahui-box">
-                <p style="font-weight: bold; margin-bottom: 5px;">DIKETAHUI</p>
+                <p style="font-weight: bold; font-size: 8pt; margin-bottom: 2px;">DIKETAHUI</p>
                 <div class="sig-frame" id="super-sig"></div>
                 <div id="super-name" class="name-line">( ........................ )</div>
-                <p style="font-size: 8pt; margin-top: 2px; font-weight: bold;">SUPERINTENDENT</p>
+                <p style="font-size: 7pt; font-weight: bold;">SUPERINTENDENT</p>
             </div>
         </div>
     </div>
@@ -152,7 +144,6 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        // Struktur Checklist Terintegrasi
         const checklistStructure = [
             { header: "1. STAND LABEL", type: 'head' },
             { name: "WIRING", field: "wiring" }, { name: "KOMPONEN", field: "komponen" }, { name: "KERAPIHAN", field: "kerapihan" },
@@ -162,7 +153,7 @@
             { name: "NAPPLE", field: "napple" }, { name: "VACUUM PAD", field: "vacuum_pad" }, { name: "FLANGE", field: "flange" }, { name: "VACUUM PAD TAKEOUT", field: "vacuum_pad_takeout" },
             { header: "2. STACKING", type: 'head' },
             { name: "WIRING", field: "stacking_wiring" }, { name: "SENSOR", field: "stacking_sensor" }, { name: "LINIER", field: "stacking_linier" },
-            { name: "MECHANICAL PART", field: "stacking_mechanical_part" }, { name: "CYLINDER", field: "stacking_cylinder" }, { name: "PNEUMATIC", field: "stacking_pneumatic" },
+            { name: "MECH PART", field: "stacking_mechanical_part" }, { name: "CYLINDER", field: "stacking_cylinder" }, { name: "PNEUMATIC", field: "stacking_pneumatic" },
             { header: "3. CONVEYOR", type: 'head' },
             { name: "BELT", field: "conveyor_belt" }, { name: "MOTOR", field: "conveyor_motor" }, { name: "RANTAI", field: "conveyor_rantai" },
             { name: "FRAME", field: "conveyor_frame" }, { name: "INVERTER", field: "conveyor_inverter" },
@@ -173,50 +164,25 @@
             { name: "INSTALASI", field: "dummy_instalasi" }, { name: "TUBBING", field: "dummy_tubbing" }
         ];
 
-        function numToChar(num) { return String.fromCharCode(96 + num).toUpperCase(); }
-
         async function renderReport(isSearching) {
-            const thn = document.getElementById('filter-tahun').value;
             const bln = document.getElementById('filter-bulan').value;
             const tools = document.getElementById('input-merk').value.trim();
-            const capacity = document.getElementById('input-tonage').value.trim();
+            if (!bln || !tools) return alert("Isi Nama Alat & Bulan!");
 
-            if (!isSearching || !bln || !tools) {
-                alert("Masukkan Nama Alat dan Pilih Bulan!");
-                return;
-            }
-
-            // Update label visual
-            document.getElementById('label-tahun').innerText = thn;
-            document.getElementById('label-bulan').innerText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text;
             document.getElementById('label-merk').innerText = tools.toUpperCase();
-            document.getElementById('label-tonage').innerText = capacity.toUpperCase() || "-";
+            document.getElementById('label-bulan').innerText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text;
 
-            // Ambil data hanya yang sudah di-Approve
             const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
-            if (error) return console.error(error);
+            if (error) return;
 
             const filteredData = data.filter(item => {
-                const dateFilter = `${thn}-${bln}`;
-                const mMatch = item.pelaksana?.nama_tools?.toLowerCase().includes(tools.toLowerCase());
-                const tMatch = capacity ? item.pelaksana?.capacity?.toLowerCase().includes(capacity.toLowerCase()) : true;
-                const dMatch = item.pelaksana?.tanggal_checklist?.startsWith(dateFilter);
-                return mMatch && tMatch && dMatch;
+                const dateFilter = `2026-${bln}`;
+                return item.pelaksana?.nama_tools?.toLowerCase().includes(tools.toLowerCase()) && item.pelaksana?.tanggal_checklist?.startsWith(dateFilter);
             });
 
-            // Mapping data per minggu (1-5)
             const dataMap = {};
-            filteredData.forEach(item => {
-                const w = item.pelaksana?.week;
-                if(w >= 1 && w <= 5) dataMap[w] = item;
-            });
+            filteredData.forEach(item => { if(item.pelaksana?.week <= 5) dataMap[item.pelaksana.week] = item; });
 
-            renderRows(dataMap);
-            renderParaf(dataMap);
-            renderSuper(dataMap);
-        }
-
-        function renderRows(dataMap) {
             const tbody = document.getElementById('table-content');
             tbody.innerHTML = "";
             let alphabetCounter = 1;
@@ -226,72 +192,35 @@
                     alphabetCounter = 1;
                     tbody.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="10"></td></tr>`;
                 } else {
-                    let char = numToChar(alphabetCounter++);
-                    let rHtml = `<tr><td class="font-bold text-center">${char}</td><td style="text-align:left; padding-left:8px; font-weight:bold;">${item.name}</td>`;
+                    let char = String.fromCharCode(96 + alphabetCounter++).toUpperCase();
+                    let rHtml = `<tr><td>${char}</td><td style="text-align:left; padding-left:3px;">${item.name}</td>`;
                     for(let w=1; w<=5; w++) {
-                        let statusText = "", ket = "", ngClass = "";
-                        if(dataMap[w]) {
-                            const status = dataMap[w][item.field];
-                            statusText = status || "";
-                            ngClass = status === 'NG' ? "text-red-600 font-bold" : "font-bold";
-                            ket = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
-                        }
-                        rHtml += `<td class="text-center font-bold ${ngClass}">${statusText}</td>`;
-                        rHtml += `<td style="text-align:left; padding-left:3px; font-size:7.5pt; color:red; font-weight:bold;">${ket}</td>`;
+                        let status = dataMap[w] ? dataMap[w][item.field] : "";
+                        let ket = (status === 'NG' && dataMap[w]) ? (dataMap[w][item.field + "_keterangan"] || "") : "";
+                        rHtml += `<td class="font-bold ${status === 'NG' ? 'text-red-600' : ''}">${status || ""}</td>`;
+                        rHtml += `<td style="font-size:6pt; color:red; line-height:1;">${ket}</td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
                 }
             });
-        }
 
-        function renderParaf(dataMap) {
             for(let w=1; w<=5; w++) {
                 const cell = document.getElementById(`sig-w${w}`);
                 cell.innerHTML = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}">` : "";
             }
-        }
 
-        function renderSuper(dataMap) {
-            const sigFrame = document.getElementById('super-sig');
-            const nameLabel = document.getElementById('super-name');
-            // TTD Superintendent hanya muncul jika Week 4 atau 5 sudah terisi
+            const superSig = document.getElementById('super-sig');
             const hasFinalWeeks = (dataMap[4] || dataMap[5]);
-
             if (hasFinalWeeks) {
-                const latestData = dataMap[5] || dataMap[4];
-                if (latestData?.signature) {
-                    sigFrame.innerHTML = `<img src="${latestData.signature}">`;
-                    nameLabel.innerText = `( ${latestData.nama_superintendent || 'SUPERINTENDENT'} )`;
-                }
+                const latest = dataMap[5] || dataMap[4];
+                superSig.innerHTML = latest.signature ? `<img src="${latest.signature}">` : "";
+                document.getElementById('super-name').innerText = `( ${latest.nama_superintendent || 'SUPERINTENDENT'} )`;
             } else {
-                sigFrame.innerHTML = "";
-                nameLabel.innerText = "( ........................ )";
+                superSig.innerHTML = "";
+                document.getElementById('super-name').innerText = "( ........................ )";
             }
         }
-
-        function downloadExcel() {
-            const tools = document.getElementById('label-merk').innerText;
-            const bulan = document.getElementById('label-bulan').innerText;
-            const tahun = document.getElementById('label-tahun').innerText;
-            const table = document.getElementById("table-to-export");
-            const worksheet = XLSX.utils.table_to_sheet(table);
-
-            // Pengaturan Visual Excel
-            worksheet['!cols'] = [{wch:5}, {wch:35}, {wch:10}, {wch:20}, {wch:10}, {wch:20}, {wch:10}, {wch:20}, {wch:10}, {wch:20}, {wch:10}, {wch:20}];
-            const range = XLSX.utils.decode_range(worksheet['!ref']);
-            for(let i=0; i<=range.e.r; i++) { worksheet['!rows'] = worksheet['!rows'] || []; worksheet['!rows'][i] = {hpt:22}; }
-
-            // Merge header week
-            worksheet['!merges'] = [
-                { s: {r:0, c:2}, e: {r:0, c:3} }, { s: {r:0, c:4}, e: {r:0, c:5} }, { s: {r:0, c:6}, e: {r:0, c:7} }, { s: {r:0, c:8}, e: {r:0, c:9} }, { s: {r:0, c:10}, e: {r:0, c:11} }
-            ];
-
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Monthly_Report");
-            XLSX.writeFile(workbook, `History_Monthly_${tools}_${bulan}_${tahun}.xlsx`);
-        }
-
-        window.onload = () => renderRows({});
+        window.onload = () => renderReport(false);
     </script>
 </body>
 </html>
