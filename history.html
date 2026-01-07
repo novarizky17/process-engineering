@@ -13,7 +13,6 @@
             body { padding: 0; margin: 0; background: white; }
             .no-print { display: none !important; }
             .document-page { box-shadow: none; border: none; width: 100%; max-width: none; margin: 0; padding: 5px; }
-            /* Memastikan tabel tidak terpotong di tengah baris saat print */
             tr { page-break-inside: avoid; }
         }
         body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
@@ -40,7 +39,6 @@
 
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
         
-        /* FOOTER PARAF STYLE */
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 60px; }
         .sig-td { height: 60px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
         .sig-td img { max-height: 55px; width: auto; filter: grayscale(1) contrast(2) brightness(0.5); margin: 0 auto; }
@@ -297,7 +295,7 @@
             XLSX.writeFile(workbook, `Checklist_${tools}_${bulan}.xlsx`);
         }
 
-        window.onload = () => renderRows({});
+        window.onload = () => renderReport(false);
     </script>
 </body>
 </html>
