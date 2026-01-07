@@ -7,15 +7,53 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @page { size: A4 landscape; margin: 8mm; }
-        @media print {
-            body { padding: 0; margin: 0; background: white; }
-            .no-print { display: none !important; }
-            .document-page { box-shadow: none; border: none; width: 100%; max-width: none; margin: 0; padding: 5px; }
-            .status-text { color: black !important; }
+        /* PENGATURAN PRINT AGAR TENGAH DAN GARIS TEGAS */
+        @page { 
+            size: A4 landscape; 
+            margin: 5mm; 
         }
+
+        @media print {
+            body { 
+                padding: 0; 
+                margin: 0; 
+                background: white !important; 
+                -webkit-print-color-adjust: exact; 
+                display: flex;
+                justify-content: center; /* Konten ke tengah saat print */
+            }
+            .no-print { display: none !important; }
+            .document-page { 
+                box-shadow: none !important; 
+                border: 1.5pt solid black !important; /* Gunakan pt agar garis tidak hilang */
+                width: 100% !important; 
+                max-width: none !important; 
+                margin: 0 auto !important; 
+                padding: 10px !important;
+                transform: scale(0.96); /* Skala sedikit agar tidak terpotong garis pinggirnya */
+                transform-origin: top center;
+            }
+            /* Mempertegas seluruh garis tabel saat print */
+            .table-official, .table-official th, .table-official td {
+                border: 1pt solid black !important;
+            }
+            .header-box, .header-cell {
+                border: 1.5pt solid black !important;
+            }
+        }
+
         body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
-        .document-page { background: white; width: 1250px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
+        
+        /* Container Utama Center di Layar */
+        .document-page { 
+            background: white; 
+            width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            border: 2px solid #000; 
+            box-sizing: border-box; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
         
         /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
@@ -33,7 +71,7 @@
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
-        /* TABLE STYLING */
+        /* TABLE STYLING AGAR GARIS TETAP MUNCUL */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
@@ -79,14 +117,14 @@
         <select id="filter-tahun">
             <script>
                 for(let y=2024; y<=2030; y++) { 
-                    let sel = y === 2025 ? "selected" : "";
+                    let sel = y === 2026 ? "selected" : "";
                     document.write(`<option value="${y}" ${sel}>${y}</option>`); 
                 }
             </script>
         </select>
         <button onclick="renderReport(true)" style="background: #003366; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">CARI DATA</button>
         <button onclick="window.print()" style="background: #222; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">PRINT PDF</button>
-        <button onclick="window.location.href='dashboard.html'" style="background: #555; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">KEMBALI</button>
+        <button onclick="window.location.href='management_tracker.html'" style="background: #555; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">KEMBALI</button>
     </div>
 
     <div class="document-page">
@@ -202,7 +240,7 @@
             { name: "TUBBING", field: "dummy_tubbing" }
         ];
 
-        function numToChar(num) { return String.fromCharCode(96 + num); }
+        function numToChar(num) { return String.fromCharCode(96 + num).toUpperCase(); }
 
         async function renderReport(isSearching) {
             const thn = document.getElementById('filter-tahun').value;
@@ -221,11 +259,7 @@
             document.getElementById('label-tonage').innerText = capacity || "-";
 
             const dateFilter = `${thn}-${bln}`;
-            
-            const { data, error } = await _sb.from('checklist')
-                .select('*, pelaksana(*)')
-                .eq('status', 'Approved');
-
+            const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
             if (error) return console.error(error);
 
             const filteredData = data.filter(item => {
@@ -244,34 +278,29 @@
 
             renderRows(dataMap);
             renderParaf(dataMap);
-            renderSuper(dataMap); // Kirim dataMap untuk validasi week
+            renderSuper(dataMap);
         }
 
         function renderRows(dataMap) {
             const tbody = document.getElementById('table-content');
             tbody.innerHTML = "";
             let alphabetCounter = 1;
-
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
                     alphabetCounter = 1;
                     tbody.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="10"></td></tr>`;
                 } else {
                     let char = numToChar(alphabetCounter++);
-                    let rHtml = `<tr><td>${char}</td><td class="col-item">${item.name}</td>`;
+                    let rHtml = `<tr><td class="font-bold">${char}</td><td class="col-item">${item.name}</td>`;
                     for(let w=1; w<=5; w++) {
-                        let statusText = "";
-                        let ket = "";
-                        let ngClass = "";
-
+                        let statusText = "", ket = "", ngClass = "";
                         if(dataMap[w]) {
                             const status = dataMap[w][item.field];
                             statusText = status || "";
                             ngClass = status === 'NG' ? "ng-color" : "";
                             ket = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
                         }
-                        
-                        rHtml += `<td class="col-status"><span class="status-text ${ngClass}">${statusText}</span></td>`;
+                        rHtml += `<td class="col-status font-bold ${ngClass}">${statusText}</td>`;
                         rHtml += `<td class="col-ket" style="text-align:left; padding-left:3px;"><span class="ng-text-desc">${ket}</span></td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
@@ -282,34 +311,21 @@
         function renderParaf(dataMap) {
             for(let w=1; w<=5; w++) {
                 const cell = document.getElementById(`sig-w${w}`);
-                cell.innerHTML = "";
-                if(dataMap[w] && dataMap[w].signature_pelaksana) {
-                    cell.innerHTML = `<img src="${dataMap[w].signature_pelaksana}">`;
-                }
+                cell.innerHTML = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}">` : "";
             }
         }
 
-        // FUNGSI DIUBAH: Validasi TTD muncul hanya jika Week 4 atau 5 ada
         function renderSuper(dataMap) {
             const sigFrame = document.getElementById('super-sig');
             const nameLabel = document.getElementById('super-name');
-            
-            // Cek apakah data week 4 atau week 5 tersedia
             const hasFinalWeeks = (dataMap[4] || dataMap[5]);
-
             if (hasFinalWeeks) {
-                // Ambil data terbaru dari week 5, jika tidak ada ambil week 4
                 const latestData = dataMap[5] || dataMap[4];
-                
                 if (latestData && latestData.signature) {
                     sigFrame.innerHTML = `<img src="${latestData.signature}">`;
                     nameLabel.innerText = `( ${latestData.nama_superintendent || 'SUPERINTENDENT'} )`;
-                } else {
-                    sigFrame.innerHTML = "";
-                    nameLabel.innerText = "( ........................ )";
                 }
             } else {
-                // Jika week 4 & 5 belum ada, kosongkan
                 sigFrame.innerHTML = "";
                 nameLabel.innerText = "( ........................ )";
             }
