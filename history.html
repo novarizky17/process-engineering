@@ -244,7 +244,7 @@
 
             renderRows(dataMap);
             renderParaf(dataMap);
-            renderSuper(filteredData);
+            renderSuper(dataMap); // Kirim dataMap untuk validasi week
         }
 
         function renderRows(dataMap) {
@@ -289,16 +289,29 @@
             }
         }
 
-        function renderSuper(filteredData) {
-            const latest = filteredData.sort((a,b) => b.id - a.id)[0];
+        // FUNGSI DIUBAH: Validasi TTD muncul hanya jika Week 4 atau 5 ada
+        function renderSuper(dataMap) {
             const sigFrame = document.getElementById('super-sig');
-            if(latest && latest.signature) {
-                sigFrame.innerHTML = `<img src="${latest.signature}">`;
-                // Menampilkan nama superintendent yang tersimpan di database
-                document.getElementById('super-name').innerText = `( ${latest.nama_superintendent || 'SUPERINTENDENT'} )`;
+            const nameLabel = document.getElementById('super-name');
+            
+            // Cek apakah data week 4 atau week 5 tersedia
+            const hasFinalWeeks = (dataMap[4] || dataMap[5]);
+
+            if (hasFinalWeeks) {
+                // Ambil data terbaru dari week 5, jika tidak ada ambil week 4
+                const latestData = dataMap[5] || dataMap[4];
+                
+                if (latestData && latestData.signature) {
+                    sigFrame.innerHTML = `<img src="${latestData.signature}">`;
+                    nameLabel.innerText = `( ${latestData.nama_superintendent || 'SUPERINTENDENT'} )`;
+                } else {
+                    sigFrame.innerHTML = "";
+                    nameLabel.innerText = "( ........................ )";
+                }
             } else {
+                // Jika week 4 & 5 belum ada, kosongkan
                 sigFrame.innerHTML = "";
-                document.getElementById('super-name').innerText = "( ........................ )";
+                nameLabel.innerText = "( ........................ )";
             }
         }
 
