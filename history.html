@@ -20,20 +20,19 @@
                 background: white !important; 
                 -webkit-print-color-adjust: exact; 
                 display: flex;
-                justify-content: center; /* Konten ke tengah saat print */
+                justify-content: center;
             }
             .no-print { display: none !important; }
             .document-page { 
                 box-shadow: none !important; 
-                border: 1.5pt solid black !important; /* Gunakan pt agar garis tidak hilang */
+                border: 1.5pt solid black !important; 
                 width: 100% !important; 
                 max-width: none !important; 
                 margin: 0 auto !important; 
                 padding: 10px !important;
-                transform: scale(0.96); /* Skala sedikit agar tidak terpotong garis pinggirnya */
+                transform: scale(0.96);
                 transform-origin: top center;
             }
-            /* Mempertegas seluruh garis tabel saat print */
             .table-official, .table-official th, .table-official td {
                 border: 1pt solid black !important;
             }
@@ -42,71 +41,104 @@
             }
         }
 
-        body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
+        body { 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background-color: #f8fafc; 
+            padding: 20px; 
+            color: #1e293b; 
+        }
         
-        /* Container Utama Center di Layar */
         .document-page { 
             background: white; 
-            width: 1200px; 
+            width: 1250px; 
             margin: 0 auto; 
-            padding: 20px; 
-            border: 2px solid #000; 
+            padding: 25px; 
+            border: 1px solid #e2e8f0; 
             box-sizing: border-box; 
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 8px;
         }
         
         /* HEADER */
-        .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
+        .header-box { border: 2px solid black; margin-bottom: 15px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
-        .logo-area { width: 150px; padding: 5px; text-align: center; }
+        .logo-area { width: 160px; padding: 10px; text-align: center; }
         .logo-area img { width: 130px; height: auto; display: block; margin: 0 auto; }
-        .title-area { text-align: center; font-size: 16pt; font-weight: bold; padding: 10px; text-transform: uppercase; color: #000; }
+        .title-area { text-align: center; font-size: 18pt; font-weight: 800; padding: 10px; text-transform: uppercase; color: #0f172a; letter-spacing: 0.5px; }
         
         .meta-area { width: 320px; font-size: 9pt; padding: 5px; text-transform: uppercase; color: #000; font-weight: bold; }
         .meta-table { width: 100%; border-collapse: collapse; }
-        .meta-table td { padding: 2px 5px; vertical-align: middle; border: none !important; white-space: nowrap; height: 25px; }
+        .meta-table td { padding: 3px 5px; vertical-align: middle; border: none !important; white-space: nowrap; }
 
-        .meta-info { display: flex; justify-content: space-between; margin: 8px 0; font-weight: bold; font-size: 10pt; align-items: flex-end; text-transform: uppercase; color: #000; }
-        .info-label { width: 110px; display: inline-block; }
-        .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
+        .meta-info { display: flex; justify-content: space-between; margin: 15px 0; font-weight: 700; font-size: 10pt; align-items: flex-end; text-transform: uppercase; }
+        .info-label { width: 110px; display: inline-block; color: #64748b; }
+        .info-value { border-bottom: 2px solid #0f172a; min-width: 220px; display: inline-block; padding: 0 5px; margin-left: 5px; color: #0f172a; }
         
-        /* TABLE STYLING AGAR GARIS TETAP MUNCUL */
-        .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
-        .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; color: #000; }
-        .table-official th { background-color: #e5e5e5; font-weight: bold; }
+        /* TABLE STYLING */
+        .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; }
+        .table-official th, .table-official td { border: 1.5px solid black; padding: 6px 4px; font-size: 8pt; text-align: center; vertical-align: middle; }
+        .table-official th { background-color: #f1f5f9; font-weight: 800; color: #0f172a; }
 
-        .status-text { font-weight: bold; font-size: 9pt; }
-        .ng-color { color: #d32f2f; }
-        .ng-text-desc { font-size: 8pt; line-height: 1.2; word-wrap: break-word; color: #d32f2f; font-weight: bold; }
+        .status-text { font-weight: 800; font-size: 9.5pt; }
+        .ng-color { color: #dc2626; }
+        .ng-text-desc { font-size: 7.5pt; line-height: 1.2; word-wrap: break-word; color: #dc2626; font-weight: 700; }
 
-        .col-no { width: 30px; }
-        .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
-        .col-status { width: 50px; }
-        .col-ket { width: 85px; }
+        .col-no { width: 35px; }
+        .col-item { width: 200px; text-align: left !important; padding-left: 10px !important; font-weight: 700; color: #334155; }
+        .col-status { width: 55px; }
+        .col-ket { width: 95px; }
         
-        .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
+        .section-header { background-color: #e2e8f0 !important; text-align: left !important; padding: 8px 12px !important; font-weight: 800; font-size: 9pt; color: #1e293b; }
         
         /* FOOTER PARAF */
-        .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 80px; }
-        .sig-td { height: 80px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
-        .sig-td img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2) brightness(0.5); }
+        .row-title-footer { background-color: #f8fafc; font-weight: 800; text-align: center !important; font-size: 8.5pt; height: 80px; color: #475569; }
+        .sig-td { height: 90px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
+        .sig-td img { max-height: 80px; width: auto; mix-blend-mode: multiply; margin: 0 auto; }
 
-        .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .no-print input, .no-print select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
+        .no-print-container { 
+            max-width: 1250px; 
+            margin: 0 auto 20px auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            border: 1px solid #e2e8f0;
+        }
         
-        .footer-flex { display: flex; justify-content: space-between; margin-top: 15px; text-transform: uppercase; }
-        .diketahui-box { width: 30%; text-align: center; margin-left: auto; }
-        .sig-frame { border: 1.5px solid black; width: 160px; height: 80px; margin: 5px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
-        .sig-frame img { max-height: 75px; width: auto; filter: grayscale(1) contrast(3) brightness(0.4); }
-        .name-line { border-top: 1.5px solid black; width: 220px; margin: 0 auto; padding-top: 3px; font-weight: bold; color: #000; text-align: center; }
+        .no-print-container input, .no-print-container select { 
+            padding: 10px 14px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 8px; 
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .no-print-container input:focus { border-color: #3b82f6; ring: 2px; outline: none; }
+
+        .btn-search { background: #1e293b; color: white; padding: 10px 24px; border-radius: 8px; font-weight: 700; transition: all 0.2s; }
+        .btn-search:hover { background: #0f172a; transform: translateY(-1px); }
+        
+        .btn-print { background: #059669; color: white; padding: 10px 24px; border-radius: 8px; font-weight: 700; transition: all 0.2s; }
+        .btn-print:hover { background: #047857; transform: translateY(-1px); }
+
+        .footer-flex { display: flex; justify-content: flex-end; margin-top: 25px; padding-right: 20px; }
+        .diketahui-box { width: 280px; text-align: center; }
+        .sig-frame { border: 2px solid #000; width: 180px; height: 100px; margin: 8px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
+        .sig-frame img { max-height: 90px; width: auto; mix-blend-mode: multiply; }
+        .name-line { border-top: 2px solid black; width: 240px; margin: 0 auto; padding-top: 5px; font-weight: 800; color: #000; text-align: center; font-size: 10pt; }
     </style>
 </head>
 <body>
 
-    <div class="no-print">
-        <input type="text" id="input-merk" placeholder="NAMA TOOLS / EQUIPMENT">
-        <input type="text" id="input-tonage" placeholder="CAPACITY">
+    <div class="no-print no-print-container">
+        <input type="text" id="input-merk" placeholder="NAMA TOOLS / EQUIPMENT" class="uppercase">
+        <input type="text" id="input-tonage" placeholder="CAPACITY" class="w-32 uppercase">
         <select id="filter-bulan">
             <option value="">PILIH BULAN</option>
             <option value="01">JANUARI</option><option value="02">FEBRUARI</option><option value="03">MARET</option>
@@ -122,9 +154,9 @@
                 }
             </script>
         </select>
-        <button onclick="renderReport(true)" style="background: #003366; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">CARI DATA</button>
-        <button onclick="window.print()" style="background: #222; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">PRINT PDF</button>
-        <button onclick="window.location.href='management_tracker.html'" style="background: #555; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">KEMBALI</button>
+        <button onclick="renderReport(true)" class="btn-search shadow-sm">CARI DATA</button>
+        <button onclick="window.print()" class="btn-print shadow-sm">PRINT PDF</button>
+        <button onclick="window.location.href='management_tracker.html'" class="bg-slate-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-slate-600 transition-all shadow-sm">KEMBALI</button>
     </div>
 
     <div class="document-page">
@@ -133,7 +165,7 @@
             <div class="header-cell title-area">CHECKLIST MONITORING TOOLING SUPPORT</div>
             <div class="header-cell meta-area">
                 <table class="meta-table">
-                    <tr><td style="width: 120px;">NO DOKUMEN</td><td>: </td></tr>
+                    <tr><td style="width: 110px;">NO DOKUMEN</td><td>: </td></tr>
                     <tr><td>TANGGAL TERBIT</td><td>: </td></tr>
                     <tr><td>HALAMAN</td><td>: </td></tr>
                 </table>
@@ -141,11 +173,11 @@
         </div>
 
         <div class="meta-info">
-            <div class="meta-info-left">
+            <div class="meta-info-left space-y-2">
                 <div class="info-row"><span class="info-label">EQUIPMENT</span> : <span class="info-value" id="label-merk">-</span></div>
                 <div class="info-row"><span class="info-label">CAPACITY</span> : <span class="info-value" id="label-tonage">-</span></div>
             </div>
-            <div class="meta-info-right">
+            <div class="meta-info-right space-y-2">
                 <div class="info-row"><span class="info-label">BULAN</span> : <span class="info-value" id="label-bulan">-</span></div>
                 <div class="info-row"><span class="info-label">TAHUN</span> : <span class="info-value" id="label-tahun">-</span></div>
             </div>
@@ -185,10 +217,10 @@
 
         <div class="footer-flex">
             <div class="diketahui-box">
-                <p style="font-weight: bold; margin-bottom: 5px;">DIKETAHUI</p>
+                <p style="font-weight: 800; margin-bottom: 5px; color: #1e293b;">DIKETAHUI</p>
                 <div class="sig-frame" id="super-sig"></div>
                 <div id="super-name" class="name-line">( ........................ )</div>
-                <p style="font-size: 8pt; margin-top: 2px;">PROCESS ENGINEERING</p>
+                <p style="font-size: 8pt; margin-top: 4px; font-weight: 700; color: #64748b;">PROCESS ENGINEERING</p>
             </div>
         </div>
     </div>
@@ -291,16 +323,16 @@
                     tbody.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="10"></td></tr>`;
                 } else {
                     let char = numToChar(alphabetCounter++);
-                    let rHtml = `<tr><td class="font-bold">${char}</td><td class="col-item">${item.name}</td>`;
+                    let rHtml = `<tr><td class="font-extrabold text-slate-500">${char}</td><td class="col-item">${item.name}</td>`;
                     for(let w=1; w<=5; w++) {
                         let statusText = "", ket = "", ngClass = "";
                         if(dataMap[w]) {
                             const status = dataMap[w][item.field];
                             statusText = status || "";
-                            ngClass = status === 'NG' ? "ng-color" : "";
+                            ngClass = status === 'NG' ? "ng-color" : "text-emerald-600";
                             ket = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
                         }
-                        rHtml += `<td class="col-status font-bold ${ngClass}">${statusText}</td>`;
+                        rHtml += `<td class="col-status font-extrabold ${ngClass}">${statusText}</td>`;
                         rHtml += `<td class="col-ket" style="text-align:left; padding-left:3px;"><span class="ng-text-desc">${ket}</span></td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
