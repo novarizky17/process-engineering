@@ -18,6 +18,7 @@
         body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
         .document-page { background: white; width: 1250px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
         
+        /* HEADER STYLE */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
@@ -33,6 +34,7 @@
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
+        /* TABLE STYLING */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
@@ -41,10 +43,10 @@
         .ng-color { color: #d32f2f; }
         .ng-text-desc { font-size: 8pt; line-height: 1.2; word-wrap: break-word; color: #d32f2f; font-weight: bold; }
 
-        .col-no { width: 30px; }
-        .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
-        .col-status { width: 50px; }
-        .col-ket { width: 85px; }
+        .col-no { width: 35px; }
+        .col-item { width: 200px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
+        .col-status { width: 55px; }
+        .col-ket { width: 90px; }
         
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
         
@@ -220,7 +222,6 @@
             document.getElementById('label-tonage').innerText = capacity || "-";
 
             const dateFilter = `${thn}-${bln}`;
-            
             const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
             if (error) return console.error(error);
 
@@ -247,7 +248,6 @@
             const tbody = document.getElementById('table-content');
             tbody.innerHTML = "";
             let alphabetCounter = 1;
-
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
                     alphabetCounter = 1;
@@ -256,9 +256,7 @@
                     let char = numToChar(alphabetCounter++);
                     let rHtml = `<tr><td>${char}</td><td class="col-item">${item.name}</td>`;
                     for(let w=1; w<=5; w++) {
-                        let statusText = "";
-                        let ket = "";
-                        let ngClass = "";
+                        let statusText = "", ket = "", ngClass = "";
                         if(dataMap[w]) {
                             const status = dataMap[w][item.field];
                             statusText = status || "";
@@ -296,7 +294,7 @@
             }
         }
 
-        // FUNGSI DOWNLOAD EXCEL SESUAI GAMBAR
+        // FUNGSI DOWNLOAD EXCEL DENGAN PERBAIKAN UKURAN BARIS
         function downloadExcel() {
             const table = document.getElementById("table-to-export");
             const tools = document.getElementById('label-merk').innerText;
@@ -304,21 +302,45 @@
             const tahun = document.getElementById('label-tahun').innerText;
             const capacity = document.getElementById('label-tonage').innerText;
 
-            // Buat worksheet baru dari elemen tabel
-            const wb = XLSX.utils.book_new();
-            const ws_data = [
+            // 1. Buat Worksheet
+            const worksheet = XLSX.utils.table_to_sheet(table);
+
+            // 2. Dekode Rentang Sel
+            const range = XLSX.utils.decode_range(worksheet['!ref']);
+
+            // 3. MENGATUR TINGGI BARIS (Row Height)
+            const rowHeights = [];
+            for (let i = 0; i <= range.e.r; i++) {
+                if (i < 5) {
+                    rowHeights.push({ hpt: 35 }); // Baris Header Metadata
+                } else {
+                    rowHeights.push({ hpt: 25 }); // Baris Isi Checklist (diperlebar agar tidak sesak)
+                }
+            }
+            worksheet['!rows'] = rowHeights;
+
+            // 4. MENGATUR LEBAR KOLOM (Column Width)
+            worksheet['!cols'] = [
+                { wch: 5 },  { wch: 35 }, // NO & Item
+                { wch: 8 },  { wch: 18 }, // W1 OK/NG & KET
+                { wch: 8 },  { wch: 18 }, // W2
+                { wch: 8 },  { wch: 18 }, // W3
+                { wch: 8 },  { wch: 18 }, // W4
+                { wch: 8 },  { wch: 18 }  // W5
+            ];
+
+            // 5. Tambahkan Header Metadata manual di baris atas
+            XLSX.utils.sheet_add_aoa(worksheet, [
                 ["CHECKLIST MONITORING TOOLING SUPPORT"],
                 ["EQUIPMENT:", tools, "", "", "BULAN:", bulan],
                 ["CAPACITY:", capacity, "", "", "TAHUN:", tahun],
-                [] // baris kosong
-            ];
+                [] 
+            ], { origin: "A1" });
 
-            // Tambahkan data dari tabel HTML ke worksheet
-            const table_data = XLSX.utils.table_to_sheet(table);
-            XLSX.utils.book_append_sheet(wb, table_data, "Report");
-
-            // Simpan file
-            XLSX.writeFile(wb, `Checklist_${tools}_${bulan}.xlsx`);
+            // 6. Buat Workbook dan Unduh
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Monthly Report");
+            XLSX.writeFile(workbook, `Checklist_Rapi_${tools}_${bulan}.xlsx`);
         }
 
         window.onload = () => renderRows({});
