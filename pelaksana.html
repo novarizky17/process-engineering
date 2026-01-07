@@ -24,6 +24,22 @@
         align-items: center; 
     }
     .logo { font-size: 1.5em; font-weight: bold; }
+    
+    /* Tombol Kembali di Header */
+    .btn-back-header {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        background: #004a99;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.9em;
+        transition: background 0.3s;
+    }
+    .btn-back-header:hover {
+        background: #0059b3;
+    }
+
     .main-content { flex: 1; padding: 40px 20px; text-align: center; }
     .form-container { 
         background: white; 
@@ -67,6 +83,7 @@
 
   <header>
     <div class="logo">TOOLING SUPPORT - PELAKSANA</div>
+    <a href="dashboard.html" class="btn-back-header">← Dashboard</a>
   </header>
 
   <div class="main-content">
@@ -142,7 +159,6 @@
       btn.textContent = "Menyimpan...";
 
       try {
-        // Mengirim data ke kolom yang benar agar tidak error schema cache
         const { data, error } = await _supabase
           .from('pelaksana')
           .insert([{ 
@@ -158,8 +174,6 @@
         if (error) throw error;
 
         localStorage.setItem('pelaksana_id', data.id);
-        
-        // Pastikan nama file tujuan sesuai dengan file form checklist Anda
         window.location.href = 'checklist-form.html'; 
 
       } catch (error) {
