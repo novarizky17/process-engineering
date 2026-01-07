@@ -5,104 +5,174 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jadwal Mingguan - Pengecekan Tooling</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             margin: 0;
-            padding: 20px;
-            color: #333;
+            padding: 40px 20px;
+            color: #2d3748;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 600px; /* Diperkecil karena kolom berkurang */
+            max-width: 650px;
             margin: 0 auto;
             background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
         .header {
             text-align: center;
-            border-bottom: 3px solid #3f51b5;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #1a365d;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-size: 1.8em;
+            font-weight: 700;
+            position: relative;
+            display: inline-block;
             padding-bottom: 10px;
         }
 
-        h1 {
-            margin: 0;
-            color: #3f51b5;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 1.5em;
+        .header h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 25%;
+            width: 50%;
+            height: 4px;
+            background: #3f51b5;
+            border-radius: 2px;
+        }
+
+        .header p {
+            margin-top: 15px;
+            color: #718096;
+            font-weight: 400;
+            font-size: 1em;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0 12px; /* Membuat jarak antar baris */
             margin-bottom: 20px;
         }
 
-        th, td {
-            border: 1px solid #ddd;
-            padding: 18px;
-            text-align: center;
-        }
-
         th {
-            background-color: #3f51b5;
-            color: white;
+            color: #4a5568;
             text-transform: uppercase;
-            font-size: 0.9em;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 2px solid #edf2f7;
         }
 
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
+        th:last-child, td:last-child {
+            text-align: right;
+        }
+
+        td {
+            padding: 16px;
+            background-color: #ffffff;
+            transition: transform 0.2s;
+        }
+
+        tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        .week-label {
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 0.95em;
         }
 
         .name-tag {
-            font-weight: bold;
+            font-weight: 600;
             display: inline-block;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-size: 1em;
-            min-width: 120px;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            min-width: 140px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        /* Warna berbeda untuk tiap personil */
-        .tag-isqi { background-color: #e3f2fd; color: #1976d2; border: 1px solid #1976d2; }
-        .tag-riyan { background-color: #f1f8e9; color: #388e3c; border: 1px solid #388e3c; }
-        .tag-jumawan { background-color: #fff3e0; color: #f57c00; border: 1px solid #f57c00; }
-        .tag-barok { background-color: #f3e5f5; color: #7b1fa2; border: 1px solid #7b1fa2; }
-        .tag-team { background-color: #eeeeee; color: #444444; border: 1px solid #444444; }
+        /* Warna Pastel Modern */
+        .tag-isqi { background-color: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8; }
+        .tag-riyan { background-color: #f0fff4; color: #2f855a; border: 1px solid #c6f6d5; }
+        .tag-jumawan { background-color: #fffaf0; color: #c05621; border: 1px solid #feebc8; }
+        .tag-barok { background-color: #faf5ff; color: #6b46c1; border: 1px solid #e9d8fd; }
+        .tag-team { background-color: #f7fafc; color: #4a5568; border: 1px solid #e2e8f0; }
+
+        .note {
+            font-size: 0.85em;
+            color: #a0aec0;
+            font-style: italic;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-top: 1px solid #edf2f7;
+        }
 
         .btn-group {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-top: 30px;
         }
 
         .btn {
             text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: 0.3s;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: none;
             cursor: pointer;
-            font-size: 0.9em;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .btn-back { background: #555; color: white; }
-        .btn-back:hover { background: #222; }
-        .btn-print { background: #3f51b5; color: white; }
-        .btn-print:hover { background: #283593; }
+        .btn-back { 
+            background: #edf2f7; 
+            color: #4a5568; 
+        }
+
+        .btn-back:hover { 
+            background: #e2e8f0;
+            transform: translateX(-5px);
+        }
+
+        .btn-print { 
+            background: #3f51b5; 
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(63, 81, 181, 0.39);
+        }
+
+        .btn-print:hover { 
+            background: #283593;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(63, 81, 181, 0.23);
+        }
 
         @media print {
-            .btn-group { display: none; }
+            .btn-group, .header h1::after { display: none; }
             body { background: white; padding: 0; }
-            .container { box-shadow: none; border: 1px solid #ccc; width: 100%; max-width: none; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: none; }
+            td { border-bottom: 1px solid #eee; }
         }
     </style>
 </head>
@@ -110,48 +180,52 @@
 
 <div class="container">
     <div class="header">
-        <h1>Jadwal Pengecekan Mingguan</h1>
-        <p>Tooling Support - Maintenance Schedule</p>
+        <h1>Maintenance Schedule</h1>
+        <p>Tooling Support Monitoring System</p>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Waktu</th>
+                <th>Periode Waktu</th>
                 <th>Personil Pelaksana</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td><strong>MINGGU I</strong></td>
-                <td><span class="name-tag tag-isqi">ISQI</span></td>
+                <td><span class="week-label">MINGGU I</span></td>
+                <td><span class="name-tag tag-isqi">ISYQI</span></td>
             </tr>
             <tr>
-                <td><strong>MINGGU II</strong></td>
-                <td><span class="name-tag tag-riyan">RIYAN</span></td>
+                <td><span class="week-label">MINGGU II</span></td>
+                <td><span class="name-tag tag-riyan">RYAN</span></td>
             </tr>
             <tr>
-                <td><strong>MINGGU III</strong></td>
-                <td><span class="name-tag tag-jumawan">MAS JUMAWAN</span></td>
+                <td><span class="week-label">MINGGU III</span></td>
+                <td><span class="name-tag tag-jumawan">JUMAWAN</span></td>
             </tr>
             <tr>
-                <td><strong>MINGGU IV</strong></td>
-                <td><span class="name-tag tag-barok">MAS BAROK</span></td>
+                <td><span class="week-label">MINGGU IV</span></td>
+                <td><span class="name-tag tag-barok">BAROK</span></td>
             </tr>
             <tr>
-                <td><strong>MINGGU V*</strong></td>
+                <td><span class="week-label">MINGGU V*</span></td>
                 <td><span class="name-tag tag-team">TEAM SUPPORT</span></td>
             </tr>
         </tbody>
     </table>
 
-    <p style="font-size: 0.8em; color: #666; font-style: italic; text-align: center;">
-        *Minggu V disesuaikan dengan kalender berjalan. Jadwal berlaku rutin setiap bulan.
-    </p>
+    <div class="note">
+        *Minggu V disesuaikan dengan kalender berjalan. Laporan wajib diserahkan tepat waktu setelah pengecekan selesai.
+    </div>
 
     <div class="btn-group">
-        <a href="center.html" class="btn btn-back">Kembali ke Menu</a>
-        <button onclick="window.print()" class="btn btn-print">Print Jadwal</button>
+        <a href="center.html" class="btn btn-back">
+            <span>←</span> Kembali
+        </a>
+        <button onclick="window.print()" class="btn btn-print">
+            Print Jadwal
+        </button>
     </div>
 </div>
 
