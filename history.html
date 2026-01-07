@@ -6,6 +6,7 @@
     <title>HISTORY CHECKLIST (MONTHLY) - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         @page { size: A4 landscape; margin: 8mm; }
         @media print {
@@ -17,7 +18,6 @@
         body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
         .document-page { background: white; width: 1250px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
         
-        /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
@@ -33,7 +33,6 @@
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
-        /* TABLE STYLING */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
@@ -49,7 +48,6 @@
         
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
         
-        /* FOOTER PARAF */
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 80px; }
         .sig-td { height: 80px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
         .sig-td img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2) brightness(0.5); }
@@ -85,6 +83,7 @@
             </script>
         </select>
         <button onclick="renderReport(true)" style="background: #003366; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">CARI DATA</button>
+        <button onclick="downloadExcel()" style="background: #1d6f42; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">DOWNLOAD EXCEL</button>
         <button onclick="window.print()" style="background: #222; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">PRINT PDF</button>
         <button onclick="window.location.href='dashboard.html'" style="background: #555; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">KEMBALI</button>
     </div>
@@ -113,7 +112,7 @@
             </div>
         </div>
 
-        <table class="table-official">
+        <table class="table-official" id="table-to-export">
             <thead>
                 <tr>
                     <th class="col-no" rowspan="2">NO</th>
@@ -222,10 +221,7 @@
 
             const dateFilter = `${thn}-${bln}`;
             
-            const { data, error } = await _sb.from('checklist')
-                .select('*, pelaksana(*)')
-                .eq('status', 'Approved');
-
+            const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
             if (error) return console.error(error);
 
             const filteredData = data.filter(item => {
@@ -244,7 +240,7 @@
 
             renderRows(dataMap);
             renderParaf(dataMap);
-            renderSuper(dataMap); // Kirim dataMap untuk validasi week
+            renderSuper(dataMap);
         }
 
         function renderRows(dataMap) {
@@ -263,14 +259,12 @@
                         let statusText = "";
                         let ket = "";
                         let ngClass = "";
-
                         if(dataMap[w]) {
                             const status = dataMap[w][item.field];
                             statusText = status || "";
                             ngClass = status === 'NG' ? "ng-color" : "";
                             ket = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
                         }
-                        
                         rHtml += `<td class="col-status"><span class="status-text ${ngClass}">${statusText}</span></td>`;
                         rHtml += `<td class="col-ket" style="text-align:left; padding-left:3px;"><span class="ng-text-desc">${ket}</span></td>`;
                     }
@@ -282,37 +276,49 @@
         function renderParaf(dataMap) {
             for(let w=1; w<=5; w++) {
                 const cell = document.getElementById(`sig-w${w}`);
-                cell.innerHTML = "";
-                if(dataMap[w] && dataMap[w].signature_pelaksana) {
-                    cell.innerHTML = `<img src="${dataMap[w].signature_pelaksana}">`;
-                }
+                cell.innerHTML = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}">` : "";
             }
         }
 
-        // FUNGSI DIUBAH: Validasi TTD muncul hanya jika Week 4 atau 5 ada
         function renderSuper(dataMap) {
             const sigFrame = document.getElementById('super-sig');
             const nameLabel = document.getElementById('super-name');
-            
-            // Cek apakah data week 4 atau week 5 tersedia
             const hasFinalWeeks = (dataMap[4] || dataMap[5]);
-
             if (hasFinalWeeks) {
-                // Ambil data terbaru dari week 5, jika tidak ada ambil week 4
                 const latestData = dataMap[5] || dataMap[4];
-                
                 if (latestData && latestData.signature) {
                     sigFrame.innerHTML = `<img src="${latestData.signature}">`;
                     nameLabel.innerText = `( ${latestData.nama_superintendent || 'SUPERINTENDENT'} )`;
-                } else {
-                    sigFrame.innerHTML = "";
-                    nameLabel.innerText = "( ........................ )";
                 }
             } else {
-                // Jika week 4 & 5 belum ada, kosongkan
                 sigFrame.innerHTML = "";
                 nameLabel.innerText = "( ........................ )";
             }
+        }
+
+        // FUNGSI DOWNLOAD EXCEL SESUAI GAMBAR
+        function downloadExcel() {
+            const table = document.getElementById("table-to-export");
+            const tools = document.getElementById('label-merk').innerText;
+            const bulan = document.getElementById('label-bulan').innerText;
+            const tahun = document.getElementById('label-tahun').innerText;
+            const capacity = document.getElementById('label-tonage').innerText;
+
+            // Buat worksheet baru dari elemen tabel
+            const wb = XLSX.utils.book_new();
+            const ws_data = [
+                ["CHECKLIST MONITORING TOOLING SUPPORT"],
+                ["EQUIPMENT:", tools, "", "", "BULAN:", bulan],
+                ["CAPACITY:", capacity, "", "", "TAHUN:", tahun],
+                [] // baris kosong
+            ];
+
+            // Tambahkan data dari tabel HTML ke worksheet
+            const table_data = XLSX.utils.table_to_sheet(table);
+            XLSX.utils.book_append_sheet(wb, table_data, "Report");
+
+            // Simpan file
+            XLSX.writeFile(wb, `Checklist_${tools}_${bulan}.xlsx`);
         }
 
         window.onload = () => renderRows({});
