@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
@@ -15,25 +16,18 @@
         .toggle-container { background-color: #f1f5f9; border-radius: 16px; padding: 6px; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
         .btn-toggle { padding: 8px 16px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; transition: all 0.3s ease; color: #64748b; border: none; cursor: pointer; }
         .btn-active { background-color: #ea580c; color: white; box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.4); }
-        
         .person-card { transition: all 0.3s ease; cursor: pointer; border-radius: 1rem; padding: 1rem; text-align: center; border: 1px solid transparent; }
         .person-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        
-        /* Identitas Warna Kartu */
         .card-ryan { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
         .card-isyqi { background-color: #f5f3ff; border-color: #ddd6fe; color: #5b21b6; }
         .card-jumawan { background-color: #fffbeb; border-color: #fde68a; color: #92400e; }
         .card-eko { background-color: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
         .card-tata { background-color: #fff1f2; border-color: #fecdd3; color: #9f1239; }
         .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
-
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); }
         .modal-content { background: white; margin: 3% auto; padding: 0; border-radius: 24px; width: 95%; max-width: 600px; overflow: hidden; animation: slideIn 0.3s; }
-        
-        /* Progress Bar Styling */
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-
         @keyframes slideIn { from {transform: translateY(-30px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
     </style>
 </head>
@@ -83,18 +77,15 @@
         <section class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
                 <option value="">-- Semua Personil --</option>
-                <option value="RYAN">RYAN</option>
-                <option value="ISYQI">ISYQI</option> <option value="JUMAWAN">JUMAWAN</option>
-                <option value="EKO">EKO</option>
-                <option value="TATA">TATA</option>
-                <option value="BAROK">BAROK</option>
+                <option value="RYAN">RYAN</option><option value="ISYQI">ISYQI</option><option value="JUMAWAN">JUMAWAN</option>
+                <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
             </select>
             <select id="filter-status" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
                 <option value="">-- Semua Status --</option>
                 <option value="Pending">Pending</option><option value="In Progress">In Progress</option>
                 <option value="Hold">Hold</option><option value="Done">Done</option>
             </select>
-            <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Project atau Tugas..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
+            <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Project..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
         </section>
 
         <section class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden text-sm text-nowrap">
@@ -121,7 +112,6 @@
                 <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl ml-4">&times;</button>
             </div>
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto text-sm">
-                
                 <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
                     <div class="flex justify-between items-center mb-2">
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Capaian Progres Proyek</label>
@@ -131,7 +121,6 @@
                         <div id="det-progress-bar" class="progress-fill bg-blue-500" style="width: 0%"></div>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Personil</label><p id="det-pic" class="text-sm font-black text-slate-800"></p></div>
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Priority</label><p id="det-priority" class="text-[11px] font-black uppercase"></p></div>
@@ -180,29 +169,14 @@
         function exportToExcel() {
             if (filteredData.length === 0) return alert("Tidak ada data");
             const hiddenTable = document.getElementById('hidden-excel-table');
-            let html = `<thead><tr>
-                <th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000; font-weight: bold;">PROJECT NAME</th>
-                <th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000; font-weight: bold;">PERSONIL</th>
-                <th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000; font-weight: bold;">PRIORITY</th>
-                <th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000; font-weight: bold;">STATUS</th>
-                <th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000; font-weight: bold;">PROGRES</th>
-                <th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000; font-weight: bold;">TUGAS</th>
-            </tr></thead><tbody>`;
-
+            let html = `<thead><tr><th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000;">PROJECT NAME</th><th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000;">PERSONIL</th><th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000;">STATUS</th><th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000;">PROGRES</th></tr></thead><tbody>`;
             filteredData.forEach(item => {
-                html += `<tr>
-                    <td style="border: 1px solid #000000;">${(item.project_name || "").toUpperCase()}</td>
-                    <td style="border: 1px solid #000000; text-align: center;">${item.assigned_to}</td>
-                    <td style="border: 1px solid #000000; text-align: center;">${item.priority || "Mid"}</td>
-                    <td style="border: 1px solid #000000; text-align: center;">${item.status}</td>
-                    <td style="border: 1px solid #000000; text-align: center;">${item.progress_percent || 0}%</td>
-                    <td style="border: 1px solid #000000;">${item.task_desc || "-"}</td>
-                </tr>`;
+                html += `<tr><td style="border: 1px solid #000000;">${(item.project_name || "").toUpperCase()}</td><td style="border: 1px solid #000000;">${item.assigned_to}</td><td style="border: 1px solid #000000;">${item.status}</td><td style="border: 1px solid #000000;">${item.progress_percent || 0}%</td></tr>`;
             });
             html += `</tbody>`;
             hiddenTable.innerHTML = html;
             const workbook = XLSX.utils.table_to_book(hiddenTable);
-            XLSX.writeFile(workbook, `Resume_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+            XLSX.writeFile(workbook, `Report_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
 
         function updatePersonnelGrid() {
@@ -213,10 +187,7 @@
                 const count = rawData.filter(r => r.assigned_to === name).length;
                 totalAll += count;
                 const colorClass = 'card-' + name.toLowerCase();
-                return `<div onclick="selectPerson('${name}')" class="person-card uppercase ${colorClass}">
-                    <p class="text-[9px] font-black opacity-70 tracking-tighter">${name}</p>
-                    <h4 class="text-xl font-black">${count}</h4>
-                </div>`;
+                return `<div onclick="selectPerson('${name}')" class="person-card uppercase ${colorClass}"><p class="text-[9px] font-black opacity-70 tracking-tighter">${name}</p><h4 class="text-xl font-black">${count}</h4></div>`;
             }).join('');
             document.getElementById('grand-total-tasks').innerText = totalAll;
         }
@@ -229,6 +200,7 @@
             renderChart(type);
         }
 
+        // FUNGSI RENDER DIAGRAM DENGAN DATA LABELS
         function renderChart(type) {
             const ctx = document.getElementById('projectChart').getContext('2d');
             if (projectChart) projectChart.destroy();
@@ -243,7 +215,37 @@
                 labels = personnel;
                 datasets = [{ label: 'Status ' + type, data: personnel.map(name => rawData.filter(r => r.assigned_to === name && r.status === type).length), backgroundColor: statusColors[type], borderRadius: 12 }];
             }
-            projectChart = new Chart(ctx, { type: 'bar', data: { labels, datasets }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: (type !== 'person') } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
+            
+            // Mencari nilai tertinggi untuk padding Y-axis
+            const maxVal = Math.max(...datasets[0].data);
+
+            projectChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels, datasets },
+                plugins: [ChartDataLabels], // Mengaktifkan Plugin DataLabels
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 25 } }, // Ruang ekstra untuk angka di atas
+                    plugins: { 
+                        legend: { display: (type !== 'person') },
+                        datalabels: { // Konfigurasi angka di atas diagram
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#1e293b',
+                            font: { weight: '800', size: 12 },
+                            formatter: (value) => value > 0 ? value : '' // Sembunyikan jika nol
+                        }
+                    }, 
+                    scales: { 
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { stepSize: 1 },
+                            max: maxVal + (maxVal > 5 ? 2 : 1) // Padding dinamis di atas diagram
+                        } 
+                    } 
+                } 
+            });
         }
 
         function applyFilters() {
@@ -283,15 +285,10 @@
             document.getElementById('det-start').innerText = formatDateTimeClean(row.work_start_time);
             document.getElementById('det-finish').innerText = formatDateTimeClean(row.work_end_time);
             document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan.";
-            
-            // Handle Progress Bar
             const prog = row.progress_percent || 0;
             document.getElementById('det-progress-text').innerText = prog + '%';
             document.getElementById('det-progress-bar').style.width = prog + '%';
-            
-            // Warna Bar dinamis
             document.getElementById('det-progress-bar').className = `progress-fill ${prog >= 100 ? 'bg-emerald-500' : (row.status === 'Hold' ? 'bg-rose-500' : 'bg-blue-500')}`;
-
             const holdSec = document.getElementById('hold-section');
             if(row.hold_reason) { holdSec.classList.remove('hidden'); document.getElementById('det-hold').innerText = row.hold_reason; } 
             else { holdSec.classList.add('hidden'); }
