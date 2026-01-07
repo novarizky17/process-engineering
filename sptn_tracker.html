@@ -17,7 +17,6 @@
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
         .modal-content { background: white; margin: 2% auto; padding: 24px; border-radius: 20px; width: 95%; max-width: 650px; animation: slideIn 0.3s; }
         
-        /* Progress Bar Styling */
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 8px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.5s ease-in-out; }
 
@@ -68,8 +67,11 @@
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To</label>
                     <select id="in-name" class="edit-input !p-3 !text-sm">
                         <option value="">Pilih Personil</option>
-                        <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option>
-                        <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
+                        <option value="RYAN">RYAN</option>
+                        <option value="ISYQI">ISYQI</option> <option value="JUMAWAN">JUMAWAN</option>
+                        <option value="EKO">EKO</option>
+                        <option value="TATA">TATA</option>
+                        <option value="BAROK">BAROK</option>
                     </select>
                 </div>
                 <div class="space-y-2">
@@ -95,8 +97,11 @@
                 <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Filter Personil</label>
                 <select id="filter-personil" onchange="filterTable()" class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none shadow-sm">
                     <option value="">Semua Personil</option>
-                    <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option>
-                    <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
+                    <option value="RYAN">RYAN</option>
+                    <option value="ISYQI">ISYQI</option> <option value="JUMAWAN">JUMAWAN</option>
+                    <option value="EKO">EKO</option>
+                    <option value="TATA">TATA</option>
+                    <option value="BAROK">BAROK</option>
                 </select>
             </div>
             <div>
@@ -149,8 +154,11 @@
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Assigned To</label>
                     <select id="rev-name" class="edit-input font-bold">
-                        <option value="RYAN">RYAN</option><option value="ISQI">ISQI</option><option value="JUMAWAN">JUMAWAN</option>
-                        <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
+                        <option value="RYAN">RYAN</option>
+                        <option value="ISYQI">ISYQI</option> <option value="JUMAWAN">JUMAWAN</option>
+                        <option value="EKO">EKO</option>
+                        <option value="TATA">TATA</option>
+                        <option value="BAROK">BAROK</option>
                     </select>
                 </div>
                 <div>
@@ -186,7 +194,7 @@
 
             <div class="flex gap-3 mt-8">
                 <button onclick="updateData()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold uppercase text-xs transition-all active:scale-95 shadow-lg">Simpan Perubahan</button>
-                <button onclick="deleteDataInModal()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-6 rounded-xl border border-rose-100 font-bold text-xs uppercase transition-all">Hapus</button>
+                <button onclick="deleteDataInModal()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-6 rounded-xl border border-rose-100 font-bold text-xs uppercase shadow-md transition-all">Hapus</button>
             </div>
         </div>
     </div>
@@ -225,7 +233,6 @@
                         <td class="px-6 py-6 font-bold uppercase">${row.project_name}</td>
                         <td class="px-4 py-6 text-center text-[10px] font-black uppercase ${pColor}">${row.priority}</td>
                         <td class="px-4 py-6 text-center font-bold">${row.assigned_to}</td>
-                        
                         <td class="px-4 py-6">
                             <div class="flex flex-col gap-1.5">
                                 <div class="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase">
@@ -237,7 +244,6 @@
                                 </div>
                             </div>
                         </td>
-
                         <td class="px-4 py-6 text-center">${row.due_date}</td>
                         <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black uppercase border ${sClass}">${row.status}</span></td>
                         <td class="px-4 py-6 text-center font-bold">${overLabel}</td>
