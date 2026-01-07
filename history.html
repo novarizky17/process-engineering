@@ -6,7 +6,6 @@
     <title>HISTORY CHECKLIST (MONTHLY) - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         @page { size: A4 landscape; margin: 8mm; }
         @media print {
@@ -14,7 +13,6 @@
             .no-print { display: none !important; }
             .document-page { box-shadow: none; border: none; width: 100%; max-width: none; margin: 0; padding: 5px; }
             .status-text { color: black !important; }
-            tr { page-break-inside: avoid; }
         }
         body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
         .document-page { background: white; width: 1250px; margin: 0 auto; padding: 15px; border: 1.5px solid #000; box-sizing: border-box; }
@@ -54,7 +52,7 @@
         /* FOOTER PARAF */
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 80px; }
         .sig-td { height: 80px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
-        .sig-td img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2) brightness(0.5); margin: 0 auto; }
+        .sig-td img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2) brightness(0.5); }
 
         .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .no-print input, .no-print select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
@@ -87,7 +85,6 @@
             </script>
         </select>
         <button onclick="renderReport(true)" style="background: #003366; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">CARI DATA</button>
-        <button onclick="downloadExcel()" style="background: #1d6f42; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">DOWNLOAD EXCEL</button>
         <button onclick="window.print()" style="background: #222; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">PRINT PDF</button>
         <button onclick="window.location.href='dashboard.html'" style="background: #555; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">KEMBALI</button>
     </div>
@@ -116,7 +113,7 @@
             </div>
         </div>
 
-        <table class="table-official" id="table-to-export">
+        <table class="table-official">
             <thead>
                 <tr>
                     <th class="col-no" rowspan="2">NO</th>
@@ -224,7 +221,11 @@
             document.getElementById('label-tonage').innerText = capacity || "-";
 
             const dateFilter = `${thn}-${bln}`;
-            const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
+            
+            const { data, error } = await _sb.from('checklist')
+                .select('*, pelaksana(*)')
+                .eq('status', 'Approved');
+
             if (error) return console.error(error);
 
             const filteredData = data.filter(item => {
@@ -243,7 +244,7 @@
 
             renderRows(dataMap);
             renderParaf(dataMap);
-            renderSuper(dataMap);
+            renderSuper(dataMap); // Kirim dataMap untuk validasi week
         }
 
         function renderRows(dataMap) {
@@ -259,13 +260,17 @@
                     let char = numToChar(alphabetCounter++);
                     let rHtml = `<tr><td>${char}</td><td class="col-item">${item.name}</td>`;
                     for(let w=1; w<=5; w++) {
-                        let statusText = "", ket = "", ngClass = "";
+                        let statusText = "";
+                        let ket = "";
+                        let ngClass = "";
+
                         if(dataMap[w]) {
                             const status = dataMap[w][item.field];
                             statusText = status || "";
                             ngClass = status === 'NG' ? "ng-color" : "";
                             ket = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
                         }
+                        
                         rHtml += `<td class="col-status"><span class="status-text ${ngClass}">${statusText}</span></td>`;
                         rHtml += `<td class="col-ket" style="text-align:left; padding-left:3px;"><span class="ng-text-desc">${ket}</span></td>`;
                     }
@@ -277,54 +282,37 @@
         function renderParaf(dataMap) {
             for(let w=1; w<=5; w++) {
                 const cell = document.getElementById(`sig-w${w}`);
-                cell.innerHTML = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}">` : "";
+                cell.innerHTML = "";
+                if(dataMap[w] && dataMap[w].signature_pelaksana) {
+                    cell.innerHTML = `<img src="${dataMap[w].signature_pelaksana}">`;
+                }
             }
         }
 
+        // FUNGSI DIUBAH: Validasi TTD muncul hanya jika Week 4 atau 5 ada
         function renderSuper(dataMap) {
             const sigFrame = document.getElementById('super-sig');
             const nameLabel = document.getElementById('super-name');
+            
+            // Cek apakah data week 4 atau week 5 tersedia
             const hasFinalWeeks = (dataMap[4] || dataMap[5]);
+
             if (hasFinalWeeks) {
+                // Ambil data terbaru dari week 5, jika tidak ada ambil week 4
                 const latestData = dataMap[5] || dataMap[4];
+                
                 if (latestData && latestData.signature) {
                     sigFrame.innerHTML = `<img src="${latestData.signature}">`;
                     nameLabel.innerText = `( ${latestData.nama_superintendent || 'SUPERINTENDENT'} )`;
+                } else {
+                    sigFrame.innerHTML = "";
+                    nameLabel.innerText = "( ........................ )";
                 }
             } else {
+                // Jika week 4 & 5 belum ada, kosongkan
                 sigFrame.innerHTML = "";
                 nameLabel.innerText = "( ........................ )";
             }
-        }
-
-        function downloadExcel() {
-            const tools = document.getElementById('label-merk').innerText;
-            const bulan = document.getElementById('label-bulan').innerText;
-            const table = document.getElementById("table-to-export");
-            const worksheet = XLSX.utils.table_to_sheet(table);
-
-            worksheet['!cols'] = [{ wch: 4 }, { wch: 30 }, { wch: 8 }, { wch: 15 }, { wch: 8 }, { wch: 15 }, { wch: 8 }, { wch: 15 }, { wch: 8 }, { wch: 15 }, { wch: 8 }, { wch: 15 }];
-            
-            const range = XLSX.utils.decode_range(worksheet['!ref']);
-            for (let i = 0; i <= range.e.r; i++) { worksheet['!rows'] = worksheet['!rows'] || []; worksheet['!rows'][i] = { hpt: 22 }; }
-
-            XLSX.utils.sheet_add_aoa(worksheet, [
-                ["CHECKLIST MONITORING TOOLING SUPPORT"],
-                ["EQUIPMENT:", tools, "", "", "", "", "BULAN:", bulan],
-                ["CAPACITY:", document.getElementById('label-tonage').innerText, "", "", "", "", "TAHUN:", document.getElementById('label-tahun').innerText],
-                [""]
-            ], { origin: "A1" });
-
-            worksheet['!merges'] = [
-                { s: {r:0, c:0}, e: {r:0, c:11} },
-                { s: {r:4, c:0}, e: {r:5, c:0} },
-                { s: {r:4, c:1}, e: {r:5, c:1} },
-                { s: {r:4, c:2}, e: {r:4, c:3} }, { s: {r:4, c:4}, e: {r:4, c:5} }, { s: {r:4, c:6}, e: {r:4, c:7} }, { s: {r:4, c:8}, e: {r:4, c:9} }, { s: {r:4, c:10}, e: {r:4, c:11} }
-            ];
-
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Monthly_Report");
-            XLSX.writeFile(workbook, `History_Checklist_${tools}_${bulan}.xlsx`);
         }
 
         window.onload = () => renderRows({});
