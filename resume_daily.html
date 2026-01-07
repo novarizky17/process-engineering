@@ -46,7 +46,7 @@
         </div>
     </header>
 
-    <main class="max-w-[98%] mx-auto px-4">
+    <main class="max-w-[98%] mx-auto px-4 mt-20">
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 relative z-10">
             <div class="lg:col-span-2 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
                 <div class="flex flex-col gap-4 mb-6">
@@ -59,7 +59,7 @@
                         <button id="btn-done" onclick="switchChart('Done')" class="btn-toggle">Done</button>
                     </div>
                 </div>
-                <div class="h-[280px]"><canvas id="projectChart"></canvas></div>
+                <div class="h-[350px]"><canvas id="projectChart"></canvas></div>
             </div>
 
             <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 flex flex-col">
@@ -90,7 +90,7 @@
 
         <section class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden text-sm text-nowrap">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse" id="main-report-table">
+                <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b border-slate-100">
                             <th class="px-6 py-5">Project / Tugas</th>
@@ -117,9 +117,7 @@
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Capaian Progres Proyek</label>
                         <span id="det-progress-text" class="text-sm font-black text-blue-600">0%</span>
                     </div>
-                    <div class="progress-bg">
-                        <div id="det-progress-bar" class="progress-fill bg-blue-500" style="width: 0%"></div>
-                    </div>
+                    <div class="progress-bg"><div id="det-progress-bar" class="progress-fill bg-blue-500" style="width: 0%"></div></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Personil</label><p id="det-pic" class="text-sm font-black text-slate-800"></p></div>
@@ -134,11 +132,9 @@
                 <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed"></div></div>
                 <div id="hold-section" class="hidden"><label class="text-[9px] font-black text-rose-500 uppercase">Keterangan Kendala</label><div id="det-hold" class="bg-rose-50 p-5 rounded-xl text-sm font-bold border border-rose-100 whitespace-pre-wrap leading-relaxed"></div></div>
             </div>
-            <div class="p-6 bg-slate-50 border-t"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs shadow-lg active:scale-95 transition-all">Tutup Laporan</button></div>
+            <div class="p-6 bg-slate-50 border-t"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
         </div>
     </div>
-
-    <table id="hidden-excel-table" style="display:none"></table>
 
     <script>
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
@@ -166,17 +162,42 @@
             applyFilters();
         }
 
+        // FUNGSI EKSPOR EXCEL YANG DIPERBAIKI (JSON METHOD + AUTO WIDTH)
         function exportToExcel() {
-            if (filteredData.length === 0) return alert("Tidak ada data");
-            const hiddenTable = document.getElementById('hidden-excel-table');
-            let html = `<thead><tr><th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000;">PROJECT NAME</th><th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000;">PERSONIL</th><th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000;">STATUS</th><th style="background-color: #ea580c; color: #ffffff; border: 1px solid #000000;">PROGRES</th></tr></thead><tbody>`;
-            filteredData.forEach(item => {
-                html += `<tr><td style="border: 1px solid #000000;">${(item.project_name || "").toUpperCase()}</td><td style="border: 1px solid #000000;">${item.assigned_to}</td><td style="border: 1px solid #000000;">${item.status}</td><td style="border: 1px solid #000000;">${item.progress_percent || 0}%</td></tr>`;
+            if (filteredData.length === 0) return alert("Tidak ada data untuk diunduh");
+            
+            // Siapkan Data JSON murni agar isi tidak terpotong
+            const dataToExport = filteredData.map(item => ({
+                "PROJECT NAME": (item.project_name || "").toUpperCase(),
+                "PERSONIL": item.assigned_to,
+                "PRIORITY": item.priority || "Mid",
+                "STATUS": item.status,
+                "PROGRES": (item.progress_percent || 0) + "%",
+                "START TIME": formatDateTimeClean(item.work_start_time),
+                "FINISH TIME": formatDateTimeClean(item.work_end_time),
+                "TUGAS UTAMA": item.task_desc || "-",
+                "UPDATE LAPORAN": item.worker_comment || "-",
+                "KENDALA": item.hold_reason || "-"
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Daily Report");
+
+            // LOGIKA AUTO-FIT KOLOM (Mencegah teks terpotong)
+            const colWidths = Object.keys(dataToExport[0]).map(key => {
+                let maxLen = key.toString().length;
+                dataToExport.forEach(row => {
+                    const cellValue = row[key] ? row[key].toString().length : 0;
+                    if (cellValue > maxLen) maxLen = cellValue;
+                });
+                return { wch: maxLen + 2 }; // Tambah margin sedikit
             });
-            html += `</tbody>`;
-            hiddenTable.innerHTML = html;
-            const workbook = XLSX.utils.table_to_book(hiddenTable);
-            XLSX.writeFile(workbook, `Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+            worksheet['!cols'] = colWidths;
+
+            // Berikan nama file sesuai tanggal
+            const fileName = `Daily_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(workbook, fileName);
         }
 
         function updatePersonnelGrid() {
@@ -200,7 +221,6 @@
             renderChart(type);
         }
 
-        // FUNGSI RENDER DIAGRAM DENGAN DATA LABELS
         function renderChart(type) {
             const ctx = document.getElementById('projectChart').getContext('2d');
             if (projectChart) projectChart.destroy();
@@ -215,35 +235,19 @@
                 labels = personnel;
                 datasets = [{ label: 'Status ' + type, data: personnel.map(name => rawData.filter(r => r.assigned_to === name && r.status === type).length), backgroundColor: statusColors[type], borderRadius: 12 }];
             }
-            
-            // Mencari nilai tertinggi untuk padding Y-axis
-            const maxVal = Math.max(...datasets[0].data);
-
             projectChart = new Chart(ctx, {
                 type: 'bar',
                 data: { labels, datasets },
-                plugins: [ChartDataLabels], // Mengaktifkan Plugin DataLabels
+                plugins: [ChartDataLabels],
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false,
-                    layout: { padding: { top: 25 } }, // Ruang ekstra untuk angka di atas
+                    layout: { padding: { top: 25 } },
                     plugins: { 
                         legend: { display: (type !== 'person') },
-                        datalabels: { // Konfigurasi angka di atas diagram
-                            anchor: 'end',
-                            align: 'top',
-                            color: '#1e293b',
-                            font: { weight: '800', size: 12 },
-                            formatter: (value) => value > 0 ? value : '' // Sembunyikan jika nol
-                        }
+                        datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: { weight: '800', size: 12 }, formatter: (v) => v > 0 ? v : '' }
                     }, 
-                    scales: { 
-                        y: { 
-                            beginAtZero: true, 
-                            ticks: { stepSize: 1 },
-                            max: maxVal + (maxVal > 5 ? 2 : 1) // Padding dinamis di atas diagram
-                        } 
-                    } 
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } 
                 } 
             });
         }
