@@ -7,155 +7,59 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        body { 
-            background-color: #f8fafc; 
-            padding: 20px; 
-            font-family: 'Inter', sans-serif; 
-        }
-
-        .glass-card { 
-            max-width: 950px; 
-            background: rgba(255, 255, 255, 0.95); 
-            margin: 0 auto; 
-            padding: 40px; 
-            border-radius: 20px; 
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-            border: 1px solid #f1f5f9;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f1f5f9;
-        }
-
-        .input-field { 
-            width: 100%; 
-            border: 1.5px solid #e2e8f0; 
-            padding: 10px 15px; 
-            border-radius: 10px; 
-            outline: none; 
-            transition: all 0.3s;
-            background-color: #ffffff;
-        }
-
-        .input-field:focus { 
-            border-color: #3b82f6; 
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-        }
-
-        .dotted-input { 
-            width: 100%; 
-            border: none; 
-            border-bottom: 2px dashed #e2e8f0; 
-            outline: none; 
-            padding: 4px 0;
-            background: transparent;
-            transition: border-color 0.3s;
-        }
-
-        .dotted-input:focus {
-            border-bottom-color: #3b82f6;
-        }
-
-        .sig-canvas { 
-            border: 2px dashed #cbd5e1; 
-            background: #ffffff; 
-            border-radius: 15px; 
-            width: 100%; 
-            height: 180px; 
-            cursor: crosshair; 
-            touch-action: none; 
-            transition: border-color 0.3s;
-        }
-
-        .sig-canvas:hover { border-color: #94a3b8; }
-
-        .btn-primary { 
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-            color: white; 
-            padding: 16px 32px; 
-            border-radius: 12px; 
-            font-weight: 700; 
-            letter-spacing: 0.5px;
-            transition: all 0.3s;
-            box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.3);
-        }
-
-        .btn-primary:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 20px 25px -5px rgba(30, 58, 138, 0.4);
-            filter: brightness(1.1);
-        }
-
-        .custom-radio input:checked + span {
-            background-color: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
+        body { background-color: #f1f5f9; padding: 20px; font-family: sans-serif; }
+        .form-card { max-width: 900px; background: white; margin: 0 auto; padding: 30px; border-radius: 12px; shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border: 1px solid #e2e8f0; }
+        .section-title { font-weight: bold; font-size: 11pt; color: #1e293b; margin-bottom: 12px; border-bottom: 2px solid #3b82f6; display: inline-block; padding-bottom: 2px; }
+        .input-field { width: 100%; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 6px; outline: none; transition: border 0.2s; }
+        .input-field:focus { border-color: #3b82f6; }
+        .dotted-input { width: 100%; border: none; border-bottom: 1px dotted #94a3b8; outline: none; padding: 4px 0; }
+        .sig-canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 8px; width: 100%; height: 150px; cursor: crosshair; touch-action: none; }
+        .btn-submit { background-color: #1e3a8a; color: white; padding: 12px 40px; border-radius: 8px; font-weight: bold; transition: all 0.2s; width: 100%; }
+        .btn-submit:hover { background-color: #1e40af; transform: translateY(-1px); }
+        .btn-submit:disabled { background-color: #94a3b8; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-    <div class="glass-card">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-            <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Laporan Overhaul</h1>
-                <p class="text-slate-500 mt-1">Maintenance & Equipment Tracking System</p>
-            </div>
-            <button onclick="window.location.href='laporan.html'" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                Dashboard
-            </button>
+    <div class="form-card">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-slate-800">Form Pengisian Laporan Overhaul</h1>
+            <button onclick="window.location.href='laporan.html'" class="text-sm text-slate-500 underline">Kembali ke Dashboard</button>
         </div>
 
         <form id="formOverhaul">
-            <div class="bg-blue-50/50 p-6 rounded-2xl border border-blue-100 grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                <div class="md:col-span-1">
-                    <label class="block text-xs font-bold text-blue-900 uppercase tracking-wider mb-2">Nama Mesin / Equipment</label>
-                    <input type="text" id="nama_mesin" class="input-field shadow-sm" placeholder="e.g. IRON MAN / COMPRESSOR">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="block text-sm font-semibold mb-1">Nama Mesin, Tools/Equipment:</label>
+                    <input type="text" id="nama_mesin" class="input-field" placeholder="Contoh: IRON MAN / COMPRESSOR">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-blue-900 uppercase tracking-wider mb-2">Tipe Pekerjaan</label>
-                    <div class="flex gap-4">
-                        <label class="flex-1 relative cursor-pointer custom-radio">
-                            <input type="radio" name="job_type" value="Perawatan" class="sr-only peer">
-                            <span class="block text-center py-2.5 px-4 border-2 border-slate-200 rounded-xl font-semibold text-slate-600 peer-checked:border-blue-600 peer-checked:bg-blue-600 peer-checked:text-white transition-all">Perawatan</span>
-                        </label>
-                        <label class="flex-1 relative cursor-pointer custom-radio">
-                            <input type="radio" name="job_type" value="Overhaul" class="sr-only peer">
-                            <span class="block text-center py-2.5 px-4 border-2 border-slate-200 rounded-xl font-semibold text-slate-600 peer-checked:border-blue-600 peer-checked:bg-blue-600 peer-checked:text-white transition-all">Overhaul</span>
-                        </label>
+                    <label class="block text-sm font-semibold mb-1">Tipe Pekerjaan:</label>
+                    <div class="flex gap-6 mt-2">
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="job_type" value="Perawatan" class="w-4 h-4"> Perawatan</label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="job_type" value="Overhaul" class="w-4 h-4"> Overhaul</label>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-blue-900 uppercase tracking-wider mb-2">Waktu Mulai</label>
-                    <input type="datetime-local" id="jam_mulai" class="input-field shadow-sm">
+                    <label class="block text-sm font-semibold mb-1">Tanggal & Jam Mulai:</label>
+                    <input type="datetime-local" id="jam_mulai" class="input-field">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-blue-900 uppercase tracking-wider mb-2">Waktu Selesai</label>
-                    <input type="datetime-local" id="jam_selesai" class="input-field shadow-sm">
+                    <label class="block text-sm font-semibold mb-1">Tanggal & Jam Selesai:</label>
+                    <input type="datetime-local" id="jam_selesai" class="input-field">
                 </div>
             </div>
 
-            <div class="mb-10">
-                <div class="section-header">
-                    <div class="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold">1</div>
-                    <h2 class="text-lg font-bold text-slate-800">Deskripsi Masalah</h2>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 px-2">
+            <div class="mb-8">
+                <span class="section-title text-blue-700">1. Deskripsi Masalah</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 mt-2">
                     <script>
                         for(let i=1; i<=4; i++) {
                             ['a','b'].forEach(col => {
                                 document.write(`
-                                    <div class="group flex items-center gap-4 p-2 rounded-lg hover:bg-slate-50 transition-colors">
-                                        <input type="checkbox" name="prob_check_${col}_${i}" class="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                                        <input type="text" name="prob_text_${col}_${i}" class="dotted-input text-sm font-medium" placeholder="Masalah baris ${i}...">
+                                    <div class="flex items-center gap-3">
+                                        <input type="checkbox" name="prob_check_${col}_${i}" class="w-4 h-4">
+                                        <input type="text" name="prob_text_${col}_${i}" class="dotted-input" placeholder="Baris ${i}...">
                                     </div>
                                 `);
                             });
@@ -164,19 +68,16 @@
                 </div>
             </div>
 
-            <div class="mb-10">
-                <div class="section-header">
-                    <div class="w-8 h-8 bg-green-600 text-white rounded-lg flex items-center justify-center font-bold">2</div>
-                    <h2 class="text-lg font-bold text-slate-800">Pekerjaan & Tindakan Diambil</h2>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 px-2">
+            <div class="mb-8">
+                <span class="section-title text-green-700">2. Pekerjaan & Tindakan Diambil</span>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 mt-2">
                     <script>
                         for(let i=1; i<=4; i++) {
                             ['a','b'].forEach(col => {
                                 document.write(`
-                                    <div class="group flex items-center gap-4 p-2 rounded-lg hover:bg-slate-50 transition-colors">
-                                        <input type="checkbox" name="act_check_${col}_${i}" class="w-5 h-5 rounded border-slate-300 text-green-600 focus:ring-green-500">
-                                        <input type="text" name="act_text_${col}_${i}" class="dotted-input text-sm font-medium" placeholder="Tindakan baris ${i}...">
+                                    <div class="flex items-center gap-3">
+                                        <input type="checkbox" name="act_check_${col}_${i}" class="w-4 h-4">
+                                        <input type="text" name="act_text_${col}_${i}" class="dotted-input" placeholder="Baris ${i}...">
                                     </div>
                                 `);
                             });
@@ -185,29 +86,26 @@
                 </div>
             </div>
 
-            <div class="mb-10">
-                <div class="section-header">
-                    <div class="w-8 h-8 bg-orange-500 text-white rounded-lg flex items-center justify-center font-bold">3</div>
-                    <h2 class="text-lg font-bold text-slate-800">Penggantian Part (Jika Ada)</h2>
-                </div>
-                <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
-                    <table class="w-full text-sm">
-                        <thead class="bg-slate-50 text-slate-600 uppercase text-xs font-bold">
+            <div class="mb-8">
+                <span class="section-title text-orange-700">3. Penggantian Part (Jika Ada)</span>
+                <div class="overflow-x-auto mt-2">
+                    <table class="w-full text-sm border-collapse border border-slate-200">
+                        <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-4 py-3 text-left">Nama Part</th>
-                                <th class="px-4 py-3 text-center w-24">QTY</th>
-                                <th class="px-4 py-3 text-center w-48">Tindak Lanjut</th>
+                                <th class="border p-2">Nama Part</th>
+                                <th class="border p-2 w-20">QTY</th>
+                                <th class="border p-2 w-40">Tindak Lanjut</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
+                        <tbody>
                             <script>
                                 for(let i=1; i<=5; i++) {
                                     document.write(`
-                                        <tr class="hover:bg-slate-50/50 transition-colors">
-                                            <td class="p-2"><input type="text" name="part_n_${i}" class="w-full bg-transparent outline-none px-2 py-1 font-medium"></td>
-                                            <td class="p-2"><input type="number" name="part_q_${i}" class="w-full bg-transparent text-center outline-none py-1"></td>
-                                            <td class="p-2">
-                                                <select name="part_act_${i}" class="w-full bg-white border border-slate-200 rounded-lg p-1.5 text-xs font-semibold focus:ring-2 focus:ring-orange-200 outline-none">
+                                        <tr>
+                                            <td class="border p-1"><input type="text" name="part_n_${i}" class="w-full outline-none px-2"></td>
+                                            <td class="border p-1"><input type="number" name="part_q_${i}" class="w-full text-center outline-none"></td>
+                                            <td class="border p-1 text-center">
+                                                <select name="part_act_${i}" class="text-xs">
                                                     <option value="">- Pilih -</option>
                                                     <option value="Ganti">Ganti Baru</option>
                                                     <option value="Repair">Repair</option>
@@ -222,47 +120,36 @@
                 </div>
             </div>
 
-            <div class="mb-10">
-                <div class="section-header">
-                    <div class="w-8 h-8 bg-slate-700 text-white rounded-lg flex items-center justify-center font-bold">4</div>
-                    <h2 class="text-lg font-bold text-slate-800">Rekomendasi & Catatan Tambahan</h2>
-                </div>
-                <textarea id="catatan" rows="4" class="input-field mt-2 shadow-sm" placeholder="Tuliskan detail teknis tambahan atau saran untuk maintenance berikutnya..."></textarea>
+            <div class="mb-8">
+                <span class="section-title text-slate-700">4. Rekomendasi & Catatan Tambahan</span>
+                <textarea id="catatan" rows="3" class="input-field mt-2" placeholder="Tuliskan saran atau catatan di sini..."></textarea>
             </div>
 
-            <div class="mb-12 max-w-sm mx-auto">
-                <div class="text-center mb-4">
-                    <label class="text-sm font-bold text-slate-800 uppercase tracking-widest">Digital Signature</label>
-                    <p class="text-[10px] text-slate-400">Engineer Pelaksana</p>
+            <div class="mb-10 max-w-md mx-auto text-center">
+                <label class="block font-bold mb-2">Tanda Tangan Engineer (Pelaksana):</label>
+                <div class="relative">
+                    <canvas id="can-eng" class="sig-canvas"></canvas>
+                    <button type="button" onclick="resetCan()" class="absolute top-2 right-2 text-xs text-red-500 underline">Hapus TTD</button>
                 </div>
-                <div class="relative group">
-                    <canvas id="can-eng" class="sig-canvas shadow-inner"></canvas>
-                    <button type="button" onclick="resetCan()" class="absolute -top-3 -right-3 bg-red-100 text-red-600 p-2 rounded-full hover:bg-red-600 hover:text-white transition-all shadow-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                </div>
-                <input type="text" id="name_engineer" class="input-field mt-6 text-center font-bold text-blue-900 border-blue-100 bg-blue-50/30" placeholder="NAMA LENGKAP ENGINEER">
+                <input type="text" id="name_engineer" class="input-field mt-4 text-center font-bold" placeholder="NAMA TERANG ENGINEER">
             </div>
 
-            <button type="button" id="btnSave" onclick="saveData()" class="btn-submit btn-primary w-full">
-                SUBMIT LAPORAN PERAWATAN
-            </button>
+            <button type="button" id="btnSave" onclick="saveData()" class="btn-submit">SIMPAN LAPORAN SEKARANG</button>
         </form>
     </div>
 
-    <div id="modalOk" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-[100] p-4">
-        <div class="bg-white p-10 rounded-3xl shadow-2xl text-center max-w-sm w-full transform transition-all scale-100">
-            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+    <div id="modalOk" class="fixed inset-0 bg-black/60 hidden flex items-center justify-center z-[100]">
+        <div class="bg-white p-8 rounded-xl shadow-2xl text-center max-w-sm w-full mx-4">
+            <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
             </div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">Success!</h2>
-            <p class="text-slate-500 mb-8 text-sm">Laporan telah berhasil divalidasi dan disimpan ke sistem pusat.</p>
-            <button onclick="window.location.reload()" class="bg-slate-900 text-white px-10 py-3 rounded-xl font-bold w-full hover:bg-black transition-all">Selesai</button>
+            <h2 class="text-xl font-bold text-slate-800 mb-2">Berhasil Disimpan!</h2>
+            <p class="text-slate-500 mb-6 text-sm">Laporan telah dikirim untuk review Superintendent.</p>
+            <button onclick="window.location.reload()" class="bg-blue-900 text-white px-8 py-2 rounded-lg font-bold w-full">OK</button>
         </div>
     </div>
 
     <script>
-        // Supabase Logic & ID tetap sama sesuai file asli Anda
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
@@ -271,31 +158,22 @@
         const ctx = canvas.getContext('2d');
         let painting = false;
 
-        function init() { 
-            canvas.width = canvas.offsetWidth; 
-            canvas.height = canvas.offsetHeight; 
-        }
+        function init() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
         window.onload = init;
-        window.onresize = init;
 
         function start(e) { painting = true; draw(e); }
         function end() { painting = false; ctx.beginPath(); }
         function draw(e) {
             if (!painting) return;
-            ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = "#1e3a8a";
+            ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = "#000";
             const rect = canvas.getBoundingClientRect();
             const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
             const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
             ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
         }
 
-        canvas.addEventListener('mousedown', start); 
-        canvas.addEventListener('mousemove', draw); 
-        window.addEventListener('mouseup', end);
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); }); 
-        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }); 
-        canvas.addEventListener('touchend', end);
-
+        canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', draw); window.addEventListener('mouseup', end);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); start(e); }); canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); }); canvas.addEventListener('touchend', end);
         function resetCan() { ctx.clearRect(0,0,canvas.width,canvas.height); }
 
         async function saveData() {
@@ -304,6 +182,7 @@
             const jobType = document.querySelector('input[name="job_type"]:checked')?.value;
             const btn = document.getElementById('btnSave');
             
+            // Ambil Nilai Tanggal
             const valMulai = document.getElementById('jam_mulai').value;
             const valSelesai = document.getElementById('jam_selesai').value;
 
@@ -312,6 +191,7 @@
             btn.disabled = true; btn.innerText = "SEDANG MENYIMPAN...";
 
             try {
+                // Konversi ke format ISO String agar database menerima tahun/bulan/hari yang dipilih
                 const jamMulai = valMulai ? new Date(valMulai).toISOString() : null;
                 const jamSelesai = valSelesai ? new Date(valSelesai).toISOString() : null;
 
