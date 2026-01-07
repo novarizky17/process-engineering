@@ -201,6 +201,10 @@
             <option value="2024">2024</option>
             <option value="2025" selected>2025</option>
             <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option value="2029">2029</option>
+            <option value="2030">2030</option>
         </select>
         <button onclick="fetchData()" class="btn-action">CARI DATA</button>
         <button onclick="window.print()" class="btn-action" style="background:#10b981">CETAK</button>
@@ -279,7 +283,6 @@
         </select>
     `;
 
-    // Fungsi format tanggal lokal
     function formatTgl(isoString) {
         if (!isoString) return "-";
         const d = new Date(isoString);
@@ -293,7 +296,6 @@
 
         if(!mesin) return alert("Masukkan Nama Mesin!");
 
-        // Perbaikan Query: Menggunakan order by terbaru
         let query = _sb.from('laporan_maintenance').select(`
                 id, jam_mulai, created_at, nama_mesin, engineer_name,
                 maintenance_problems(description),
@@ -338,7 +340,6 @@
             });
         }
 
-        // Pastikan tabel selalu punya 20 baris untuk tampilan cetak
         const remaining = 20 - (reports ? reports.length : 0);
         for (let i = 0; i < (remaining < 0 ? 0 : remaining); i++) {
             tbody.innerHTML += `<tr>
@@ -348,7 +349,6 @@
         }
     }
 
-    // Load baris kosong saat pertama buka
     window.onload = () => {
         const tbody = document.getElementById('table_content');
         for(let i=0; i<20; i++) {
