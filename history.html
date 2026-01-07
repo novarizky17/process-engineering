@@ -6,45 +6,25 @@
     <title>HISTORY CHECKLIST (MONTHLY) - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* PENGATURAN PRINT AGAR TENGAH DAN GARIS TEGAS */
-        @page { 
-            size: A4 landscape; 
-            margin: 5mm; 
-        }
-
+    <style id="page-style">
+        /* Style Dasar untuk Print */
+        @page { size: A4 landscape; margin: 8mm; }
         @media print {
-            body { 
-                padding: 0; 
-                margin: 0; 
-                background: white !important; 
-                -webkit-print-color-adjust: exact; 
-                display: flex;
-                justify-content: center; /* Konten ke tengah saat print */
-            }
+            body { padding: 0; margin: 0; background: white !important; display: flex; justify-content: center; }
             .no-print { display: none !important; }
             .document-page { 
                 box-shadow: none !important; 
-                border: 1.5pt solid black !important; /* Gunakan pt agar garis tidak hilang */
+                border: 1.5pt solid black !important; 
                 width: 100% !important; 
                 max-width: none !important; 
                 margin: 0 auto !important; 
                 padding: 10px !important;
-                transform: scale(0.96); /* Skala sedikit agar tidak terpotong garis pinggirnya */
                 transform-origin: top center;
             }
-            /* Mempertegas seluruh garis tabel saat print */
-            .table-official, .table-official th, .table-official td {
-                border: 1pt solid black !important;
-            }
-            .header-box, .header-cell {
-                border: 1.5pt solid black !important;
-            }
+            .table-official, .table-official th, .table-official td { border: 1pt solid black !important; }
         }
 
         body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
-        
-        /* Container Utama Center di Layar */
         .document-page { 
             background: white; 
             width: 1200px; 
@@ -55,7 +35,6 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
         
-        /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
@@ -71,7 +50,6 @@
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
-        /* TABLE STYLING AGAR GARIS TETAP MUNCUL */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
@@ -82,39 +60,46 @@
 
         .col-no { width: 30px; }
         .col-item { width: 180px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
-        .col-status { width: 50px; }
-        .col-ket { width: 85px; }
         
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
         
-        /* FOOTER PARAF */
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 80px; }
-        .sig-td { height: 80px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
+        .sig-td { height: 80px; background-color: #fff; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
         .sig-td img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2) brightness(0.5); }
 
-        .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .no-print input, .no-print select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
-        
         .footer-flex { display: flex; justify-content: space-between; margin-top: 15px; text-transform: uppercase; }
         .diketahui-box { width: 30%; text-align: center; margin-left: auto; }
         .sig-frame { border: 1.5px solid black; width: 160px; height: 80px; margin: 5px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
         .sig-frame img { max-height: 75px; width: auto; filter: grayscale(1) contrast(3) brightness(0.4); }
         .name-line { border-top: 1.5px solid black; width: 220px; margin: 0 auto; padding-top: 3px; font-weight: bold; color: #000; text-align: center; }
+
+        .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        /* CSS MODAL */
+        #printModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+        }
     </style>
 </head>
 <body>
 
     <div class="no-print">
-        <input type="text" id="input-merk" placeholder="NAMA TOOLS / EQUIPMENT">
-        <input type="text" id="input-tonage" placeholder="CAPACITY">
-        <select id="filter-bulan">
+        <input type="text" id="input-merk" placeholder="NAMA TOOLS / EQUIPMENT" class="border p-2 rounded uppercase text-sm">
+        <input type="text" id="input-tonage" placeholder="CAPACITY" class="border p-2 rounded uppercase text-sm">
+        <select id="filter-bulan" class="border p-2 rounded text-sm">
             <option value="">PILIH BULAN</option>
             <option value="01">JANUARI</option><option value="02">FEBRUARI</option><option value="03">MARET</option>
             <option value="04">APRIL</option><option value="05">MEI</option><option value="06">JUNI</option>
             <option value="07">JULI</option><option value="08">AGUSTUS</option><option value="09">SEPTEMBER</option>
             <option value="10">OKTOBER</option><option value="11">NOVEMBER</option><option value="12">DESEMBER</option>
         </select>
-        <select id="filter-tahun">
+        <select id="filter-tahun" class="border p-2 rounded text-sm">
             <script>
                 for(let y=2024; y<=2030; y++) { 
                     let sel = y === 2026 ? "selected" : "";
@@ -123,11 +108,37 @@
             </script>
         </select>
         <button onclick="renderReport(true)" style="background: #003366; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">CARI DATA</button>
-        <button onclick="window.print()" style="background: #222; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">PRINT PDF</button>
+        <button onclick="openPrintModal()" style="background: #222; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">PRINT PDF</button>
         <button onclick="window.location.href='management_tracker.html'" style="background: #555; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">KEMBALI</button>
     </div>
 
-    <div class="document-page">
+    <div id="printModal">
+        <div style="background: white; width: 380px; margin: 12% auto; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center;">
+            <h3 style="font-weight: 800; margin-bottom: 20px; text-transform: uppercase; color: #003366;">Pengaturan Cetak</h3>
+            
+            <div style="margin-bottom: 15px; text-align: left;">
+                <label style="font-size: 11px; font-weight: bold; color: #666;">UKURAN KERTAS:</label>
+                <select id="modal-paper" style="width: 100%; padding: 10px; border: 2px solid #eee; border-radius: 8px; margin-top: 5px; font-weight: bold;">
+                    <option value="A4">A4 (Standard)</option>
+                    <option value="A3">A3 (Besar - Sangat Disarankan)</option>
+                    <option value="F4">F4 / Folio (Panjang)</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 25px; text-align: left;">
+                <label style="font-size: 11px; font-weight: bold; color: #666;">SKALA CETAK (%):</label>
+                <input type="number" id="modal-scale" value="95" style="width: 100%; padding: 10px; border: 2px solid #eee; border-radius: 8px; margin-top: 5px; font-weight: bold;">
+                <p style="font-size: 10px; color: #999; margin-top: 5px;">*Kecilkan angka (misal: 90) jika tabel masih terpotong.</p>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <button onclick="closePrintModal()" style="flex: 1; padding: 12px; background: #f1f5f9; color: #64748b; border-radius: 10px; font-weight: bold; border: none; cursor: pointer;">Batal</button>
+                <button onclick="executePrint()" style="flex: 1; padding: 12px; background: #003366; color: white; border-radius: 10px; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 4px 6px rgba(0,51,102,0.3);">Cetak Sekarang</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="document-page" id="printable-doc">
         <div class="header-box">
             <div class="header-cell logo-area"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO AKG"></div>
             <div class="header-cell title-area">CHECKLIST MONITORING TOOLING SUPPORT</div>
@@ -135,7 +146,7 @@
                 <table class="meta-table">
                     <tr><td style="width: 120px;">NO DOKUMEN</td><td>: </td></tr>
                     <tr><td>TANGGAL TERBIT</td><td>: </td></tr>
-                    <tr><td>HALAMAN</td><td>: </td></tr>
+                    <tr><td>HALAMAN</td><td>: 1 dari 1</td></tr>
                 </table>
             </div>
         </div>
@@ -156,28 +167,22 @@
                 <tr>
                     <th class="col-no" rowspan="2">NO</th>
                     <th class="col-item" rowspan="2">JENIS PENGECEKAN</th>
-                    <th colspan="2">WEEK 1</th>
-                    <th colspan="2">WEEK 2</th>
-                    <th colspan="2">WEEK 3</th>
-                    <th colspan="2">WEEK 4</th>
-                    <th colspan="2">WEEK 5</th>
+                    <th colspan="2">WEEK 1</th><th colspan="2">WEEK 2</th><th colspan="2">WEEK 3</th><th colspan="2">WEEK 4</th><th colspan="2">WEEK 5</th>
                 </tr>
                 <tr>
-                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
-                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
-                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
-                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
-                    <th class="col-status">OK/NG</th><th class="col-ket">KET</th>
+                    <th style="width:45px">OK/NG</th><th style="width:85px">KET</th>
+                    <th style="width:45px">OK/NG</th><th style="width:85px">KET</th>
+                    <th style="width:45px">OK/NG</th><th style="width:85px">KET</th>
+                    <th style="width:45px">OK/NG</th><th style="width:85px">KET</th>
+                    <th style="width:45px">OK/NG</th><th style="width:85px">KET</th>
                 </tr>
             </thead>
             <tbody id="table-content"></tbody>
             <tfoot>
                 <tr id="row-paraf-pelaksana">
                     <td colspan="2" class="row-title-footer">PARAF PELAKSANA</td>
-                    <td colspan="2" class="sig-td" id="sig-w1"></td>
-                    <td colspan="2" class="sig-td" id="sig-w2"></td>
-                    <td colspan="2" class="sig-td" id="sig-w3"></td>
-                    <td colspan="2" class="sig-td" id="sig-w4"></td>
+                    <td colspan="2" class="sig-td" id="sig-w1"></td><td colspan="2" class="sig-td" id="sig-w2"></td>
+                    <td colspan="2" class="sig-td" id="sig-w3"></td><td colspan="2" class="sig-td" id="sig-w4"></td>
                     <td colspan="2" class="sig-td" id="sig-w5"></td>
                 </tr>
             </tfoot>
@@ -198,46 +203,57 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
+        /* LOGIKA MODAL PRINT */
+        function openPrintModal() { document.getElementById('printModal').style.display = 'block'; }
+        function closePrintModal() { document.getElementById('printModal').style.display = 'none'; }
+
+        function executePrint() {
+            const paper = document.getElementById('modal-paper').value;
+            const scale = document.getElementById('modal-scale').value;
+            const styleElement = document.getElementById('page-style');
+            
+            let sizeStr = "A4 landscape";
+            if(paper === "A3") sizeStr = "A3 landscape";
+            if(paper === "F4") sizeStr = "215mm 330mm landscape";
+
+            // Terapkan setting ke CSS sesaat sebelum print
+            styleElement.innerHTML = `
+                @page { size: ${sizeStr}; margin: 5mm; }
+                @media print {
+                    body { display: flex; justify-content: center; background: white !important; }
+                    .no-print { display: none !important; }
+                    .document-page { 
+                        transform: scale(${scale / 100}); 
+                        transform-origin: top center;
+                        border: 1.5pt solid black !important;
+                    }
+                    .table-official, .table-official th, .table-official td { border: 1pt solid black !important; }
+                }
+            `;
+            
+            closePrintModal();
+            // Beri jeda sedikit agar CSS ter-update sebelum printer dialog muncul
+            setTimeout(() => { window.print(); }, 400);
+        }
+
         const checklistStructure = [
             { header: "1. STAND LABEL", type: 'head' },
-            { name: "WIRING", field: "wiring" },
-            { name: "KOMPONEN", field: "komponen" },
-            { name: "KERAPIHAN", field: "kerapihan" },
-            { name: "SENSOR", field: "sensor" },
-            { name: "TIMING BELT", field: "timing_belt" },
-            { name: "PULLY", field: "pully" },
-            { name: "SERVO MOTOR", field: "servo_motor" },
-            { name: "LINEAR BEARING", field: "linear_bearing" },
-            { name: "ROTARY ACTUATOR", field: "rotary_actuator" },
-            { name: "SELENOID VALVE", field: "selenoid_valve" },
-            { name: "VACUUM EJECTOR", field: "vacuum_ejector" },
-            { name: "SILINDER PNEUMATIC", field: "silinder_pneumatic" },
-            { name: "NAPPLE", field: "napple" },
-            { name: "VACUUM PAD", field: "vacuum_pad" },
-            { name: "FLANGE", field: "flange" },
-            { name: "VACUUM PAD TAKEOUT", field: "vacuum_pad_takeout" },
+            { name: "WIRING", field: "wiring" }, { name: "KOMPONEN", field: "komponen" }, { name: "KERAPIHAN", field: "kerapihan" },
+            { name: "SENSOR", field: "sensor" }, { name: "TIMING BELT", field: "timing_belt" }, { name: "PULLY", field: "pully" },
+            { name: "SERVO MOTOR", field: "servo_motor" }, { name: "LINEAR BEARING", field: "linear_bearing" }, { name: "ROTARY ACTUATOR", field: "rotary_actuator" },
+            { name: "SELENOID VALVE", field: "selenoid_valve" }, { name: "VACUUM EJECTOR", field: "vacuum_ejector" }, { name: "SILINDER PNEUMATIC", field: "silinder_pneumatic" },
+            { name: "NAPPLE", field: "napple" }, { name: "VACUUM PAD", field: "vacuum_pad" }, { name: "FLANGE", field: "flange" }, { name: "VACUUM PAD TAKEOUT", field: "vacuum_pad_takeout" },
             { header: "2. STACKING", type: 'head' },
-            { name: "WIRING", field: "stacking_wiring" },
-            { name: "SENSOR", field: "stacking_sensor" },
-            { name: "LINIER", field: "stacking_linier" },
-            { name: "MECHANICAL PART", field: "stacking_mechanical_part" },
-            { name: "CYLINDER", field: "stacking_cylinder" },
-            { name: "PNEUMATIC", field: "stacking_pneumatic" },
+            { name: "WIRING", field: "stacking_wiring" }, { name: "SENSOR", field: "stacking_sensor" }, { name: "LINIER", field: "stacking_linier" },
+            { name: "MECHANICAL PART", field: "stacking_mechanical_part" }, { name: "CYLINDER", field: "stacking_cylinder" }, { name: "PNEUMATIC", field: "stacking_pneumatic" },
             { header: "3. CONVEYOR", type: 'head' },
-            { name: "BELT", field: "conveyor_belt" },
-            { name: "MOTOR", field: "conveyor_motor" },
-            { name: "RANTAI", field: "conveyor_rantai" },
-            { name: "FRAME", field: "conveyor_frame" },
-            { name: "INVERTER", field: "conveyor_inverter" },
+            { name: "BELT", field: "conveyor_belt" }, { name: "MOTOR", field: "conveyor_motor" }, { name: "RANTAI", field: "conveyor_rantai" },
+            { name: "FRAME", field: "conveyor_frame" }, { name: "INVERTER", field: "conveyor_inverter" },
             { header: "4. DOSING", type: 'head' },
-            { name: "ALARM", field: "dosing_alarm" },
-            { name: "SETTING", field: "dosing_setting" },
+            { name: "ALARM", field: "dosing_alarm" }, { name: "SETTING", field: "dosing_setting" },
             { header: "5. DUMMY", type: 'head' },
-            { name: "VACUUM", field: "dummy_vacuum" },
-            { name: "KONDISI", field: "dummy_condition" },
-            { name: "FLANGE", field: "dummy_flange" },
-            { name: "INSTALASI", field: "dummy_instalasi" },
-            { name: "TUBBING", field: "dummy_tubbing" }
+            { name: "VACUUM", field: "dummy_vacuum" }, { name: "KONDISI", field: "dummy_condition" }, { name: "FLANGE", field: "dummy_flange" },
+            { name: "INSTALASI", field: "dummy_instalasi" }, { name: "TUBBING", field: "dummy_tubbing" }
         ];
 
         function numToChar(num) { return String.fromCharCode(96 + num).toUpperCase(); }
@@ -247,41 +263,23 @@
             const bln = document.getElementById('filter-bulan').value;
             const tools = document.getElementById('input-merk').value.trim();
             const capacity = document.getElementById('input-tonage').value.trim();
-
-            if (!isSearching || !bln || !tools) {
-                alert("Mohon isi Nama Tools dan pilih Bulan!");
-                return;
-            }
+            if (!isSearching || !bln || !tools) return alert("Isi Nama Tools dan Pilih Bulan!");
 
             document.getElementById('label-tahun').innerText = thn;
             document.getElementById('label-bulan').innerText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text;
             document.getElementById('label-merk').innerText = tools.toUpperCase();
             document.getElementById('label-tonage').innerText = capacity || "-";
 
-            const dateFilter = `${thn}-${bln}`;
             const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
             if (error) return console.error(error);
 
             const filteredData = data.filter(item => {
-                if (!item.pelaksana || !item.pelaksana.tanggal_checklist) return false;
-                const mMatch = item.pelaksana.nama_tools?.toLowerCase().includes(tools.toLowerCase());
-                const tMatch = capacity ? item.pelaksana.capacity?.toLowerCase().includes(capacity.toLowerCase()) : true;
-                const dMatch = item.pelaksana.tanggal_checklist.startsWith(dateFilter);
-                return mMatch && tMatch && dMatch;
+                return item.pelaksana?.nama_tools?.toLowerCase().includes(tools.toLowerCase()) && item.pelaksana?.tanggal_checklist.startsWith(`${thn}-${bln}`);
             });
 
             const dataMap = {};
-            filteredData.forEach(item => {
-                const w = item.pelaksana ? item.pelaksana.week : null;
-                if(w >= 1 && w <= 5) dataMap[w] = item;
-            });
+            filteredData.forEach(item => { if(item.pelaksana.week >= 1 && item.pelaksana.week <= 5) dataMap[item.pelaksana.week] = item; });
 
-            renderRows(dataMap);
-            renderParaf(dataMap);
-            renderSuper(dataMap);
-        }
-
-        function renderRows(dataMap) {
             const tbody = document.getElementById('table-content');
             tbody.innerHTML = "";
             let alphabetCounter = 1;
@@ -291,46 +289,33 @@
                     tbody.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="10"></td></tr>`;
                 } else {
                     let char = numToChar(alphabetCounter++);
-                    let rHtml = `<tr><td class="font-bold">${char}</td><td class="col-item">${item.name}</td>`;
+                    let rHtml = `<tr><td class="font-bold text-center">${char}</td><td style="text-align:left; padding-left:5px; font-weight:bold;">${item.name}</td>`;
                     for(let w=1; w<=5; w++) {
-                        let statusText = "", ket = "", ngClass = "";
-                        if(dataMap[w]) {
-                            const status = dataMap[w][item.field];
-                            statusText = status || "";
-                            ngClass = status === 'NG' ? "ng-color" : "";
-                            ket = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
-                        }
-                        rHtml += `<td class="col-status font-bold ${ngClass}">${statusText}</td>`;
-                        rHtml += `<td class="col-ket" style="text-align:left; padding-left:3px;"><span class="ng-text-desc">${ket}</span></td>`;
+                        let status = dataMap[w] ? dataMap[w][item.field] : "";
+                        let ket = (status === 'NG' && dataMap[w]) ? (dataMap[w][item.field + "_keterangan"] || "") : "";
+                        rHtml += `<td class="font-bold ${status==='NG'?'text-red-600':''}">${status||""}</td><td class="ng-text-desc" style="text-align:left; padding-left:3px;">${ket}</td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
                 }
             });
-        }
 
-        function renderParaf(dataMap) {
             for(let w=1; w<=5; w++) {
                 const cell = document.getElementById(`sig-w${w}`);
                 cell.innerHTML = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}">` : "";
             }
-        }
 
-        function renderSuper(dataMap) {
-            const sigFrame = document.getElementById('super-sig');
+            const superSig = document.getElementById('super-sig');
             const nameLabel = document.getElementById('super-name');
             const hasFinalWeeks = (dataMap[4] || dataMap[5]);
             if (hasFinalWeeks) {
                 const latestData = dataMap[5] || dataMap[4];
-                if (latestData && latestData.signature) {
-                    sigFrame.innerHTML = `<img src="${latestData.signature}">`;
-                    nameLabel.innerText = `( ${latestData.nama_superintendent || 'SUPERINTENDENT'} )`;
-                }
+                superSig.innerHTML = latestData.signature ? `<img src="${latestData.signature}">` : "";
+                nameLabel.innerText = `( ${latestData.nama_superintendent || 'SUPERINTENDENT'} )`;
             } else {
-                sigFrame.innerHTML = "";
+                superSig.innerHTML = "";
                 nameLabel.innerText = "( ........................ )";
             }
         }
-
         window.onload = () => renderRows({});
     </script>
 </body>
