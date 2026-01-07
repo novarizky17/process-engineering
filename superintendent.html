@@ -36,7 +36,8 @@
     .ng-reason-box { margin-top: 10px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #dc3545; font-size: 15px; color: #333; }
     .all-ok-msg { color: #28a745; font-weight: bold; padding: 10px; font-style: italic; }
 
-    .note-box { background: #fffde7; border: 1px solid #fff59d; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-style: italic; }
+    /* Kotak Keterangan Superintendent */
+    .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
 
     .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
     canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
@@ -59,10 +60,10 @@
       <thead>
         <tr>
           <th>Pelaksana</th>
-          <th>Week</th> 
+          <th>Superintendent</th>
           <th>Equipment / Capacity</th>
           <th>Tanggal</th>
-          <th>Keterangan Pelaksana</th> <th>Status</th>
+          <th>Keterangan Superintendent</th> <th>Status</th>
           <th>Aksi</th>
         </tr>
       </thead>
@@ -76,11 +77,11 @@
 <div id="modal" class="modal">
   <div class="modal-content shadow-2xl">
     <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
-    <h2 style="color:#003366; margin:0;">Review Temuan NG & Keterangan</h2>
+    <h2 style="color:#003366; margin:0;">Review Checklist</h2>
     <p id="infoPelaksana" style="color:#666; margin-top:5px; font-weight: bold;"></p>
     <hr>
     
-    <div id="generalNoteArea"></div>
+    <div id="superNoteArea"></div>
 
     <div id="modalBody"></div>
 
@@ -89,6 +90,9 @@
         <div style="text-align: left; margin-bottom: 15px;">
             <label><strong>Nama Superintendent:</strong></label>
             <input type="text" id="namaSuperintendent" class="input-nama" placeholder="Masukkan nama Anda...">
+            
+            <label><strong>Keterangan / Catatan Tambahan:</strong></label>
+            <textarea id="keteranganSuper" placeholder="Tambahkan catatan untuk pelaksana (opsional)..."></textarea>
         </div>
 
         <p><strong>Tanda Tangan Superintendent:</strong></p>
@@ -99,7 +103,7 @@
           <button class="btn btn-danger" onclick="showRejectInput()">REJECT</button>
         </div>
         <div id="rejectInput" style="display:none; margin-top:20px; text-align:left;">
-          <textarea id="reasonText" placeholder="Alasan penolakan..."></textarea>
+          <p style="color: red; font-size: 12px;">*Alasan Reject wajib diisi di kotak Keterangan di atas atau di bawah ini.</p>
           <button class="btn btn-danger" style="width:100%;" onclick="processStatus('Rejected')">Kirim Penolakan</button>
         </div>
       </div>
@@ -109,9 +113,6 @@
         <p><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
         <div id="historySigArea">
             <img id="historySigImg" style="max-width:300px; border:1px solid #ddd; padding:5px; background:white;">
-        </div>
-        <div id="historyRejectArea" style="background:#fff1f0; padding:15px; border-radius:8px; display:none;">
-            <strong>Alasan Reject:</strong> <span id="historyReason"></span>
         </div>
       </div>
     </div>
@@ -157,11 +158,10 @@
     document.getElementById('mainTable').innerHTML = data.map(row => `
       <tr>
         <td><strong>${row.pelaksana?.nama_pelaksana || '-'}</strong></td>
-        <td>W-${row.pelaksana?.week || '-'}</td>
+        <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
         <td>${row.pelaksana?.nama_tools || '-'} / ${row.pelaksana?.capacity || '-'}</td>
         <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
-        <td>${row.pelaksana?.keterangan || '<i style="color:#ccc">Tidak ada</i>'}</td>
-        <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
+        <td>${row.keterangan || '<i style="color:#ccc">Tidak ada catatan</i>'}</td> <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
         <td><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
       </tr>
     `).join('');
@@ -171,13 +171,17 @@
     activeId = row.id;
     document.getElementById('infoPelaksana').innerText = `WEEK: ${row.pelaksana?.week} | Equipment: ${row.pelaksana?.nama_tools} | Pelaksana: ${row.pelaksana?.nama_pelaksana}`;
     
-    // Tampilkan Keterangan Umum Pelaksana di Modal
-    document.getElementById('generalNoteArea').innerHTML = `
-      <div class="section-header">KETERANGAN UMUM PELAKSANA</div>
-      <div class="note-box">
-        ${row.pelaksana?.keterangan || "Tidak ada keterangan tambahan dari pelaksana."}
-      </div>
-    `;
+    // Tampilkan Keterangan Superintendent jika sudah diisi
+    if (row.status !== 'Pending') {
+        document.getElementById('superNoteArea').innerHTML = `
+          <div class="section-header">CATATAN SUPERINTENDENT</div>
+          <div class="super-note-box">
+            <strong>Catatan:</strong> ${row.keterangan || "Tidak ada catatan tambahan."}
+          </div>
+        `;
+    } else {
+        document.getElementById('superNoteArea').innerHTML = '';
+    }
 
     const body = document.getElementById('modalBody');
     body.innerHTML = '';
@@ -191,18 +195,13 @@
           ngItemsHtml += `
             <div class="grid-item-ng">
               <div class="ng-label">${f.replace(/_/g,' ')}</div>
-              <div class="ng-reason-box"><strong>Keterangan Masalah:</strong> ${reason}</div>
+              <div class="ng-reason-box"><strong>Temuan NG:</strong> ${reason}</div>
             </div>`;
         }
       });
-
       body.innerHTML += `<div class="section-header">${sec.section}</div>`;
       body.innerHTML += ngItemsHtml || `<div class="all-ok-msg">✓ Semua item pada bagian ini OK</div>`;
     });
-
-    if(row.signature_pelaksana) {
-      body.innerHTML += `<div class="section-header">TTD PELAKSANA</div><div style="text-align:center"><img src="${row.signature_pelaksana}" style="height:100px; border:1px solid #eee"></div>`;
-    }
 
     const isP = row.status === 'Pending';
     document.getElementById('pendingSection').style.display = isP ? 'block' : 'none';
@@ -212,40 +211,39 @@
       document.getElementById('historyLabel').innerText = row.status === 'Approved' ? '✓ DISETUJUI' : '✘ DITOLAK';
       document.getElementById('historyNamaSuper').innerText = row.nama_superintendent || '-';
       document.getElementById('historySigImg').src = row.signature || '';
-      document.getElementById('historyReason').innerText = row.reject_reason || '';
       document.getElementById('historySigArea').style.display = row.status === 'Approved' ? 'block' : 'none';
-      document.getElementById('historyRejectArea').style.display = row.status === 'Rejected' ? 'block' : 'none';
     }
 
     document.getElementById('modal').style.display = 'block';
     document.getElementById('namaSuperintendent').value = '';
+    document.getElementById('keteranganSuper').value = '';
     clearSig();
   }
 
   async function processStatus(st) {
     const namaSuper = document.getElementById('namaSuperintendent').value;
+    const ketSuper = document.getElementById('keteranganSuper').value;
+
     if(!namaSuper) return alert("Nama Superintendent Wajib diisi!");
+    if(st === 'Rejected' && !ketSuper) return alert("Alasan Reject Wajib diisi di kotak Keterangan!");
 
     const update = { 
         status: st, 
         approved_at: new Date().toISOString(),
-        nama_superintendent: namaSuper 
+        nama_superintendent: namaSuper,
+        keterangan: ketSuper // Simpan keterangan ke database
     };
 
     if(st === 'Approved') {
         const dataURL = canvas.toDataURL();
         const blank = document.createElement('canvas');
         blank.width = canvas.width; blank.height = canvas.height;
-        if(dataURL === blank.toDataURL()) return alert("TTD Wajib!");
+        if(dataURL === blank.toDataURL()) return alert("Tanda tangan Wajib!");
         update.signature = dataURL;
-    } else {
-        const r = document.getElementById('reasonText').value;
-        if(!r) return alert("Alasan Reject Wajib!");
-        update.reject_reason = r;
     }
 
     const { error } = await _supabase.from('checklist').update(update).eq('id', activeId);
-    if(!error) { alert("Berhasil!"); closeModal(); loadData(); }
+    if(!error) { alert("Data berhasil diproses!"); closeModal(); loadData(); }
   }
 
   function showRejectInput() { document.getElementById('rejectInput').style.display = 'block'; }
