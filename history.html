@@ -292,55 +292,57 @@
             }
         }
 
-        // FUNGSI DOWNLOAD EXCEL SESUAI GAMBAR DENGAN MERGE CELLS
+        // FUNGSI DOWNLOAD EXCEL MIRIP 100% FORM
         function downloadExcel() {
             const tools = document.getElementById('label-merk').innerText;
             const bulan = document.getElementById('label-bulan').innerText;
             const tahun = document.getElementById('label-tahun').innerText;
             const capacity = document.getElementById('label-tonage').innerText;
 
+            // 1. Ambil data dari tabel HTML asli
             const table = document.getElementById("table-to-export");
             const worksheet = XLSX.utils.table_to_sheet(table);
 
-            // 1. MENGATUR LEBAR KOLOM
-            worksheet['!cols'] = [
-                { wch: 4 }, { wch: 30 }, 
-                { wch: 8 }, { wch: 12 }, { wch: 8 }, { wch: 12 },
-                { wch: 8 }, { wch: 12 }, { wch: 8 }, { wch: 12 },
-                { wch: 8 }, { wch: 12 }
-            ];
-
-            // 2. MENGATUR TINGGI BARIS
+            // 2. MENGATUR TINGGI BARIS & LEBAR KOLOM
             const range = XLSX.utils.decode_range(worksheet['!ref']);
             const rowHeights = [];
             for (let i = 0; i <= range.e.r; i++) {
-                rowHeights.push({ hpt: 20 }); 
+                rowHeights.push({ hpt: 22 }); // Set tinggi baris kotak agar proporsional
             }
             worksheet['!rows'] = rowHeights;
 
-            // 3. MENAMBAHKAN HEADER INFORMASI MANUAL DI ATAS
+            worksheet['!cols'] = [
+                { wch: 4 }, { wch: 35 }, 
+                { wch: 8 }, { wch: 15 }, { wch: 8 }, { wch: 15 },
+                { wch: 8 }, { wch: 15 }, { wch: 8 }, { wch: 15 },
+                { wch: 8 }, { wch: 15 }
+            ];
+
+            // 3. MENYISIPKAN HEADER METADATA DI ATAS
             XLSX.utils.sheet_add_aoa(worksheet, [
                 ["CHECKLIST MONITORING TOOLING SUPPORT"],
-                ["EQUIPMENT:", tools, "", "", "", "", "", "BULAN:", bulan],
-                ["CAPACITY:", capacity, "", "", "", "", "", "TAHUN:", tahun],
-                [""], 
+                ["EQUIPMENT:", tools, "", "", "", "", "BULAN:", bulan],
+                ["CAPACITY:", capacity, "", "", "", "", "TAHUN:", tahun],
+                [""] // Baris kosong pemisah
             ], { origin: "A1" });
 
-            // 4. MANUAL MERGE UNTUK KESESUAIAN TAMPILAN
+            // 4. LOGIKA PENGGABUNGAN SEL (MERGE)
+            // R = Row (mulai 0), C = Col (mulai 0)
             const merges = [
-                { s: {r:0, c:0}, e: {r:0, c:11} }, // Judul
-                { s: {r:4, c:0}, e: {r:5, c:0} },  // Kolom NO
-                { s: {r:4, c:1}, e: {r:5, c:1} },  // Kolom Item
-                { s: {r:4, c:2}, e: {r:4, c:3} },  // Week 1
-                { s: {r:4, c:4}, e: {r:4, c:5} },  // Week 2
-                { s: {r:4, c:6}, e: {r:4, c:7} },  // Week 3
-                { s: {r:4, c:8}, e: {r:4, c:9} },  // Week 4
-                { s: {r:4, c:10}, e: {r:4, c:11} } // Week 5
+                { s: {r:0, c:0}, e: {r:0, c:11} }, // Judul Utama
+                { s: {r:4, c:0}, e: {r:5, c:0} },  // Merge Kolom NO baris 5-6
+                { s: {r:4, c:1}, e: {r:5, c:1} },  // Merge Kolom Item baris 5-6
+                { s: {r:4, c:2}, e: {r:4, c:3} },  // Week 1 Header
+                { s: {r:4, c:4}, e: {r:4, c:5} },  // Week 2 Header
+                { s: {r:4, c:6}, e: {r:4, c:7} },  // Week 3 Header
+                { s: {r:4, c:8}, e: {r:4, c:9} },  // Week 4 Header
+                { s: {r:4, c:10}, e: {r:4, c:11} } // Week 5 Header
             ];
             worksheet['!merges'] = merges;
 
+            // 5. Buat Workbook dan Unduh
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Monthly Report");
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Monthly_Report");
 
             const safeTools = tools.replace(/[/\\?%*:|"<>]/g, '-');
             XLSX.writeFile(workbook, `History_Checklist_${safeTools}_${bulan}.xlsx`);
