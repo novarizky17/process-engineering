@@ -88,12 +88,12 @@
         </section>
 
         <section class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none">
+            <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold">
                 <option value="">-- Semua Personil --</option>
                 <option value="RYAN">RYAN</option><option value="ISYQI">ISYQI</option><option value="JUMAWAN">JUMAWAN</option>
                 <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
             </select>
-            <select id="filter-status" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none">
+            <select id="filter-status" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold">
                 <option value="">-- Semua Status --</option>
                 <option value="Pending">Pending</option><option value="In Progress">In Progress</option>
                 <option value="Hold">Hold</option><option value="Done">Done</option>
@@ -140,23 +140,30 @@
         <div class="modal-content shadow-2xl">
             <div class="bg-slate-900 p-6 text-white flex justify-between items-center">
                 <div><h2 class="text-lg font-black uppercase">Review Task</h2><p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p></div>
-                <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl">&times;</button>
+                <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl ml-4">&times;</button>
             </div>
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto text-sm">
-                <div class="bg-slate-50 p-5 rounded-2xl border">
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
                     <div class="flex justify-between items-center mb-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Progress</label>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Capaian Progres Proyek</label>
                         <span id="det-progress-text" class="text-sm font-black text-blue-600">0%</span>
                     </div>
                     <div class="progress-bg"><div id="det-progress-bar" class="progress-fill bg-blue-500" style="width: 0%"></div></div>
                 </div>
-                <div class="grid grid-cols-3 gap-4 text-center">
-                    <div class="bg-slate-50 p-3 rounded-xl"><label class="text-[9px] font-black text-slate-400 uppercase">PIC</label><p id="det-pic" class="text-xs font-black"></p></div>
-                    <div class="bg-slate-50 p-3 rounded-xl"><label class="text-[9px] font-black text-slate-400 uppercase">Priority</label><p id="det-priority" class="text-[10px] font-black uppercase"></p></div>
-                    <div class="bg-slate-50 p-3 rounded-xl"><label class="text-[9px] font-black text-slate-400 uppercase">Status</label><p id="det-status" class="text-[10px] font-black uppercase"></p></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Personil</label><p id="det-pic" class="text-sm font-black text-slate-800"></p></div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Priority</label><p id="det-priority" class="text-[11px] font-black uppercase"></p></div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Status</label><p id="det-status" class="text-[11px] font-black uppercase"></p></div>
                 </div>
-                <div><label class="text-[9px] font-black text-slate-400 uppercase">Aktivitas Terakhir</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border leading-relaxed mt-2"></div></div>
+                <div><label class="text-[9px] font-black text-slate-400 uppercase">Deskripsi Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap"></p></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
+                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Finish Work</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
+                </div>
+                <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed"></div></div>
+                <div id="hold-section" class="hidden"><label class="text-[9px] font-black text-rose-500 uppercase">Keterangan Kendala</label><div id="det-hold" class="bg-rose-50 p-5 rounded-xl text-sm font-bold border border-rose-100 whitespace-pre-wrap leading-relaxed"></div></div>
             </div>
+            <div class="p-6 bg-slate-50 border-t"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
         </div>
     </div>
 
@@ -167,6 +174,15 @@
         let rawData = [];
         let filteredData = [];
         let projectChart = null;
+
+        function formatDateTimeClean(str) {
+            if (!str) return '-';
+            try {
+                const dateMatch = str.match(/(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/);
+                if (dateMatch) return dateMatch[1].split('-').reverse().join('/') + " " + dateMatch[2].replace(':', '.');
+                return str;
+            } catch (e) { return str; }
+        }
 
         async function fetchAllData() {
             const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
@@ -274,8 +290,6 @@
             const tbody = document.getElementById('resume-body');
             tbody.innerHTML = data.map(row => {
                 let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-blue-50 text-blue-600 border-blue-200");
-                
-                // Logika Warna Priority di Tabel
                 let pClass = row.priority === 'High' ? "bg-red-50 text-red-600 border-red-200" : "bg-blue-50 text-blue-600 border-blue-200";
 
                 return `
@@ -285,13 +299,7 @@
                             <div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div>
                         </td>
                         <td class="px-4 py-5 text-center font-black text-slate-500">${row.assigned_to}</td>
-                        
-                        <td class="px-4 py-5 text-center">
-                            <span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase ${pClass}">
-                                ${row.priority || 'Mid'}
-                            </span>
-                        </td>
-
+                        <td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase ${pClass}">${row.priority || 'Mid'}</span></td>
                         <td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase ${sClass}">${row.status}</span></td>
                         <td class="px-6 py-5 text-center"><button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md">Review</button></td>
                     </tr>`;
@@ -310,15 +318,32 @@
             document.getElementById('grand-total-tasks').innerText = total;
         }
 
+        // FUNGSI OPEN DETAIL YANG DIKEMBALIKAN
         function openDetail(row) {
             document.getElementById('det-project-name').innerText = row.project_name;
             document.getElementById('det-pic').innerText = row.assigned_to;
+            document.getElementById('det-task').innerText = row.task_desc || 'Tidak ada deskripsi.';
             document.getElementById('det-status').innerText = row.status;
+            document.getElementById('det-status').className = `text-[11px] font-black uppercase ${row.status === 'Done' ? 'text-emerald-600' : (row.status === 'Hold' ? 'text-rose-600' : 'text-blue-600')}`;
             document.getElementById('det-priority').innerText = row.priority || 'Mid';
+            document.getElementById('det-priority').className = `text-[11px] font-black uppercase ${row.priority === 'High' ? 'text-red-600' : 'text-blue-600'}`;
+            document.getElementById('det-start').innerText = formatDateTimeClean(row.work_start_time);
+            document.getElementById('det-finish').innerText = formatDateTimeClean(row.work_end_time);
             document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
+            
             const prog = row.progress_percent || 0;
             document.getElementById('det-progress-text').innerText = prog + '%';
             document.getElementById('det-progress-bar').style.width = prog + '%';
+            document.getElementById('det-progress-bar').className = `progress-fill ${prog >= 100 ? 'bg-emerald-500' : (row.status === 'Hold' ? 'bg-rose-500' : 'bg-blue-500')}`;
+            
+            const holdSec = document.getElementById('hold-section');
+            if(row.hold_reason) { 
+                holdSec.classList.remove('hidden'); 
+                document.getElementById('det-hold').innerText = row.hold_reason; 
+            } else { 
+                holdSec.classList.add('hidden'); 
+            }
+            
             document.getElementById('detailModal').style.display = 'block';
         }
 
