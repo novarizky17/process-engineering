@@ -25,7 +25,7 @@
         .card-tata { background-color: #fff1f2; border-color: #fecdd3; color: #9f1239; }
         .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
-        .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 900px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 850px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.8s ease-out; }
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
@@ -80,6 +80,7 @@
                 </div>
                 <div class="h-[350px]"><canvas id="projectChart"></canvas></div>
             </div>
+
             <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 flex flex-col">
                 <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest mb-6 text-center">Summary Task</h3>
                 <div id="personnel-stats" class="grid grid-cols-2 gap-3 flex-grow"></div>
@@ -135,7 +136,7 @@
                     <input type="text" id="modal-search-input" oninput="filterAggregateProjects()" placeholder="Cari Nama Project..." class="w-full bg-white/10 border border-white/20 text-white text-xs px-10 py-2.5 rounded-xl outline-none focus:bg-white/20 transition-all placeholder:text-blue-300">
                     <svg class="w-4 h-4 text-blue-300 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
+                <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
             </div>
             <div class="p-8 max-h-[75vh] overflow-y-auto custom-scroll">
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -150,14 +151,19 @@
     <div id="projectDetailModal" class="modal">
         <div class="modal-content shadow-2xl">
             <div class="bg-blue-800 p-6 text-white flex justify-between items-center">
-                <div><h2 id="proj-modal-title" class="text-lg font-black uppercase tracking-tight"></h2><p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest">Detail Pekerjaan Terintegrasi</p></div>
+                <div>
+                    <h2 id="proj-modal-title" class="text-lg font-black uppercase tracking-tight"></h2>
+                    <p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest">Detail Pekerjaan Terintegrasi</p>
+                </div>
                 <button onclick="closeProjectModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
             </div>
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll">
                 <div id="proj-modal-dates" class="grid grid-cols-2 gap-4 mb-2"></div>
                 <div id="proj-modal-list" class="space-y-4"></div>
             </div>
-            <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeProjectModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Detail</button></div>
+            <div class="p-6 bg-slate-50 border-t flex justify-center">
+                <button onclick="closeProjectModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Detail</button>
+            </div>
         </div>
     </div>
 
@@ -182,7 +188,7 @@
                 </div>
                 <div><label class="text-[9px] font-black text-slate-400 uppercase">Deskripsi Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap min-h-[40px]"></p></div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px) font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
+                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
                     <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Finish Work</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
                 </div>
                 <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div>
@@ -218,7 +224,7 @@
             rawData = data;
             updatePersonnelGrid();
             renderChart('person');
-            applyFilters();
+            applyFilters(); // Mengisi tabel utama
         }
 
         function getProgressColor(percent) {
@@ -228,10 +234,8 @@
             return "bg-rose-500";               
         }
 
-        // FUNGSI PERBAIKAN: Memastikan data dimuat saat modal dibuka
         function openProjectAggregateModal() {
             document.getElementById('modal-search-input').value = '';
-            // Render semua project tanpa filter saat pertama kali buka
             document.getElementById('modal-project-list').innerHTML = generateProjectCardsHTML(''); 
             document.getElementById('projectAggregateModal').style.display = 'block';
         }
@@ -258,12 +262,10 @@
             };
         }
 
-        // PERBAIKAN LOGIKA: Menghilangkan pengecekan filterQuery yang salah
         function generateProjectCardsHTML(filterQuery = '') {
             const projects = {};
             rawData.forEach(item => {
                 const name = (item.project_name || "Tanpa Nama").toUpperCase();
-                // Hanya skip jika ada query dan nama tidak cocok
                 if (filterQuery && !name.includes(filterQuery)) return; 
                 
                 if (!projects[name]) projects[name] = { totalProgress: 0, count: 0, tasks: [] };
