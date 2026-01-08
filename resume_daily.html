@@ -240,11 +240,13 @@
             const container = document.getElementById('proj-modal-list');
             container.innerHTML = tasks.map(t => {
                 const taskColor = getProgressColor(t.progress_percent);
+                // Indikator status dinamis abu-abu untuk PENDING
+                const statusColor = t.status.toUpperCase() === 'PENDING' ? 'bg-slate-400' : (t.status === 'Done' ? 'bg-emerald-500' : 'bg-blue-600');
                 return `
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-[10px] font-black text-slate-800 uppercase">${t.assigned_to}</span>
-                            <span class="text-[9px] font-black px-2 py-0.5 rounded text-white ${t.status === 'Done' ? 'bg-emerald-500' : 'bg-blue-600'} uppercase">${t.status}</span>
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded text-white ${statusColor} uppercase">${t.status}</span>
                         </div>
                         <p class="text-[11px] font-medium text-slate-600 mb-3 leading-relaxed">${t.task_desc || '-'}</p>
                         <div class="flex items-center gap-3">
@@ -320,8 +322,11 @@
         function renderTable(data) {
             const tbody = document.getElementById('resume-body');
             tbody.innerHTML = data.map(row => {
-                let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-blue-50 text-blue-600 border-blue-200");
-                let pClass = row.priority === 'High' ? "bg-red-50 text-red-600 border-red-200" : "bg-blue-50 text-blue-600 border-blue-200";
+                // Logika warna status ABU-ABU untuk PENDING
+                let sClass = row.status.toUpperCase() === 'PENDING' ? "bg-slate-100 text-slate-500 border-slate-200" : (row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-blue-50 text-blue-600 border-blue-200"));
+                
+                // Logika warna priority ABU-ABU untuk LOW
+                let pClass = row.priority?.toUpperCase() === 'LOW' ? "bg-slate-100 text-slate-500 border-slate-200" : (row.priority === 'High' ? "bg-red-50 text-red-600 border-red-200" : "bg-blue-50 text-blue-600 border-blue-200");
 
                 return `
                     <tr class="hover:bg-slate-50 transition-all text-xs font-bold">
@@ -334,13 +339,11 @@
             }).join('');
         }
 
-        // FUNGSI SELECTPERSON UNTUK FILTER (DIPERBAIKI)
         function selectPerson(name) {
             const filterEl = document.getElementById('filter-user');
             if(filterEl) {
                 filterEl.value = name;
                 applyFilters();
-                // Scroll ke tabel agar user melihat hasilnya
                 document.getElementById('filter-user').scrollIntoView({ behavior: 'smooth' });
             }
         }
@@ -349,19 +352,12 @@
             const personnel = ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
             let total = 0;
             const container = document.getElementById('personnel-stats');
-            
-            // Render ulang kartu dan pastikan onclick memanggil selectPerson
             container.innerHTML = personnel.map(name => {
                 const c = rawData.filter(r => r.assigned_to === name).length;
                 total += c;
                 const cls = 'card-' + name.toLowerCase();
-                return `
-                    <div onclick="selectPerson('${name}')" class="person-card ${cls}"> 
-                        <p class="text-[9px] font-black opacity-70">${name}</p> 
-                        <h4 class="text-xl font-black">${c}</h4> 
-                    </div>`;
+                return `<div onclick="selectPerson('${name}')" class="person-card ${cls}"> <p class="text-[9px] font-black opacity-70">${name}</p> <h4 class="text-xl font-black">${c}</h4> </div>`;
             }).join('');
-            
             document.getElementById('grand-total-tasks').innerText = total;
         }
 
@@ -369,10 +365,16 @@
             document.getElementById('det-project-name').innerText = row.project_name || "Tanpa Judul";
             document.getElementById('det-pic').innerText = row.assigned_to || "-";
             document.getElementById('det-task').innerText = row.task_desc || 'Belum ada deskripsi tugas.';
+            
+            // Perbaikan warna abu-abu di Modal Review
+            const isPending = row.status?.toUpperCase() === 'PENDING';
+            const isLow = row.priority?.toUpperCase() === 'LOW';
+
             document.getElementById('det-status').innerText = row.status || "PENDING";
-            document.getElementById('det-status').className = `text-[11px] font-black uppercase ${row.status === 'Done' ? 'text-emerald-600' : (row.status === 'Hold' ? 'text-rose-600' : 'text-blue-600')}`;
+            document.getElementById('det-status').className = `text-[11px] font-black uppercase ${isPending ? 'text-slate-400' : (row.status === 'Done' ? 'text-emerald-600' : (row.status === 'Hold' ? 'text-rose-600' : 'text-blue-600'))}`;
+            
             document.getElementById('det-priority').innerText = row.priority || 'MID';
-            document.getElementById('det-priority').className = `text-[11px] font-black uppercase ${row.priority === 'High' ? 'text-red-600' : 'text-blue-600'}`;
+            document.getElementById('det-priority').className = `text-[11px] font-black uppercase ${isLow ? 'text-slate-400' : (row.priority === 'High' ? 'text-red-600' : 'text-blue-600')}`;
             
             document.getElementById('det-start').innerText = formatDateTimeClean(row.work_start_time);
             document.getElementById('det-finish').innerText = formatDateTimeClean(row.work_end_time);
@@ -386,18 +388,13 @@
             document.getElementById('det-progress-bar').className = `progress-fill ${getProgressColor(prog)}`;
             
             const holdSec = document.getElementById('hold-section');
-            if(row.hold_reason) { 
-                holdSec.classList.remove('hidden'); 
-                document.getElementById('det-hold').innerText = row.hold_reason; 
-            } else { 
-                holdSec.classList.add('hidden'); 
-            }
+            if(row.hold_reason) { holdSec.classList.remove('hidden'); document.getElementById('det-hold').innerText = row.hold_reason; } 
+            else { holdSec.classList.add('hidden'); }
             
             document.getElementById('detailModal').style.display = 'block';
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
-        function closeProjectModal() { document.getElementById('projectDetailModal').style.display = 'none'; }
         window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); closeProjectModal(); } };
         window.onload = fetchAllData;
     </script>
