@@ -284,15 +284,22 @@
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false, 
+                    layout: { padding: { top: 30 } }, // Beri ruang agar angka tidak terpotong di atas batang
                     plugins: { 
                         legend: {display: false}, 
-                        datalabels: {color: '#1e293b', font: {weight: 'bold'}} 
+                        datalabels: {
+                            anchor: 'end', // Taruh label di ujung batang
+                            align: 'top',   // Posisikan label di atas batang
+                            color: '#1e293b', 
+                            font: {weight: 'bold', size: 12},
+                            formatter: (v) => v > 0 ? v : '' 
+                        } 
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                stepSize: 1, // Skala angka bulat (1, 2, 3)
+                                stepSize: 1, // Memastikan skala hanya angka bulat (1, 2, 3)
                                 callback: function(value) { if (value % 1 === 0) {return value;} }
                             }
                         }
@@ -346,13 +353,8 @@
         function openDetail(row) {
             document.getElementById('det-project-name').innerText = row.project_name;
             document.getElementById('det-pic').innerText = row.assigned_to;
-            document.getElementById('det-task').innerText = row.task_desc || 'Tidak ada deskripsi.';
             document.getElementById('det-status').innerText = row.status;
-            document.getElementById('det-status').className = `text-[11px] font-black uppercase ${row.status === 'Done' ? 'text-emerald-600' : (row.status === 'Hold' ? 'text-rose-600' : 'text-blue-600')}`;
             document.getElementById('det-priority').innerText = row.priority || 'Mid';
-            document.getElementById('det-priority').className = `text-[11px] font-black uppercase ${row.priority === 'High' ? 'text-red-600' : 'text-blue-600'}`;
-            document.getElementById('det-start').innerText = formatDateTimeClean(row.work_start_time);
-            document.getElementById('det-finish').innerText = formatDateTimeClean(row.work_end_time);
             document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
             
             const prog = row.progress_percent || 0;
