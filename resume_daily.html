@@ -56,7 +56,7 @@
                     Project Aggregated Progress
                 </h3>
                 <div id="project-overview-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-h-[450px] overflow-y-auto custom-scroll pr-2">
-                </div>
+                    </div>
             </div>
         </section>
 
@@ -122,14 +122,14 @@
         <div class="modal-content shadow-2xl">
             <div class="bg-orange-600 p-6 text-white flex justify-between items-center">
                 <div>
-                    <h2 id="proj-modal-header-title" class="text-lg font-black uppercase tracking-tight"></h2>
-                    <p id="proj-modal-name" class="text-orange-100 text-[10px] font-bold uppercase opacity-80"></p>
+                    <h2 id="proj-modal-title" class="text-lg font-black uppercase tracking-tight"></h2>
+                    <p class="text-orange-100 text-[10px] font-bold uppercase tracking-widest">Detail Pekerjaan Terintegrasi</p>
                 </div>
                 <button onclick="closeProjectModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
             </div>
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll">
                 <div id="proj-modal-list" class="space-y-5">
-                </div>
+                    </div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center">
                 <button onclick="closeProjectModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Detail</button>
@@ -182,6 +182,7 @@
         function updateProjectOverview() {
             const container = document.getElementById('project-overview-container');
             const projects = {};
+
             rawData.forEach(item => {
                 const name = (item.project_name || "Tanpa Nama").toUpperCase();
                 if (!projects[name]) projects[name] = { totalProgress: 0, count: 0, tasks: [] };
@@ -189,9 +190,11 @@
                 projects[name].count += 1;
                 projects[name].tasks.push(item);
             });
+
             container.innerHTML = Object.keys(projects).map(projName => {
                 const data = projects[projName];
                 const avgProgress = Math.round(data.totalProgress / data.count);
+                
                 return `
                     <div onclick='openProjectModal("${projName}")' class="bg-slate-50 p-5 rounded-2xl border border-slate-100 hover:border-orange-500 hover:bg-white transition-all cursor-pointer shadow-sm group">
                         <div class="flex justify-between items-start mb-4">
@@ -205,17 +208,17 @@
                             <span>${data.count} Tasks Total</span>
                             <span class="group-hover:text-orange-600 transition-colors">Lihat Detail &rarr;</span>
                         </div>
-                    </div>`;
+                    </div>
+                `;
             }).join('');
         }
 
         function openProjectModal(projName) {
-            // Judul modal sekarang menampilkan Nama Project
-            document.getElementById('proj-modal-header-title').innerText = projName;
-            document.getElementById('proj-modal-name').innerText = "Detail Progres Task";
-            
+            // Memasukkan nama project ke judul modal
+            document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
             const container = document.getElementById('proj-modal-list');
+            
             container.innerHTML = tasks.map(t => {
                 let statusColor = t.status === 'Done' ? 'bg-emerald-500' : (t.status === 'Hold' ? 'bg-rose-500' : 'bg-blue-500');
                 return `
@@ -229,12 +232,15 @@
                             <div class="progress-bg h-1.5 flex-grow"><div class="progress-fill ${statusColor}" style="width: ${t.progress_percent}%"></div></div>
                             <span class="text-[10px] font-black text-slate-500">${t.progress_percent}%</span>
                         </div>
-                    </div>`;
+                    </div>
+                `;
             }).join('');
+            
             document.getElementById('projectDetailModal').style.display = 'block';
         }
 
         function closeProjectModal() { document.getElementById('projectDetailModal').style.display = 'none'; }
+
         function switchChart(type) {
             ['person', 'Pending', 'In Progress', 'Hold', 'Done'].forEach(id => {
                 const el = document.getElementById('btn-' + id);
@@ -249,9 +255,11 @@
             if (projectChart) projectChart.destroy();
             const personnel = ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
             const colors = ['#3b82f6', '#6366f1', '#f59e0b', '#10b981', '#f43f5e', '#475569'];
+            
             let dataArr;
             if(type === 'person') dataArr = personnel.map(n => rawData.filter(r => r.assigned_to === n).length);
             else dataArr = personnel.map(n => rawData.filter(r => r.assigned_to === n && r.status === type).length);
+
             projectChart = new Chart(ctx, {
                 type: 'bar',
                 data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: type === 'person' ? colors : '#ea580c', borderRadius: 8 }] },
