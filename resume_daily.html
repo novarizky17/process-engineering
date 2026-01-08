@@ -17,7 +17,7 @@
         .btn-toggle { padding: 8px 16px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; transition: all 0.3s ease; color: #64748b; border: none; cursor: pointer; }
         .btn-active { background-color: #ea580c; color: white; box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.4); }
         .person-card { transition: all 0.3s ease; cursor: pointer; border-radius: 1rem; padding: 1rem; text-align: center; border: 1px solid transparent; }
-        .person-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .person-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); filter: brightness(0.95); }
         .card-ryan { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
         .card-isyqi { background-color: #f5f3ff; border-color: #ddd6fe; color: #5b21b6; }
         .card-jumawan { background-color: #fffbeb; border-color: #fde68a; color: #92400e; }
@@ -176,7 +176,6 @@
         let filteredData = [];
         let projectChart = null;
 
-        // Fungsi format waktu yang diperbaiki
         function formatDateTimeClean(str) {
             if (!str) return 'Belum Ada';
             try {
@@ -335,19 +334,37 @@
             }).join('');
         }
 
+        // FUNGSI SELECTPERSON UNTUK FILTER (DIPERBAIKI)
+        function selectPerson(name) {
+            const filterEl = document.getElementById('filter-user');
+            if(filterEl) {
+                filterEl.value = name;
+                applyFilters();
+                // Scroll ke tabel agar user melihat hasilnya
+                document.getElementById('filter-user').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
         function updatePersonnelGrid() {
             const personnel = ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
             let total = 0;
-            document.getElementById('personnel-stats').innerHTML = personnel.map(name => {
+            const container = document.getElementById('personnel-stats');
+            
+            // Render ulang kartu dan pastikan onclick memanggil selectPerson
+            container.innerHTML = personnel.map(name => {
                 const c = rawData.filter(r => r.assigned_to === name).length;
                 total += c;
                 const cls = 'card-' + name.toLowerCase();
-                return `<div class="person-card ${cls}"> <p class="text-[9px] font-black opacity-70">${name}</p> <h4 class="text-xl font-black">${c}</h4> </div>`;
+                return `
+                    <div onclick="selectPerson('${name}')" class="person-card ${cls}"> 
+                        <p class="text-[9px] font-black opacity-70">${name}</p> 
+                        <h4 class="text-xl font-black">${c}</h4> 
+                    </div>`;
             }).join('');
+            
             document.getElementById('grand-total-tasks').innerText = total;
         }
 
-        // FUNGSI OPEN DETAIL (PERBAIKAN DATA KOSONG)
         function openDetail(row) {
             document.getElementById('det-project-name').innerText = row.project_name || "Tanpa Judul";
             document.getElementById('det-pic').innerText = row.assigned_to || "-";
@@ -357,12 +374,10 @@
             document.getElementById('det-priority').innerText = row.priority || 'MID';
             document.getElementById('det-priority').className = `text-[11px] font-black uppercase ${row.priority === 'High' ? 'text-red-600' : 'text-blue-600'}`;
             
-            // Format waktu
             document.getElementById('det-start').innerText = formatDateTimeClean(row.work_start_time);
             document.getElementById('det-finish').innerText = formatDateTimeClean(row.work_end_time);
             document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
             
-            // Force 100% if Status is Done
             let prog = row.progress_percent || 0;
             if(row.status === 'Done') prog = 100;
             
@@ -382,6 +397,7 @@
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+        function closeProjectModal() { document.getElementById('projectDetailModal').style.display = 'none'; }
         window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); closeProjectModal(); } };
         window.onload = fetchAllData;
     </script>
