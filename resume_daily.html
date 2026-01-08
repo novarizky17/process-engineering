@@ -194,12 +194,12 @@
             applyFilters();
         }
 
-        // Logika warna Merah, Biru, Hijau (Hapus Oranye)
+        // LOGIKA BARU: Merah (<50%), Biru (>=50%), Hijau (100%)
         function getProgressColor(percent) {
             const p = parseInt(percent);
             if (p >= 100) return "bg-emerald-500"; // Hijau (Selesai)
-            if (p > 10) return "bg-blue-600";     // Biru (Proses Berjalan)
-            return "bg-rose-500";               // Merah (Awal/Pending)
+            if (p >= 50) return "bg-blue-600";    // Biru (Diatas atau sama dengan 50%)
+            return "bg-rose-500";               // Merah (Dibawah 50%)
         }
 
         function updateProjectOverview() {
@@ -221,7 +221,7 @@
                     <div onclick='openProjectModal("${projName}")' class="bg-slate-50 p-5 rounded-2xl border border-slate-100 hover:border-blue-500 hover:bg-white transition-all cursor-pointer shadow-sm group">
                         <div class="flex justify-between items-start mb-4">
                             <h4 class="text-xs font-black text-slate-800 uppercase tracking-tighter truncate max-w-[180px]">${projName}</h4>
-                            <span class="text-[10px] font-black bg-white px-2 py-1 rounded-lg border shadow-sm text-blue-700">${avgProgress}%</span>
+                            <span class="text-[10px] font-black bg-white px-2 py-1 rounded-lg border shadow-sm ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span>
                         </div>
                         <div class="progress-bg h-2 mb-3">
                             <div class="progress-fill ${colorClass}" style="width: ${avgProgress}%"></div>
@@ -328,14 +328,18 @@
         function openDetail(row) {
             document.getElementById('det-project-name').innerText = row.project_name;
             document.getElementById('det-pic').innerText = row.assigned_to;
+            document.getElementById('det-task').innerText = row.task_desc || 'Tidak ada deskripsi.';
             document.getElementById('det-status').innerText = row.status;
+            document.getElementById('det-status').className = `text-[11px] font-black uppercase ${row.status === 'Done' ? 'text-emerald-600' : (row.status === 'Hold' ? 'text-rose-600' : 'text-blue-600')}`;
             document.getElementById('det-priority').innerText = row.priority || 'Mid';
+            document.getElementById('det-priority').className = `text-[11px] font-black uppercase ${row.priority === 'High' ? 'text-red-600' : 'text-blue-600'}`;
+            document.getElementById('det-start').innerText = formatDateTimeClean(row.work_start_time);
+            document.getElementById('det-finish').innerText = formatDateTimeClean(row.work_end_time);
             document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
             
             const prog = row.progress_percent || 0;
             document.getElementById('det-progress-text').innerText = prog + '%';
             document.getElementById('det-progress-bar').style.width = prog + '%';
-            // Perbaikan warna progres dinamis di modal review
             document.getElementById('det-progress-bar').className = `progress-fill ${getProgressColor(prog)}`;
             
             const holdSec = document.getElementById('hold-section');
