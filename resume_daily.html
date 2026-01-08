@@ -80,7 +80,6 @@
                 </div>
                 <div class="h-[350px] w-full"><canvas id="projectChart"></canvas></div>
             </div>
-
             <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 flex flex-col">
                 <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest mb-6 text-center">Summary Task</h3>
                 <div id="personnel-stats" class="grid grid-cols-2 gap-3 flex-grow"></div>
@@ -219,7 +218,7 @@
             if (error) return;
             rawData = data;
             updatePersonnelGrid();
-            switchChart('person'); // Mengaktifkan diagram saat pertama dimuat
+            renderChart('person');
             applyFilters();
         }
 
@@ -230,14 +229,11 @@
             return "bg-rose-500";               
         }
 
-        // FUNGSI switchChart UNTUK MENANGANI KLIK TOMBOL DIAGRAM
+        // --- FUNGSI switchChart UNTUK AKTIFKAN TOMBOL KLIK ---
         function switchChart(type) {
-            // Ubah tampilan tombol yang aktif
             document.querySelectorAll('.btn-toggle').forEach(btn => btn.classList.remove('btn-active'));
             const activeBtn = document.getElementById('btn-' + type);
             if (activeBtn) activeBtn.classList.add('btn-active');
-            
-            // Panggil renderChart sesuai filter yang dipilih
             renderChart(type);
         }
 
@@ -307,7 +303,7 @@
             document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
             const range = getProjectDateRange(tasks);
-            document.getElementById('proj-modal-dates').innerHTML = `<div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center shadow-sm"><p class="text-[9px] font-black text-blue-400 uppercase">Earliest Start</p><p class="text-xs font-black text-blue-700">${range.start}</p></div><div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center shadow-sm"><p class="text-[9px] font-black text-emerald-400 uppercase">Latest Due</p><p class="text-xs font-black text-emerald-700">${range.finish}</p></div>`;
+            document.getElementById('proj-modal-dates').innerHTML = `<div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center shadow-sm"><p class="text-[9px] font-black text-blue-400 uppercase">Start</p><p class="text-xs font-black text-blue-700">${range.start}</p></div><div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center shadow-sm"><p class="text-[9px] font-black text-emerald-400 uppercase">Due</p><p class="text-xs font-black text-emerald-700">${range.finish}</p></div>`;
             const container = document.getElementById('proj-modal-list');
             container.innerHTML = tasks.map(t => `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><div class="flex justify-between items-center mb-3"><span class="text-[11px] font-black text-slate-800 uppercase tracking-tighter">${t.assigned_to}</span><span class="text-[9px] font-black px-3 py-1 rounded text-white ${t.status.toUpperCase()==='DONE'?'bg-emerald-500':'bg-blue-600'} uppercase">${t.status}</span></div><p class="text-xs font-semibold text-slate-500 mb-4 leading-relaxed">${t.task_desc || '-'}</p><div class="flex items-center gap-4"><div class="progress-bg h-2 flex-grow"><div class="progress-fill ${getProgressColor(t.progress_percent)}" style="width: ${t.progress_percent}%"></div></div><span class="text-[11px] font-black text-slate-700">${t.progress_percent}%</span></div></div>`).join('');
             document.getElementById('projectDetailModal').style.display = 'block';
@@ -319,13 +315,13 @@
             const user = document.getElementById('filter-user').value;
             const status = document.getElementById('filter-status').value;
             const search = document.getElementById('search-report').value.toLowerCase();
-            filteredData = rawData.filter(item => {
+            const filtered = rawData.filter(item => {
                 const matchU = !user || item.assigned_to === user;
                 const matchS = !status || item.status === status;
                 const matchK = !search || (item.project_name && item.project_name.toLowerCase().includes(search));
                 return matchU && matchS && matchK;
             });
-            renderTable(filteredData);
+            renderTable(filtered);
         }
 
         function renderTable(data) {
@@ -353,7 +349,6 @@
             document.getElementById('det-finish').innerText = formatDateTimeClean(row.due_date);
             document.getElementById('det-activity').innerText = row.worker_comment || "-";
 
-            // Logika Overdate
             const overdueLabel = document.getElementById('det-overdue-label');
             if (row.due_date && row.status !== 'Done') {
                 const dueDate = new Date(row.due_date);
