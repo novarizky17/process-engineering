@@ -108,7 +108,8 @@
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b">
                             <th class="px-6 py-5">Project / Tugas</th>
                             <th class="px-4 py-5 text-center">Personil</th>
-                            <th class="px-4 py-5 text-center text-slate-800">Priority</th> <th class="px-4 py-5 text-center">Status</th>
+                            <th class="px-4 py-5 text-center text-slate-800">Priority</th> 
+                            <th class="px-4 py-5 text-center text-slate-800">Status</th>
                             <th class="px-6 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -163,7 +164,7 @@
                 <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed"></div></div>
                 <div id="hold-section" class="hidden"><label class="text-[9px] font-black text-rose-500 uppercase">Keterangan Kendala</label><div id="det-hold" class="bg-rose-50 p-5 rounded-xl text-sm font-bold border border-rose-100 whitespace-pre-wrap leading-relaxed"></div></div>
             </div>
-            <div class="p-6 bg-slate-50 border-t"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
+            <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
         </div>
     </div>
 
@@ -194,12 +195,12 @@
             applyFilters();
         }
 
-        // LOGIKA BARU: Merah (<50%), Biru (>=50%), Hijau (100%)
+        // FUNGSI WARNA: Merah (<50%), Biru (50-99%), Hijau (100%)
         function getProgressColor(percent) {
             const p = parseInt(percent);
-            if (p >= 100) return "bg-emerald-500"; // Hijau (Selesai)
-            if (p >= 50) return "bg-blue-600";    // Biru (Diatas atau sama dengan 50%)
-            return "bg-rose-500";               // Merah (Dibawah 50%)
+            if (p >= 100) return "bg-emerald-500"; 
+            if (p >= 50) return "bg-blue-600";    
+            return "bg-rose-500";               
         }
 
         function updateProjectOverview() {
@@ -275,11 +276,28 @@
             let dataArr;
             if(type === 'person') dataArr = personnel.map(n => rawData.filter(r => r.assigned_to === n).length);
             else dataArr = personnel.map(n => rawData.filter(r => r.assigned_to === n && r.status === type).length);
+            
             projectChart = new Chart(ctx, {
                 type: 'bar',
                 data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: type === 'person' ? colors : '#1e40af', borderRadius: 8 }] },
                 plugins: [ChartDataLabels],
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display: false}, datalabels: {color: '#1e293b', font: {weight: 'bold'}} } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: {display: false}, 
+                        datalabels: {color: '#1e293b', font: {weight: 'bold'}} 
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1, // Skala angka bulat (1, 2, 3)
+                                callback: function(value) { if (value % 1 === 0) {return value;} }
+                            }
+                        }
+                    }
+                }
             });
         }
 
