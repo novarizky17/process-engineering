@@ -187,7 +187,6 @@
                     <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Plan Finish (Due Date)</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
                 </div>
                 <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div>
-                <div id="hold-section" class="hidden"><label class="text-[9px] font-black text-rose-500 uppercase">Keterangan Kendala</label><div id="det-hold" class="bg-rose-50 p-5 rounded-xl text-sm font-bold border border-rose-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
         </div>
@@ -218,7 +217,7 @@
             if (error) return;
             rawData = data;
             updatePersonnelGrid();
-            renderChart('person');
+            switchChart('person'); 
             applyFilters();
         }
 
@@ -229,7 +228,7 @@
             return "bg-rose-500";               
         }
 
-        // --- FUNGSI switchChart UNTUK AKTIFKAN TOMBOL KLIK ---
+        // --- FUNGSI switchChart UNTUK AKTIFKAN TOMBOL ---
         function switchChart(type) {
             document.querySelectorAll('.btn-toggle').forEach(btn => btn.classList.remove('btn-active'));
             const activeBtn = document.getElementById('btn-' + type);
@@ -261,6 +260,16 @@
                     scales: { y: { beginAtZero: true, ticks: { stepSize: 1, callback: (v) => (v % 1 === 0 ? v : null) } } }
                 }
             });
+        }
+
+        // --- FUNGSI selectPerson UNTUK AKTIFKAN KLIK PADA KARTU ---
+        function selectPerson(name) {
+            const filterUser = document.getElementById('filter-user');
+            if (filterUser) {
+                filterUser.value = name;
+                applyFilters();
+                filterUser.scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
         function openProjectAggregateModal() { renderAggregateProjects(); document.getElementById('projectAggregateModal').style.display = 'block'; }
@@ -360,7 +369,7 @@
             const container = document.getElementById('personnel-stats');
             container.innerHTML = personnel.map(name => {
                 const c = rawData.filter(r => r.assigned_to === name).length; total += c;
-                return `<div class="person-card card-${name.toLowerCase()}"> <p class="text-[9px] font-black opacity-70">${name}</p> <h4 class="text-xl font-black">${c}</h4> </div>`;
+                return `<div onclick="selectPerson('${name}')" class="person-card card-${name.toLowerCase()}"> <p class="text-[9px] font-black opacity-70">${name}</p> <h4 class="text-xl font-black">${c}</h4> </div>`;
             }).join('');
             document.getElementById('grand-total-tasks').innerText = total;
         }
@@ -392,7 +401,13 @@
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
-        window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); closeProjectModal(); closeProjectAggregateModal(); } };
+        window.onclick = function(e) { 
+            if(e.target.className === 'modal') { 
+                closeModal(); 
+                document.getElementById('projectDetailModal').style.display = 'none';
+                document.getElementById('projectAggregateModal').style.display = 'none';
+            } 
+        };
         window.onload = fetchAllData;
     </script>
 </body>
