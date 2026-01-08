@@ -88,12 +88,12 @@
         </section>
 
         <section class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold">
+            <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none">
                 <option value="">-- Semua Personil --</option>
                 <option value="RYAN">RYAN</option><option value="ISYQI">ISYQI</option><option value="JUMAWAN">JUMAWAN</option>
                 <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
             </select>
-            <select id="filter-status" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold">
+            <select id="filter-status" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none">
                 <option value="">-- Semua Status --</option>
                 <option value="Pending">Pending</option><option value="In Progress">In Progress</option>
                 <option value="Hold">Hold</option><option value="Done">Done</option>
@@ -148,7 +148,7 @@
                         <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Capaian Progres Proyek</label>
                         <span id="det-progress-text" class="text-sm font-black text-blue-600">0%</span>
                     </div>
-                    <div class="progress-bg"><div id="det-progress-bar" class="progress-fill bg-blue-500" style="width: 0%"></div></div>
+                    <div class="progress-bg"><div id="det-progress-bar" class="progress-fill" style="width: 0%"></div></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Personil</label><p id="det-pic" class="text-sm font-black text-slate-800"></p></div>
@@ -194,6 +194,15 @@
             applyFilters();
         }
 
+        // Fungsi bantu untuk mendapatkan warna berdasarkan persentase
+        function getProgressColor(percent) {
+            const p = parseInt(percent);
+            if (p >= 100) return "bg-emerald-500"; // Hijau (Selesai)
+            if (p > 50) return "bg-blue-500";     // Biru (Berjalan Baik)
+            if (p > 0) return "bg-orange-500";   // Oranye (Baru Mulai)
+            return "bg-rose-500";               // Merah (Belum Ada Progres)
+        }
+
         function updateProjectOverview() {
             const container = document.getElementById('project-overview-container');
             const projects = {};
@@ -207,6 +216,9 @@
             container.innerHTML = Object.keys(projects).map(projName => {
                 const data = projects[projName];
                 const avgProgress = Math.round(data.totalProgress / data.count);
+                // Warna dinamis
+                const colorClass = getProgressColor(avgProgress);
+
                 return `
                     <div onclick='openProjectModal("${projName}")' class="bg-slate-50 p-5 rounded-2xl border border-slate-100 hover:border-orange-500 hover:bg-white transition-all cursor-pointer shadow-sm group">
                         <div class="flex justify-between items-start mb-4">
@@ -214,7 +226,7 @@
                             <span class="text-[10px] font-black bg-white px-2 py-1 rounded-lg border shadow-sm text-orange-600">${avgProgress}%</span>
                         </div>
                         <div class="progress-bg h-2 mb-3">
-                            <div class="progress-fill ${avgProgress >= 100 ? 'bg-emerald-500' : 'bg-orange-500'}" style="width: ${avgProgress}%"></div>
+                            <div class="progress-fill ${colorClass}" style="width: ${avgProgress}%"></div>
                         </div>
                         <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase">
                             <span>${data.count} Tasks Total</span>
@@ -229,16 +241,17 @@
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
             const container = document.getElementById('proj-modal-list');
             container.innerHTML = tasks.map(t => {
-                let statusColor = t.status === 'Done' ? 'bg-emerald-500' : (t.status === 'Hold' ? 'bg-rose-500' : 'bg-blue-500');
+                // Warna dinamis per task
+                const taskColor = getProgressColor(t.progress_percent);
                 return `
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-[10px] font-black text-slate-800 uppercase">${t.assigned_to}</span>
-                            <span class="text-[9px] font-black px-2 py-0.5 rounded text-white ${statusColor} uppercase">${t.status}</span>
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded text-white ${t.status === 'Done' ? 'bg-emerald-500' : 'bg-blue-500'} uppercase">${t.status}</span>
                         </div>
                         <p class="text-[11px] font-medium text-slate-600 mb-3 leading-relaxed">${t.task_desc || '-'}</p>
                         <div class="flex items-center gap-3">
-                            <div class="progress-bg h-1.5 flex-grow"><div class="progress-fill ${statusColor}" style="width: ${t.progress_percent}%"></div></div>
+                            <div class="progress-bg h-1.5 flex-grow"><div class="progress-fill ${taskColor}" style="width: ${t.progress_percent}%"></div></div>
                             <span class="text-[10px] font-black text-slate-500">${t.progress_percent}%</span>
                         </div>
                     </div>`;
@@ -293,14 +306,11 @@
                 let pClass = row.priority === 'High' ? "bg-red-50 text-red-600 border-red-200" : "bg-blue-50 text-blue-600 border-blue-200";
 
                 return `
-                    <tr class="hover:bg-slate-50 transition-all">
-                        <td class="px-6 py-5 font-bold uppercase text-slate-800">
-                            ${row.project_name}
-                            <div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div>
-                        </td>
-                        <td class="px-4 py-5 text-center font-black text-slate-500">${row.assigned_to}</td>
-                        <td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase ${pClass}">${row.priority || 'Mid'}</span></td>
-                        <td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase ${sClass}">${row.status}</span></td>
+                    <tr class="hover:bg-slate-50 transition-all text-xs font-bold">
+                        <td class="px-6 py-5 uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div></td>
+                        <td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td>
+                        <td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${pClass}">${row.priority || 'Mid'}</span></td>
+                        <td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${sClass}">${row.status}</span></td>
                         <td class="px-6 py-5 text-center"><button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md">Review</button></td>
                     </tr>`;
             }).join('');
@@ -318,7 +328,6 @@
             document.getElementById('grand-total-tasks').innerText = total;
         }
 
-        // FUNGSI OPEN DETAIL YANG DIKEMBALIKAN
         function openDetail(row) {
             document.getElementById('det-project-name').innerText = row.project_name;
             document.getElementById('det-pic').innerText = row.assigned_to;
@@ -334,21 +343,16 @@
             const prog = row.progress_percent || 0;
             document.getElementById('det-progress-text').innerText = prog + '%';
             document.getElementById('det-progress-bar').style.width = prog + '%';
-            document.getElementById('det-progress-bar').className = `progress-fill ${prog >= 100 ? 'bg-emerald-500' : (row.status === 'Hold' ? 'bg-rose-500' : 'bg-blue-500')}`;
+            // Update warna progres di modal
+            document.getElementById('det-progress-bar').className = `progress-fill ${getProgressColor(prog)}`;
             
             const holdSec = document.getElementById('hold-section');
-            if(row.hold_reason) { 
-                holdSec.classList.remove('hidden'); 
-                document.getElementById('det-hold').innerText = row.hold_reason; 
-            } else { 
-                holdSec.classList.add('hidden'); 
-            }
-            
+            if(row.hold_reason) { holdSec.classList.remove('hidden'); document.getElementById('det-hold').innerText = row.hold_reason; } 
+            else { holdSec.classList.add('hidden'); }
             document.getElementById('detailModal').style.display = 'block';
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
-        function closeProjectModal() { document.getElementById('projectDetailModal').style.display = 'none'; }
         window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); closeProjectModal(); } };
         window.onload = fetchAllData;
     </script>
