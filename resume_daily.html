@@ -25,7 +25,7 @@
         .card-tata { background-color: #fff1f2; border-color: #fecdd3; color: #9f1239; }
         .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
-        .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 700px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 900px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.8s ease-out; }
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
@@ -42,6 +42,10 @@
                 <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Monitoring Progres & Analisis Data Terintegrasi</p>
             </div>
             <div class="flex gap-3">
+                <button onclick="openProjectAggregateModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-blue-500 transition-all shadow-lg flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+                    Review Semua Project
+                </button>
                 <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-emerald-500 transition-all shadow-lg">Download Excel</button>
                 <a href="management_tracker.html" class="bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-white/20 transition-all">Kembali</a>
             </div>
@@ -51,10 +55,12 @@
     <main class="max-w-[98%] mx-auto px-4 mt-20">
         <section class="mb-8 relative z-10">
             <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
-                <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-2 mb-6">
-                    <span class="w-2 h-6 bg-blue-600 rounded-full"></span>
-                    Project Aggregated Progress
-                </h3>
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
+                        <span class="w-2 h-6 bg-blue-600 rounded-full"></span>
+                        Project Aggregated Progress
+                    </h3>
+                </div>
                 <div id="project-overview-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-h-[450px] overflow-y-auto custom-scroll pr-2">
                 </div>
             </div>
@@ -118,6 +124,25 @@
             </div>
         </section>
     </main>
+
+    <div id="projectAggregateModal" class="modal">
+        <div class="modal-content shadow-2xl" style="max-width: 1100px;">
+            <div class="bg-blue-900 p-6 text-white flex justify-between items-center">
+                <div>
+                    <h2 class="text-lg font-black uppercase tracking-tight">Review Semua Project Aggregated</h2>
+                    <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest">Ringkasan Capaian Seluruh Proyek Aktif</p>
+                </div>
+                <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
+            </div>
+            <div class="p-8 max-h-[75vh] overflow-y-auto custom-scroll">
+                <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t flex justify-center">
+                <button onclick="closeProjectAggregateModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Review</button>
+            </div>
+        </div>
+    </div>
 
     <div id="projectDetailModal" class="modal">
         <div class="modal-content shadow-2xl">
@@ -202,8 +227,20 @@
             return "bg-rose-500";               
         }
 
-        function updateProjectOverview() {
-            const container = document.getElementById('project-overview-container');
+        // FUNGSI BARU: Membuka Modal Review Semua Project
+        function openProjectAggregateModal() {
+            const modalList = document.getElementById('modal-project-list');
+            const projects = generateProjectCardsHTML();
+            modalList.innerHTML = projects;
+            document.getElementById('projectAggregateModal').style.display = 'block';
+        }
+
+        function closeProjectAggregateModal() {
+            document.getElementById('projectAggregateModal').style.display = 'none';
+        }
+
+        // Memisahkan logika pembuatan card agar bisa dipakai berulang
+        function generateProjectCardsHTML() {
             const projects = {};
             rawData.forEach(item => {
                 const name = (item.project_name || "Tanpa Nama").toUpperCase();
@@ -212,16 +249,17 @@
                 projects[name].count += 1;
                 projects[name].tasks.push(item);
             });
-            container.innerHTML = Object.keys(projects).map(projName => {
+
+            return Object.keys(projects).map(projName => {
                 const data = projects[projName];
                 const avgProgress = Math.round(data.totalProgress / data.count);
                 const colorClass = getProgressColor(avgProgress);
 
                 return `
-                    <div onclick='openProjectModal("${projName}")' class="bg-slate-50 p-5 rounded-2xl border border-slate-100 hover:border-blue-500 hover:bg-white transition-all cursor-pointer shadow-sm group">
+                    <div onclick='openProjectModal("${projName}")' class="bg-white p-5 rounded-2xl border border-slate-100 hover:border-blue-500 hover:shadow-lg transition-all cursor-pointer group shadow-sm">
                         <div class="flex justify-between items-start mb-4">
                             <h4 class="text-xs font-black text-slate-800 uppercase tracking-tighter truncate max-w-[180px]">${projName}</h4>
-                            <span class="text-[10px] font-black bg-white px-2 py-1 rounded-lg border shadow-sm ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span>
+                            <span class="text-[10px] font-black bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span>
                         </div>
                         <div class="progress-bg h-2 mb-3">
                             <div class="progress-fill ${colorClass}" style="width: ${avgProgress}%"></div>
@@ -234,13 +272,17 @@
             }).join('');
         }
 
+        function updateProjectOverview() {
+            const container = document.getElementById('project-overview-container');
+            container.innerHTML = generateProjectCardsHTML();
+        }
+
         function openProjectModal(projName) {
             document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
             const container = document.getElementById('proj-modal-list');
             container.innerHTML = tasks.map(t => {
                 const taskColor = getProgressColor(t.progress_percent);
-                // Indikator status dinamis abu-abu untuk PENDING
                 const statusColor = t.status.toUpperCase() === 'PENDING' ? 'bg-slate-400' : (t.status === 'Done' ? 'bg-emerald-500' : 'bg-blue-600');
                 return `
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
@@ -322,10 +364,7 @@
         function renderTable(data) {
             const tbody = document.getElementById('resume-body');
             tbody.innerHTML = data.map(row => {
-                // Logika warna status ABU-ABU untuk PENDING
                 let sClass = row.status.toUpperCase() === 'PENDING' ? "bg-slate-100 text-slate-500 border-slate-200" : (row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-blue-50 text-blue-600 border-blue-200"));
-                
-                // Logika warna priority ABU-ABU untuk LOW
                 let pClass = row.priority?.toUpperCase() === 'LOW' ? "bg-slate-100 text-slate-500 border-slate-200" : (row.priority === 'High' ? "bg-red-50 text-red-600 border-red-200" : "bg-blue-50 text-blue-600 border-blue-200");
 
                 return `
@@ -366,7 +405,6 @@
             document.getElementById('det-pic').innerText = row.assigned_to || "-";
             document.getElementById('det-task').innerText = row.task_desc || 'Belum ada deskripsi tugas.';
             
-            // Perbaikan warna abu-abu di Modal Review
             const isPending = row.status?.toUpperCase() === 'PENDING';
             const isLow = row.priority?.toUpperCase() === 'LOW';
 
@@ -395,7 +433,13 @@
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
-        window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); closeProjectModal(); } };
+        window.onclick = function(e) { 
+            if(e.target.className === 'modal') { 
+                closeModal(); 
+                closeProjectModal(); 
+                closeProjectAggregateModal(); 
+            } 
+        };
         window.onload = fetchAllData;
     </script>
 </body>
