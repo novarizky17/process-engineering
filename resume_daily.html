@@ -154,6 +154,7 @@
                 <button onclick="closeProjectModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
             </div>
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll">
+                <div id="proj-modal-dates" class="grid grid-cols-2 gap-4 mb-2"></div>
                 <div id="proj-modal-list" class="space-y-5"></div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center">
@@ -236,34 +237,36 @@
             document.getElementById('projectAggregateModal').style.display = 'none';
         }
 
-        // LOGIKA BARU: Tambahkan Tanggal Mulai & Finish di Kartu
+        // FUNGSI UNTUK MENGHITUNG TANGGAL MIN-MAX PER PROJECT
+        function getProjectDateRange(tasks) {
+            let dates = [];
+            tasks.forEach(t => {
+                if (t.work_start_time) dates.push(new Date(t.work_start_time));
+                if (t.work_end_time) dates.push(new Date(t.work_end_time));
+            });
+            if (dates.length === 0) return { start: "-", finish: "-" };
+            const sorted = dates.sort((a, b) => a - b);
+            return {
+                start: sorted[0].toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+                finish: sorted[sorted.length - 1].toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })
+            };
+        }
+
         function generateProjectCardsHTML() {
             const projects = {};
             rawData.forEach(item => {
                 const name = (item.project_name || "Tanpa Nama").toUpperCase();
-                if (!projects[name]) projects[name] = { totalProgress: 0, count: 0, tasks: [], dates: [] };
+                if (!projects[name]) projects[name] = { totalProgress: 0, count: 0, tasks: [] };
                 projects[name].totalProgress += parseInt(item.progress_percent || 0);
                 projects[name].count += 1;
                 projects[name].tasks.push(item);
-                
-                // Kumpulkan semua tanggal untuk mencari min (mulai) dan max (selesai)
-                if (item.work_start_time) projects[name].dates.push(new Date(item.work_start_time));
-                if (item.work_end_time) projects[name].dates.push(new Date(item.work_end_time));
             });
 
             return Object.keys(projects).map(projName => {
                 const data = projects[projName];
                 const avgProgress = Math.round(data.totalProgress / data.count);
                 const colorClass = getProgressColor(avgProgress);
-
-                // Cari tanggal mulai terawal dan finish terakhir
-                let startDate = "-";
-                let finishDate = "-";
-                if (data.dates.length > 0) {
-                    const sortedDates = data.dates.sort((a, b) => a - b);
-                    startDate = sortedDates[0].toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                    finishDate = sortedDates[sortedDates.length - 1].toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                }
+                const range = getProjectDateRange(data.tasks); // Hitung range tanggal
 
                 return `
                     <div onclick='openProjectModal("${projName}")' class="bg-white p-5 rounded-2xl border border-slate-100 hover:border-blue-500 hover:shadow-lg transition-all cursor-pointer group shadow-sm">
@@ -271,18 +274,16 @@
                             <h4 class="text-xs font-black text-slate-800 uppercase tracking-tighter truncate max-w-[180px]">${projName}</h4>
                             <span class="text-[10px] font-black bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span>
                         </div>
-                        
                         <div class="grid grid-cols-2 gap-2 mb-4">
                             <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
                                 <p class="text-[8px] font-black text-slate-400 uppercase">Mulai</p>
-                                <p class="text-[9px] font-bold text-slate-700">${startDate}</p>
+                                <p class="text-[9px] font-bold text-slate-700">${range.start}</p>
                             </div>
                             <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
                                 <p class="text-[8px] font-black text-slate-400 uppercase">Finish</p>
-                                <p class="text-[9px] font-bold text-slate-700">${finishDate}</p>
+                                <p class="text-[9px] font-bold text-slate-700">${range.finish}</p>
                             </div>
                         </div>
-
                         <div class="progress-bg h-2 mb-3">
                             <div class="progress-fill ${colorClass}" style="width: ${avgProgress}%"></div>
                         </div>
@@ -294,9 +295,24 @@
             }).join('');
         }
 
+        // PERBAIKAN: Fungsi openProjectModal menampilkan Tanggal Start-Finish untuk setiap Project
         function openProjectModal(projName) {
             document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
+            const range = getProjectDateRange(tasks); // Hitung range tanggal untuk project ini
+            
+            // Masukkan info tanggal ke header modal detail
+            document.getElementById('proj-modal-dates').innerHTML = `
+                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
+                    <p class="text-[9px] font-black text-blue-400 uppercase">Project Start</p>
+                    <p class="text-xs font-black text-blue-700">${range.start}</p>
+                </div>
+                <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center">
+                    <p class="text-[9px] font-black text-emerald-400 uppercase">Project Finish</p>
+                    <p class="text-xs font-black text-emerald-700">${range.finish}</p>
+                </div>
+            `;
+
             const container = document.getElementById('proj-modal-list');
             container.innerHTML = tasks.map(t => {
                 const taskColor = getProgressColor(t.progress_percent);
