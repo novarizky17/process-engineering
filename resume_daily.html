@@ -25,7 +25,7 @@
         .card-tata { background-color: #fff1f2; border-color: #fecdd3; color: #9f1239; }
         .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
-        .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 750px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.8s ease-out; }
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
@@ -145,7 +145,7 @@
     </div>
 
     <div id="projectDetailModal" class="modal">
-        <div class="modal-content shadow-2xl">
+        <div class="modal-content shadow-2xl" style="max-width: 850px;">
             <div class="bg-blue-800 p-6 text-white flex justify-between items-center">
                 <div>
                     <h2 id="proj-modal-title" class="text-lg font-black uppercase tracking-tight"></h2>
@@ -164,9 +164,15 @@
     </div>
 
     <div id="detailModal" class="modal">
-        <div class="modal-content shadow-2xl">
+        <div class="modal-content shadow-2xl" style="max-width: 750px;">
             <div class="bg-slate-900 p-6 text-white flex justify-between items-center">
-                <div><h2 class="text-lg font-black uppercase">Review Task</h2><p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p></div>
+                <div>
+                    <h2 class="text-lg font-black uppercase flex items-center gap-3">
+                        Review Task
+                        <span id="det-overdue-label" class="hidden bg-rose-600 text-white text-[10px] px-2 py-0.5 rounded animate-pulse">OVERDUE</span>
+                    </h2>
+                    <p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p>
+                </div>
                 <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl ml-4">&times;</button>
             </div>
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto text-sm">
@@ -185,7 +191,7 @@
                 <div><label class="text-[9px] font-black text-slate-400 uppercase">Deskripsi Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap min-h-[40px]"></p></div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
-                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Finish Work</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
+                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Finish Work (Plan)</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
                 </div>
                 <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div>
                 <div id="hold-section" class="hidden"><label class="text-[9px] font-black text-rose-500 uppercase">Keterangan Kendala</label><div id="det-hold" class="bg-rose-50 p-5 rounded-xl text-sm font-bold border border-rose-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div>
@@ -253,7 +259,6 @@
             };
         }
 
-        // FUNGSI PEMBUAT KARTU DEPAN (TANGGAL DIHAPUS DARI SINI)
         function generateProjectCardsHTML() {
             const projects = {};
             rawData.forEach(item => {
@@ -286,13 +291,11 @@
             }).join('');
         }
 
-        // FUNGSI MODAL DETAIL (TANGGAL TETAP DIPERTAHANKAN DI SINI)
         function openProjectModal(projName) {
             document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
-            const range = getProjectDateRange(tasks); // Hitung range tanggal project
+            const range = getProjectDateRange(tasks);
             
-            // Masukkan info tanggal ke header modal detail
             document.getElementById('proj-modal-dates').innerHTML = `
                 <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
                     <p class="text-[9px] font-black text-blue-400 uppercase tracking-widest">Project Start Date</p>
@@ -309,7 +312,6 @@
                 const taskColor = getProgressColor(t.progress_percent);
                 const sColor = t.status.toUpperCase() === 'PENDING' ? 'bg-slate-400' : (t.status === 'Done' ? 'bg-emerald-500' : 'bg-blue-600');
                 
-                // Format tanggal personil
                 const pStart = formatDateTimeClean(t.work_start_time);
                 const pFinish = formatDateTimeClean(t.work_end_time);
 
@@ -395,7 +397,7 @@
             const tbody = document.getElementById('resume-body');
             tbody.innerHTML = data.map(row => {
                 let sClass = row.status.toUpperCase() === 'PENDING' ? "bg-slate-100 text-slate-500 border-slate-200" : (row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-blue-50 text-blue-600 border-blue-200"));
-                let pClass = row.priority?.toUpperCase() === 'LOW' ? "bg-slate-100 text-slate-500 border-slate-200" : (row.priority === 'High' ? "bg-red-50 text-red-600 border-red-200" : "bg-blue-50 text-blue-600 border-blue-200");
+                let pClass = row.priority?.toUpperCase() === 'LOW' ? "bg-slate-100 text-slate-500 border-slate-200" : (row.priority === 'High' ? "bg-red-50 text-red-600 border-red-200" : "bg-blue-50 text-blue-600 border-blue-200"));
                 return `
                     <tr class="hover:bg-slate-50 transition-all text-xs font-bold">
                         <td class="px-6 py-5 uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div></td>
@@ -419,7 +421,8 @@
             container.innerHTML = personnel.map(name => {
                 const c = rawData.filter(r => r.assigned_to === name).length;
                 total += c;
-                return `<div onclick="selectPerson('${name}')" class="person-card card-${name.toLowerCase()}"> <p class="text-[9px] font-black opacity-70">${name}</p> <h4 class="text-xl font-black">${c}</h4> </div>`;
+                const cls = 'card-' + name.toLowerCase();
+                return `<div onclick="selectPerson('${name}')" class="person-card ${cls}"> <p class="text-[9px] font-black opacity-70">${name}</p> <h4 class="text-xl font-black">${c}</h4> </div>`;
             }).join('');
             document.getElementById('grand-total-tasks').innerText = total;
         }
@@ -428,28 +431,51 @@
             document.getElementById('det-project-name').innerText = row.project_name || "Tanpa Judul";
             document.getElementById('det-pic').innerText = row.assigned_to || "-";
             document.getElementById('det-task').innerText = row.task_desc || 'Belum ada deskripsi tugas.';
+            
             const isPending = row.status?.toUpperCase() === 'PENDING';
             const isLow = row.priority?.toUpperCase() === 'LOW';
+
             document.getElementById('det-status').innerText = row.status || "PENDING";
             document.getElementById('det-status').className = `text-[11px] font-black uppercase ${isPending ? 'text-slate-400' : (row.status === 'Done' ? 'text-emerald-600' : (row.status === 'Hold' ? 'text-rose-600' : 'text-blue-600'))}`;
+            
             document.getElementById('det-priority').innerText = row.priority || 'MID';
             document.getElementById('det-priority').className = `text-[11px] font-black uppercase ${isLow ? 'text-slate-400' : (row.priority === 'High' ? 'text-red-600' : 'text-blue-600')}`;
+            
             document.getElementById('det-start').innerText = formatDateTimeClean(row.work_start_time);
             document.getElementById('det-finish').innerText = formatDateTimeClean(row.work_end_time);
             document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
+            
+            // LOGIKA OVERDUE
+            const overdueLabel = document.getElementById('det-overdue-label');
+            if (row.work_end_time && row.status !== 'Done') {
+                const finishPlan = new Date(row.work_end_time);
+                const today = new Date();
+                if (today > finishPlan) {
+                    overdueLabel.classList.remove('hidden');
+                } else {
+                    overdueLabel.classList.add('hidden');
+                }
+            } else {
+                overdueLabel.classList.add('hidden');
+            }
+
             let prog = row.progress_percent || 0;
             if(row.status === 'Done') prog = 100;
+            
             document.getElementById('det-progress-text').innerText = prog + '%';
             document.getElementById('det-progress-bar').style.width = prog + '%';
             document.getElementById('det-progress-bar').className = `progress-fill ${getProgressColor(prog)}`;
+            
             const holdSec = document.getElementById('hold-section');
             if(row.hold_reason) { holdSec.classList.remove('hidden'); document.getElementById('det-hold').innerText = row.hold_reason; } 
             else { holdSec.classList.add('hidden'); }
+            
             document.getElementById('detailModal').style.display = 'block';
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
         function closeProjectModal() { document.getElementById('projectDetailModal').style.display = 'none'; }
+        function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
         window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); closeProjectModal(); closeProjectAggregateModal(); } };
         window.onload = fetchAllData;
     </script>
