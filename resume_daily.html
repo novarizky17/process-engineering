@@ -51,17 +51,15 @@
     <main class="max-w-[98%] mx-auto px-4 mt-20">
         <section class="mb-8 relative z-10">
             <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex justify-between items-center">
                     <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
                         <span class="w-2 h-6 bg-blue-600 rounded-full"></span>
                         Project Aggregated Progress
                     </h3>
-                    <button onclick="openProjectAggregateModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-black text-[10px] uppercase shadow-md flex items-center gap-2 transition-all active:scale-95">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                    <button onclick="openProjectAggregateModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase shadow-md flex items-center gap-2 transition-all active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                         Review Semua Project
                     </button>
-                </div>
-                <div id="project-overview-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-h-[450px] overflow-y-auto custom-scroll pr-2">
                 </div>
             </div>
         </section>
@@ -136,7 +134,7 @@
             </div>
             <div class="p-8 max-h-[75vh] overflow-y-auto custom-scroll">
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    </div>
+                </div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center">
                 <button onclick="closeProjectAggregateModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Review</button>
@@ -216,7 +214,7 @@
             rawData = data;
             updatePersonnelGrid();
             renderChart('person');
-            updateProjectOverview();
+            // Menghapus panggilan updateProjectOverview dari dashboard agar kartu tidak muncul otomatis
             applyFilters();
         }
 
@@ -227,7 +225,6 @@
             return "bg-rose-500";               
         }
 
-        // FUNGSI MEMBUKA MODAL AGGREGATE PROJECT
         function openProjectAggregateModal() {
             const modalList = document.getElementById('modal-project-list');
             modalList.innerHTML = generateProjectCardsHTML();
@@ -238,7 +235,6 @@
             document.getElementById('projectAggregateModal').style.display = 'none';
         }
 
-        // Logika pembuatan card project
         function generateProjectCardsHTML() {
             const projects = {};
             rawData.forEach(item => {
@@ -269,11 +265,6 @@
                         </div>
                     </div>`;
             }).join('');
-        }
-
-        function updateProjectOverview() {
-            const container = document.getElementById('project-overview-container');
-            container.innerHTML = generateProjectCardsHTML();
         }
 
         function openProjectModal(projName) {
