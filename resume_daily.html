@@ -52,7 +52,7 @@
         <section class="mb-8 relative z-10">
             <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
                 <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-2 mb-6">
-                    <span class="w-2 h-6 bg-orange-500 rounded-full"></span>
+                    <span class="w-2 h-6 bg-blue-600 rounded-full"></span>
                     Project Aggregated Progress
                 </h3>
                 <div id="project-overview-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-h-[450px] overflow-y-auto custom-scroll pr-2">
@@ -120,10 +120,10 @@
 
     <div id="projectDetailModal" class="modal">
         <div class="modal-content shadow-2xl">
-            <div class="bg-orange-600 p-6 text-white flex justify-between items-center">
+            <div class="bg-blue-800 p-6 text-white flex justify-between items-center">
                 <div>
                     <h2 id="proj-modal-title" class="text-lg font-black uppercase tracking-tight"></h2>
-                    <p class="text-orange-100 text-[10px] font-bold uppercase tracking-widest">Detail Pekerjaan Terintegrasi</p>
+                    <p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest">Detail Pekerjaan Terintegrasi</p>
                 </div>
                 <button onclick="closeProjectModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
             </div>
@@ -194,13 +194,12 @@
             applyFilters();
         }
 
-        // Fungsi bantu untuk mendapatkan warna berdasarkan persentase
+        // Logika warna Merah, Biru, Hijau (Hapus Oranye)
         function getProgressColor(percent) {
             const p = parseInt(percent);
             if (p >= 100) return "bg-emerald-500"; // Hijau (Selesai)
-            if (p > 50) return "bg-blue-500";     // Biru (Berjalan Baik)
-            if (p > 0) return "bg-orange-500";   // Oranye (Baru Mulai)
-            return "bg-rose-500";               // Merah (Belum Ada Progres)
+            if (p > 10) return "bg-blue-600";     // Biru (Proses Berjalan)
+            return "bg-rose-500";               // Merah (Awal/Pending)
         }
 
         function updateProjectOverview() {
@@ -216,21 +215,20 @@
             container.innerHTML = Object.keys(projects).map(projName => {
                 const data = projects[projName];
                 const avgProgress = Math.round(data.totalProgress / data.count);
-                // Warna dinamis
                 const colorClass = getProgressColor(avgProgress);
 
                 return `
-                    <div onclick='openProjectModal("${projName}")' class="bg-slate-50 p-5 rounded-2xl border border-slate-100 hover:border-orange-500 hover:bg-white transition-all cursor-pointer shadow-sm group">
+                    <div onclick='openProjectModal("${projName}")' class="bg-slate-50 p-5 rounded-2xl border border-slate-100 hover:border-blue-500 hover:bg-white transition-all cursor-pointer shadow-sm group">
                         <div class="flex justify-between items-start mb-4">
                             <h4 class="text-xs font-black text-slate-800 uppercase tracking-tighter truncate max-w-[180px]">${projName}</h4>
-                            <span class="text-[10px] font-black bg-white px-2 py-1 rounded-lg border shadow-sm text-orange-600">${avgProgress}%</span>
+                            <span class="text-[10px] font-black bg-white px-2 py-1 rounded-lg border shadow-sm text-blue-700">${avgProgress}%</span>
                         </div>
                         <div class="progress-bg h-2 mb-3">
                             <div class="progress-fill ${colorClass}" style="width: ${avgProgress}%"></div>
                         </div>
                         <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase">
                             <span>${data.count} Tasks Total</span>
-                            <span class="group-hover:text-orange-600 transition-colors">Lihat Detail &rarr;</span>
+                            <span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span>
                         </div>
                     </div>`;
             }).join('');
@@ -241,13 +239,12 @@
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
             const container = document.getElementById('proj-modal-list');
             container.innerHTML = tasks.map(t => {
-                // Warna dinamis per task
                 const taskColor = getProgressColor(t.progress_percent);
                 return `
                     <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-[10px] font-black text-slate-800 uppercase">${t.assigned_to}</span>
-                            <span class="text-[9px] font-black px-2 py-0.5 rounded text-white ${t.status === 'Done' ? 'bg-emerald-500' : 'bg-blue-500'} uppercase">${t.status}</span>
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded text-white ${t.status === 'Done' ? 'bg-emerald-500' : 'bg-blue-600'} uppercase">${t.status}</span>
                         </div>
                         <p class="text-[11px] font-medium text-slate-600 mb-3 leading-relaxed">${t.task_desc || '-'}</p>
                         <div class="flex items-center gap-3">
@@ -280,7 +277,7 @@
             else dataArr = personnel.map(n => rawData.filter(r => r.assigned_to === n && r.status === type).length);
             projectChart = new Chart(ctx, {
                 type: 'bar',
-                data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: type === 'person' ? colors : '#ea580c', borderRadius: 8 }] },
+                data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: type === 'person' ? colors : '#1e40af', borderRadius: 8 }] },
                 plugins: [ChartDataLabels],
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display: false}, datalabels: {color: '#1e293b', font: {weight: 'bold'}} } }
             });
@@ -331,19 +328,14 @@
         function openDetail(row) {
             document.getElementById('det-project-name').innerText = row.project_name;
             document.getElementById('det-pic').innerText = row.assigned_to;
-            document.getElementById('det-task').innerText = row.task_desc || 'Tidak ada deskripsi.';
             document.getElementById('det-status').innerText = row.status;
-            document.getElementById('det-status').className = `text-[11px] font-black uppercase ${row.status === 'Done' ? 'text-emerald-600' : (row.status === 'Hold' ? 'text-rose-600' : 'text-blue-600')}`;
             document.getElementById('det-priority').innerText = row.priority || 'Mid';
-            document.getElementById('det-priority').className = `text-[11px] font-black uppercase ${row.priority === 'High' ? 'text-red-600' : 'text-blue-600'}`;
-            document.getElementById('det-start').innerText = formatDateTimeClean(row.work_start_time);
-            document.getElementById('det-finish').innerText = formatDateTimeClean(row.work_end_time);
             document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
             
             const prog = row.progress_percent || 0;
             document.getElementById('det-progress-text').innerText = prog + '%';
             document.getElementById('det-progress-bar').style.width = prog + '%';
-            // Update warna progres di modal
+            // Perbaikan warna progres dinamis di modal review
             document.getElementById('det-progress-bar').className = `progress-fill ${getProgressColor(prog)}`;
             
             const holdSec = document.getElementById('hold-section');
