@@ -218,7 +218,7 @@
             if (error) return;
             rawData = data;
             updatePersonnelGrid();
-            switchChart('person'); 
+            renderChart('person');
             applyFilters();
         }
 
@@ -229,7 +229,7 @@
             return "bg-rose-500";               
         }
 
-        // --- FUNGSI switchChart YANG DITAMBAHKAN UNTUK AKTIFKAN TOMBOL ---
+        // --- FUNGSI switchChart UNTUK AKTIFKAN TOMBOL KLIK ---
         function switchChart(type) {
             document.querySelectorAll('.btn-toggle').forEach(btn => btn.classList.remove('btn-active'));
             const activeBtn = document.getElementById('btn-' + type);
@@ -299,7 +299,6 @@
             return { start: sorted[0].toLocaleDateString('id-ID', opt), finish: sorted[sorted.length - 1].toLocaleDateString('id-ID', opt) };
         }
 
-        // --- KEMBALIKAN BAGIAN TANGGAL DI DALAM MODAL DETAIL ---
         function openProjectModal(projName) {
             document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
