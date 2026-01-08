@@ -35,9 +35,10 @@
                 </div>
                 <div>
                     <label class="block text-sm font-semibold mb-1">Tipe Pekerjaan:</label>
-                    <div class="flex gap-6 mt-2">
+                    <div class="flex flex-wrap gap-4 mt-2">
                         <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="job_type" value="Perawatan" class="w-4 h-4"> Perawatan</label>
                         <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="job_type" value="Overhaul" class="w-4 h-4"> Overhaul</label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="job_type" value="Improvement" class="w-4 h-4"> Improvement</label>
                     </div>
                 </div>
                 <div>
@@ -97,7 +98,7 @@
                                 <th class="border p-2 w-40">Tindak Lanjut</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="partsTable">
                             <script>
                                 for(let i=1; i<=5; i++) {
                                     document.write(`
@@ -182,7 +183,6 @@
             const jobType = document.querySelector('input[name="job_type"]:checked')?.value;
             const btn = document.getElementById('btnSave');
             
-            // Ambil Nilai Tanggal
             const valMulai = document.getElementById('jam_mulai').value;
             const valSelesai = document.getElementById('jam_selesai').value;
 
@@ -191,7 +191,6 @@
             btn.disabled = true; btn.innerText = "SEDANG MENYIMPAN...";
 
             try {
-                // Konversi ke format ISO String agar database menerima tahun/bulan/hari yang dipilih
                 const jamMulai = valMulai ? new Date(valMulai).toISOString() : null;
                 const jamSelesai = valSelesai ? new Date(valSelesai).toISOString() : null;
 
