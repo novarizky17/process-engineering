@@ -29,6 +29,11 @@
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         @keyframes slideIn { from {transform: translateY(-30px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+        
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -47,6 +52,26 @@
     </header>
 
     <main class="max-w-[98%] mx-auto px-4 mt-20">
+        <section class="mb-8 relative z-10">
+            <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
+                        <span class="w-2 h-6 bg-orange-500 rounded-full"></span>
+                        Project Overhaul Progress (Kumulatif)
+                    </h3>
+                    <span class="text-[10px] font-bold text-slate-400 italic">*Rata-rata progres dari semua task dalam satu project</span>
+                </div>
+                <div id="project-overview-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[400px] overflow-y-auto custom-scroll pr-2">
+                    <div class="animate-pulse flex space-x-4">
+                        <div class="flex-1 space-y-4 py-1">
+                            <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+                            <div class="h-2 bg-slate-200 rounded"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 relative z-10">
             <div class="lg:col-span-2 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
                 <div class="flex flex-col gap-4 mb-6">
@@ -159,14 +184,59 @@
             rawData = data;
             updatePersonnelGrid();
             renderChart('person');
+            updateProjectOverview(); // New function
             applyFilters();
         }
 
-        // FUNGSI EKSPOR EXCEL YANG DIPERBAIKI (JSON METHOD + AUTO WIDTH)
+        // NEW: Fungsi untuk menghitung progres per Project
+        function updateProjectOverview() {
+            const container = document.getElementById('project-overview-container');
+            const projects = {};
+
+            // Grouping tasks by project name
+            rawData.forEach(item => {
+                const name = (item.project_name || "Tanpa Nama").toUpperCase();
+                if (!projects[name]) {
+                    projects[name] = { totalProgress: 0, count: 0, members: new Set() };
+                }
+                projects[name].totalProgress += parseInt(item.progress_percent || 0);
+                projects[name].count += 1;
+                projects[name].members.add(item.assigned_to);
+            });
+
+            container.innerHTML = Object.keys(projects).map(projName => {
+                const data = projects[projName];
+                const avgProgress = Math.round(data.totalProgress / data.count);
+                const memberList = Array.from(data.members).join(', ');
+                
+                // Color logic based on progress
+                let barColor = "bg-blue-500";
+                if (avgProgress >= 100) barColor = "bg-emerald-500";
+                else if (avgProgress > 0) barColor = "bg-orange-500";
+
+                return `
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:border-orange-200 transition-all shadow-sm">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="text-xs font-black text-slate-800 truncate max-w-[150px] uppercase">${projName}</h4>
+                                <p class="text-[9px] font-bold text-slate-400 mt-0.5">PIC: ${memberList}</p>
+                            </div>
+                            <span class="text-xs font-black ${avgProgress >= 100 ? 'text-emerald-600' : 'text-orange-600'} bg-white px-2 py-1 rounded-lg border border-slate-100 shadow-sm">${avgProgress}%</span>
+                        </div>
+                        <div class="progress-bg h-2">
+                            <div class="progress-fill ${barColor}" style="width: ${avgProgress}%"></div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
+                            <span>${data.count} Tasks</span>
+                            <span>${avgProgress >= 100 ? 'Completed' : 'On Going'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         function exportToExcel() {
             if (filteredData.length === 0) return alert("Tidak ada data untuk diunduh");
-            
-            // Siapkan Data JSON murni agar isi tidak terpotong
             const dataToExport = filteredData.map(item => ({
                 "PROJECT NAME": (item.project_name || "").toUpperCase(),
                 "PERSONIL": item.assigned_to,
@@ -179,23 +249,11 @@
                 "UPDATE LAPORAN": item.worker_comment || "-",
                 "KENDALA": item.hold_reason || "-"
             }));
-
             const worksheet = XLSX.utils.json_to_sheet(dataToExport);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Daily Report");
-
-            // LOGIKA AUTO-FIT KOLOM (Mencegah teks terpotong)
-            const colWidths = Object.keys(dataToExport[0]).map(key => {
-                let maxLen = key.toString().length;
-                dataToExport.forEach(row => {
-                    const cellValue = row[key] ? row[key].toString().length : 0;
-                    if (cellValue > maxLen) maxLen = cellValue;
-                });
-                return { wch: maxLen + 2 }; // Tambah margin sedikit
-            });
+            const colWidths = Object.keys(dataToExport[0]).map(key => ({ wch: 25 }));
             worksheet['!cols'] = colWidths;
-
-            // Berikan nama file sesuai tanggal
             const fileName = `Daily_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
             XLSX.writeFile(workbook, fileName);
         }
