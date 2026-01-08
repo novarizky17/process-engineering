@@ -122,8 +122,8 @@
         <div class="modal-content shadow-2xl">
             <div class="bg-orange-600 p-6 text-white flex justify-between items-center">
                 <div>
-                    <h2 id="proj-modal-title" class="text-lg font-black uppercase tracking-tight"></h2>
-                    <p class="text-orange-100 text-[10px] font-bold uppercase tracking-widest">Detail Pekerjaan Terintegrasi</p>
+                    <h2 class="text-lg font-black uppercase tracking-tight">Breakdown Project</h2>
+                    <p id="proj-modal-name" class="text-orange-100 text-xs font-bold uppercase"></p>
                 </div>
                 <button onclick="closeProjectModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
             </div>
@@ -179,6 +179,7 @@
             applyFilters();
         }
 
+        // FUNGSI AGGREGATE PROJECT & MODAL POPUP
         function updateProjectOverview() {
             const container = document.getElementById('project-overview-container');
             const projects = {};
@@ -214,8 +215,7 @@
         }
 
         function openProjectModal(projName) {
-            // Memasukkan nama project ke judul modal
-            document.getElementById('proj-modal-title').innerText = projName;
+            document.getElementById('proj-modal-name').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
             const container = document.getElementById('proj-modal-list');
             
@@ -241,6 +241,7 @@
 
         function closeProjectModal() { document.getElementById('projectDetailModal').style.display = 'none'; }
 
+        // Logic Chart, Filter, & Detail Task tetap sama
         function switchChart(type) {
             ['person', 'Pending', 'In Progress', 'Hold', 'Done'].forEach(id => {
                 const el = document.getElementById('btn-' + id);
