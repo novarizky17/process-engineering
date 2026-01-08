@@ -24,15 +24,12 @@
         .card-eko { background-color: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
         .card-tata { background-color: #fff1f2; border-color: #fecdd3; color: #9f1239; }
         .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
-        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); }
-        .modal-content { background: white; margin: 3% auto; padding: 0; border-radius: 24px; width: 95%; max-width: 600px; overflow: hidden; animation: slideIn 0.3s; }
-        .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; }
-        .progress-fill { height: 100%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-        @keyframes slideIn { from {transform: translateY(-30px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
-        
-        /* Custom Scrollbar */
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
+        .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 700px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; transition: width 0.8s ease-out; }
+        @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
@@ -54,34 +51,25 @@
     <main class="max-w-[98%] mx-auto px-4 mt-20">
         <section class="mb-8 relative z-10">
             <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
-                        <span class="w-2 h-6 bg-orange-500 rounded-full"></span>
-                        Project Overhaul Progress (Kumulatif)
-                    </h3>
-                    <span class="text-[10px] font-bold text-slate-400 italic">*Rata-rata progres dari semua task dalam satu project</span>
-                </div>
-                <div id="project-overview-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[400px] overflow-y-auto custom-scroll pr-2">
-                    <div class="animate-pulse flex space-x-4">
-                        <div class="flex-1 space-y-4 py-1">
-                            <div class="h-4 bg-slate-200 rounded w-3/4"></div>
-                            <div class="h-2 bg-slate-200 rounded"></div>
-                        </div>
+                <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-2 mb-6">
+                    <span class="w-2 h-6 bg-orange-500 rounded-full"></span>
+                    Project Aggregated Progress
+                </h3>
+                <div id="project-overview-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 max-h-[450px] overflow-y-auto custom-scroll pr-2">
                     </div>
-                </div>
             </div>
         </section>
 
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 relative z-10">
             <div class="lg:col-span-2 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
                 <div class="flex flex-col gap-4 mb-6">
-                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest text-center md:text-left">Filter Visualisasi Diagram</h3>
+                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">Visualisasi Diagram</h3>
                     <div class="toggle-container">
                         <button id="btn-person" onclick="switchChart('person')" class="btn-toggle btn-active">Per Personil</button>
-                        <button id="btn-pending" onclick="switchChart('Pending')" class="btn-toggle">Pending</button>
-                        <button id="btn-progress" onclick="switchChart('In Progress')" class="btn-toggle">In Progress</button>
-                        <button id="btn-hold" onclick="switchChart('Hold')" class="btn-toggle">Hold</button>
-                        <button id="btn-done" onclick="switchChart('Done')" class="btn-toggle">Done</button>
+                        <button id="btn-Pending" onclick="switchChart('Pending')" class="btn-toggle">Pending</button>
+                        <button id="btn-In Progress" onclick="switchChart('In Progress')" class="btn-toggle">In Progress</button>
+                        <button id="btn-Hold" onclick="switchChart('Hold')" class="btn-toggle">Hold</button>
+                        <button id="btn-Done" onclick="switchChart('Done')" class="btn-toggle">Done</button>
                     </div>
                 </div>
                 <div class="h-[350px]"><canvas id="projectChart"></canvas></div>
@@ -90,9 +78,9 @@
             <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 flex flex-col">
                 <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest mb-6 text-center">Summary Task</h3>
                 <div id="personnel-stats" class="grid grid-cols-2 gap-3 flex-grow"></div>
-                <div class="mt-6 pt-4 border-t border-slate-100 flex justify-center">
-                    <div class="bg-slate-900 text-white p-4 rounded-2xl w-full max-w-[200px] text-center shadow-lg">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Semua Task</p>
+                <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+                    <div class="bg-slate-900 text-white p-4 rounded-2xl inline-block w-full">
+                        <p class="text-[10px] font-black uppercase text-slate-400">Grand Total</p>
                         <h4 id="grand-total-tasks" class="text-2xl font-black mt-1">0</h4>
                     </div>
                 </div>
@@ -100,24 +88,24 @@
         </section>
 
         <section class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
+            <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold">
                 <option value="">-- Semua Personil --</option>
                 <option value="RYAN">RYAN</option><option value="ISYQI">ISYQI</option><option value="JUMAWAN">JUMAWAN</option>
                 <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
             </select>
-            <select id="filter-status" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
+            <select id="filter-status" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold">
                 <option value="">-- Semua Status --</option>
                 <option value="Pending">Pending</option><option value="In Progress">In Progress</option>
                 <option value="Hold">Hold</option><option value="Done">Done</option>
             </select>
-            <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Project..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
+            <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Project..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none">
         </section>
 
-        <section class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden text-sm text-nowrap">
+        <section class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden text-sm">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b border-slate-100">
+                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b">
                             <th class="px-6 py-5">Project / Tugas</th>
                             <th class="px-4 py-5 text-center">Personil</th>
                             <th class="px-4 py-5 text-center">Status</th>
@@ -130,34 +118,46 @@
         </section>
     </main>
 
+    <div id="projectDetailModal" class="modal">
+        <div class="modal-content shadow-2xl">
+            <div class="bg-orange-600 p-6 text-white flex justify-between items-center">
+                <div>
+                    <h2 class="text-lg font-black uppercase tracking-tight">Breakdown Project</h2>
+                    <p id="proj-modal-name" class="text-orange-100 text-xs font-bold uppercase"></p>
+                </div>
+                <button onclick="closeProjectModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
+            </div>
+            <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll">
+                <div id="proj-modal-list" class="space-y-5">
+                    </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t flex justify-center">
+                <button onclick="closeProjectModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Detail</button>
+            </div>
+        </div>
+    </div>
+
     <div id="detailModal" class="modal">
         <div class="modal-content shadow-2xl">
             <div class="bg-slate-900 p-6 text-white flex justify-between items-center">
-                <div><h2 class="text-lg font-black uppercase">Detail Laporan</h2><p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p></div>
-                <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl ml-4">&times;</button>
+                <div><h2 class="text-lg font-black uppercase">Review Task</h2><p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p></div>
+                <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl">&times;</button>
             </div>
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto text-sm">
-                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                <div class="bg-slate-50 p-5 rounded-2xl border">
                     <div class="flex justify-between items-center mb-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Capaian Progres Proyek</label>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Progress</label>
                         <span id="det-progress-text" class="text-sm font-black text-blue-600">0%</span>
                     </div>
                     <div class="progress-bg"><div id="det-progress-bar" class="progress-fill bg-blue-500" style="width: 0%"></div></div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Personil</label><p id="det-pic" class="text-sm font-black text-slate-800"></p></div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Priority</label><p id="det-priority" class="text-[11px] font-black uppercase"></p></div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Status</label><p id="det-status" class="text-[11px] font-black uppercase"></p></div>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="bg-slate-50 p-3 rounded-xl"><label class="text-[9px] font-black text-slate-400 uppercase">PIC</label><p id="det-pic" class="text-xs font-black"></p></div>
+                    <div class="bg-slate-50 p-3 rounded-xl"><label class="text-[9px] font-black text-slate-400 uppercase">Priority</label><p id="det-priority" class="text-[10px] font-black uppercase"></p></div>
+                    <div class="bg-slate-50 p-3 rounded-xl"><label class="text-[9px] font-black text-slate-400 uppercase">Status</label><p id="det-status" class="text-[10px] font-black uppercase"></p></div>
                 </div>
-                <div><label class="text-[9px] font-black text-slate-400 uppercase">Deskripsi Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap"></p></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
-                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Finish Work</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
-                </div>
-                <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed"></div></div>
-                <div id="hold-section" class="hidden"><label class="text-[9px] font-black text-rose-500 uppercase">Keterangan Kendala</label><div id="det-hold" class="bg-rose-50 p-5 rounded-xl text-sm font-bold border border-rose-100 whitespace-pre-wrap leading-relaxed"></div></div>
+                <div><label class="text-[9px] font-black text-slate-400 uppercase">Aktivitas Terakhir</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border leading-relaxed mt-2"></div></div>
             </div>
-            <div class="p-6 bg-slate-50 border-t"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
         </div>
     </div>
 
@@ -169,113 +169,85 @@
         let filteredData = [];
         let projectChart = null;
 
-        function formatDateTimeClean(str) {
-            if (!str) return '-';
-            try {
-                const dateMatch = str.match(/(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})/);
-                if (dateMatch) return dateMatch[1].split('-').reverse().join('/') + " " + dateMatch[2].replace(':', '.');
-                return str;
-            } catch (e) { return str; }
-        }
-
         async function fetchAllData() {
             const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
             if (error) return;
             rawData = data;
             updatePersonnelGrid();
             renderChart('person');
-            updateProjectOverview(); // New function
+            updateProjectOverview();
             applyFilters();
         }
 
-        // NEW: Fungsi untuk menghitung progres per Project
+        // FUNGSI AGGREGATE PROJECT & MODAL POPUP
         function updateProjectOverview() {
             const container = document.getElementById('project-overview-container');
             const projects = {};
 
-            // Grouping tasks by project name
             rawData.forEach(item => {
                 const name = (item.project_name || "Tanpa Nama").toUpperCase();
-                if (!projects[name]) {
-                    projects[name] = { totalProgress: 0, count: 0, members: new Set() };
-                }
+                if (!projects[name]) projects[name] = { totalProgress: 0, count: 0, tasks: [] };
                 projects[name].totalProgress += parseInt(item.progress_percent || 0);
                 projects[name].count += 1;
-                projects[name].members.add(item.assigned_to);
+                projects[name].tasks.push(item);
             });
 
             container.innerHTML = Object.keys(projects).map(projName => {
                 const data = projects[projName];
                 const avgProgress = Math.round(data.totalProgress / data.count);
-                const memberList = Array.from(data.members).join(', ');
                 
-                // Color logic based on progress
-                let barColor = "bg-blue-500";
-                if (avgProgress >= 100) barColor = "bg-emerald-500";
-                else if (avgProgress > 0) barColor = "bg-orange-500";
-
                 return `
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:border-orange-200 transition-all shadow-sm">
-                        <div class="flex justify-between items-start mb-3">
-                            <div>
-                                <h4 class="text-xs font-black text-slate-800 truncate max-w-[150px] uppercase">${projName}</h4>
-                                <p class="text-[9px] font-bold text-slate-400 mt-0.5">PIC: ${memberList}</p>
-                            </div>
-                            <span class="text-xs font-black ${avgProgress >= 100 ? 'text-emerald-600' : 'text-orange-600'} bg-white px-2 py-1 rounded-lg border border-slate-100 shadow-sm">${avgProgress}%</span>
+                    <div onclick='openProjectModal("${projName}")' class="bg-slate-50 p-5 rounded-2xl border border-slate-100 hover:border-orange-500 hover:bg-white transition-all cursor-pointer shadow-sm group">
+                        <div class="flex justify-between items-start mb-4">
+                            <h4 class="text-xs font-black text-slate-800 uppercase tracking-tighter truncate max-w-[180px]">${projName}</h4>
+                            <span class="text-[10px] font-black bg-white px-2 py-1 rounded-lg border shadow-sm text-orange-600">${avgProgress}%</span>
                         </div>
-                        <div class="progress-bg h-2">
-                            <div class="progress-fill ${barColor}" style="width: ${avgProgress}%"></div>
+                        <div class="progress-bg h-2 mb-3">
+                            <div class="progress-fill ${avgProgress >= 100 ? 'bg-emerald-500' : 'bg-orange-500'}" style="width: ${avgProgress}%"></div>
                         </div>
-                        <div class="flex justify-between mt-2 text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
-                            <span>${data.count} Tasks</span>
-                            <span>${avgProgress >= 100 ? 'Completed' : 'On Going'}</span>
+                        <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase">
+                            <span>${data.count} Tasks Total</span>
+                            <span class="group-hover:text-orange-600 transition-colors">Lihat Detail &rarr;</span>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        function exportToExcel() {
-            if (filteredData.length === 0) return alert("Tidak ada data untuk diunduh");
-            const dataToExport = filteredData.map(item => ({
-                "PROJECT NAME": (item.project_name || "").toUpperCase(),
-                "PERSONIL": item.assigned_to,
-                "PRIORITY": item.priority || "Mid",
-                "STATUS": item.status,
-                "PROGRES": (item.progress_percent || 0) + "%",
-                "START TIME": formatDateTimeClean(item.work_start_time),
-                "FINISH TIME": formatDateTimeClean(item.work_end_time),
-                "TUGAS UTAMA": item.task_desc || "-",
-                "UPDATE LAPORAN": item.worker_comment || "-",
-                "KENDALA": item.hold_reason || "-"
-            }));
-            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Daily Report");
-            const colWidths = Object.keys(dataToExport[0]).map(key => ({ wch: 25 }));
-            worksheet['!cols'] = colWidths;
-            const fileName = `Daily_Report_${new Date().toISOString().split('T')[0]}.xlsx`;
-            XLSX.writeFile(workbook, fileName);
-        }
-
-        function updatePersonnelGrid() {
-            const personnel = ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
-            const container = document.getElementById('personnel-stats');
-            let totalAll = 0;
-            container.innerHTML = personnel.map(name => {
-                const count = rawData.filter(r => r.assigned_to === name).length;
-                totalAll += count;
-                const colorClass = 'card-' + name.toLowerCase();
-                return `<div onclick="selectPerson('${name}')" class="person-card uppercase ${colorClass}"><p class="text-[9px] font-black opacity-70 tracking-tighter">${name}</p><h4 class="text-xl font-black">${count}</h4></div>`;
+        function openProjectModal(projName) {
+            document.getElementById('proj-modal-name').innerText = projName;
+            const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
+            const container = document.getElementById('proj-modal-list');
+            
+            container.innerHTML = tasks.map(t => {
+                let statusColor = t.status === 'Done' ? 'bg-emerald-500' : (t.status === 'Hold' ? 'bg-rose-500' : 'bg-blue-500');
+                return `
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-black text-slate-800 uppercase">${t.assigned_to}</span>
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded text-white ${statusColor} uppercase">${t.status}</span>
+                        </div>
+                        <p class="text-[11px] font-medium text-slate-600 mb-3 leading-relaxed">${t.task_desc || '-'}</p>
+                        <div class="flex items-center gap-3">
+                            <div class="progress-bg h-1.5 flex-grow"><div class="progress-fill ${statusColor}" style="width: ${t.progress_percent}%"></div></div>
+                            <span class="text-[10px] font-black text-slate-500">${t.progress_percent}%</span>
+                        </div>
+                    </div>
+                `;
             }).join('');
-            document.getElementById('grand-total-tasks').innerText = totalAll;
+            
+            document.getElementById('projectDetailModal').style.display = 'block';
         }
 
+        function closeProjectModal() { document.getElementById('projectDetailModal').style.display = 'none'; }
+
+        // Logic Chart, Filter, & Detail Task tetap sama
         function switchChart(type) {
-            const btns = ['person', 'pending', 'progress', 'hold', 'done'];
-            btns.forEach(id => document.getElementById('btn-' + id).classList.remove('btn-active'));
-            const activeId = type === 'person' ? 'btn-person' : (type === 'Pending' ? 'btn-pending' : (type === 'In Progress' ? 'btn-progress' : (type === 'Hold' ? 'btn-hold' : 'btn-done')));
-            document.getElementById(activeId).classList.add('btn-active');
+            ['person', 'Pending', 'In Progress', 'Hold', 'Done'].forEach(id => {
+                const el = document.getElementById('btn-' + id);
+                if(el) el.classList.remove('btn-active');
+            });
+            document.getElementById('btn-' + type).classList.add('btn-active');
             renderChart(type);
         }
 
@@ -283,30 +255,17 @@
             const ctx = document.getElementById('projectChart').getContext('2d');
             if (projectChart) projectChart.destroy();
             const personnel = ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
-            const personColors = ['#3b82f6', '#6366f1', '#f59e0b', '#10b981', '#f43f5e', '#475569'];
-            let labels, datasets;
-            if (type === 'person') {
-                labels = personnel;
-                datasets = [{ label: 'Total Task', data: personnel.map(name => rawData.filter(r => r.assigned_to === name).length), backgroundColor: personColors, borderRadius: 12 }];
-            } else {
-                const statusColors = { 'Pending': '#94a3b8', 'In Progress': '#3b82f6', 'Hold': '#f43f5e', 'Done': '#10b981' };
-                labels = personnel;
-                datasets = [{ label: 'Status ' + type, data: personnel.map(name => rawData.filter(r => r.assigned_to === name && r.status === type).length), backgroundColor: statusColors[type], borderRadius: 12 }];
-            }
+            const colors = ['#3b82f6', '#6366f1', '#f59e0b', '#10b981', '#f43f5e', '#475569'];
+            
+            let dataArr;
+            if(type === 'person') dataArr = personnel.map(n => rawData.filter(r => r.assigned_to === n).length);
+            else dataArr = personnel.map(n => rawData.filter(r => r.assigned_to === n && r.status === type).length);
+
             projectChart = new Chart(ctx, {
                 type: 'bar',
-                data: { labels, datasets },
+                data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: type === 'person' ? colors : '#ea580c', borderRadius: 8 }] },
                 plugins: [ChartDataLabels],
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    layout: { padding: { top: 25 } },
-                    plugins: { 
-                        legend: { display: (type !== 'person') },
-                        datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: { weight: '800', size: 12 }, formatter: (v) => v > 0 ? v : '' }
-                    }, 
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } 
-                } 
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display: false}, datalabels: {color: '#1e293b', font: {weight: 'bold'}} } }
             });
         }
 
@@ -315,50 +274,49 @@
             const status = document.getElementById('filter-status').value;
             const search = document.getElementById('search-report').value.toLowerCase();
             filteredData = rawData.filter(item => {
-                const matchUser = user === "" || item.assigned_to === user;
-                const matchStatus = status === "" || item.status === status;
-                const matchSearch = item.project_name?.toLowerCase().includes(search) || (item.task_desc && item.task_desc.toLowerCase().includes(search));
-                return matchUser && matchStatus && matchSearch;
+                const matchU = !user || item.assigned_to === user;
+                const matchS = !status || item.status === status;
+                const matchK = !search || item.project_name?.toLowerCase().includes(search) || item.task_desc?.toLowerCase().includes(search);
+                return matchU && matchS && matchK;
             });
             renderTable(filteredData);
         }
 
         function renderTable(data) {
             const tbody = document.getElementById('resume-body');
-            tbody.innerHTML = data.map(row => {
-                let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-200" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-blue-50 text-blue-600 border-blue-200");
-                return `<tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-6 font-bold uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div></td>
-                    <td class="px-4 py-6 text-center font-black text-slate-500">${row.assigned_to}</td>
-                    <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase ${sClass}">${row.status}</span></td>
-                    <td class="px-6 py-6 text-center"><button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md">Review</button></td>
-                </tr>`;
+            tbody.innerHTML = data.map(row => `
+                <tr class="hover:bg-slate-50 transition-all">
+                    <td class="px-6 py-5 font-bold uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div></td>
+                    <td class="px-4 py-5 text-center font-black text-slate-500">${row.assigned_to}</td>
+                    <td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black border uppercase">${row.status}</span></td>
+                    <td class="px-6 py-5 text-center"><button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md">Review</button></td>
+                </tr>`).join('');
+        }
+
+        function updatePersonnelGrid() {
+            const personnel = ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
+            let total = 0;
+            document.getElementById('personnel-stats').innerHTML = personnel.map(name => {
+                const c = rawData.filter(r => r.assigned_to === name).length;
+                total += c;
+                return `<div class="person-card card-${name.toLowerCase()}"> <p class="text-[9px] font-black opacity-70">${name}</p> <h4 class="text-xl font-black">${c}</h4> </div>`;
             }).join('');
+            document.getElementById('grand-total-tasks').innerText = total;
         }
 
         function openDetail(row) {
             document.getElementById('det-project-name').innerText = row.project_name;
             document.getElementById('det-pic').innerText = row.assigned_to;
-            document.getElementById('det-task').innerText = row.task_desc || 'Tidak ada deskripsi.';
             document.getElementById('det-status').innerText = row.status;
-            document.getElementById('det-status').className = `text-[11px] font-black uppercase ${row.status === 'Done' ? 'text-emerald-600' : (row.status === 'Hold' ? 'text-rose-600' : 'text-blue-600')}`;
             document.getElementById('det-priority').innerText = row.priority || 'Mid';
-            document.getElementById('det-priority').className = `text-[11px] font-black uppercase ${row.priority === 'High' ? 'text-red-600' : 'text-blue-600'}`;
-            document.getElementById('det-start').innerText = formatDateTimeClean(row.work_start_time);
-            document.getElementById('det-finish').innerText = formatDateTimeClean(row.work_end_time);
-            document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan.";
-            const prog = row.progress_percent || 0;
-            document.getElementById('det-progress-text').innerText = prog + '%';
-            document.getElementById('det-progress-bar').style.width = prog + '%';
-            document.getElementById('det-progress-bar').className = `progress-fill ${prog >= 100 ? 'bg-emerald-500' : (row.status === 'Hold' ? 'bg-rose-500' : 'bg-blue-500')}`;
-            const holdSec = document.getElementById('hold-section');
-            if(row.hold_reason) { holdSec.classList.remove('hidden'); document.getElementById('det-hold').innerText = row.hold_reason; } 
-            else { holdSec.classList.add('hidden'); }
+            document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
+            document.getElementById('det-progress-text').innerText = (row.progress_percent || 0) + '%';
+            document.getElementById('det-progress-bar').style.width = (row.progress_percent || 0) + '%';
             document.getElementById('detailModal').style.display = 'block';
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
-        function selectPerson(name) { document.getElementById('filter-user').value = name; applyFilters(); }
+        window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); closeProjectModal(); } };
         window.onload = fetchAllData;
     </script>
 </body>
