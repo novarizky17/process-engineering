@@ -78,7 +78,7 @@
                         <button id="btn-Done" onclick="switchChart('Done')" class="btn-toggle">Done</button>
                     </div>
                 </div>
-                <div class="h-[350px] w-full"><canvas id="projectChart"></canvas></div>
+                <div class="h-[350px]"><canvas id="projectChart"></canvas></div>
             </div>
 
             <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 flex flex-col">
@@ -164,7 +164,7 @@
                 <div>
                     <h2 class="text-lg font-black uppercase flex items-center gap-3">
                         Review Task 
-                        <span id="det-overdue-label" class="hidden bg-rose-600 text-white text-[10px] px-2 py-0.5 rounded animate-pulse">OVERDUE</span>
+                        <span id="det-overdue-label" class="hidden bg-rose-600 text-white text-[10px] px-2 py-0.5 rounded animate-pulse font-black uppercase"></span>
                     </h2>
                     <p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p>
                 </div>
@@ -337,15 +337,6 @@
 
         function closeProjectModal() { document.getElementById('projectDetailModal').style.display = 'none'; }
 
-        function switchChart(type) {
-            ['person', 'Pending', 'In Progress', 'Hold', 'Done'].forEach(id => {
-                const el = document.getElementById('btn-' + id);
-                if(el) el.classList.remove('btn-active');
-            });
-            document.getElementById('btn-' + type).classList.add('btn-active');
-            renderChart(type);
-        }
-
         function renderChart(type) {
             const ctx = document.getElementById('projectChart').getContext('2d');
             if (projectChart) projectChart.destroy();
@@ -418,6 +409,7 @@
             document.getElementById('grand-total-tasks').innerText = total;
         }
 
+        // FUNGSI OPEN DETAIL (OVERDUE DETAILED)
         function openDetail(row) {
             document.getElementById('det-project-name').innerText = row.project_name || "Tanpa Judul";
             document.getElementById('det-pic').innerText = row.assigned_to || "-";
@@ -436,14 +428,18 @@
             document.getElementById('det-finish').innerText = formatDateTimeClean(row.work_end_time);
             document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
             
-            // LOGIKA OVERDUE: Jika melewati tanggal hari ini dan belum Done
+            // LOGIKA HITUNG HARI OVERDUE
             const overdueLabel = document.getElementById('det-overdue-label');
             if (row.work_end_time && row.status !== 'Done') {
                 const finishPlan = new Date(row.work_end_time);
                 const today = new Date();
-                // Set jam ke 0 untuk membandingkan tanggal murni
-                today.setHours(0,0,0,0);
+                today.setHours(0,0,0,0); // Normalisasi waktu hari ini
+                
                 if (today > finishPlan) {
+                    // Hitung selisih hari
+                    const diffTime = Math.abs(today - finishPlan);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                    overdueLabel.innerText = `${diffDays}D LATE`; // Tampilkan format "1D Late"
                     overdueLabel.classList.remove('hidden');
                 } else {
                     overdueLabel.classList.add('hidden');
