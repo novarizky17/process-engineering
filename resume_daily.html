@@ -249,15 +249,7 @@
                 type: 'bar',
                 data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: type === 'person' ? colors : '#1e40af', borderRadius: 8 }] },
                 plugins: [ChartDataLabels],
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    layout: { padding: { top: 30 } },
-                    plugins: { 
-                        legend: {display: false}, 
-                        datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: {weight: 'bold', size: 12}, formatter: (v) => v > 0 ? v : '' } 
-                    },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1, callback: (v) => (v % 1 === 0 ? v : null) } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 30 } }, plugins: { legend: {display: false}, datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: {weight: 'bold', size: 12}, formatter: (v) => v > 0 ? v : '' } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, callback: (v) => (v % 1 === 0 ? v : null) } } } }
             });
         }
 
@@ -380,7 +372,7 @@
             document.getElementById('det-start').innerText = formatDateTimeClean(row.start_date);
             document.getElementById('det-activity').innerText = row.worker_comment || "-";
 
-            // LOGIKA DINAMIS TANGGAL SELESAI
+            // LOGIKA DINAMIS TANGGAL SELESAI TANPA UBAH STRUKTUR HTML
             const finishValue = document.getElementById('det-finish');
             const finishLabel = finishValue.previousElementSibling;
             const finishBox = finishValue.parentElement;
@@ -388,7 +380,7 @@
             if (row.status === 'Done') {
                 finishBox.style.display = 'block';
                 finishLabel.innerText = "Finish Work";
-                // Mengambil actual_finish (tanggal yang diisi personil)
+                // Ambil tanggal aktual dari database (actual_finish)
                 finishValue.innerText = formatDateTimeClean(row.actual_finish || row.work_end_time || row.due_date);
             } else {
                 finishBox.style.display = 'none';
@@ -406,8 +398,14 @@
             } else overdueLabel.classList.add('hidden');
 
             let prog = row.progress_percent || 0;
-            document.getElementById('det-progress-text').innerText = (row.status === 'Done' ? 100 : prog) + '%';
-            document.getElementById('det-progress-bar').style.width = (row.status === 'Done' ? 100 : prog) + '%';
+            const progVal = (row.status === 'Done' ? 100 : prog);
+            document.getElementById('det-progress-text').innerText = progVal + '%';
+            
+            // Progress Bar Animation & Color
+            const progressBar = document.getElementById('det-progress-bar');
+            progressBar.className = "progress-fill " + getProgressColor(progVal);
+            progressBar.style.width = progVal + '%';
+
             document.getElementById('detailModal').style.display = 'block';
         }
 
