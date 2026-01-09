@@ -133,7 +133,13 @@
                 </div>
                 <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
             </div>
-            <div class="p-8 max-h-[70vh] overflow-y-auto custom-scroll bg-slate-50">
+            <div class="p-8 max-h-[80vh] overflow-y-auto custom-scroll bg-slate-50">
+                
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-200 mb-8 flex flex-col items-center">
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Perbandingan Volume Tugas Antar Project</h3>
+                    <div class="h-[300px] w-full max-w-[500px]"><canvas id="projectPieChart"></canvas></div>
+                </div>
+
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center">
@@ -197,8 +203,8 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let rawData = [];
-        let filteredData = [];
         let projectChart = null;
+        let pieChartInstance = null; // Tambahan instance pie chart
 
         function formatDateTimeClean(str) {
             if (!str) return 'Belum Ada';
@@ -217,15 +223,15 @@
             if (error) return;
             rawData = data;
             updatePersonnelGrid();
-            switchChart('person'); 
+            switchChart('person'); 
             applyFilters();
         }
 
         function getProgressColor(percent) {
             const p = parseInt(percent);
-            if (p >= 100) return "bg-emerald-500"; 
-            if (p >= 50) return "bg-blue-600";    
-            return "bg-rose-500";               
+            if (p >= 100) return "bg-emerald-500"; 
+            if (p >= 50) return "bg-blue-600";    
+            return "bg-rose-500";               
         }
 
         function switchChart(type) {
@@ -253,6 +259,51 @@
             });
         }
 
+        // --- FUNGSI BARU: RENDER DIAGRAM PIE BERDASARKAN PROJECT ---
+        function renderProjectPieChart() {
+            const ctx = document.getElementById('projectPieChart').getContext('2d');
+            if (pieChartInstance) pieChartInstance.destroy();
+
+            // Hitung distribusi task per nama project utama
+            const projectDist = {};
+            rawData.forEach(item => {
+                const name = (item.project_name || "LAINNYA").toUpperCase();
+                projectDist[name] = (projectDist[name] || 0) + 1;
+            });
+
+            const labels = Object.keys(projectDist);
+            const data = Object.values(projectDist);
+            const palette = ['#3b82f6', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4', '#475569', '#ec4899'];
+
+            pieChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: palette,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 9, weight: 'bold' } } },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (val, ctx) => {
+                                let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                return ((val / sum) * 100).toFixed(0) + "%";
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         function selectPerson(name) {
             const filterUser = document.getElementById('filter-user');
             if (filterUser) {
@@ -262,7 +313,11 @@
             }
         }
 
-        function openProjectAggregateModal() { renderAggregateProjects(); document.getElementById('projectAggregateModal').style.display = 'block'; }
+        function openProjectAggregateModal() { 
+            renderAggregateProjects(); 
+            renderProjectPieChart(); // Panggil pie chart saat modal dibuka
+            document.getElementById('projectAggregateModal').style.display = 'block'; 
+        }
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
         function renderAggregateProjects() {
@@ -289,47 +344,10 @@
             }).join('');
         }
 
-        function getProjectDateRange(tasks) {
-            let dates = [];
-            tasks.forEach(t => { if (t.start_date) dates.push(new Date(t.start_date)); if (t.due_date) dates.push(new Date(t.due_date)); });
-            if (dates.length === 0) return { start: "-", finish: "-" };
-            const sorted = dates.sort((a, b) => a - b);
-            const opt = { day: '2-digit', month: '2-digit', year: 'numeric' };
-            return { start: sorted[0].toLocaleDateString('id-ID', opt), finish: sorted[sorted.length - 1].toLocaleDateString('id-ID', opt) };
-        }
-
         function openProjectModal(projName) {
             document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
-            const range = getProjectDateRange(tasks);
-            document.getElementById('proj-modal-dates').innerHTML = `<div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center shadow-sm"><p class="text-[9px] font-black text-blue-400 uppercase">Start</p><p class="text-xs font-black text-blue-700">${range.start}</p></div><div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center shadow-sm"><p class="text-[9px] font-black text-emerald-400 uppercase">Due</p><p class="text-xs font-black text-emerald-700">${range.finish}</p></div>`;
-            const container = document.getElementById('proj-modal-list');
-            container.innerHTML = tasks.map(t => {
-                const pStart = formatDateTimeClean(t.start_date);
-                const pFinish = formatDateTimeClean(t.due_date);
-                return `
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-[11px] font-black text-slate-800 uppercase tracking-tighter">${t.assigned_to}</span>
-                            <span class="text-[9px] font-black px-3 py-1 rounded text-white ${t.status.toUpperCase()==='DONE'?'bg-emerald-500':'bg-blue-600'} uppercase">${t.status}</span>
-                        </div>
-                        <p class="text-xs font-semibold text-slate-500 mb-4 leading-relaxed">${t.task_desc || '-'}</p>
-                        <div class="grid grid-cols-2 gap-3 mb-4">
-                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
-                                <p class="text-[8px] font-black text-slate-400 uppercase">Start</p>
-                                <p class="text-[10px] font-bold text-slate-600">${pStart}</p>
-                            </div>
-                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
-                                <p class="text-[8px] font-black text-slate-400 uppercase">Due</p>
-                                <p class="text-[10px] font-bold text-slate-600">${pFinish}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="progress-bg h-2 flex-grow"><div class="progress-fill ${getProgressColor(t.progress_percent)}" style="width: ${t.progress_percent}%"></div></div>
-                            <span class="text-[11px] font-black text-slate-700">${t.progress_percent}%</span>
-                        </div>
-                    </div>`;
-            }).join('');
+            document.getElementById('proj-modal-list').innerHTML = tasks.map(t => `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><div class="flex justify-between items-center mb-3"><span class="text-[11px] font-black text-slate-800 uppercase tracking-tighter">${t.assigned_to}</span><span class="text-[9px] font-black px-3 py-1 rounded text-white ${t.status.toUpperCase()==='DONE'?'bg-emerald-500':'bg-blue-600'} uppercase">${t.status}</span></div><p class="text-xs font-semibold text-slate-500 mb-4 leading-relaxed">${t.task_desc || '-'}</p><div class="flex items-center gap-4"><div class="progress-bg h-2 flex-grow"><div class="progress-fill ${getProgressColor(t.progress_percent)}" style="width: ${t.progress_percent}%"></div></div><span class="text-[11px] font-black text-slate-700">${t.progress_percent}%</span></div></div>`).join('');
             document.getElementById('projectDetailModal').style.display = 'block';
         }
 
@@ -351,12 +369,8 @@
         function renderTable(data) {
             const tbody = document.getElementById('resume-body');
             tbody.innerHTML = data.map(row => {
-                // MODIFIKASI WARNA: LOW DAN PENDING JADI ABU-ABU
-                const priorityClass = row.priority === 'High' ? 'text-red-600 border-red-200' : 
-                                     (row.priority === 'Low' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
-                
-                const statusClass = row.status === 'Done' ? 'text-emerald-600 border-emerald-200' : 
-                                   (row.status === 'Pending' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
+                const pClass = row.priority === 'High' ? 'text-red-600 border-red-200' : (row.priority === 'Low' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
+                const sClass = row.status === 'Done' ? 'text-emerald-600 border-emerald-200' : (row.status === 'Pending' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
 
                 return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold">
                     <td class="px-6 py-5 uppercase text-slate-800">${row.project_name}
@@ -364,10 +378,10 @@
                     </td>
                     <td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td>
                     <td class="px-4 py-5 text-center">
-                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${priorityClass}">${row.priority || 'Mid'}</span>
+                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${pClass}">${row.priority || 'Mid'}</span>
                     </td>
                     <td class="px-4 py-5 text-center">
-                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${statusClass}">${row.status}</span>
+                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${sClass}">${row.status}</span>
                     </td>
                     <td class="px-6 py-5 text-center">
                         <button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button>
@@ -430,6 +444,20 @@
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+        
+        function exportToExcel() {
+            if (rawData.length === 0) return alert("Tidak ada data untuk di-export!");
+            const exportData = rawData.map(r => ({
+                'Project Name': r.project_name, 'Task Description': r.task_desc, 'Assigned To': r.assigned_to,
+                'Priority': r.priority, 'Status': r.status, 'Start Date': r.start_date, 'Due Date': r.due_date,
+                'Actual Finish': r.actual_finish, 'Progress (%)': r.progress_percent, 'Worker Comment': r.worker_comment
+            }));
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "DailyReport");
+            XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
+        }
+
         window.onclick = function(e) { 
             if(e.target.className === 'modal') { 
                 closeModal(); 
