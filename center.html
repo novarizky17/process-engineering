@@ -20,7 +20,7 @@
 
         .menu-card {
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative; /* Ditambahkan agar posisi notif rapi */
+            position: relative;
         }
 
         .menu-card:hover {
@@ -33,13 +33,18 @@
             position: absolute;
             top: -10px;
             right: 20px;
-            display: none; /* Muncul otomatis jika data ada */
+            display: none; 
             z-index: 10;
         }
         .dot-ping {
             animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
         }
         @keyframes ping { 75%, 100% { transform: scale(1.4); opacity: 0; } }
+
+        /* Animasi Transisi Teks Notif */
+        #notif-content {
+            transition: opacity 0.5s ease-in-out;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -70,7 +75,7 @@
                 <div id="notif-container" class="notification-badge">
                     <span class="absolute inline-flex h-full w-full rounded-xl bg-orange-400 opacity-75 dot-ping"></span>
                     <span class="relative inline-flex rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white text-[10px] font-black px-4 py-2 shadow-lg border border-white/20 whitespace-nowrap">
-                        <span id="notif-content">LOADING...</span>
+                        <span id="notif-content">MENGAMBIL DATA...</span>
                     </span>
                 </div>
                 <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-indigo-600 transition-colors duration-300">
@@ -119,27 +124,50 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        async function updateNotification() {
+        let listJadwal = [];
+        let currentIndex = 0;
+
+        async function startNotificationLoop() {
             const container = document.getElementById('notif-container');
             const content = document.getElementById('notif-content');
 
             try {
+                // Ambil semua data jadwal
                 const { data, error } = await _sb
                     .from('jadwal_mingguan')
-                    .select('nama_personil')
-                    .eq('id', 'm1') // Mengambil data Minggu 1
-                    .single();
+                    .select('minggu, nama_personil')
+                    .order('id', { ascending: true });
 
-                if (data && data.nama_personil) {
-                    content.innerText = `MINGGU 1: ${data.nama_personil.toUpperCase()}`;
+                if (error) throw error;
+
+                // Filter hanya yang ada namanya
+                listJadwal = data.filter(item => item.nama_personil && item.nama_personil.trim() !== "");
+
+                if (listJadwal.length > 0) {
                     container.style.display = 'block';
+                    
+                    // Jalankan fungsi ganti teks setiap 3 detik
+                    setInterval(() => {
+                        content.style.opacity = 0; // Efek fade out
+                        
+                        setTimeout(() => {
+                            currentIndex = (currentIndex + 1) % listJadwal.length;
+                            const item = listJadwal[currentIndex];
+                            content.innerText = `${item.minggu}: ${item.nama_personil.toUpperCase()}`;
+                            content.style.opacity = 1; // Efek fade in
+                        }, 500);
+                        
+                    }, 3000);
+
+                    // Tampilkan data pertama segera
+                    content.innerText = `${listJadwal[0].minggu}: ${listJadwal[0].nama_personil.toUpperCase()}`;
                 }
             } catch (e) {
-                console.error("Gagal update notif");
+                console.error("Gagal memuat looping notif");
             }
         }
 
-        window.onload = updateNotification;
+        window.onload = startNotificationLoop;
     </script>
 
 </body>
