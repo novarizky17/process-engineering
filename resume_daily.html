@@ -134,9 +134,8 @@
                 <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
             </div>
             <div class="p-8 max-h-[80vh] overflow-y-auto custom-scroll bg-slate-50">
-                
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-200 mb-8 flex flex-col items-center">
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Volume Penugasan Per Project Utama</h3>
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Akumulasi Progress Per Project Utama</h3>
                     <div class="h-[300px] w-full max-w-[500px]"><canvas id="projectPieChart"></canvas></div>
                 </div>
 
@@ -155,6 +154,7 @@
                 <button onclick="closeProjectModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
             </div>
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll">
+                <div id="proj-modal-dates" class="grid grid-cols-2 gap-4 mb-2"></div>
                 <div id="proj-modal-list" class="space-y-4"></div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeProjectModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Detail</button></div>
@@ -258,18 +258,46 @@
             });
         }
 
+        // FUNGSI BARU: MENGHITUNG DAN MERENDER PIE CHART PROGRESS PROJECT
         function renderProjectPieChart() {
             const ctx = document.getElementById('projectPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
-            const dist = {};
-            rawData.forEach(item => { const name = (item.project_name || "LAINNYA").toUpperCase(); dist[name] = (dist[name] || 0) + 1; });
+
+            const projectStats = {};
+            rawData.forEach(item => {
+                const name = (item.project_name || "Lainnya").toUpperCase();
+                if (!projectStats[name]) projectStats[name] = { totalProg: 0, count: 0 };
+                projectStats[name].totalProg += parseInt(item.progress_percent || 0);
+                projectStats[name].count += 1;
+            });
+
+            const labels = Object.keys(projectStats);
+            const dataValues = labels.map(name => Math.round(projectStats[name].totalProg / projectStats[name].count));
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4', '#ec4899', '#475569'];
+
             pieChartInstance = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: Object.keys(dist),
-                    datasets: [{ data: Object.values(dist), backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4', '#475569', '#ec4899'], borderWidth: 2, borderColor: '#ffffff' }]
+                    labels: labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 9, weight: 'bold' } } }, datalabels: { color: '#fff', font: { weight: 'bold', size: 10 }, formatter: (val, ctx) => { let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); return ((val / sum) * 100).toFixed(0) + "%"; } } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 9, weight: 'bold' } } },
+                        datalabels: {
+                            color: '#fff',
+                            font: { weight: 'bold', size: 10 },
+                            formatter: (val) => val + "%"
+                        }
+                    }
+                }
             });
         }
 
@@ -278,7 +306,12 @@
             if (filterUser) { filterUser.value = name; applyFilters(); filterUser.scrollIntoView({ behavior: 'smooth' }); }
         }
 
-        function openProjectAggregateModal() { renderAggregateProjects(); renderProjectPieChart(); document.getElementById('projectAggregateModal').style.display = 'block'; }
+        function openProjectAggregateModal() { 
+            renderAggregateProjects(); 
+            renderProjectPieChart(); // PANGGIL FUNGSI PIE CHART
+            document.getElementById('projectAggregateModal').style.display = 'block'; 
+        }
+
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
         function renderAggregateProjects() {
@@ -294,14 +327,35 @@
             container.innerHTML = Object.keys(projects).map(projName => {
                 const data = projects[projName];
                 const avgProgress = Math.round(data.totalProgress / data.count);
-                return `<div onclick="openProjectModal('${projName.replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm"><div class="flex justify-between items-start mb-4"><h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4><span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span></div><div class="progress-bg h-2 mb-4"><div class="progress-fill ${getProgressColor(avgProgress)}" style="width: ${avgProgress}%"></div></div><div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div></div>`;
+                // GUNAKAN replace UNTUK MENGHINDARI ERROR KUTIP PADA NAMA PROJECT
+                return `<div onclick="openProjectModal('${projName.replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4>
+                        <span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span>
+                    </div>
+                    <div class="progress-bg h-2 mb-4"><div class="progress-fill ${getProgressColor(avgProgress)}" style="width: ${avgProgress}%"></div></div>
+                    <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div>
+                </div>`;
             }).join('');
+        }
+
+        function getProjectDateRange(tasks) {
+            let dates = [];
+            tasks.forEach(t => { if (t.start_date) dates.push(new Date(t.start_date)); if (t.due_date) dates.push(new Date(t.due_date)); });
+            if (dates.length === 0) return { start: "-", finish: "-" };
+            const sorted = dates.sort((a, b) => a - b);
+            const opt = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            return { start: sorted[0].toLocaleDateString('id-ID', opt), finish: sorted[sorted.length - 1].toLocaleDateString('id-ID', opt) };
         }
 
         function openProjectModal(projName) {
             document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
+            const range = getProjectDateRange(tasks);
             
+            // RENDERING ULANG TANGGAL DI ATAS (Tetap Ada)
+            document.getElementById('proj-modal-dates').innerHTML = `<div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center shadow-sm"><p class="text-[9px] font-black text-blue-400 uppercase">Start</p><p class="text-xs font-black text-blue-700">${range.start}</p></div><div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center shadow-sm"><p class="text-[9px] font-black text-emerald-400 uppercase">Due</p><p class="text-xs font-black text-emerald-700">${range.finish}</p></div>`;
+
             const container = document.getElementById('proj-modal-list');
             container.innerHTML = tasks.map(t => `
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -446,21 +500,3 @@
     </script>
 </body>
 </html>
-
-untuk yang ini detail nya ga keluar trus tanggal project start project deadline ilang tolong di gubain sesuai program saya berikan tadi yang paling bener itu tapi diagram pie nya masukin project bukan status project 
-dan tanggal project start project deadline di hilangkan 
-dan detail pekerjaan nya yang di project agregated itu bisa di buka 
-
-dan tolong di cek lagi karena sering banget ada yang ilang padhal saya udah wanti wanti jangan di ubah struktur nya tambhakan diagram pie dan hilangkan tanggal start deadline project 
-
-itu saja 
-sisanya pertahankan program saya 
-jangan ada yang di ubah atau di hilangkan 
-kalo diagram batang personil hold done dll warna nya biru itu gpp yang penting program awal ga berubah ubah mulu elahh dongo banget si 
-tanggal per task personil harus ada 
-hold dan pending warna abu abu biarin 
-trus yang finish work pas status done tetep ada  dan dinamis 
-
-tolong pake otak ya ngerjain nya capek saya benerin struktur yang di ubah ubah mulu  padahal udah jelas intruksi nya 
-kalo ga bisa tambhin diagram pie di modal project agregated gapapa skip aja tapi kalo bisa ya tambhin tapi jangan ngubah apa apa
-ngerti kan_
