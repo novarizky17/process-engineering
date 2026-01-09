@@ -3,66 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Bebas Edit - Center Print</title>
+    <title>Jadwal Bebas Edit - Full Color Print</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
 
-        /* --- PENGATURAN KHUSUS PRINT (AGAR TENGAH & TIDAK TERPOTONG) --- */
+        /* --- PENGATURAN PRINT AGAR TENGAH & BERWARNA --- */
         @page {
             size: A4 portrait;
-            margin: 15mm; /* Memberikan margin fisik pada kertas */
+            margin: 15mm; /* Margin fisik kertas */
         }
 
         @media print {
             body {
                 background: white !important;
+                -webkit-print-color-adjust: exact !important; /* MEMAKSA WARNA MUNCUL DI CHROME/EDGE */
+                print-color-adjust: exact !important;         /* MEMAKSA WARNA MUNCUL */
                 margin: 0;
-                padding: 0;
-                display: block;
+                display: flex;
+                justify-content: center;
             }
             .container {
                 box-shadow: none !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 auto !important; /* Memastikan posisi di tengah */
+                width: 170mm !important; /* Lebar standar agar pas di tengah A4 */
+                margin: 0 auto !important;
                 padding: 0 !important;
                 border: none !important;
             }
             .no-print { display: none !important; }
             
-            /* Mengatur tabel agar memenuhi lebar kertas secara proporsional */
+            /* Memastikan baris tabel memiliki jarak yang rapi saat diprint */
             table {
                 width: 100% !important;
-                border-spacing: 0 8px !important;
+                border-spacing: 0 10px !important;
             }
-            
+
             .name-tag {
                 border: 1px solid #e2e8f0 !important;
-                background-color: #f8fafc !important;
-                width: 95% !important;
-                print-color-adjust: exact; /* Memastikan warna muncul saat print */
-                -webkit-print-color-adjust: exact;
+                width: 100% !important;
             }
         }
 
-        /* --- TAMPILAN LAYAR (BROWSER) --- */
+        /* --- TAMPILAN LAYAR --- */
         body { font-family: 'Inter', sans-serif; background: #f0f4f8; margin: 0; padding: 40px 20px; color: #2d3748; }
-        
-        .container { 
-            max-width: 700px; /* Disesuaikan agar proporsional di layar */
-            margin: 0 auto; 
-            background: white; 
-            padding: 40px; 
-            border-radius: 24px; 
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); 
-        }
-
+        .container { max-width: 700px; margin: 0 auto; background: white; padding: 40px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
         .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { margin: 0; color: #1a365d; text-transform: uppercase; font-size: 1.8em; font-weight: 800; letter-spacing: 1px; }
-        .header p { color: #718096; font-size: 0.9em; margin-top: 5px; font-weight: 500; }
+        .header h1 { margin: 0; color: #1a365d; text-transform: uppercase; font-size: 1.8em; font-weight: 800; }
         
-        table { width: 100%; border-collapse: separate; border-spacing: 0 12px; margin-top: 10px; table-layout: fixed; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 12px; table-layout: fixed; }
         th { color: #a0aec0; text-transform: uppercase; font-size: 0.75em; padding: 10px; text-align: left; font-weight: 800; }
         td { padding: 5px 10px; vertical-align: middle; }
 
@@ -75,30 +63,26 @@
             width: 100%;
             box-sizing: border-box;
             outline: none;
-            transition: all 0.2s ease;
             border: 2px solid transparent;
             min-height: 45px;
+            -webkit-print-color-adjust: exact; /* Memastikan warna tiap baris muncul */
         }
         
-        /* Variasi Warna Berdasarkan ID */
-        .tag-m1 { background-color: #ebf8ff; color: #2b6cb0; border-color: #bee3f8; }
-        .tag-m2 { background-color: #f0fff4; color: #2f855a; border-color: #c6f6d5; }
-        .tag-m3 { background-color: #fffaf0; color: #c05621; border-color: #feebc8; }
-        .tag-m4 { background-color: #faf5ff; color: #6b46c1; border-color: #e9d8fd; }
-        .tag-m5 { background-color: #f7fafc; color: #4a5568; border-color: #e2e8f0; }
+        /* WARNA TIAP MINGGU */
+        .tag-m1 { background-color: #ebf8ff !important; color: #2b6cb0 !important; border-color: #bee3f8 !important; }
+        .tag-m2 { background-color: #f0fff4 !important; color: #2f855a !important; border-color: #c6f6d5 !important; }
+        .tag-m3 { background-color: #fffaf0 !important; color: #c05621 !important; border-color: #feebc8 !important; }
+        .tag-m4 { background-color: #faf5ff !important; color: #6b46c1 !important; border-color: #e9d8fd !important; }
+        .tag-m5 { background-color: #f7fafc !important; color: #4a5568 !important; border-color: #e2e8f0 !important; }
 
         .name-tag:focus { background: #fff !important; border-color: #3f51b5 !important; color: #1a365d !important; }
 
         .btn-group { display: flex; justify-content: center; gap: 12px; margin-top: 30px; }
-        .btn { text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 0.9em; transition: 0.3s; }
+        .btn { text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 0.9em; }
         .btn-back { background: #edf2f7; color: #4a5568; }
         .btn-print { background: #1a365d; color: white; }
 
-        .status-online { 
-            font-size: 0.7em; font-weight: 800; text-transform: uppercase;
-            background: #c6f6d5; color: #22543d; padding: 6px 14px; 
-            border-radius: 50px; display: inline-block; margin-bottom: 20px;
-        }
+        .status-online { font-size: 0.7em; font-weight: 800; background: #c6f6d5; color: #22543d; padding: 6px 14px; border-radius: 50px; display: inline-block; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -106,7 +90,7 @@
 <div class="container">
     <div class="header">
         <h1>Maintenance Schedule</h1>
-        <p>Tooling Support Monitoring System</p>
+        <p style="color: #718096; font-size: 0.9em;">Tooling Support Monitoring System</p>
     </div>
 
     <div class="no-print" style="text-align: center;">
