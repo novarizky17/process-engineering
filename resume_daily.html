@@ -27,7 +27,7 @@
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
         .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; transition: width 0.8s ease-out; }
+        .progress-fill { height: 100%; transition: width Day 0.8s ease-out; }
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -129,17 +129,20 @@
             <div class="bg-blue-900 p-6 text-white flex justify-between items-center">
                 <div>
                     <h2 class="text-lg font-black uppercase tracking-tight">Review Semua Project Aggregated</h2>
-                    <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest">Daftar Lengkap Capaian Proyek Aktif</p>
+                    <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest">Akumulasi Progres Seluruh Project</p>
                 </div>
                 <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
             </div>
-            <div class="p-8 max-h-[80vh] overflow-y-auto custom-scroll bg-slate-50">
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-200 mb-8 flex flex-col items-center">
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Akumulasi Progress Per Project Utama</h3>
-                    <div class="h-[300px] w-full max-w-[500px]"><canvas id="projectPieChart"></canvas></div>
+            <div class="p-8 max-h-[80vh] overflow-y-auto custom-scroll bg-slate-50 text-center">
+                
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8 inline-block w-full max-w-[450px]">
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Total Progres Seluruh Project</h3>
+                    <div class="h-[250px] w-full relative">
+                        <canvas id="projectPieChart"></canvas>
+                    </div>
                 </div>
 
-                <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center">
                 <button onclick="closeProjectAggregateModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Review</button>
@@ -258,46 +261,49 @@
             });
         }
 
-        // FUNGSI BARU: MENGHITUNG DAN MERENDER PIE CHART PROGRESS PROJECT
+        // FUNGSI BARU: MENGHITUNG DAN MERENDER PIE CHART PROGRESS PROJECT TUNGGAL (Ditambahkan)
         function renderProjectPieChart() {
             const ctx = document.getElementById('projectPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
 
-            const projectStats = {};
-            rawData.forEach(item => {
-                const name = (item.project_name || "Lainnya").toUpperCase();
-                if (!projectStats[name]) projectStats[name] = { totalProg: 0, count: 0 };
-                projectStats[name].totalProg += parseInt(item.progress_percent || 0);
-                projectStats[name].count += 1;
-            });
-
-            const labels = Object.keys(projectStats);
-            const dataValues = labels.map(name => Math.round(projectStats[name].totalProg / projectStats[name].count));
-            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4', '#ec4899', '#475569'];
+            // Hitung rata-rata progres seluruh task
+            let totalProg = 0;
+            rawData.forEach(item => totalProg += parseInt(item.progress_percent || 0));
+            const avgProgress = rawData.length > 0 ? Math.round(totalProg / rawData.length) : 0;
+            const remaining = 100 - avgProgress;
 
             pieChartInstance = new Chart(ctx, {
-                type: 'pie',
+                type: 'doughnut',
                 data: {
-                    labels: labels,
+                    labels: ['Selesai', 'Belum Selesai'],
                     datasets: [{
-                        data: dataValues,
-                        backgroundColor: colors,
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
+                        data: [avgProgress, remaining],
+                        backgroundColor: ['#10b981', '#e2e8f0'],
+                        borderWidth: 0,
+                        cutout: '75%'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 9, weight: 'bold' } } },
-                        datalabels: {
-                            color: '#fff',
-                            font: { weight: 'bold', size: 10 },
-                            formatter: (val) => val + "%"
-                        }
+                        legend: { display: false },
+                        datalabels: { display: false }
                     }
-                }
+                },
+                plugins: [{
+                    id: 'centerText',
+                    beforeDraw: function(chart) {
+                        var width = chart.width, height = chart.height, ctx = chart.ctx;
+                        ctx.restore();
+                        var fontSize = (height / 150).toFixed(2);
+                        ctx.font = "bold " + fontSize + "em sans-serif";
+                        ctx.textBaseline = "middle";
+                        var text = avgProgress + "%", textX = Math.round((width - ctx.measureText(text).width) / 2), textY = height / 2;
+                        ctx.fillText(text, textX, textY);
+                        ctx.save();
+                    }
+                }]
             });
         }
 
@@ -308,10 +314,9 @@
 
         function openProjectAggregateModal() { 
             renderAggregateProjects(); 
-            renderProjectPieChart(); // PANGGIL FUNGSI PIE CHART
+            renderProjectPieChart(); // Panggil fungsi Pie Chart
             document.getElementById('projectAggregateModal').style.display = 'block'; 
         }
-
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
         function renderAggregateProjects() {
@@ -327,15 +332,7 @@
             container.innerHTML = Object.keys(projects).map(projName => {
                 const data = projects[projName];
                 const avgProgress = Math.round(data.totalProgress / data.count);
-                // GUNAKAN replace UNTUK MENGHINDARI ERROR KUTIP PADA NAMA PROJECT
-                return `<div onclick="openProjectModal('${projName.replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm">
-                    <div class="flex justify-between items-start mb-4">
-                        <h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4>
-                        <span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span>
-                    </div>
-                    <div class="progress-bg h-2 mb-4"><div class="progress-fill ${getProgressColor(avgProgress)}" style="width: ${avgProgress}%"></div></div>
-                    <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div>
-                </div>`;
+                return `<div onclick="openProjectModal('${projName.replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm"><div class="flex justify-between items-start mb-4"><h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4><span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span></div><div class="progress-bg h-2 mb-4"><div class="progress-fill ${getProgressColor(avgProgress)}" style="width: ${avgProgress}%"></div></div><div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div></div>`;
             }).join('');
         }
 
@@ -352,33 +349,9 @@
             document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
             const range = getProjectDateRange(tasks);
-            
-            // RENDERING ULANG TANGGAL DI ATAS (Tetap Ada)
             document.getElementById('proj-modal-dates').innerHTML = `<div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center shadow-sm"><p class="text-[9px] font-black text-blue-400 uppercase">Start</p><p class="text-xs font-black text-blue-700">${range.start}</p></div><div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center shadow-sm"><p class="text-[9px] font-black text-emerald-400 uppercase">Due</p><p class="text-xs font-black text-emerald-700">${range.finish}</p></div>`;
-
             const container = document.getElementById('proj-modal-list');
-            container.innerHTML = tasks.map(t => `
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-[11px] font-black text-slate-800 uppercase tracking-tighter">${t.assigned_to}</span>
-                        <span class="text-[9px] font-black px-3 py-1 rounded text-white ${t.status.toUpperCase()==='DONE'?'bg-emerald-500':'bg-blue-600'} uppercase">${t.status}</span>
-                    </div>
-                    <p class="text-xs font-semibold text-slate-500 mb-4 leading-relaxed">${t.task_desc || '-'}</p>
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
-                            <p class="text-[8px] font-black text-slate-400 uppercase">Start</p>
-                            <p class="text-[10px] font-bold text-slate-600">${formatDateTimeClean(t.start_date)}</p>
-                        </div>
-                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
-                            <p class="text-[8px] font-black text-slate-400 uppercase">Due</p>
-                            <p class="text-[10px] font-bold text-slate-600">${formatDateTimeClean(t.due_date)}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="progress-bg h-2 flex-grow"><div class="progress-fill ${getProgressColor(t.progress_percent)}" style="width: ${t.progress_percent}%"></div></div>
-                        <span class="text-[11px] font-black text-slate-700">${t.progress_percent}%</span>
-                    </div>
-                </div>`).join('');
+            container.innerHTML = tasks.map(t => `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><div class="flex justify-between items-center mb-3"><span class="text-[11px] font-black text-slate-800 uppercase tracking-tighter">${t.assigned_to}</span><span class="text-[9px] font-black px-3 py-1 rounded text-white ${t.status.toUpperCase()==='DONE'?'bg-emerald-500':'bg-blue-600'} uppercase">${t.status}</span></div><p class="text-xs font-semibold text-slate-500 mb-4 leading-relaxed">${t.task_desc || '-'}</p><div class="grid grid-cols-2 gap-3 mb-4"><div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center"><p class="text-[8px] font-black text-slate-400 uppercase">Start</p><p class="text-[10px] font-bold text-slate-600">${formatDateTimeClean(t.start_date)}</p></div><div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center"><p class="text-[8px] font-black text-slate-400 uppercase">Due</p><p class="text-[10px] font-bold text-slate-600">${formatDateTimeClean(t.due_date)}</p></div></div><div class="flex items-center gap-4"><div class="progress-bg h-2 flex-grow"><div class="progress-fill ${getProgressColor(t.progress_percent)}" style="width: ${t.progress_percent}%"></div></div><span class="text-[11px] font-black text-slate-700">${t.progress_percent}%</span></div></div>`).join('');
             document.getElementById('projectDetailModal').style.display = 'block';
         }
 
@@ -402,22 +375,7 @@
             tbody.innerHTML = data.map(row => {
                 const pClass = row.priority === 'High' ? 'text-red-600 border-red-200' : (row.priority === 'Low' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
                 const sClass = row.status === 'Done' ? 'text-emerald-600 border-emerald-200' : (row.status === 'Pending' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
-
-                return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold">
-                    <td class="px-6 py-5 uppercase text-slate-800">${row.project_name}
-                        <div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div>
-                    </td>
-                    <td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td>
-                    <td class="px-4 py-5 text-center">
-                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${pClass}">${row.priority || 'Mid'}</span>
-                    </td>
-                    <td class="px-4 py-5 text-center">
-                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${sClass}">${row.status}</span>
-                    </td>
-                    <td class="px-6 py-5 text-center">
-                        <button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button>
-                    </td>
-                </tr>`;
+                return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold"><td class="px-6 py-5 uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div></td><td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td><td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${pClass}">${row.priority || 'Mid'}</span></td><td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${sClass}">${row.status}</span></td><td class="px-6 py-5 text-center"><button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button></td></tr>`;
             }).join('');
         }
 
@@ -438,12 +396,9 @@
             document.getElementById('det-task').innerText = row.task_desc || 'Belum ada deskripsi tugas.';
             document.getElementById('det-status').innerText = row.status || "PENDING";
             document.getElementById('det-start').innerText = formatDateTimeClean(row.start_date);
-            document.getElementById('det-activity').innerText = row.worker_comment || "-";
-
             const finishValue = document.getElementById('det-finish');
             const finishLabel = finishValue.previousElementSibling;
             const finishBox = finishValue.parentElement;
-
             if (row.status === 'Done') {
                 finishBox.style.display = 'block';
                 finishLabel.innerText = "Finish Work";
@@ -451,7 +406,6 @@
             } else {
                 finishBox.style.display = 'none';
             }
-
             const overdueLabel = document.getElementById('det-overdue-label');
             if (row.due_date && row.status !== 'Done') {
                 const dueDate = new Date(row.due_date);
@@ -462,15 +416,12 @@
                     overdueLabel.classList.remove('hidden');
                 } else overdueLabel.classList.add('hidden');
             } else overdueLabel.classList.add('hidden');
-
             let prog = row.progress_percent || 0;
             const progVal = (row.status === 'Done' ? 100 : prog);
             document.getElementById('det-progress-text').innerText = progVal + '%';
-            
             const progressBar = document.getElementById('det-progress-bar');
             progressBar.className = "progress-fill " + getProgressColor(progVal);
             progressBar.style.width = progVal + '%';
-
             document.getElementById('detailModal').style.display = 'block';
         }
 
@@ -489,13 +440,7 @@
             XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
         }
 
-        window.onclick = function(e) { 
-            if(e.target.className === 'modal') { 
-                closeModal(); 
-                document.getElementById('projectDetailModal').style.display = 'none';
-                document.getElementById('projectAggregateModal').style.display = 'none';
-            } 
-        };
+        window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); document.getElementById('projectDetailModal').style.display = 'none'; document.getElementById('projectAggregateModal').style.display = 'none'; } };
         window.onload = fetchAllData;
     </script>
 </body>
