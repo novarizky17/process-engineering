@@ -134,7 +134,7 @@
                 <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
             </div>
             <div class="p-8 max-h-[70vh] overflow-y-auto custom-scroll bg-slate-50">
-                <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center">
                 <button onclick="closeProjectAggregateModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Review</button>
@@ -249,7 +249,15 @@
                 type: 'bar',
                 data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: type === 'person' ? colors : '#1e40af', borderRadius: 8 }] },
                 plugins: [ChartDataLabels],
-                options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 30 } }, plugins: { legend: {display: false}, datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: {weight: 'bold', size: 12}, formatter: (v) => v > 0 ? v : '' } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, callback: (v) => (v % 1 === 0 ? v : null) } } } }
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    layout: { padding: { top: 30 } },
+                    plugins: { 
+                        legend: {display: false}, 
+                        datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: {weight: 'bold', size: 12}, formatter: (v) => v > 0 ? v : '' } 
+                    },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1, callback: (v) => (v % 1 === 0 ? v : null) } } }
+                }
             });
         }
 
@@ -372,7 +380,7 @@
             document.getElementById('det-start').innerText = formatDateTimeClean(row.start_date);
             document.getElementById('det-activity').innerText = row.worker_comment || "-";
 
-            // LOGIKA DINAMIS TANGGAL SELESAI TANPA UBAH STRUKTUR HTML
+            // LOGIKA DINAMIS TANGGAL SELESAI TANPA UBAH STRUKTUR
             const finishValue = document.getElementById('det-finish');
             const finishLabel = finishValue.previousElementSibling;
             const finishBox = finishValue.parentElement;
@@ -380,7 +388,7 @@
             if (row.status === 'Done') {
                 finishBox.style.display = 'block';
                 finishLabel.innerText = "Finish Work";
-                // Ambil tanggal aktual dari database (actual_finish)
+                // Ambil tanggal aktual dari database
                 finishValue.innerText = formatDateTimeClean(row.actual_finish || row.work_end_time || row.due_date);
             } else {
                 finishBox.style.display = 'none';
@@ -398,13 +406,12 @@
             } else overdueLabel.classList.add('hidden');
 
             let prog = row.progress_percent || 0;
-            const progVal = (row.status === 'Done' ? 100 : prog);
-            document.getElementById('det-progress-text').innerText = progVal + '%';
+            document.getElementById('det-progress-text').innerText = (row.status === 'Done' ? 100 : prog) + '%';
             
             // Progress Bar Animation & Color
             const progressBar = document.getElementById('det-progress-bar');
-            progressBar.className = "progress-fill " + getProgressColor(progVal);
-            progressBar.style.width = progVal + '%';
+            progressBar.className = "progress-fill " + getProgressColor(row.status === 'Done' ? 100 : prog);
+            progressBar.style.width = (row.status === 'Done' ? 100 : prog) + '%';
 
             document.getElementById('detailModal').style.display = 'block';
         }
