@@ -25,34 +25,6 @@
             transform: translateY(-10px);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
         }
-
-        /* --- MODAL DESIGN --- */
-        .modal-bg {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(12px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background: white;
-            width: 100%;
-            max-width: 450px;
-            border-radius: 35px;
-            overflow: hidden;
-            animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25);
-        }
-
-        @keyframes modalPop {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -71,21 +43,21 @@
     <main class="max-w-6xl mx-auto px-6 -mt-20 w-full mb-20">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             
-            <a href="management_tracker.html" class="menu-card bg-white p-8 rounded-[2.5rem] shadow-xl border-b-8 border-slate-900 group">
+            <a href="management_tracker.html" class="menu-card bg-white p-8 rounded-[2.5rem] shadow-xl border-b-8 border-navy-900 group">
                 <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-900 transition-colors duration-300">
                     <svg class="w-8 h-8 text-blue-900 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                 </div>
                 <h2 class="text-xl font-extrabold text-slate-800 uppercase mb-2">Management Tracker</h2>
-                <p class="text-slate-400 text-xs font-medium leading-relaxed">Pantau tugas superintendent dan laporan kinerja secara real-time.</p>
+                <p class="text-slate-400 text-xs font-medium leading-relaxed">Pantau tugas superintendent dan laporan kinerja personil secara real-time.</p>
             </a>
 
-            <div onclick="openJadwalPopup()" class="menu-card bg-white p-8 rounded-[2.5rem] shadow-xl border-b-8 border-indigo-600 group cursor-pointer">
+            <a href="jadwal_mingguan.html" class="menu-card bg-white p-8 rounded-[2.5rem] shadow-xl border-b-8 border-indigo-600 group">
                 <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-indigo-600 transition-colors duration-300">
                     <svg class="w-8 h-8 text-indigo-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 </div>
                 <h2 class="text-xl font-extrabold text-slate-800 uppercase mb-2">Jadwal Mingguan</h2>
-                <p class="text-slate-400 text-xs font-medium leading-relaxed">Periksa agenda perawatan mesin rutin yang sudah dijadwalkan.</p>
-            </div>
+                <p class="text-slate-400 text-xs font-medium leading-relaxed">Periksa agenda perawatan mesin rutin yang sudah dijadwalkan setiap minggu.</p>
+            </a>
 
             <a href="laporan.html" class="menu-card bg-white p-8 rounded-[2.5rem] shadow-xl border-b-8 border-orange-500 group">
                 <div class="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-orange-500 transition-colors duration-300">
@@ -95,36 +67,24 @@
                 <p class="text-slate-400 text-xs font-medium leading-relaxed">Input laporan teknis hasil maintenance harian untuk dokumentasi.</p>
             </a>
 
+            <a href="riwayat.html" class="menu-card bg-white p-8 rounded-[2.5rem] shadow-xl border-b-8 border-purple-600 group">
+                <div class="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-purple-600 transition-colors duration-300">
+                    <svg class="w-8 h-8 text-purple-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h2 class="text-xl font-extrabold text-slate-800 uppercase mb-2">Kartu Riwayat</h2>
+                <p class="text-slate-400 text-xs font-medium leading-relaxed">Lihat arsip dan rekam jejak perawatan mesin dari masa ke masa.</p>
+            </a>
+
+            <a href="dashboard.html" class="menu-card bg-white p-8 rounded-[2.5rem] shadow-xl border-b-8 border-teal-600 group">
+                <div class="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-teal-600 transition-colors duration-300">
+                    <svg class="w-8 h-8 text-teal-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                </div>
+                <h2 class="text-xl font-extrabold text-slate-800 uppercase mb-2">Form Checklist</h2>
+                <p class="text-slate-400 text-xs font-medium leading-relaxed">Data statistik dan ringkasan checklist kondisi aset tooling.</p>
+            </a>
+
         </div>
     </main>
-
-    <div id="jadwalModal" class="modal-bg">
-        <div class="modal-content">
-            <div class="bg-indigo-600 p-8 text-white text-center">
-                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                </div>
-                <h3 class="text-2xl font-black uppercase tracking-tighter">Jadwal Mingguan</h3>
-                <p class="text-indigo-100 text-xs font-bold uppercase tracking-widest mt-1 opacity-80">Tooling Support Maintenance</p>
-            </div>
-            <div class="p-8">
-                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 mb-6">
-                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Informasi Menu</h4>
-                    <p class="text-slate-600 text-sm leading-relaxed font-medium">
-                        Anda akan masuk ke halaman <b>Jadwal Perawatan Rutin</b>. Di sana Anda dapat melihat pembagian tugas per minggu dan mengedit data secara langsung.
-                    </p>
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-500 py-4 rounded-2xl font-bold uppercase text-[10px] hover:bg-slate-200 transition-all">
-                        Kembali
-                    </button>
-                    <a href="jadwal_mingguan.html" class="flex-1 bg-indigo-600 text-white py-4 rounded-2xl font-bold uppercase text-[10px] text-center shadow-lg shadow-indigo-200 hover:brightness-110 transition-all">
-                        Masuk Halaman
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <footer class="mt-auto p-10 text-center">
         <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.4em] mb-2">
@@ -132,25 +92,6 @@
         </p>
         <div class="w-10 h-1 bg-slate-200 mx-auto rounded-full"></div>
     </footer>
-
-    <script>
-        const modal = document.getElementById('jadwalModal');
-
-        function openJadwalPopup() {
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() {
-            modal.style.display = 'none';
-        }
-
-        // Tutup modal jika klik di area luar modal
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                closeModal();
-            }
-        }
-    </script>
 
 </body>
 </html>
