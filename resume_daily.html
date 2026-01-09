@@ -157,7 +157,7 @@
                 <div><label class="text-[9px] font-black text-slate-400 uppercase">Deskripsi Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap min-h-[40px]"></p></div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
-                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Plan Finish (Due Date)</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
+                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Finish Work</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
                 </div>
                 <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div>
             </div>
@@ -374,7 +374,6 @@
             document.getElementById('grand-total-tasks').innerText = total;
         }
 
-        // --- FUNGSI REVIEW TASK (FIX PROGRESS BAR) ---
         function openDetail(row) {
             document.getElementById('det-project-name').innerText = row.project_name || "Tanpa Judul";
             document.getElementById('det-pic').innerText = row.assigned_to || "-";
@@ -395,17 +394,14 @@
                 } else overdueLabel.classList.add('hidden');
             } else overdueLabel.classList.add('hidden');
 
-            // LOGIKA BARU UNTUK PROGRESS BAR
             let prog = parseInt(row.progress_percent || 0);
             if (row.status === 'Done') prog = 100;
 
             const progressBar = document.getElementById('det-progress-bar');
             document.getElementById('det-progress-text').innerText = prog + '%';
             
-            // Reset dan terapkan warna baru
             progressBar.className = "progress-fill " + getProgressColor(prog);
             
-            // Animasi lebar
             progressBar.style.width = '0%';
             setTimeout(() => {
                 progressBar.style.width = prog + '%';
