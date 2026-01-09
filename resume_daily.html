@@ -247,25 +247,9 @@
             
             projectChart = new Chart(ctx, {
                 type: 'bar',
-                data: { 
-                    labels: personnel, 
-                    datasets: [{ 
-                        data: dataArr, 
-                        // WARNA WARNI UNTUK SEMUA DIAGRAM
-                        backgroundColor: colors, 
-                        borderRadius: 8 
-                    }] 
-                },
+                data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: colors, borderRadius: 8 }] },
                 plugins: [ChartDataLabels],
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    layout: { padding: { top: 30 } },
-                    plugins: { 
-                        legend: {display: false}, 
-                        datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: {weight: 'bold', size: 12}, formatter: (v) => v > 0 ? v : '' } 
-                    },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1, callback: (v) => (v % 1 === 0 ? v : null) } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 30 } }, plugins: { legend: {display: false}, datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: {weight: 'bold', size: 12}, formatter: (v) => v > 0 ? v : '' } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, callback: (v) => (v % 1 === 0 ? v : null) } } } }
             });
         }
 
@@ -366,7 +350,30 @@
 
         function renderTable(data) {
             const tbody = document.getElementById('resume-body');
-            tbody.innerHTML = data.map(row => `<tr class="hover:bg-slate-50 transition-all text-xs font-bold"><td class="px-6 py-5 uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div></td><td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td><td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${row.priority==='High'?'text-red-600 border-red-200':'text-blue-600 border-blue-200'}">${row.priority || 'Mid'}</span></td><td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${row.status==='Done'?'text-emerald-600 border-emerald-200':'text-blue-600 border-blue-200'}">${row.status}</span></td><td class="px-6 py-5 text-center"><button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button></td></tr>`).join('');
+            tbody.innerHTML = data.map(row => {
+                // MODIFIKASI WARNA: LOW DAN PENDING JADI ABU-ABU
+                const priorityClass = row.priority === 'High' ? 'text-red-600 border-red-200' : 
+                                     (row.priority === 'Low' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
+                
+                const statusClass = row.status === 'Done' ? 'text-emerald-600 border-emerald-200' : 
+                                   (row.status === 'Pending' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
+
+                return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold">
+                    <td class="px-6 py-5 uppercase text-slate-800">${row.project_name}
+                        <div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div>
+                    </td>
+                    <td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td>
+                    <td class="px-4 py-5 text-center">
+                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${priorityClass}">${row.priority || 'Mid'}</span>
+                    </td>
+                    <td class="px-4 py-5 text-center">
+                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${statusClass}">${row.status}</span>
+                    </td>
+                    <td class="px-6 py-5 text-center">
+                        <button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button>
+                    </td>
+                </tr>`;
+            }).join('');
         }
 
         function updatePersonnelGrid() {
@@ -388,7 +395,6 @@
             document.getElementById('det-start').innerText = formatDateTimeClean(row.start_date);
             document.getElementById('det-activity').innerText = row.worker_comment || "-";
 
-            // LOGIKA DINAMIS FINISH WORK
             const finishValue = document.getElementById('det-finish');
             const finishLabel = finishValue.previousElementSibling;
             const finishBox = finishValue.parentElement;
@@ -396,7 +402,6 @@
             if (row.status === 'Done') {
                 finishBox.style.display = 'block';
                 finishLabel.innerText = "Finish Work";
-                // AMBIL DARI ACTUAL_FINISH (TANGGAL ASLI PERSONIL)
                 finishValue.innerText = formatDateTimeClean(row.actual_finish || row.work_end_time || row.due_date);
             } else {
                 finishBox.style.display = 'none';
@@ -413,14 +418,13 @@
                 } else overdueLabel.classList.add('hidden');
             } else overdueLabel.classList.add('hidden');
 
-            // PROGRESS BAR LOGIC
             let prog = row.progress_percent || 0;
             const progVal = (row.status === 'Done' ? 100 : prog);
             document.getElementById('det-progress-text').innerText = progVal + '%';
             
-            const bar = document.getElementById('det-progress-bar');
-            bar.className = "progress-fill " + getProgressColor(progVal);
-            bar.style.width = progVal + '%';
+            const progressBar = document.getElementById('det-progress-bar');
+            progressBar.className = "progress-fill " + getProgressColor(progVal);
+            progressBar.style.width = progVal + '%';
 
             document.getElementById('detailModal').style.display = 'block';
         }
