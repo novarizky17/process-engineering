@@ -3,137 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Mingguan - Pengecekan Tooling</title>
+    <title>Jadwal Bebas Edit - Cloud Database</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
-        /* PENGATURAN KHUSUS PRINT */
-        @page {
-            size: A4 portrait;
-            margin: 10mm;
-        }
-
+        @page { size: A4 portrait; margin: 10mm; }
         @media print {
-            body {
-                background: white !important;
-                padding: 0;
-                margin: 0;
-                display: flex;
-                justify-content: center;
-                align-items: flex-start;
-            }
+            body { background: white !important; padding: 0; }
             .no-print { display: none !important; }
-            .container {
-                box-shadow: none !important;
-                border: 1pt solid #ccc !important;
-                width: 100% !important;
-                max-width: none !important;
-                margin: 0 !important;
-                padding: 20px !important;
-                transform: scale(0.98); /* Mencegah terpotong sedikit di pinggir */
-            }
-            .header h1::after { display: none !important; }
+            .container { box-shadow: none !important; border: 1pt solid #ccc !important; width: 100% !important; max-width: none !important; margin: 0 !important; }
             td, .name-tag { border: 0.5pt solid #cbd5e1 !important; }
         }
 
-        /* TAMPILAN LAYAR */
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            margin: 0;
-            padding: 40px 20px;
-            color: #2d3748;
-            min-height: 100vh;
-        }
+        body { font-family: 'Inter', sans-serif; background: #f0f2f5; margin: 0; padding: 40px 20px; color: #2d3748; }
+        .container { max-width: 650px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { margin: 0; color: #1a365d; text-transform: uppercase; font-size: 1.6em; font-weight: 800; border-bottom: 3px solid #3f51b5; display: inline-block; padding-bottom: 5px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { color: #718096; text-transform: uppercase; font-size: 0.8em; padding: 15px 10px; text-align: left; border-bottom: 2px solid #edf2f7; }
+        td { padding: 15px 10px; border-bottom: 1px solid #edf2f7; }
 
-        .container {
-            max-width: 650px;
-            margin: 0 auto;
-            background: white;
-            padding: 40px;
-            border-radius: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        .header { text-align: center; margin-bottom: 40px; }
-        .header h1 {
-            margin: 0;
-            color: #1a365d;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 1.8em;
-            font-weight: 700;
-            position: relative;
-            display: inline-block;
-            padding-bottom: 10px;
-        }
-
-        .header h1::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 25%; width: 50%; height: 4px;
-            background: #3f51b5; border-radius: 2px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 10px;
-            margin-bottom: 20px;
-        }
-
-        th {
-            color: #4a5568;
-            text-transform: uppercase;
-            font-size: 0.85em;
-            padding: 10px;
-            text-align: left;
-            border-bottom: 2px solid #edf2f7;
-        }
-
-        td {
-            padding: 12px 16px;
-            background-color: #ffffff;
-            border-top: 1px solid #f1f5f9;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        /* Warna Personil Tetap Bagus */
+        /* Style Input Bebas */
         .name-tag {
             font-weight: 600;
-            display: inline-block;
-            padding: 8px 20px;
-            border-radius: 10px;
-            font-size: 0.9em;
-            min-width: 130px;
-            text-align: center;
+            display: block;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            width: 90%;
+            outline: none;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #2d3748;
+            transition: all 0.2s ease;
+        }
+        .name-tag:focus {
+            background: #fff;
+            border-color: #3f51b5;
+            box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
+        }
+        .name-tag:empty::before {
+            content: "Klik untuk mengetik...";
+            color: #cbd5e1;
+            font-weight: 400;
         }
 
-        .tag-isyqi { background-color: #ebf8ff; color: #2b6cb0; border: 1px solid #bee3f8; }
-        .tag-ryan { background-color: #f0fff4; color: #2f855a; border: 1px solid #c6f6d5; }
-        .tag-jumawan { background-color: #fffaf0; color: #c05621; border: 1px solid #feebc8; }
-        .tag-barok { background-color: #faf5ff; color: #6b46c1; border: 1px solid #e9d8fd; }
-        .tag-team { background-color: #f7fafc; color: #4a5568; border: 1px solid #e2e8f0; }
-
-        .btn-group {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .btn {
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            transition: 0.3s;
-        }
-
+        .btn-group { display: flex; justify-content: center; gap: 10px; margin-top: 30px; }
+        .btn { text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9em; }
         .btn-back { background: #edf2f7; color: #4a5568; }
         .btn-print { background: #3f51b5; color: white; }
+        .status-badge { text-align: center; font-size: 0.75em; margin-top: 15px; padding: 5px 10px; border-radius: 20px; display: inline-block; }
+        .status-online { background: #c6f6d5; color: #22543d; }
     </style>
 </head>
 <body>
@@ -141,49 +63,84 @@
 <div class="container">
     <div class="header">
         <h1>Maintenance Schedule</h1>
-        <p>Tooling Support Monitoring System</p>
+        <p style="color: #718096; margin-top: 5px;">Tooling Support Monitoring System</p>
+    </div>
+
+    <div class="no-print" style="text-align: center; margin-bottom: 20px;">
+        <span id="save-status" class="status-badge status-online">● Terhubung ke Cloud</span>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Periode Waktu</th>
-                <th style="text-align: right;">Personil Pelaksana</th>
+                <th width="40%">Periode</th>
+                <th>Personil / Deskripsi Bebas</th>
             </tr>
         </thead>
-        <tbody>
-            <tr>
-                <td><strong style="color:#2d3748">MINGGU I</strong></td>
-                <td style="text-align: right;"><span class="name-tag tag-isyqi">ISYQI</span></td>
-            </tr>
-            <tr>
-                <td><strong style="color:#2d3748">MINGGU II</strong></td>
-                <td style="text-align: right;"><span class="name-tag tag-ryan">RYAN</span></td>
-            </tr>
-            <tr>
-                <td><strong style="color:#2d3748">MINGGU III</strong></td>
-                <td style="text-align: right;"><span class="name-tag tag-jumawan">JUMAWAN</span></td>
-            </tr>
-            <tr>
-                <td><strong style="color:#2d3748">MINGGU IV</strong></td>
-                <td style="text-align: right;"><span class="name-tag tag-barok">BAROK</span></td>
-            </tr>
-            <tr>
-                <td><strong style="color:#2d3748">MINGGU V</strong></td>
-                <td style="text-align: right;"><span class="name-tag tag-team">TEAM SUPPORT</span></td>
-            </tr>
-        </tbody>
+        <tbody id="jadwal-body">
+            </tbody>
     </table>
-
-    <p style="font-size: 0.8em; color: #a0aec0; font-style: italic; text-align: center; margin-top: 20px;">
-        *Minggu V disesuaikan dengan kalender berjalan.
-    </p>
 
     <div class="btn-group no-print">
         <a href="center.html" class="btn btn-back">← Kembali</a>
-        <button onclick="window.print()" class="btn btn-print">Print Jadwal</button>
+        <button onclick="window.print()" class="btn btn-print">Cetak Jadwal (PDF)</button>
     </div>
 </div>
+
+<script>
+    // Konfigurasi Supabase Anda
+    const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
+    const _sb = supabase.createClient(SB_URL, SB_KEY);
+
+    const bodyTable = document.getElementById('jadwal-body');
+    const statusLabel = document.getElementById('save-status');
+
+    // Load data dari database
+    async function loadJadwal() {
+        const { data, error } = await _sb.from('jadwal_mingguan').select('*').order('id', { ascending: true });
+        
+        if (error) {
+            statusLabel.innerText = "Error memuat data";
+            return;
+        }
+
+        bodyTable.innerHTML = data.map(item => `
+            <tr>
+                <td><strong style="color:#1a365d">${item.minggu}</strong></td>
+                <td>
+                    <div class="name-tag" 
+                         contenteditable="true" 
+                         onblur="updateDatabase('${item.id}', this.innerText)"
+                         onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}">
+                        ${item.nama_personil || ''}
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Update data ke database
+    async function updateDatabase(id, val) {
+        statusLabel.innerText = "Saving...";
+        statusLabel.className = "status-badge";
+        
+        const { error } = await _sb
+            .from('jadwal_mingguan')
+            .update({ nama_personil: val })
+            .eq('id', id);
+
+        if (error) {
+            statusLabel.innerText = "Gagal menyimpan!";
+            statusLabel.style.background = "#fed7d7";
+        } else {
+            statusLabel.innerText = "● Tersimpan otomatis";
+            statusLabel.className = "status-badge status-online";
+        }
+    }
+
+    window.onload = loadJadwal;
+</script>
 
 </body>
 </html>
