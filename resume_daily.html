@@ -134,12 +134,14 @@
                 <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
             </div>
             <div class="p-8 max-h-[80vh] overflow-y-auto custom-scroll bg-slate-50 text-center">
+                
                 <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8 inline-block w-full max-w-[450px]">
                     <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Total Progres Seluruh Project</h3>
                     <div class="h-[250px] w-full relative">
                         <canvas id="projectPieChart"></canvas>
                     </div>
                 </div>
+
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center">
@@ -155,6 +157,7 @@
                 <button onclick="closeProjectModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
             </div>
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll">
+                <div id="proj-modal-dates" class="hidden"></div>
                 <div id="proj-modal-list" class="space-y-4"></div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeProjectModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Detail</button></div>
@@ -205,7 +208,6 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let rawData = [];
-        let filteredData = [];
         let projectChart = null;
         let pieChartInstance = null;
 
@@ -286,15 +288,7 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
-                        datalabels: {
-                            display: true,
-                            color: '#1e293b',
-                            font: { weight: 'bold', size: 14 },
-                            formatter: (val, context) => {
-                                if (context.dataIndex === 0) return val + '%';
-                                return '';
-                            }
-                        }
+                        datalabels: { display: false }
                     }
                 },
                 plugins: [{
@@ -342,6 +336,7 @@
             container.innerHTML = Object.keys(projects).map(projName => {
                 const data = projects[projName];
                 const avgProgress = Math.round(data.totalProgress / data.count);
+                // PERBAIKAN FUNGSI ONCLICK
                 return `<div onclick="openProjectModal('${projName.replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm"><div class="flex justify-between items-start mb-4"><h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4><span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span></div><div class="progress-bg h-2 mb-4"><div class="progress-fill ${getProgressColor(avgProgress)}" style="width: ${avgProgress}%"></div></div><div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div></div>`;
             }).join('');
         }
@@ -349,8 +344,9 @@
         function openProjectModal(projName) {
             document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
-
             const container = document.getElementById('proj-modal-list');
+            
+            // Render list dengan tanggal per personil (START & DUE)
             container.innerHTML = tasks.map(t => `
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                     <div class="flex justify-between items-center mb-3">
@@ -396,22 +392,7 @@
             tbody.innerHTML = data.map(row => {
                 const pClass = row.priority === 'High' ? 'text-red-600 border-red-200' : (row.priority === 'Low' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
                 const sClass = row.status === 'Done' ? 'text-emerald-600 border-emerald-200' : (row.status === 'Pending' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
-
-                return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold">
-                    <td class="px-6 py-5 uppercase text-slate-800">${row.project_name}
-                        <div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div>
-                    </td>
-                    <td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td>
-                    <td class="px-4 py-5 text-center">
-                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${pClass}">${row.priority || 'Mid'}</span>
-                    </td>
-                    <td class="px-4 py-5 text-center">
-                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${sClass}">${row.status}</span>
-                    </td>
-                    <td class="px-6 py-5 text-center">
-                        <button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button>
-                    </td>
-                </tr>`;
+                return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold"><td class="px-6 py-5 uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div></td><td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td><td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${pClass}">${row.priority || 'Mid'}</span></td><td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${sClass}">${row.status}</span></td><td class="px-6 py-5 text-center"><button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button></td></tr>`;
             }).join('');
         }
 
@@ -433,8 +414,6 @@
             document.getElementById('det-status').innerText = row.status || "PENDING";
             document.getElementById('det-priority').innerText = row.priority || "MID";
             document.getElementById('det-start').innerText = formatDateTimeClean(row.start_date);
-            
-            // Perbaikan agar Laporan Aktivitas (worker_comment) Muncul
             document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
 
             const finishValue = document.getElementById('det-finish');
@@ -468,7 +447,6 @@
             const progressBar = document.getElementById('det-progress-bar');
             progressBar.className = "progress-fill " + getProgressColor(progVal);
             progressBar.style.width = progVal + '%';
-
             document.getElementById('detailModal').style.display = 'block';
         }
 
@@ -487,13 +465,7 @@
             XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
         }
 
-        window.onclick = function(e) { 
-            if(e.target.className === 'modal') { 
-                closeModal(); 
-                document.getElementById('projectDetailModal').style.display = 'none';
-                document.getElementById('projectAggregateModal').style.display = 'none';
-            } 
-        };
+        window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); document.getElementById('projectDetailModal').style.display = 'none'; document.getElementById('projectAggregateModal').style.display = 'none'; } };
         window.onload = fetchAllData;
     </script>
 </body>
