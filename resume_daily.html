@@ -133,8 +133,32 @@
                 </div>
                 <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
             </div>
-            <div class="p-8 max-h-[70vh] overflow-y-auto custom-scroll bg-slate-50">
-                <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            <div class="p-8 max-h-[75vh] overflow-y-auto custom-scroll bg-slate-50">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 items-center bg-white p-6 rounded-[2rem] shadow-sm border border-slate-200">
+                    <div class="md:col-span-1 h-[250px] flex items-center justify-center">
+                        <canvas id="overallPieChart"></canvas>
+                    </div>
+                    <div class="md:col-span-2 grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p class="text-[10px] font-black text-slate-400 uppercase">Total Keseluruhan Task</p>
+                            <h4 id="pie-total-task" class="text-2xl font-black text-slate-800">0</h4>
+                        </div>
+                        <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                            <p class="text-[10px] font-black text-emerald-600 uppercase text-opacity-70">Task Selesai</p>
+                            <h4 id="pie-done-task" class="text-2xl font-black text-emerald-600">0</h4>
+                        </div>
+                        <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                            <p class="text-[10px] font-black text-blue-600 uppercase text-opacity-70">Dalam Proses</p>
+                            <h4 id="pie-process-task" class="text-2xl font-black text-blue-600">0</h4>
+                        </div>
+                        <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100">
+                            <p class="text-[10px] font-black text-rose-600 uppercase text-opacity-70">Overdue / Delayed</p>
+                            <h4 id="pie-overdue-task" class="text-2xl font-black text-rose-600">0</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center">
                 <button onclick="closeProjectAggregateModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Review</button>
@@ -199,6 +223,7 @@
         let rawData = [];
         let filteredData = [];
         let projectChart = null;
+        let pieChartInstance = null; // Instance pie chart
 
         function formatDateTimeClean(str) {
             if (!str) return 'Belum Ada';
@@ -262,8 +287,69 @@
             }
         }
 
-        function openProjectAggregateModal() { renderAggregateProjects(); document.getElementById('projectAggregateModal').style.display = 'block'; }
+        function openProjectAggregateModal() { 
+            renderAggregateProjects(); 
+            renderOverallPieChart(); // Panggil pie chart
+            document.getElementById('projectAggregateModal').style.display = 'block'; 
+        }
+        
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
+
+        // FUNGSI DIAGRAM PIE KESELURUHAN
+        function renderOverallPieChart() {
+            const ctx = document.getElementById('overallPieChart').getContext('2d');
+            if (pieChartInstance) pieChartInstance.destroy();
+
+            const statusCounts = {
+                'Pending': rawData.filter(r => r.status === 'Pending').length,
+                'In Progress': rawData.filter(r => r.status === 'In Progress').length,
+                'Hold': rawData.filter(r => r.status === 'Hold').length,
+                'Done': rawData.filter(r => r.status === 'Done').length
+            };
+
+            const overdueTasks = rawData.filter(r => {
+                if (!r.due_date || r.status === 'Done') return false;
+                return new Date() > new Date(r.due_date);
+            }).length;
+
+            // Update stats text
+            document.getElementById('pie-total-task').innerText = rawData.length;
+            document.getElementById('pie-done-task').innerText = statusCounts['Done'];
+            document.getElementById('pie-process-task').innerText = statusCounts['In Progress'];
+            document.getElementById('pie-overdue-task').innerText = overdueTasks;
+
+            pieChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'In Progress', 'Hold', 'Done'],
+                    datasets: [{
+                        data: [statusCounts['Pending'], statusCounts['In Progress'], statusCounts['Hold'], statusCounts['Done']],
+                        backgroundColor: ['#f59e0b', '#3b82f6', '#f43f5e', '#10b981'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 10, weight: 'bold' } } },
+                        datalabels: {
+                            color: '#fff',
+                            formatter: (value, ctx) => {
+                                let sum = 0;
+                                let dataArr = ctx.chart.data.datasets[0].data;
+                                dataArr.map(data => { sum += data; });
+                                let percentage = (value * 100 / sum).toFixed(0) + "%";
+                                return value > 0 ? percentage : '';
+                            },
+                            font: { weight: 'bold', size: 10 }
+                        }
+                    }
+                }
+            });
+        }
 
         function renderAggregateProjects() {
             const projects = {};
@@ -351,10 +437,8 @@
         function renderTable(data) {
             const tbody = document.getElementById('resume-body');
             tbody.innerHTML = data.map(row => {
-                // MODIFIKASI WARNA: LOW DAN PENDING JADI ABU-ABU
                 const priorityClass = row.priority === 'High' ? 'text-red-600 border-red-200' : 
                                      (row.priority === 'Low' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
-                
                 const statusClass = row.status === 'Done' ? 'text-emerald-600 border-emerald-200' : 
                                    (row.status === 'Pending' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
 
@@ -421,7 +505,6 @@
             let prog = row.progress_percent || 0;
             const progVal = (row.status === 'Done' ? 100 : prog);
             document.getElementById('det-progress-text').innerText = progVal + '%';
-            
             const progressBar = document.getElementById('det-progress-bar');
             progressBar.className = "progress-fill " + getProgressColor(progVal);
             progressBar.style.width = progVal + '%';
