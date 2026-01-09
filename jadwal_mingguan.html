@@ -3,136 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Weekly Schedule - Cloud</title>
+    <title>Premium Maintenance Schedule</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-        /* --- PRINT CONFIGURATION --- */
+        /* --- PRINT OPTIMIZATION --- */
         @page { size: A4 portrait; margin: 15mm; }
         @media print {
-            body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; display: block !important; }
+            body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; display: block !important; padding: 0; }
             .container { box-shadow: none !important; width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important; }
             .no-print { display: none !important; }
-            .name-tag { border: 1.5pt solid #eee !important; }
+            .name-tag { border: 1px solid #f1f5f9 !important; }
+            .week-label { padding-left: 0 !important; }
         }
 
         /* --- UI DESIGN --- */
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: #f8fafc; 
+            background-color: #f8fafc; 
             background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
-            background-size: 24px 24px;
+            background-size: 30px 30px;
             margin: 0; 
-            padding: 40px 20px; 
-            color: #0f172a;
+            padding: 50px 20px; 
+            color: #1e293b;
             display: flex;
             justify-content: center;
         }
 
         .container { 
             width: 100%;
-            max-width: 750px; 
+            max-width: 800px; 
             background: white; 
             padding: 50px; 
-            border-radius: 32px; 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08); 
+            border-radius: 35px; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02); 
             border: 1px solid #f1f5f9;
         }
 
-        .header { text-align: center; margin-bottom: 45px; }
+        .header { text-align: center; margin-bottom: 50px; }
         .header h1 { 
             margin: 0; 
-            color: #1e293b; 
+            color: #0f172a; 
             text-transform: uppercase; 
-            font-size: 2.2em; 
+            font-size: 2.2rem; 
             font-weight: 800; 
             letter-spacing: -1px;
-            line-height: 1;
         }
         .header p { 
             color: #64748b; 
-            font-size: 1em; 
-            margin-top: 10px; 
+            font-size: 0.95rem; 
+            margin-top: 8px; 
             font-weight: 600; 
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             text-transform: uppercase;
         }
         
-        table { width: 100%; border-collapse: separate; border-spacing: 0 16px; table-layout: fixed; }
-        th { color: #94a3b8; text-transform: uppercase; font-size: 0.75em; padding: 0 10px; text-align: left; font-weight: 800; letter-spacing: 1.5px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 20px; table-layout: fixed; }
+        th { color: #94a3b8; text-transform: uppercase; font-size: 0.75rem; padding: 0 15px; text-align: left; font-weight: 800; letter-spacing: 1.5px; }
         td { padding: 0; vertical-align: middle; }
 
+        /* --- GAYA PERIODE WAKTU (BARU) --- */
         .week-label {
             font-weight: 800;
             color: #334155;
-            font-size: 1.1em;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
-            gap: 12px;
-        }
-        .week-label span {
-            width: 8px;
-            height: 24px;
-            border-radius: 4px;
+            gap: 18px;
+            padding-left: 15px;
         }
 
+        /* Indikator Bar Vertikal */
+        .week-label::before {
+            content: '';
+            width: 6px;
+            height: 32px;
+            border-radius: 10px;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        /* Warna khusus untuk setiap baris */
+        .label-m1::before { background: #0ea5e9; box-shadow: 0 0 12px rgba(14, 165, 233, 0.4); }
+        .label-m2::before { background: #22c55e; box-shadow: 0 0 12px rgba(34, 197, 94, 0.4); }
+        .label-m3::before { background: #f59e0b; box-shadow: 0 0 12px rgba(245, 158, 11, 0.4); }
+        .label-m4::before { background: #a855f7; box-shadow: 0 0 12px rgba(168, 85, 247, 0.4); }
+        .label-m5::before { background: #64748b; box-shadow: 0 0 12px rgba(100, 116, 139, 0.4); }
+
+        /* --- GAYA INPUT NAMA --- */
         .name-tag {
             font-weight: 700;
             display: block;
-            padding: 16px 22px;
-            border-radius: 16px;
-            font-size: 1em;
-            width: 100%;
+            padding: 18px 25px;
+            border-radius: 20px;
+            font-size: 1rem;
+            width: 90%;
             box-sizing: border-box;
             outline: none;
             border: 2px solid transparent;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            min-height: 56px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 60px;
             -webkit-print-color-adjust: exact;
         }
         
-        /* MODERN COLOR PALETTE */
-        .tag-m1 { background: #f0f9ff; color: #0369a1; border-color: #e0f2fe; } .label-m1 { background: #0ea5e9; }
-        .tag-m2 { background: #f0fdf4; color: #15803d; border-color: #dcfce7; } .label-m2 { background: #22c55e; }
-        .tag-m3 { background: #fffaf0; color: #9a3412; border-color: #ffedd5; } .label-m3 { background: #f97316; }
-        .tag-m4 { background: #faf5ff; color: #6d28d9; border-color: #f3e8ff; } .label-m4 { background: #a855f7; }
-        .tag-m5 { background: #f8fafc; color: #334155; border-color: #f1f5f9; } .label-m5 { background: #64748b; }
+        .tag-m1 { background: #f0f9ff; color: #0369a1; border-color: #e0f2fe; }
+        .tag-m2 { background: #f0fdf4; color: #15803d; border-color: #dcfce7; }
+        .tag-m3 { background: #fffbeb; color: #92400e; border-color: #fef3c7; }
+        .tag-m4 { background: #faf5ff; color: #6d28d9; border-color: #f3e8ff; }
+        .tag-m5 { background: #f8fafc; color: #334155; border-color: #f1f5f9; }
 
         .name-tag:focus { 
-            background: #fff !important; 
+            background: #ffffff !important; 
             border-color: #6366f1 !important; 
-            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2); 
-            color: #1e293b !important;
-            transform: scale(1.02);
+            box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.3); 
+            color: #0f172a !important;
+            transform: translateX(10px);
         }
 
-        .btn-group { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
+        .name-tag:empty::before { content: "Ketik nama pelaksana..."; color: #cbd5e1; font-weight: 500; }
+
+        /* --- BUTTONS & STATUS --- */
+        .btn-group { display: flex; justify-content: center; gap: 15px; margin-top: 50px; }
         .btn { 
             text-decoration: none; 
-            padding: 14px 28px; 
-            border-radius: 14px; 
+            padding: 16px 32px; 
+            border-radius: 18px; 
             font-weight: 700; 
             cursor: pointer; 
             border: none; 
-            font-size: 0.95em; 
+            font-size: 0.95rem; 
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
         .btn-back { background: #f1f5f9; color: #475569; }
-        .btn-back:hover { background: #e2e8f0; }
-        .btn-print { background: #0f172a; color: white; box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.3); }
-        .btn-print:hover { transform: translateY(-3px); background: #1e293b; }
+        .btn-back:hover { background: #e2e8f0; transform: translateX(-5px); }
+        .btn-print { background: #0f172a; color: white; box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.4); }
+        .btn-print:hover { transform: translateY(-3px); background: #1e293b; box-shadow: 0 15px 25px -5px rgba(15, 23, 42, 0.5); }
 
         .status-pill { 
-            font-size: 0.65em; font-weight: 800; text-transform: uppercase;
-            background: #dcfce7; color: #166534; padding: 6px 16px; 
-            border-radius: 100px; display: inline-flex; align-items: center; gap: 6px;
-            margin-bottom: 25px;
+            font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
+            background: #dcfce7; color: #166534; padding: 8px 20px; 
+            border-radius: 100px; display: inline-flex; align-items: center; gap: 8px;
+            margin-bottom: 30px; letter-spacing: 1px;
         }
-        .status-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
+        .status-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; }
     </style>
 </head>
 <body>
@@ -152,8 +169,8 @@
     <table>
         <thead>
             <tr>
-                <th width="38%">Periode Waktu</th>
-                <th width="62%">Personil Pelaksana</th>
+                <th width="40%">Periode Waktu</th>
+                <th width="60%">Personil Pelaksana</th>
             </tr>
         </thead>
         <tbody id="jadwal-body">
@@ -166,26 +183,34 @@
             Kembali
         </a>
         <button onclick="window.print()" class="btn btn-print">
-            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-            Export PDF
+            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Export to PDF
         </button>
     </div>
 </div>
 
 <script>
+    // Inisialisasi Supabase
     const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
     const _sb = supabase.createClient(SB_URL, SB_KEY);
 
+    const bodyTable = document.getElementById('jadwal-body');
+    const statusLabel = document.getElementById('save-status');
+
+    // Fungsi Load Data
     async function loadJadwal() {
         const { data, error } = await _sb.from('jadwal_mingguan').select('*').order('id', { ascending: true });
-        if (error) return;
+        
+        if (error) {
+            statusLabel.innerHTML = '<span class="status-dot" style="background:#ef4444"></span> Connection Error';
+            return;
+        }
 
-        document.getElementById('jadwal-body').innerHTML = data.map(item => `
+        bodyTable.innerHTML = data.map(item => `
             <tr>
                 <td>
-                    <div class="week-label">
-                        <span class="label-${item.id}"></span>
+                    <div class="week-label label-${item.id}">
                         ${item.minggu}
                     </div>
                 </td>
@@ -201,16 +226,19 @@
         `).join('');
     }
 
+    // Fungsi Update Data
     async function updateDatabase(id, val) {
-        const status = document.getElementById('save-status');
-        status.innerHTML = '<span class="status-dot" style="background:#f97316"></span> Saving...';
+        statusLabel.innerHTML = '<span class="status-dot" style="background:#f59e0b"></span> Saving...';
         
-        const { error } = await _sb.from('jadwal_mingguan').update({ nama_personil: val }).eq('id', id);
-        
-        if(!error) {
-            status.innerHTML = '<span class="status-dot"></span> Cloud Synced';
+        const { error } = await _sb
+            .from('jadwal_mingguan')
+            .update({ nama_personil: val })
+            .eq('id', id);
+
+        if (!error) {
+            statusLabel.innerHTML = '<span class="status-dot"></span> Cloud Synced';
         } else {
-            status.innerHTML = '<span class="status-dot" style="background:#ef4444"></span> Error';
+            statusLabel.innerHTML = '<span class="status-dot" style="background:#ef4444"></span> Sync Error';
         }
     }
 
