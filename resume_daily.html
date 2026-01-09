@@ -141,7 +141,6 @@
                         <canvas id="projectPieChart"></canvas>
                     </div>
                 </div>
-
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center">
@@ -326,7 +325,7 @@
 
         function openProjectAggregateModal() { 
             renderAggregateProjects(); 
-            renderProjectPieChart();
+            renderProjectPieChart(); 
             document.getElementById('projectAggregateModal').style.display = 'block'; 
         }
 
@@ -468,6 +467,7 @@
             let prog = row.progress_percent || 0;
             const progVal = (row.status === 'Done' ? 100 : prog);
             document.getElementById('det-progress-text').innerText = progVal + '%';
+            
             const progressBar = document.getElementById('det-progress-bar');
             progressBar.className = "progress-fill " + getProgressColor(progVal);
             progressBar.style.width = progVal + '%';
