@@ -27,7 +27,7 @@
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
         .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; transition: width 0.8s ease-out; }
+        .progress-fill { height: 100%; transition: width Day 0.8s ease-out; }
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -134,12 +134,17 @@
                 <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
             </div>
             <div class="p-8 max-h-[80vh] overflow-y-auto custom-scroll bg-slate-50 text-center">
+                
                 <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8 inline-block w-full max-w-[450px]">
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Total Progres Seluruh Project</h3>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Akumulasi Progres</h3>
+                        <span id="overall-prog-label" class="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100">0%</span>
+                    </div>
                     <div class="h-[250px] w-full relative">
                         <canvas id="projectPieChart"></canvas>
                     </div>
                 </div>
+
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center">
@@ -195,14 +200,8 @@
                         <div id="det-finish" class="text-[10px] font-bold text-slate-700"></div>
                     </div>
                 </div>
-                <div>
-                    <label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label>
-                    <div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div>
-                </div>
-                <div>
-                    <label class="text-[9px] font-black text-rose-500 uppercase">Keterangan (Hold/Pending Reason)</label>
-                    <div id="det-hold-reason" class="bg-rose-50 p-5 rounded-xl text-sm font-bold text-rose-700 border border-rose-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div>
-                </div>
+                <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div>
+                <div><label class="text-[9px] font-black text-rose-500 uppercase">Keterangan (Hold/Pending Reason)</label><div id="det-hold-reason" class="bg-rose-50 p-5 rounded-xl text-sm font-bold text-rose-700 border border-rose-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
         </div>
@@ -213,8 +212,9 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let rawData = [];
+        let filteredData = [];
         let projectChart = null;
-        let pieChartInstance = null;
+        let pieChartInstance = null; // Menjadikan global agar bisa di-destroy pas render ulang
 
         function formatDateTimeClean(str) {
             if (!str) return 'Belum Ada';
@@ -272,6 +272,7 @@
             const ctx = document.getElementById('projectPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
 
+            // LOGIKA: Hitung akumulasi rata-rata progres seluruh data
             let totalProg = 0;
             rawData.forEach(item => totalProg += parseInt(item.progress_percent || 0));
             const avgProgress = rawData.length > 0 ? Math.round(totalProg / rawData.length) : 0;
@@ -330,9 +331,10 @@
             if (filterUser) { filterUser.value = name; applyFilters(); filterUser.scrollIntoView({ behavior: 'smooth' }); }
         }
 
+        // FUNGSI UNTUK BUKA MODAL AGREGAT
         function openProjectAggregateModal() { 
             renderAggregateProjects(); 
-            renderProjectPieChart(); 
+            renderProjectPieChart();
             document.getElementById('projectAggregateModal').style.display = 'block'; 
         }
 
@@ -351,7 +353,15 @@
             container.innerHTML = Object.keys(projects).map(projName => {
                 const data = projects[projName];
                 const avgProgress = Math.round(data.totalProgress / data.count);
-                return `<div onclick="openProjectModal('${projName.replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm"><div class="flex justify-between items-start mb-4"><h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4><span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span></div><div class="progress-bg h-2 mb-4"><div class="progress-fill ${getProgressColor(avgProgress)}" style="width: ${avgProgress}%"></div></div><div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div></div>`;
+                // GUNAKAN replace UNTUK MENGHINDARI ERROR KUTIP PADA NAMA PROJECT
+                return `<div onclick="openProjectModal('${projName.replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4>
+                        <span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span>
+                    </div>
+                    <div class="progress-bg h-2 mb-4"><div class="progress-fill ${getProgressColor(avgProgress)}" style="width: ${avgProgress}%"></div></div>
+                    <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div>
+                </div>`;
             }).join('');
         }
 
