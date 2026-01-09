@@ -110,7 +110,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b border-slate-100">
+                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b">
                             <th class="px-6 py-5">Project / Tugas</th>
                             <th class="px-4 py-5 text-center">Personil</th>
                             <th class="px-4 py-5 text-center text-slate-800">Priority</th> 
@@ -129,15 +129,18 @@
             <div class="bg-blue-900 p-6 text-white flex justify-between items-center">
                 <div>
                     <h2 class="text-lg font-black uppercase tracking-tight">Review Semua Project Aggregated</h2>
-                    <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest">Akumulasi Status Seluruh Proyek</p>
+                    <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest">Akumulasi Progres Seluruh Project</p>
                 </div>
                 <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
             </div>
             <div class="p-8 max-h-[80vh] overflow-y-auto custom-scroll bg-slate-50 text-center">
                 
-                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8 inline-block w-full max-w-[500px]">
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Persentase Status Seluruh Project</h3>
-                    <div class="h-[300px] w-full relative">
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8 inline-block w-full max-w-[450px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Akumulasi Progres</h3>
+                        <span id="overall-prog-label" class="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100">0%</span>
+                    </div>
+                    <div class="h-[250px] w-full relative">
                         <canvas id="projectPieChart"></canvas>
                     </div>
                 </div>
@@ -207,6 +210,7 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let rawData = [];
+        let filteredData = [];
         let projectChart = null;
         let pieChartInstance = null;
 
@@ -266,40 +270,49 @@
             const ctx = document.getElementById('projectPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
 
-            const stats = { 'Done': 0, 'In Progress': 0, 'Pending': 0, 'Hold': 0 };
-            rawData.forEach(item => { if (stats.hasOwnProperty(item.status)) stats[item.status]++; });
+            // LOGIKA: Hitung akumulasi rata-rata progres seluruh data
+            let totalProg = 0;
+            rawData.forEach(item => totalProg += parseInt(item.progress_percent || 0));
+            const avgProgress = rawData.length > 0 ? Math.round(totalProg / rawData.length) : 0;
+            const remaining = 100 - avgProgress;
 
-            const dataValues = Object.values(stats);
-            const total = dataValues.reduce((a, b) => a + b, 0);
-            const labels = Object.keys(stats);
-            const colors = ['#10b981', '#3b82f6', '#f59e0b', '#f43f5e'];
+            document.getElementById('overall-prog-label').innerText = avgProgress + '%';
 
             pieChartInstance = new Chart(ctx, {
-                type: 'pie',
+                type: 'doughnut',
                 data: {
-                    labels: labels,
+                    labels: ['Selesai', 'Belum Selesai'],
                     datasets: [{
-                        data: dataValues,
-                        backgroundColor: colors,
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
+                        data: [avgProgress, remaining],
+                        backgroundColor: ['#10b981', '#f1f5f9'],
+                        borderWidth: 0,
+                        cutout: '75%'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 11, weight: 'bold' } } },
-                        datalabels: {
-                            color: '#fff',
-                            font: { weight: 'bold', size: 12 },
-                            formatter: (val) => {
-                                const perc = Math.round((val / total) * 100);
-                                return perc > 0 ? perc + "%" : "";
-                            }
-                        }
+                        legend: { display: false },
+                        datalabels: { display: false }
                     }
-                }
+                },
+                plugins: [{
+                    id: 'centerText',
+                    beforeDraw: function(chart) {
+                        var width = chart.width, height = chart.height, ctx = chart.ctx;
+                        ctx.restore();
+                        var fontSize = (height / 150).toFixed(2);
+                        ctx.font = "bold " + fontSize + "em sans-serif";
+                        ctx.textBaseline = "middle";
+                        ctx.fillStyle = "#1e293b";
+                        var text = avgProgress + "%",
+                            textX = Math.round((width - ctx.measureText(text).width) / 2),
+                            textY = height / 2;
+                        ctx.fillText(text, textX, textY);
+                        ctx.save();
+                    }
+                }]
             });
         }
 
@@ -310,7 +323,7 @@
 
         function openProjectAggregateModal() { 
             renderAggregateProjects(); 
-            renderProjectPieChart(); 
+            renderProjectPieChart();
             document.getElementById('projectAggregateModal').style.display = 'block'; 
         }
 
@@ -329,6 +342,7 @@
             container.innerHTML = Object.keys(projects).map(projName => {
                 const data = projects[projName];
                 const avgProgress = Math.round(data.totalProgress / data.count);
+                // GUNAKAN replace UNTUK MENGHINDARI ERROR KUTIP PADA NAMA PROJECT
                 return `<div onclick="openProjectModal('${projName.replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm"><div class="flex justify-between items-start mb-4"><h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4><span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span></div><div class="progress-bg h-2 mb-4"><div class="progress-fill ${getProgressColor(avgProgress)}" style="width: ${avgProgress}%"></div></div><div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div></div>`;
             }).join('');
         }
