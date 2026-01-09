@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Bebas Edit - Cloud Database</title>
+    <title>Jadwal Bebas Edit - Center Print</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
 
-        /* --- PENGATURAN KHUSUS PRINT (SOLUSI TERPOTONG) --- */
+        /* --- PENGATURAN KHUSUS PRINT (AGAR TENGAH & TIDAK TERPOTONG) --- */
         @page {
             size: A4 portrait;
-            margin: 0; /* Menghilangkan margin default browser */
+            margin: 15mm; /* Memberikan margin fisik pada kertas */
         }
 
         @media print {
@@ -19,30 +19,38 @@
                 background: white !important;
                 margin: 0;
                 padding: 0;
+                display: block;
             }
             .container {
                 box-shadow: none !important;
                 width: 100% !important;
                 max-width: 100% !important;
-                margin: 0 !important;
-                padding: 15mm !important; /* Margin dalam kertas */
+                margin: 0 auto !important; /* Memastikan posisi di tengah */
+                padding: 0 !important;
                 border: none !important;
             }
             .no-print { display: none !important; }
             
-            /* Memastikan input text tetap terlihat garisnya saat print */
+            /* Mengatur tabel agar memenuhi lebar kertas secara proporsional */
+            table {
+                width: 100% !important;
+                border-spacing: 0 8px !important;
+            }
+            
             .name-tag {
                 border: 1px solid #e2e8f0 !important;
-                background-color: transparent !important;
+                background-color: #f8fafc !important;
                 width: 95% !important;
+                print-color-adjust: exact; /* Memastikan warna muncul saat print */
+                -webkit-print-color-adjust: exact;
             }
         }
 
-        /* --- TAMPILAN LAYAR (UI) --- */
+        /* --- TAMPILAN LAYAR (BROWSER) --- */
         body { font-family: 'Inter', sans-serif; background: #f0f4f8; margin: 0; padding: 40px 20px; color: #2d3748; }
         
         .container { 
-            max-width: 800px; /* Diperlebar sedikit agar nyaman di layar */
+            max-width: 700px; /* Disesuaikan agar proporsional di layar */
             margin: 0 auto; 
             background: white; 
             padding: 40px; 
@@ -55,8 +63,8 @@
         .header p { color: #718096; font-size: 0.9em; margin-top: 5px; font-weight: 500; }
         
         table { width: 100%; border-collapse: separate; border-spacing: 0 12px; margin-top: 10px; table-layout: fixed; }
-        th { color: #a0aec0; text-transform: uppercase; font-size: 0.75em; padding: 10px; text-align: left; font-weight: 800; letter-spacing: 1px; }
-        td { padding: 12px 10px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+        th { color: #a0aec0; text-transform: uppercase; font-size: 0.75em; padding: 10px; text-align: left; font-weight: 800; }
+        td { padding: 5px 10px; vertical-align: middle; }
 
         .name-tag {
             font-weight: 700;
@@ -64,8 +72,8 @@
             padding: 12px 18px;
             border-radius: 12px;
             font-size: 0.95em;
-            width: 100%; /* Full width kontainer */
-            box-sizing: border-box; /* Agar padding tidak merusak lebar */
+            width: 100%;
+            box-sizing: border-box;
             outline: none;
             transition: all 0.2s ease;
             border: 2px solid transparent;
@@ -108,8 +116,8 @@
     <table>
         <thead>
             <tr>
-                <th width="30%">Periode Waktu</th>
-                <th width="70%">Personil Pelaksana</th>
+                <th width="35%">Periode Waktu</th>
+                <th width="65%">Personil Pelaksana</th>
             </tr>
         </thead>
         <tbody id="jadwal-body">
@@ -133,7 +141,7 @@
 
         document.getElementById('jadwal-body').innerHTML = data.map(item => `
             <tr>
-                <td><strong style="color:#1a365d">${item.minggu}</strong></td>
+                <td><strong style="color:#1a365d; font-size: 0.95em;">${item.minggu}</strong></td>
                 <td>
                     <div class="name-tag tag-${item.id}" 
                          contenteditable="true" 
