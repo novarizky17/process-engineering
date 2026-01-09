@@ -3,69 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Bebas Edit - Berwarna</title>
+    <title>Jadwal Bebas Edit - Cloud Database</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
 
-        @page { size: A4 portrait; margin: 10mm; }
-        @media print {
-            body { background: white !important; padding: 0; }
-            .no-print { display: none !important; }
-            .container { box-shadow: none !important; border: 1pt solid #ccc !important; width: 100% !important; max-width: none !important; margin: 0 !important; }
-            td, .name-tag { border: 1pt solid #cbd5e1 !important; }
+        /* --- PENGATURAN KHUSUS PRINT (SOLUSI TERPOTONG) --- */
+        @page {
+            size: A4 portrait;
+            margin: 0; /* Menghilangkan margin default browser */
         }
 
+        @media print {
+            body {
+                background: white !important;
+                margin: 0;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 15mm !important; /* Margin dalam kertas */
+                border: none !important;
+            }
+            .no-print { display: none !important; }
+            
+            /* Memastikan input text tetap terlihat garisnya saat print */
+            .name-tag {
+                border: 1px solid #e2e8f0 !important;
+                background-color: transparent !important;
+                width: 95% !important;
+            }
+        }
+
+        /* --- TAMPILAN LAYAR (UI) --- */
         body { font-family: 'Inter', sans-serif; background: #f0f4f8; margin: 0; padding: 40px 20px; color: #2d3748; }
-        .container { max-width: 650px; margin: 0 auto; background: white; padding: 40px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        
+        .container { 
+            max-width: 800px; /* Diperlebar sedikit agar nyaman di layar */
+            margin: 0 auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 24px; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); 
+        }
+
         .header { text-align: center; margin-bottom: 30px; }
         .header h1 { margin: 0; color: #1a365d; text-transform: uppercase; font-size: 1.8em; font-weight: 800; letter-spacing: 1px; }
         .header p { color: #718096; font-size: 0.9em; margin-top: 5px; font-weight: 500; }
         
-        table { width: 100%; border-collapse: separate; border-spacing: 0 12px; margin-top: 10px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 12px; margin-top: 10px; table-layout: fixed; }
         th { color: #a0aec0; text-transform: uppercase; font-size: 0.75em; padding: 10px; text-align: left; font-weight: 800; letter-spacing: 1px; }
-        td { padding: 12px 10px; vertical-align: middle; }
+        td { padding: 12px 10px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
 
-        /* Style Input Bebas Berwarna */
         .name-tag {
             font-weight: 700;
             display: block;
             padding: 12px 18px;
             border-radius: 12px;
             font-size: 0.95em;
-            width: 90%;
+            width: 100%; /* Full width kontainer */
+            box-sizing: border-box; /* Agar padding tidak merusak lebar */
             outline: none;
             transition: all 0.2s ease;
             border: 2px solid transparent;
-            min-height: 20px;
+            min-height: 45px;
         }
         
-        /* Variasi Warna Berdasarkan Minggu */
-        .tag-m1 { background-color: #ebf8ff; color: #2b6cb0; border-color: #bee3f8; } /* Biru */
-        .tag-m2 { background-color: #f0fff4; color: #2f855a; border-color: #c6f6d5; } /* Hijau */
-        .tag-m3 { background-color: #fffaf0; color: #c05621; border-color: #feebc8; } /* Orange */
-        .tag-m4 { background-color: #faf5ff; color: #6b46c1; border-color: #e9d8fd; } /* Ungu */
-        .tag-m5 { background-color: #f7fafc; color: #4a5568; border-color: #e2e8f0; } /* Abu-abu */
+        /* Variasi Warna Berdasarkan ID */
+        .tag-m1 { background-color: #ebf8ff; color: #2b6cb0; border-color: #bee3f8; }
+        .tag-m2 { background-color: #f0fff4; color: #2f855a; border-color: #c6f6d5; }
+        .tag-m3 { background-color: #fffaf0; color: #c05621; border-color: #feebc8; }
+        .tag-m4 { background-color: #faf5ff; color: #6b46c1; border-color: #e9d8fd; }
+        .tag-m5 { background-color: #f7fafc; color: #4a5568; border-color: #e2e8f0; }
 
-        .name-tag:focus {
-            background: #fff !important;
-            border-color: #3f51b5 !important;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            color: #1a365d !important;
-        }
-
-        .name-tag:empty::before {
-            content: "Klik untuk mengetik...";
-            color: #cbd5e1;
-            font-weight: 400;
-        }
+        .name-tag:focus { background: #fff !important; border-color: #3f51b5 !important; color: #1a365d !important; }
 
         .btn-group { display: flex; justify-content: center; gap: 12px; margin-top: 30px; }
         .btn { text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 0.9em; transition: 0.3s; }
         .btn-back { background: #edf2f7; color: #4a5568; }
-        .btn-back:hover { background: #e2e8f0; }
         .btn-print { background: #1a365d; color: white; }
-        .btn-print:hover { background: #2d3748; transform: translateY(-2px); }
 
         .status-online { 
             font-size: 0.7em; font-weight: 800; text-transform: uppercase;
@@ -89,8 +108,8 @@
     <table>
         <thead>
             <tr>
-                <th width="35%">Periode Waktu</th>
-                <th>Personil Pelaksana</th>
+                <th width="30%">Periode Waktu</th>
+                <th width="70%">Personil Pelaksana</th>
             </tr>
         </thead>
         <tbody id="jadwal-body">
@@ -99,7 +118,7 @@
 
     <div class="btn-group no-print">
         <a href="center.html" class="btn btn-back">← Kembali</a>
-        <button onclick="window.print()" class="btn btn-print">Print to PDF / Paper</button>
+        <button onclick="window.print()" class="btn btn-print">Print to PDF</button>
     </div>
 </div>
 
@@ -108,21 +127,13 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
     const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-    const bodyTable = document.getElementById('jadwal-body');
-    const statusLabel = document.getElementById('save-status');
-
     async function loadJadwal() {
         const { data, error } = await _sb.from('jadwal_mingguan').select('*').order('id', { ascending: true });
-        
-        if (error) {
-            statusLabel.innerText = "Connection Error";
-            statusLabel.style.background = "#fed7d7";
-            return;
-        }
+        if (error) return;
 
-        bodyTable.innerHTML = data.map(item => `
+        document.getElementById('jadwal-body').innerHTML = data.map(item => `
             <tr>
-                <td><strong style="color:#1a365d; font-size: 1.1em;">${item.minggu}</strong></td>
+                <td><strong style="color:#1a365d">${item.minggu}</strong></td>
                 <td>
                     <div class="name-tag tag-${item.id}" 
                          contenteditable="true" 
@@ -136,20 +147,11 @@
     }
 
     async function updateDatabase(id, val) {
-        statusLabel.innerText = "Syncing...";
-        
-        const { error } = await _sb
-            .from('jadwal_mingguan')
-            .update({ nama_personil: val })
-            .eq('id', id);
-
-        if (error) {
-            statusLabel.innerText = "Save Failed";
-            statusLabel.style.background = "#fed7d7";
-        } else {
-            statusLabel.innerText = "Cloud Synced";
-            statusLabel.style.background = "#c6f6d5";
-        }
+        const label = document.getElementById('save-status');
+        label.innerText = "Syncing...";
+        const { error } = await _sb.from('jadwal_mingguan').update({ nama_personil: val }).eq('id', id);
+        label.innerText = error ? "Save Failed" : "Cloud Synced";
+        label.style.background = error ? "#fed7d7" : "#c6f6d5";
     }
 
     window.onload = loadJadwal;
