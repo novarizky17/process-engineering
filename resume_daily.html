@@ -27,7 +27,7 @@
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
         .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; transition: width Day 0.8s ease-out; }
+        .progress-fill { height: 100%; transition: width 0.8s ease-out; }
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -261,12 +261,10 @@
             });
         }
 
-        // FUNGSI BARU: MENGHITUNG DAN MERENDER PIE CHART PROGRESS PROJECT TUNGGAL (Ditambahkan)
         function renderProjectPieChart() {
             const ctx = document.getElementById('projectPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
 
-            // Hitung rata-rata progres seluruh task
             let totalProg = 0;
             rawData.forEach(item => totalProg += parseInt(item.progress_percent || 0));
             const avgProgress = rawData.length > 0 ? Math.round(totalProg / rawData.length) : 0;
@@ -314,9 +312,10 @@
 
         function openProjectAggregateModal() { 
             renderAggregateProjects(); 
-            renderProjectPieChart(); // Panggil fungsi Pie Chart
+            renderProjectPieChart(); 
             document.getElementById('projectAggregateModal').style.display = 'block'; 
         }
+
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
         function renderAggregateProjects() {
@@ -396,9 +395,14 @@
             document.getElementById('det-task').innerText = row.task_desc || 'Belum ada deskripsi tugas.';
             document.getElementById('det-status').innerText = row.status || "PENDING";
             document.getElementById('det-start').innerText = formatDateTimeClean(row.start_date);
+            
+            // Perbaikan agar Laporan Aktivitas (worker_comment) Muncul
+            document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
+
             const finishValue = document.getElementById('det-finish');
             const finishLabel = finishValue.previousElementSibling;
             const finishBox = finishValue.parentElement;
+
             if (row.status === 'Done') {
                 finishBox.style.display = 'block';
                 finishLabel.innerText = "Finish Work";
@@ -406,6 +410,7 @@
             } else {
                 finishBox.style.display = 'none';
             }
+
             const overdueLabel = document.getElementById('det-overdue-label');
             if (row.due_date && row.status !== 'Done') {
                 const dueDate = new Date(row.due_date);
@@ -416,6 +421,7 @@
                     overdueLabel.classList.remove('hidden');
                 } else overdueLabel.classList.add('hidden');
             } else overdueLabel.classList.add('hidden');
+
             let prog = row.progress_percent || 0;
             const progVal = (row.status === 'Done' ? 100 : prog);
             document.getElementById('det-progress-text').innerText = progVal + '%';
