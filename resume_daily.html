@@ -380,16 +380,16 @@
             document.getElementById('det-start').innerText = formatDateTimeClean(row.start_date);
             document.getElementById('det-activity').innerText = row.worker_comment || "-";
 
-            // LOGIKA DINAMIS TANGGAL SELESAI
+            // LOGIKA DINAMIS TANGGAL SELESAI TANPA UBAH STRUKTUR
             const finishValue = document.getElementById('det-finish');
             const finishLabel = finishValue.previousElementSibling;
             const finishBox = finishValue.parentElement;
 
             if (row.status === 'Done') {
-                // Gunakan updated_at sebagai tanggal selesai aktual
                 finishBox.style.display = 'block';
                 finishLabel.innerText = "Finish Work";
-                finishValue.innerText = formatDateTimeClean(row.updated_at);
+                // Ambil tanggal aktual dari database
+                finishValue.innerText = formatDateTimeClean(row.actual_finish || row.work_end_time || row.due_date);
             } else {
                 finishBox.style.display = 'none';
             }
@@ -407,7 +407,12 @@
 
             let prog = row.progress_percent || 0;
             document.getElementById('det-progress-text').innerText = (row.status === 'Done' ? 100 : prog) + '%';
-            document.getElementById('det-progress-bar').style.width = (row.status === 'Done' ? 100 : prog) + '%';
+            
+            // Progress Bar Animation & Color
+            const progressBar = document.getElementById('det-progress-bar');
+            progressBar.className = "progress-fill " + getProgressColor(row.status === 'Done' ? 100 : prog);
+            progressBar.style.width = (row.status === 'Done' ? 100 : prog) + '%';
+
             document.getElementById('detailModal').style.display = 'block';
         }
 
