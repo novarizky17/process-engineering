@@ -110,7 +110,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b">
+                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b border-slate-100">
                             <th class="px-6 py-5">Project / Tugas</th>
                             <th class="px-4 py-5 text-center">Personil</th>
                             <th class="px-4 py-5 text-center text-slate-800">Priority</th> 
@@ -129,18 +129,19 @@
             <div class="bg-blue-900 p-6 text-white flex justify-between items-center">
                 <div>
                     <h2 class="text-lg font-black uppercase tracking-tight">Review Semua Project Aggregated</h2>
-                    <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest">Akumulasi Progres Seluruh Project</p>
+                    <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest">Akumulasi Status Seluruh Proyek</p>
                 </div>
                 <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
             </div>
             <div class="p-8 max-h-[80vh] overflow-y-auto custom-scroll bg-slate-50 text-center">
                 
-                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8 inline-block w-full max-w-[450px]">
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Total Progres Seluruh Project</h3>
-                    <div class="h-[250px] w-full relative">
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8 inline-block w-full max-w-[500px]">
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Persentase Status Seluruh Project</h3>
+                    <div class="h-[300px] w-full relative">
                         <canvas id="projectPieChart"></canvas>
                     </div>
                 </div>
+
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center">
@@ -156,7 +157,6 @@
                 <button onclick="closeProjectModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
             </div>
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll">
-                <div id="proj-modal-dates" class="hidden"></div>
                 <div id="proj-modal-list" class="space-y-4"></div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeProjectModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Detail</button></div>
@@ -207,7 +207,6 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let rawData = [];
-        let filteredData = [];
         let projectChart = null;
         let pieChartInstance = null;
 
@@ -267,54 +266,40 @@
             const ctx = document.getElementById('projectPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
 
-            let totalProg = 0;
-            rawData.forEach(item => totalProg += parseInt(item.progress_percent || 0));
-            const avgProgress = rawData.length > 0 ? Math.round(totalProg / rawData.length) : 0;
-            const remaining = 100 - avgProgress;
+            const stats = { 'Done': 0, 'In Progress': 0, 'Pending': 0, 'Hold': 0 };
+            rawData.forEach(item => { if (stats.hasOwnProperty(item.status)) stats[item.status]++; });
+
+            const dataValues = Object.values(stats);
+            const total = dataValues.reduce((a, b) => a + b, 0);
+            const labels = Object.keys(stats);
+            const colors = ['#10b981', '#3b82f6', '#f59e0b', '#f43f5e'];
 
             pieChartInstance = new Chart(ctx, {
-                type: 'doughnut',
+                type: 'pie',
                 data: {
-                    labels: ['Selesai', 'Belum Selesai'],
+                    labels: labels,
                     datasets: [{
-                        data: [avgProgress, remaining],
-                        backgroundColor: ['#10b981', '#f1f5f9'],
-                        borderWidth: 0,
-                        cutout: '75%'
+                        data: dataValues,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false },
+                        legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 11, weight: 'bold' } } },
                         datalabels: {
-                            display: true,
-                            color: '#1e293b',
-                            font: { weight: 'bold', size: 14 },
-                            formatter: (val, context) => {
-                                if (context.dataIndex === 0) return val + '%';
-                                return '';
+                            color: '#fff',
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (val) => {
+                                const perc = Math.round((val / total) * 100);
+                                return perc > 0 ? perc + "%" : "";
                             }
                         }
                     }
-                },
-                plugins: [{
-                    id: 'centerText',
-                    beforeDraw: function(chart) {
-                        var width = chart.width, height = chart.height, ctx = chart.ctx;
-                        ctx.restore();
-                        var fontSize = (height / 150).toFixed(2);
-                        ctx.font = "bold " + fontSize + "em sans-serif";
-                        ctx.textBaseline = "middle";
-                        ctx.fillStyle = "#1e293b";
-                        var text = avgProgress + "%",
-                            textX = Math.round((width - ctx.measureText(text).width) / 2),
-                            textY = height / 2;
-                        ctx.fillText(text, textX, textY);
-                        ctx.save();
-                    }
-                }]
+                }
             });
         }
 
@@ -436,8 +421,8 @@
             document.getElementById('det-priority').innerText = row.priority || "MID";
             document.getElementById('det-start').innerText = formatDateTimeClean(row.start_date);
             
-            // Perbaikan agar Laporan Aktivitas (worker_comment) Muncul
-            document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
+            // Keterangan Aktivitas / Comment
+            document.getElementById('det-activity').innerText = row.worker_comment || "-";
 
             const finishValue = document.getElementById('det-finish');
             const finishLabel = document.getElementById('finish-label');
@@ -467,7 +452,6 @@
             let prog = row.progress_percent || 0;
             const progVal = (row.status === 'Done' ? 100 : prog);
             document.getElementById('det-progress-text').innerText = progVal + '%';
-            
             const progressBar = document.getElementById('det-progress-bar');
             progressBar.className = "progress-fill " + getProgressColor(progVal);
             progressBar.style.width = progVal + '%';
