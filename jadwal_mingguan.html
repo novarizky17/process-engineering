@@ -3,86 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Bebas Edit - Full Color Print</title>
+    <title>Premium Weekly Schedule - Cloud</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
 
-        /* --- PENGATURAN PRINT AGAR TENGAH & BERWARNA --- */
-        @page {
-            size: A4 portrait;
-            margin: 15mm; /* Margin fisik kertas */
-        }
-
+        /* --- PRINT CONFIGURATION --- */
+        @page { size: A4 portrait; margin: 15mm; }
         @media print {
-            body {
-                background: white !important;
-                -webkit-print-color-adjust: exact !important; /* MEMAKSA WARNA MUNCUL DI CHROME/EDGE */
-                print-color-adjust: exact !important;         /* MEMAKSA WARNA MUNCUL */
-                margin: 0;
-                display: flex;
-                justify-content: center;
-            }
-            .container {
-                box-shadow: none !important;
-                width: 170mm !important; /* Lebar standar agar pas di tengah A4 */
-                margin: 0 auto !important;
-                padding: 0 !important;
-                border: none !important;
-            }
+            body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; display: block !important; }
+            .container { box-shadow: none !important; width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important; }
             .no-print { display: none !important; }
-            
-            /* Memastikan baris tabel memiliki jarak yang rapi saat diprint */
-            table {
-                width: 100% !important;
-                border-spacing: 0 10px !important;
-            }
-
-            .name-tag {
-                border: 1px solid #e2e8f0 !important;
-                width: 100% !important;
-            }
+            .name-tag { border: 1.5pt solid #eee !important; }
         }
 
-        /* --- TAMPILAN LAYAR --- */
-        body { font-family: 'Inter', sans-serif; background: #f0f4f8; margin: 0; padding: 40px 20px; color: #2d3748; }
-        .container { max-width: 700px; margin: 0 auto; background: white; padding: 40px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { margin: 0; color: #1a365d; text-transform: uppercase; font-size: 1.8em; font-weight: 800; }
+        /* --- UI DESIGN --- */
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: #f8fafc; 
+            background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
+            background-size: 24px 24px;
+            margin: 0; 
+            padding: 40px 20px; 
+            color: #0f172a;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container { 
+            width: 100%;
+            max-width: 750px; 
+            background: white; 
+            padding: 50px; 
+            border-radius: 32px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08); 
+            border: 1px solid #f1f5f9;
+        }
+
+        .header { text-align: center; margin-bottom: 45px; }
+        .header h1 { 
+            margin: 0; 
+            color: #1e293b; 
+            text-transform: uppercase; 
+            font-size: 2.2em; 
+            font-weight: 800; 
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+        .header p { 
+            color: #64748b; 
+            font-size: 1em; 
+            margin-top: 10px; 
+            font-weight: 600; 
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
         
-        table { width: 100%; border-collapse: separate; border-spacing: 0 12px; table-layout: fixed; }
-        th { color: #a0aec0; text-transform: uppercase; font-size: 0.75em; padding: 10px; text-align: left; font-weight: 800; }
-        td { padding: 5px 10px; vertical-align: middle; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 16px; table-layout: fixed; }
+        th { color: #94a3b8; text-transform: uppercase; font-size: 0.75em; padding: 0 10px; text-align: left; font-weight: 800; letter-spacing: 1.5px; }
+        td { padding: 0; vertical-align: middle; }
+
+        .week-label {
+            font-weight: 800;
+            color: #334155;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .week-label span {
+            width: 8px;
+            height: 24px;
+            border-radius: 4px;
+        }
 
         .name-tag {
             font-weight: 700;
             display: block;
-            padding: 12px 18px;
-            border-radius: 12px;
-            font-size: 0.95em;
+            padding: 16px 22px;
+            border-radius: 16px;
+            font-size: 1em;
             width: 100%;
             box-sizing: border-box;
             outline: none;
             border: 2px solid transparent;
-            min-height: 45px;
-            -webkit-print-color-adjust: exact; /* Memastikan warna tiap baris muncul */
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 56px;
+            -webkit-print-color-adjust: exact;
         }
         
-        /* WARNA TIAP MINGGU */
-        .tag-m1 { background-color: #ebf8ff !important; color: #2b6cb0 !important; border-color: #bee3f8 !important; }
-        .tag-m2 { background-color: #f0fff4 !important; color: #2f855a !important; border-color: #c6f6d5 !important; }
-        .tag-m3 { background-color: #fffaf0 !important; color: #c05621 !important; border-color: #feebc8 !important; }
-        .tag-m4 { background-color: #faf5ff !important; color: #6b46c1 !important; border-color: #e9d8fd !important; }
-        .tag-m5 { background-color: #f7fafc !important; color: #4a5568 !important; border-color: #e2e8f0 !important; }
+        /* MODERN COLOR PALETTE */
+        .tag-m1 { background: #f0f9ff; color: #0369a1; border-color: #e0f2fe; } .label-m1 { background: #0ea5e9; }
+        .tag-m2 { background: #f0fdf4; color: #15803d; border-color: #dcfce7; } .label-m2 { background: #22c55e; }
+        .tag-m3 { background: #fffaf0; color: #9a3412; border-color: #ffedd5; } .label-m3 { background: #f97316; }
+        .tag-m4 { background: #faf5ff; color: #6d28d9; border-color: #f3e8ff; } .label-m4 { background: #a855f7; }
+        .tag-m5 { background: #f8fafc; color: #334155; border-color: #f1f5f9; } .label-m5 { background: #64748b; }
 
-        .name-tag:focus { background: #fff !important; border-color: #3f51b5 !important; color: #1a365d !important; }
+        .name-tag:focus { 
+            background: #fff !important; 
+            border-color: #6366f1 !important; 
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2); 
+            color: #1e293b !important;
+            transform: scale(1.02);
+        }
 
-        .btn-group { display: flex; justify-content: center; gap: 12px; margin-top: 30px; }
-        .btn { text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 0.9em; }
-        .btn-back { background: #edf2f7; color: #4a5568; }
-        .btn-print { background: #1a365d; color: white; }
+        .btn-group { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
+        .btn { 
+            text-decoration: none; 
+            padding: 14px 28px; 
+            border-radius: 14px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            border: none; 
+            font-size: 0.95em; 
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-back { background: #f1f5f9; color: #475569; }
+        .btn-back:hover { background: #e2e8f0; }
+        .btn-print { background: #0f172a; color: white; box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.3); }
+        .btn-print:hover { transform: translateY(-3px); background: #1e293b; }
 
-        .status-online { font-size: 0.7em; font-weight: 800; background: #c6f6d5; color: #22543d; padding: 6px 14px; border-radius: 50px; display: inline-block; margin-bottom: 20px; }
+        .status-pill { 
+            font-size: 0.65em; font-weight: 800; text-transform: uppercase;
+            background: #dcfce7; color: #166534; padding: 6px 16px; 
+            border-radius: 100px; display: inline-flex; align-items: center; gap: 6px;
+            margin-bottom: 25px;
+        }
+        .status-dot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
     </style>
 </head>
 <body>
@@ -90,18 +140,20 @@
 <div class="container">
     <div class="header">
         <h1>Maintenance Schedule</h1>
-        <p style="color: #718096; font-size: 0.9em;">Tooling Support Monitoring System</p>
+        <p>Tooling Support System</p>
     </div>
 
     <div class="no-print" style="text-align: center;">
-        <span id="save-status" class="status-online">Cloud Connected</span>
+        <div id="save-status" class="status-pill">
+            <span class="status-dot"></span> Cloud Connected
+        </div>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th width="35%">Periode Waktu</th>
-                <th width="65%">Personil Pelaksana</th>
+                <th width="38%">Periode Waktu</th>
+                <th width="62%">Personil Pelaksana</th>
             </tr>
         </thead>
         <tbody id="jadwal-body">
@@ -109,8 +161,14 @@
     </table>
 
     <div class="btn-group no-print">
-        <a href="center.html" class="btn btn-back">← Kembali</a>
-        <button onclick="window.print()" class="btn btn-print">Print to PDF</button>
+        <a href="center.html" class="btn btn-back">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Kembali
+        </a>
+        <button onclick="window.print()" class="btn btn-print">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            Export PDF
+        </button>
     </div>
 </div>
 
@@ -125,7 +183,12 @@
 
         document.getElementById('jadwal-body').innerHTML = data.map(item => `
             <tr>
-                <td><strong style="color:#1a365d; font-size: 0.95em;">${item.minggu}</strong></td>
+                <td>
+                    <div class="week-label">
+                        <span class="label-${item.id}"></span>
+                        ${item.minggu}
+                    </div>
+                </td>
                 <td>
                     <div class="name-tag tag-${item.id}" 
                          contenteditable="true" 
@@ -139,11 +202,16 @@
     }
 
     async function updateDatabase(id, val) {
-        const label = document.getElementById('save-status');
-        label.innerText = "Syncing...";
+        const status = document.getElementById('save-status');
+        status.innerHTML = '<span class="status-dot" style="background:#f97316"></span> Saving...';
+        
         const { error } = await _sb.from('jadwal_mingguan').update({ nama_personil: val }).eq('id', id);
-        label.innerText = error ? "Save Failed" : "Cloud Synced";
-        label.style.background = error ? "#fed7d7" : "#c6f6d5";
+        
+        if(!error) {
+            status.innerHTML = '<span class="status-dot"></span> Cloud Synced';
+        } else {
+            status.innerHTML = '<span class="status-dot" style="background:#ef4444"></span> Error';
+        }
     }
 
     window.onload = loadJadwal;
