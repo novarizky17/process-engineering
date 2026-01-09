@@ -138,6 +138,7 @@
                     <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Volume Penugasan Per Project Utama</h3>
                     <div class="h-[300px] w-full max-w-[500px]"><canvas id="projectPieChart"></canvas></div>
                 </div>
+
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center">
@@ -203,7 +204,7 @@
         let rawData = [];
         let filteredData = [];
         let projectChart = null;
-        let pieChartInstance = null;
+        let projectPieChart = null;
 
         function formatDateTimeClean(str) {
             if (!str) return 'Belum Ada';
@@ -249,6 +250,7 @@
                 if(type === 'person') return rawData.filter(r => r.assigned_to === n).length;
                 return rawData.filter(r => r.assigned_to === n && r.status === type).length;
             });
+            
             projectChart = new Chart(ctx, {
                 type: 'bar',
                 data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: colors, borderRadius: 8 }] },
@@ -257,12 +259,13 @@
             });
         }
 
+        // FUNGSI DIAGRAM PIE PROJECT UTAMA
         function renderProjectPieChart() {
             const ctx = document.getElementById('projectPieChart').getContext('2d');
-            if (pieChartInstance) pieChartInstance.destroy();
+            if (projectPieChart) projectPieChart.destroy();
             const dist = {};
             rawData.forEach(item => { const name = (item.project_name || "LAINNYA").toUpperCase(); dist[name] = (dist[name] || 0) + 1; });
-            pieChartInstance = new Chart(ctx, {
+            projectPieChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
                     labels: Object.keys(dist),
@@ -274,25 +277,34 @@
 
         function selectPerson(name) {
             const filterUser = document.getElementById('filter-user');
-            if (filterUser) { filterUser.value = name; applyFilters(); filterUser.scrollIntoView({ behavior: 'smooth' }); }
+            if (filterUser) {
+                filterUser.value = name;
+                applyFilters();
+                filterUser.scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
-        function openProjectAggregateModal() { renderAggregateProjects(); renderProjectPieChart(); document.getElementById('projectAggregateModal').style.display = 'block'; }
+        function openProjectAggregateModal() { 
+            renderAggregateProjects(); 
+            renderProjectPieChart();
+            document.getElementById('projectAggregateModal').style.display = 'block'; 
+        }
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
         function renderAggregateProjects() {
             const projects = {};
             rawData.forEach(item => {
                 const name = (item.project_name || "Tanpa Nama").toUpperCase();
-                if (!projects[name]) projects[name] = { totalProgress: 0, count: 0 };
+                if (!projects[name]) projects[name] = { totalProgress: 0, count: 0, tasks: [] };
                 projects[name].totalProgress += parseInt(item.progress_percent || 0);
                 projects[name].count += 1;
+                projects[name].tasks.push(item);
             });
             const container = document.getElementById('modal-project-list');
             container.innerHTML = Object.keys(projects).map(projName => {
                 const data = projects[projName];
                 const avgProgress = Math.round(data.totalProgress / data.count);
-                return `<div onclick="openProjectModal('${projName.replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm">
+                return `<div onclick='openProjectModal("${projName}")' class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm">
                     <div class="flex justify-between items-start mb-4">
                         <h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4>
                         <span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span>
@@ -303,26 +315,20 @@
             }).join('');
         }
 
+        function getProjectDateRange(tasks) {
+            let dates = [];
+            tasks.forEach(t => { if (t.start_date) dates.push(new Date(t.start_date)); if (t.due_date) dates.push(new Date(t.due_date)); });
+            if (dates.length === 0) return { start: "-", finish: "-" };
+            const sorted = dates.sort((a, b) => a - b);
+            const opt = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            return { start: sorted[0].toLocaleDateString('id-ID', opt), finish: sorted[sorted.length - 1].toLocaleDateString('id-ID', opt) };
+        }
+
         function openProjectModal(projName) {
             document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
-            
-            // Perbaikan rentang tanggal
-            let minDate = null, maxDate = null;
-            tasks.forEach(t => {
-                if(t.start_date) { const d = new Date(t.start_date); if(!minDate || d < minDate) minDate = d; }
-                if(t.due_date) { const d = new Date(t.due_date); if(!maxDate || d > maxDate) maxDate = d; }
-            });
-            document.getElementById('proj-modal-dates').innerHTML = `
-                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center shadow-sm">
-                    <p class="text-[9px] font-black text-blue-400 uppercase">Start</p>
-                    <p class="text-xs font-black text-blue-700">${minDate ? minDate.toLocaleDateString('id-ID') : '-'}</p>
-                </div>
-                <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center shadow-sm">
-                    <p class="text-[9px] font-black text-emerald-400 uppercase">Due</p>
-                    <p class="text-xs font-black text-emerald-700">${maxDate ? maxDate.toLocaleDateString('id-ID') : '-'}</p>
-                </div>`;
-
+            const range = getProjectDateRange(tasks);
+            document.getElementById('proj-modal-dates').innerHTML = `<div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center shadow-sm"><p class="text-[9px] font-black text-blue-400 uppercase">Start</p><p class="text-xs font-black text-blue-700">${range.start}</p></div><div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center shadow-sm"><p class="text-[9px] font-black text-emerald-400 uppercase">Due</p><p class="text-xs font-black text-emerald-700">${range.finish}</p></div>`;
             const container = document.getElementById('proj-modal-list');
             container.innerHTML = tasks.map(t => `
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -369,7 +375,22 @@
             tbody.innerHTML = data.map(row => {
                 const pClass = row.priority === 'High' ? 'text-red-600 border-red-200' : (row.priority === 'Low' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
                 const sClass = row.status === 'Done' ? 'text-emerald-600 border-emerald-200' : (row.status === 'Pending' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
-                return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold"><td class="px-6 py-5 uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div></td><td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td><td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${pClass}">${row.priority || 'Mid'}</span></td><td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${sClass}">${row.status}</span></td><td class="px-6 py-5 text-center"><button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button></td></tr>`;
+
+                return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold">
+                    <td class="px-6 py-5 uppercase text-slate-800">${row.project_name}
+                        <div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div>
+                    </td>
+                    <td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td>
+                    <td class="px-4 py-5 text-center">
+                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${pClass}">${row.priority || 'Mid'}</span>
+                    </td>
+                    <td class="px-4 py-5 text-center">
+                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${sClass}">${row.status}</span>
+                    </td>
+                    <td class="px-6 py-5 text-center">
+                        <button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button>
+                    </td>
+                </tr>`;
             }).join('');
         }
 
@@ -390,9 +411,12 @@
             document.getElementById('det-task').innerText = row.task_desc || 'Belum ada deskripsi tugas.';
             document.getElementById('det-status').innerText = row.status || "PENDING";
             document.getElementById('det-start').innerText = formatDateTimeClean(row.start_date);
+            document.getElementById('det-activity').innerText = row.worker_comment || "-";
+
             const finishValue = document.getElementById('det-finish');
             const finishLabel = finishValue.previousElementSibling;
             const finishBox = finishValue.parentElement;
+
             if (row.status === 'Done') {
                 finishBox.style.display = 'block';
                 finishLabel.innerText = "Finish Work";
@@ -400,6 +424,7 @@
             } else {
                 finishBox.style.display = 'none';
             }
+
             const overdueLabel = document.getElementById('det-overdue-label');
             if (row.due_date && row.status !== 'Done') {
                 const dueDate = new Date(row.due_date);
@@ -410,12 +435,15 @@
                     overdueLabel.classList.remove('hidden');
                 } else overdueLabel.classList.add('hidden');
             } else overdueLabel.classList.add('hidden');
+
             let prog = row.progress_percent || 0;
             const progVal = (row.status === 'Done' ? 100 : prog);
             document.getElementById('det-progress-text').innerText = progVal + '%';
+            
             const progressBar = document.getElementById('det-progress-bar');
             progressBar.className = "progress-fill " + getProgressColor(progVal);
             progressBar.style.width = progVal + '%';
+
             document.getElementById('detailModal').style.display = 'block';
         }
 
@@ -434,7 +462,13 @@
             XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
         }
 
-        window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); document.getElementById('projectDetailModal').style.display = 'none'; document.getElementById('projectAggregateModal').style.display = 'none'; } };
+        window.onclick = function(e) { 
+            if(e.target.className === 'modal') { 
+                closeModal(); 
+                document.getElementById('projectDetailModal').style.display = 'none';
+                document.getElementById('projectAggregateModal').style.display = 'none';
+            } 
+        };
         window.onload = fetchAllData;
     </script>
 </body>
