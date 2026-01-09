@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Maintenance Schedule</title>
+    <title>Maintenance Schedule - Tooling Support</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -14,7 +14,7 @@
             body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; display: block !important; padding: 0; }
             .container { box-shadow: none !important; width: 100% !important; margin: 0 !important; padding: 0 !important; border: none !important; }
             .no-print { display: none !important; }
-            .name-tag { border: 1px solid #f1f5f9 !important; }
+            .name-tag { border: 1px solid #f1f5f9 !important; background: #f8fafc !important; }
             .week-label { padding-left: 0 !important; }
         }
 
@@ -37,33 +37,19 @@
             background: white; 
             padding: 50px; 
             border-radius: 35px; 
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02); 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); 
             border: 1px solid #f1f5f9;
         }
 
         .header { text-align: center; margin-bottom: 50px; }
-        .header h1 { 
-            margin: 0; 
-            color: #0f172a; 
-            text-transform: uppercase; 
-            font-size: 2.2rem; 
-            font-weight: 800; 
-            letter-spacing: -1px;
-        }
-        .header p { 
-            color: #64748b; 
-            font-size: 0.95rem; 
-            margin-top: 8px; 
-            font-weight: 600; 
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
+        .header h1 { margin: 0; color: #0f172a; text-transform: uppercase; font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; }
+        .header p { color: #64748b; font-size: 0.95rem; margin-top: 8px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; }
         
         table { width: 100%; border-collapse: separate; border-spacing: 0 20px; table-layout: fixed; }
         th { color: #94a3b8; text-transform: uppercase; font-size: 0.75rem; padding: 0 15px; text-align: left; font-weight: 800; letter-spacing: 1.5px; }
         td { padding: 0; vertical-align: middle; }
 
-        /* --- GAYA PERIODE WAKTU (BARU) --- */
+        /* --- WEEK LABEL DESIGN --- */
         .week-label {
             font-weight: 800;
             color: #334155;
@@ -72,26 +58,17 @@
             align-items: center;
             gap: 18px;
             padding-left: 15px;
+            transition: all 0.3s ease;
         }
+        .week-label::before { content: ''; width: 6px; height: 32px; border-radius: 10px; display: inline-block; }
 
-        /* Indikator Bar Vertikal */
-        .week-label::before {
-            content: '';
-            width: 6px;
-            height: 32px;
-            border-radius: 10px;
-            display: inline-block;
-            transition: transform 0.3s ease;
-        }
-
-        /* Warna khusus untuk setiap baris */
         .label-m1::before { background: #0ea5e9; box-shadow: 0 0 12px rgba(14, 165, 233, 0.4); }
         .label-m2::before { background: #22c55e; box-shadow: 0 0 12px rgba(34, 197, 94, 0.4); }
         .label-m3::before { background: #f59e0b; box-shadow: 0 0 12px rgba(245, 158, 11, 0.4); }
         .label-m4::before { background: #a855f7; box-shadow: 0 0 12px rgba(168, 85, 247, 0.4); }
         .label-m5::before { background: #64748b; box-shadow: 0 0 12px rgba(100, 116, 139, 0.4); }
 
-        /* --- GAYA INPUT NAMA --- */
+        /* --- NAME TAG (EDITABLE) --- */
         .name-tag {
             font-weight: 700;
             display: block;
@@ -102,53 +79,34 @@
             box-sizing: border-box;
             outline: none;
             border: 2px solid transparent;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             min-height: 60px;
             -webkit-print-color-adjust: exact;
         }
-        
         .tag-m1 { background: #f0f9ff; color: #0369a1; border-color: #e0f2fe; }
         .tag-m2 { background: #f0fdf4; color: #15803d; border-color: #dcfce7; }
         .tag-m3 { background: #fffbeb; color: #92400e; border-color: #fef3c7; }
         .tag-m4 { background: #faf5ff; color: #6d28d9; border-color: #f3e8ff; }
         .tag-m5 { background: #f8fafc; color: #334155; border-color: #f1f5f9; }
 
-        .name-tag:focus { 
-            background: #ffffff !important; 
-            border-color: #6366f1 !important; 
-            box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.3); 
-            color: #0f172a !important;
-            transform: translateX(10px);
+        .name-tag:focus { background: #ffffff !important; border-color: #6366f1 !important; box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.3); color: #0f172a !important; transform: translateX(10px); }
+
+        /* --- MODAL POP-UP --- */
+        .modal-bg { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { 
+            background: white; width: 90%; max-width: 450px; border-radius: 30px; overflow: hidden; 
+            animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
         }
+        @keyframes modalIn { from { transform: scale(0.9) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
 
-        .name-tag:empty::before { content: "Ketik nama pelaksana..."; color: #cbd5e1; font-weight: 500; }
-
-        /* --- BUTTONS & STATUS --- */
+        /* --- HELPERS --- */
+        .cursor-pointer { cursor: pointer; }
         .btn-group { display: flex; justify-content: center; gap: 15px; margin-top: 50px; }
-        .btn { 
-            text-decoration: none; 
-            padding: 16px 32px; 
-            border-radius: 18px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            border: none; 
-            font-size: 0.95rem; 
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .btn { text-decoration: none; padding: 16px 32px; border-radius: 18px; font-weight: 700; cursor: pointer; border: none; font-size: 0.95rem; transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; }
         .btn-back { background: #f1f5f9; color: #475569; }
-        .btn-back:hover { background: #e2e8f0; transform: translateX(-5px); }
-        .btn-print { background: #0f172a; color: white; box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.4); }
-        .btn-print:hover { transform: translateY(-3px); background: #1e293b; box-shadow: 0 15px 25px -5px rgba(15, 23, 42, 0.5); }
-
-        .status-pill { 
-            font-size: 0.7rem; font-weight: 800; text-transform: uppercase;
-            background: #dcfce7; color: #166534; padding: 8px 20px; 
-            border-radius: 100px; display: inline-flex; align-items: center; gap: 8px;
-            margin-bottom: 30px; letter-spacing: 1px;
-        }
+        .btn-print { background: #0f172a; color: white; }
+        .status-pill { font-size: 0.7rem; font-weight: 800; background: #dcfce7; color: #166534; padding: 8px 20px; border-radius: 100px; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 30px; }
         .status-dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; }
     </style>
 </head>
@@ -162,7 +120,7 @@
 
     <div class="no-print" style="text-align: center;">
         <div id="save-status" class="status-pill">
-            <span class="status-dot"></span> Cloud Connected
+            <span id="status-dot" class="status-dot"></span> <span id="status-text">Cloud Connected</span>
         </div>
     </div>
 
@@ -184,33 +142,57 @@
         </a>
         <button onclick="window.print()" class="btn btn-print">
             <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            Export to PDF
+            Export PDF
         </button>
     </div>
 </div>
 
+<div id="weeklyModal" class="modal-bg">
+    <div class="modal-content">
+        <div id="modalHeader" class="p-8 text-white flex justify-between items-center">
+            <h2 id="modalTitle" class="text-xl font-extrabold uppercase tracking-tight">Detail Jadwal</h2>
+            <button onclick="closeWeeklyModal()" class="text-2xl font-bold leading-none">&times;</button>
+        </div>
+        <div class="p-8 space-y-5">
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tugas Utama</label>
+                <p id="modalTask" class="text-sm font-bold text-slate-700 mt-2">Pengecekan rutin Tooling Support sesuai standar operasional PT. AKG.</p>
+            </div>
+            <div class="bg-emerald-50 p-5 rounded-2xl border border-emerald-100 flex items-center justify-between">
+                <div>
+                    <label class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Status</label>
+                    <p class="text-xs font-black text-emerald-700 mt-1 uppercase">✓ Aktif & Terjadwal</p>
+                </div>
+                <div class="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+            </div>
+        </div>
+        <div class="p-6 bg-slate-50 flex justify-center">
+            <button onclick="closeWeeklyModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-xl">Tutup</button>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Inisialisasi Supabase
+    // Supabase Configuration
     const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
     const _sb = supabase.createClient(SB_URL, SB_KEY);
 
     const bodyTable = document.getElementById('jadwal-body');
-    const statusLabel = document.getElementById('save-status');
+    const statusText = document.getElementById('status-text');
+    const statusDot = document.getElementById('status-dot');
 
-    // Fungsi Load Data
     async function loadJadwal() {
         const { data, error } = await _sb.from('jadwal_mingguan').select('*').order('id', { ascending: true });
-        
-        if (error) {
-            statusLabel.innerHTML = '<span class="status-dot" style="background:#ef4444"></span> Connection Error';
-            return;
-        }
+        if (error) return;
 
         bodyTable.innerHTML = data.map(item => `
             <tr>
                 <td>
-                    <div class="week-label label-${item.id}">
+                    <div class="week-label label-${item.id} cursor-pointer hover:opacity-70" 
+                         onclick="openWeeklyDetail('${item.id}', '${item.minggu}')">
                         ${item.minggu}
                     </div>
                 </td>
@@ -226,20 +208,37 @@
         `).join('');
     }
 
-    // Fungsi Update Data
     async function updateDatabase(id, val) {
-        statusLabel.innerHTML = '<span class="status-dot" style="background:#f59e0b"></span> Saving...';
+        statusText.innerText = "Saving...";
+        statusDot.style.background = "#f59e0b";
         
-        const { error } = await _sb
-            .from('jadwal_mingguan')
-            .update({ nama_personil: val })
-            .eq('id', id);
-
+        const { error } = await _sb.from('jadwal_mingguan').update({ nama_personil: val }).eq('id', id);
+        
         if (!error) {
-            statusLabel.innerHTML = '<span class="status-dot"></span> Cloud Synced';
+            statusText.innerText = "Cloud Synced";
+            statusDot.style.background = "#22c55e";
         } else {
-            statusLabel.innerHTML = '<span class="status-dot" style="background:#ef4444"></span> Sync Error';
+            statusText.innerText = "Error Saving";
+            statusDot.style.background = "#ef4444";
         }
+    }
+
+    // Modal Logic
+    function openWeeklyDetail(id, minggu) {
+        const colors = { 'm1': '#0ea5e9', 'm2': '#22c55e', 'm3': '#f59e0b', 'm4': '#a855f7', 'm5': '#64748b' };
+        document.getElementById('modalTitle').innerText = `Detail ${minggu}`;
+        document.getElementById('modalHeader').style.backgroundColor = colors[id];
+        document.getElementById('weeklyModal').style.display = 'flex';
+    }
+
+    function closeWeeklyModal() {
+        document.getElementById('weeklyModal').style.display = 'none';
+    }
+
+    // Close modal if user clicks background
+    window.onclick = function(event) {
+        const modal = document.getElementById('weeklyModal');
+        if (event.target == modal) closeWeeklyModal();
     }
 
     window.onload = loadJadwal;
