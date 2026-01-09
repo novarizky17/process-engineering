@@ -129,18 +129,36 @@
             <div class="bg-blue-900 p-6 text-white flex justify-between items-center">
                 <div>
                     <h2 class="text-lg font-black uppercase tracking-tight">Review Semua Project Aggregated</h2>
-                    <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest">Penyebaran Bobot Tugas Per Project Utama</p>
+                    <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest">Daftar Lengkap Capaian Proyek Aktif</p>
                 </div>
                 <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
             </div>
             <div class="p-8 max-h-[75vh] overflow-y-auto custom-scroll bg-slate-50">
-                
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-200 mb-8 flex flex-col items-center">
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Volume Penugasan Per Project Utama</h3>
-                    <div class="h-[280px] w-full max-w-[500px]"><canvas id="projectPieChart"></canvas></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 items-center bg-white p-6 rounded-[2rem] shadow-sm border border-slate-200">
+                    <div class="md:col-span-1 h-[250px] flex items-center justify-center">
+                        <canvas id="overallPieChart"></canvas>
+                    </div>
+                    <div class="md:col-span-2 grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                            <p class="text-[10px] font-black text-slate-400 uppercase">Total Keseluruhan Task</p>
+                            <h4 id="pie-total-task" class="text-2xl font-black text-slate-800">0</h4>
+                        </div>
+                        <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                            <p class="text-[10px] font-black text-emerald-600 uppercase text-opacity-70">Task Selesai</p>
+                            <h4 id="pie-done-task" class="text-2xl font-black text-emerald-600">0</h4>
+                        </div>
+                        <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                            <p class="text-[10px] font-black text-blue-600 uppercase text-opacity-70">Dalam Proses</p>
+                            <h4 id="pie-process-task" class="text-2xl font-black text-blue-600">0</h4>
+                        </div>
+                        <div class="p-4 bg-rose-50 rounded-2xl border border-rose-100">
+                            <p class="text-[10px] font-black text-rose-600 uppercase text-opacity-70">Overdue / Delayed</p>
+                            <h4 id="pie-overdue-task" class="text-2xl font-black text-rose-600">0</h4>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center">
                 <button onclick="closeProjectAggregateModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Review</button>
@@ -148,16 +166,64 @@
         </div>
     </div>
 
-    <div id="projectDetailModal" class="modal"><div class="modal-content shadow-2xl" style="max-width: 850px;"><div class="bg-blue-800 p-6 text-white flex justify-between items-center"><div><h2 id="proj-modal-title" class="text-lg font-black uppercase tracking-tight"></h2><p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest">Detail Pekerjaan Terintegrasi</p></div><button onclick="closeProjectModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button></div><div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll"><div id="proj-modal-dates" class="grid grid-cols-2 gap-4 mb-2"></div><div id="proj-modal-list" class="space-y-4"></div></div><div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeProjectModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Detail</button></div></div></div>
-    <div id="detailModal" class="modal"><div class="modal-content shadow-2xl" style="max-width: 750px;"><div class="bg-slate-900 p-6 text-white flex justify-between items-center border-b border-slate-800"><div><h2 class="text-lg font-black uppercase flex items-center gap-3">Review Task <span id="det-overdue-label" class="hidden bg-rose-600 text-white text-[10px] px-2 py-0.5 rounded animate-pulse font-black"></span></h2><p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p></div><button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl ml-4">&times;</button></div><div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto text-sm"><div class="bg-slate-50 p-5 rounded-2xl border border-slate-100"><div class="flex justify-between items-center mb-2"><label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Capaian Progres Proyek</label><span id="det-progress-text" class="text-sm font-black text-blue-600">0%</span></div><div class="progress-bg"><div id="det-progress-bar" class="progress-fill" style="width: 0%"></div></div></div><div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center"><div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Personil</label><p id="det-pic" class="text-sm font-black text-slate-800"></p></div><div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Priority</label><p id="det-priority" class="text-[11px] font-black uppercase"></p></div><div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Status</label><p id="det-status" class="text-[11px] font-black uppercase"></p></div></div><div><label class="text-[9px] font-black text-slate-400 uppercase">Deskripsi Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap min-h-[40px]"></p></div><div class="grid grid-cols-2 gap-4"><div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div><div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Plan Finish (Due Date)</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div></div><div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div></div><div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div></div></div>
+    <div id="projectDetailModal" class="modal">
+        <div class="modal-content shadow-2xl" style="max-width: 850px;">
+            <div class="bg-blue-800 p-6 text-white flex justify-between items-center">
+                <div><h2 id="proj-modal-title" class="text-lg font-black uppercase tracking-tight"></h2><p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest">Detail Pekerjaan Terintegrasi</p></div>
+                <button onclick="closeProjectModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
+            </div>
+            <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll">
+                <div id="proj-modal-dates" class="grid grid-cols-2 gap-4 mb-2"></div>
+                <div id="proj-modal-list" class="space-y-4"></div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeProjectModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Detail</button></div>
+        </div>
+    </div>
+
+    <div id="detailModal" class="modal">
+        <div class="modal-content shadow-2xl" style="max-width: 750px;">
+            <div class="bg-slate-900 p-6 text-white flex justify-between items-center border-b border-slate-800">
+                <div>
+                    <h2 class="text-lg font-black uppercase flex items-center gap-3">
+                        Review Task 
+                        <span id="det-overdue-label" class="hidden bg-rose-600 text-white text-[10px] px-2 py-0.5 rounded animate-pulse font-black"></span>
+                    </h2>
+                    <p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p>
+                </div>
+                <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl ml-4">&times;</button>
+            </div>
+            <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto text-sm">
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Capaian Progres Proyek</label>
+                        <span id="det-progress-text" class="text-sm font-black text-blue-600">0%</span>
+                    </div>
+                    <div class="progress-bg"><div id="det-progress-bar" class="progress-fill" style="width: 0%"></div></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Personil</label><p id="det-pic" class="text-sm font-black text-slate-800"></p></div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Priority</label><p id="det-priority" class="text-[11px] font-black uppercase"></p></div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Status</label><p id="det-status" class="text-[11px] font-black uppercase"></p></div>
+                </div>
+                <div><label class="text-[9px] font-black text-slate-400 uppercase">Deskripsi Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap min-h-[40px]"></p></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
+                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Plan Finish (Due Date)</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
+                </div>
+                <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
+        </div>
+    </div>
 
     <script>
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let rawData = [];
+        let filteredData = [];
         let projectChart = null;
-        let pieChartInstance = null;
+        let pieChartInstance = null; // Instance pie chart
 
         function formatDateTimeClean(str) {
             if (!str) return 'Belum Ada';
@@ -203,6 +269,7 @@
                 if(type === 'person') return rawData.filter(r => r.assigned_to === n).length;
                 return rawData.filter(r => r.assigned_to === n && r.status === type).length;
             });
+            
             projectChart = new Chart(ctx, {
                 type: 'bar',
                 data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: colors, borderRadius: 8 }] },
@@ -211,61 +278,78 @@
             });
         }
 
-        // FUNGSI DIAGRAM PIE BERDASARKAN PROJECT UTAMA
-        function renderProjectPieChart() {
-            const ctx = document.getElementById('projectPieChart').getContext('2d');
+        function selectPerson(name) {
+            const filterUser = document.getElementById('filter-user');
+            if (filterUser) {
+                filterUser.value = name;
+                applyFilters();
+                filterUser.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function openProjectAggregateModal() { 
+            renderAggregateProjects(); 
+            renderOverallPieChart(); // Panggil pie chart
+            document.getElementById('projectAggregateModal').style.display = 'block'; 
+        }
+        
+        function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
+
+        // FUNGSI DIAGRAM PIE KESELURUHAN
+        function renderOverallPieChart() {
+            const ctx = document.getElementById('overallPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
 
-            const projectCounts = {};
-            rawData.forEach(item => {
-                const name = (item.project_name || "Lainnya").toUpperCase();
-                projectCounts[name] = (projectCounts[name] || 0) + 1;
-            });
+            const statusCounts = {
+                'Pending': rawData.filter(r => r.status === 'Pending').length,
+                'In Progress': rawData.filter(r => r.status === 'In Progress').length,
+                'Hold': rawData.filter(r => r.status === 'Hold').length,
+                'Done': rawData.filter(r => r.status === 'Done').length
+            };
 
-            const labels = Object.keys(projectCounts);
-            const data = Object.values(projectCounts);
-            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4', '#ec4899', '#475569'];
+            const overdueTasks = rawData.filter(r => {
+                if (!r.due_date || r.status === 'Done') return false;
+                return new Date() > new Date(r.due_date);
+            }).length;
+
+            // Update stats text
+            document.getElementById('pie-total-task').innerText = rawData.length;
+            document.getElementById('pie-done-task').innerText = statusCounts['Done'];
+            document.getElementById('pie-process-task').innerText = statusCounts['In Progress'];
+            document.getElementById('pie-overdue-task').innerText = overdueTasks;
 
             pieChartInstance = new Chart(ctx, {
-                type: 'pie',
+                type: 'doughnut',
                 data: {
-                    labels: labels,
+                    labels: ['Pending', 'In Progress', 'Hold', 'Done'],
                     datasets: [{
-                        data: data,
-                        backgroundColor: colors,
-                        borderWidth: 2,
-                        borderColor: '#fff'
+                        data: [statusCounts['Pending'], statusCounts['In Progress'], statusCounts['Hold'], statusCounts['Done']],
+                        backgroundColor: ['#f59e0b', '#3b82f6', '#f43f5e', '#10b981'],
+                        borderWidth: 0,
+                        hoverOffset: 10
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    cutout: '70%',
                     plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 9, weight: 'bold' } } },
+                        legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 10, weight: 'bold' } } },
                         datalabels: {
                             color: '#fff',
-                            font: { weight: 'bold', size: 11 },
                             formatter: (value, ctx) => {
-                                const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                return ((value / sum) * 100).toFixed(0) + "%";
-                            }
+                                let sum = 0;
+                                let dataArr = ctx.chart.data.datasets[0].data;
+                                dataArr.map(data => { sum += data; });
+                                let percentage = (value * 100 / sum).toFixed(0) + "%";
+                                return value > 0 ? percentage : '';
+                            },
+                            font: { weight: 'bold', size: 10 }
                         }
                     }
                 }
             });
         }
-
-        function selectPerson(name) {
-            const filterUser = document.getElementById('filter-user');
-            if (filterUser) { filterUser.value = name; applyFilters(); filterUser.scrollIntoView({ behavior: 'smooth' }); }
-        }
-
-        function openProjectAggregateModal() { 
-            renderAggregateProjects(); 
-            renderProjectPieChart(); // Panggil Pie Chart Project saat modal dibuka
-            document.getElementById('projectAggregateModal').style.display = 'block'; 
-        }
-        function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
         function renderAggregateProjects() {
             const projects = {};
@@ -291,10 +375,47 @@
             }).join('');
         }
 
+        function getProjectDateRange(tasks) {
+            let dates = [];
+            tasks.forEach(t => { if (t.start_date) dates.push(new Date(t.start_date)); if (t.due_date) dates.push(new Date(t.due_date)); });
+            if (dates.length === 0) return { start: "-", finish: "-" };
+            const sorted = dates.sort((a, b) => a - b);
+            const opt = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            return { start: sorted[0].toLocaleDateString('id-ID', opt), finish: sorted[sorted.length - 1].toLocaleDateString('id-ID', opt) };
+        }
+
         function openProjectModal(projName) {
             document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
-            document.getElementById('proj-modal-list').innerHTML = tasks.map(t => `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><div class="flex justify-between items-center mb-3"><span class="text-[11px] font-black text-slate-800 uppercase tracking-tighter">${t.assigned_to}</span><span class="text-[9px] font-black px-3 py-1 rounded text-white ${t.status.toUpperCase()==='DONE'?'bg-emerald-500':'bg-blue-600'} uppercase">${t.status}</span></div><p class="text-xs font-semibold text-slate-500 mb-4 leading-relaxed">${t.task_desc || '-'}</p><div class="flex items-center gap-4"><div class="progress-bg h-2 flex-grow"><div class="progress-fill ${getProgressColor(t.progress_percent)}" style="width: ${t.progress_percent}%"></div></div><span class="text-[11px] font-black text-slate-700">${t.progress_percent}%</span></div></div>`).join('');
+            const range = getProjectDateRange(tasks);
+            document.getElementById('proj-modal-dates').innerHTML = `<div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center shadow-sm"><p class="text-[9px] font-black text-blue-400 uppercase">Start</p><p class="text-xs font-black text-blue-700">${range.start}</p></div><div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center shadow-sm"><p class="text-[9px] font-black text-emerald-400 uppercase">Due</p><p class="text-xs font-black text-emerald-700">${range.finish}</p></div>`;
+            const container = document.getElementById('proj-modal-list');
+            container.innerHTML = tasks.map(t => {
+                const pStart = formatDateTimeClean(t.start_date);
+                const pFinish = formatDateTimeClean(t.due_date);
+                return `
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[11px] font-black text-slate-800 uppercase tracking-tighter">${t.assigned_to}</span>
+                            <span class="text-[9px] font-black px-3 py-1 rounded text-white ${t.status.toUpperCase()==='DONE'?'bg-emerald-500':'bg-blue-600'} uppercase">${t.status}</span>
+                        </div>
+                        <p class="text-xs font-semibold text-slate-500 mb-4 leading-relaxed">${t.task_desc || '-'}</p>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
+                                <p class="text-[8px] font-black text-slate-400 uppercase">Start</p>
+                                <p class="text-[10px] font-bold text-slate-600">${pStart}</p>
+                            </div>
+                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
+                                <p class="text-[8px] font-black text-slate-400 uppercase">Due</p>
+                                <p class="text-[10px] font-bold text-slate-600">${pFinish}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="progress-bg h-2 flex-grow"><div class="progress-fill ${getProgressColor(t.progress_percent)}" style="width: ${t.progress_percent}%"></div></div>
+                            <span class="text-[11px] font-black text-slate-700">${t.progress_percent}%</span>
+                        </div>
+                    </div>`;
+            }).join('');
             document.getElementById('projectDetailModal').style.display = 'block';
         }
 
@@ -316,9 +437,26 @@
         function renderTable(data) {
             const tbody = document.getElementById('resume-body');
             tbody.innerHTML = data.map(row => {
-                const priorityClass = row.priority === 'High' ? 'text-red-600 border-red-200' : (row.priority === 'Low' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
-                const statusClass = row.status === 'Done' ? 'text-emerald-600 border-emerald-200' : (row.status === 'Pending' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
-                return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold"><td class="px-6 py-5 uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div></td><td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td><td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${priorityClass}">${row.priority || 'Mid'}</span></td><td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${statusClass}">${row.status}</span></td><td class="px-6 py-5 text-center"><button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button></td></tr>`;
+                const priorityClass = row.priority === 'High' ? 'text-red-600 border-red-200' : 
+                                     (row.priority === 'Low' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
+                const statusClass = row.status === 'Done' ? 'text-emerald-600 border-emerald-200' : 
+                                   (row.status === 'Pending' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
+
+                return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold">
+                    <td class="px-6 py-5 uppercase text-slate-800">${row.project_name}
+                        <div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div>
+                    </td>
+                    <td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td>
+                    <td class="px-4 py-5 text-center">
+                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${priorityClass}">${row.priority || 'Mid'}</span>
+                    </td>
+                    <td class="px-4 py-5 text-center">
+                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${statusClass}">${row.status}</span>
+                    </td>
+                    <td class="px-6 py-5 text-center">
+                        <button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button>
+                    </td>
+                </tr>`;
             }).join('');
         }
 
@@ -339,7 +477,8 @@
             document.getElementById('det-task').innerText = row.task_desc || 'Belum ada deskripsi tugas.';
             document.getElementById('det-status').innerText = row.status || "PENDING";
             document.getElementById('det-start').innerText = formatDateTimeClean(row.start_date);
-            
+            document.getElementById('det-activity').innerText = row.worker_comment || "-";
+
             const finishValue = document.getElementById('det-finish');
             const finishLabel = finishValue.previousElementSibling;
             const finishBox = finishValue.parentElement;
@@ -374,7 +513,13 @@
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
-        window.onclick = function(e) { if(e.target.className === 'modal') closeModal(); };
+        window.onclick = function(e) { 
+            if(e.target.className === 'modal') { 
+                closeModal(); 
+                document.getElementById('projectDetailModal').style.display = 'none';
+                document.getElementById('projectAggregateModal').style.display = 'none';
+            } 
+        };
         window.onload = fetchAllData;
     </script>
 </body>
