@@ -134,7 +134,6 @@
                 <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
             </div>
             <div class="p-8 max-h-[80vh] overflow-y-auto custom-scroll bg-slate-50">
-                
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-200 mb-8 flex flex-col items-center">
                     <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Volume Penugasan Per Project Utama</h3>
                     <div class="h-[300px] w-full max-w-[500px]"><canvas id="projectPieChart"></canvas></div>
@@ -205,7 +204,7 @@
         let rawData = [];
         let filteredData = [];
         let projectChart = null;
-        let pieChartInstance = null; // Tambahan instance pie chart
+        let projectPieChart = null;
 
         function formatDateTimeClean(str) {
             if (!str) return 'Belum Ada';
@@ -260,44 +259,19 @@
             });
         }
 
-        // --- FUNGSI BARU: RENDER DIAGRAM PIE BERDASARKAN PROJECT UTAMA ---
+        // FUNGSI DIAGRAM PIE PROJECT UTAMA
         function renderProjectPieChart() {
             const ctx = document.getElementById('projectPieChart').getContext('2d');
-            if (pieChartInstance) pieChartInstance.destroy();
-
-            // Hitung distribusi task per nama project utama
-            const projectDist = {};
-            rawData.forEach(item => {
-                const name = (item.project_name || "LAINNYA").toUpperCase();
-                projectDist[name] = (projectDist[name] || 0) + 1;
-            });
-
-            pieChartInstance = new Chart(ctx, {
+            if (projectPieChart) projectPieChart.destroy();
+            const dist = {};
+            rawData.forEach(item => { const name = (item.project_name || "LAINNYA").toUpperCase(); dist[name] = (dist[name] || 0) + 1; });
+            projectPieChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: Object.keys(projectDist),
-                    datasets: [{
-                        data: Object.values(projectDist),
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4', '#475569', '#ec4899'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
+                    labels: Object.keys(dist),
+                    datasets: [{ data: Object.values(dist), backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4', '#475569', '#ec4899'], borderWidth: 2, borderColor: '#ffffff' }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 9, weight: 'bold' } } },
-                        datalabels: {
-                            color: '#fff',
-                            font: { weight: 'bold', size: 10 },
-                            formatter: (val, ctx) => {
-                                let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                return ((val / sum) * 100).toFixed(0) + "%";
-                            }
-                        }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 9, weight: 'bold' } } }, datalabels: { color: '#fff', font: { weight: 'bold', size: 10 }, formatter: (val, ctx) => { let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0); return ((val / sum) * 100).toFixed(0) + "%"; } } } }
             });
         }
 
@@ -312,7 +286,7 @@
 
         function openProjectAggregateModal() { 
             renderAggregateProjects(); 
-            renderProjectPieChart(); // Panggil pie chart saat modal dibuka
+            renderProjectPieChart();
             document.getElementById('projectAggregateModal').style.display = 'block'; 
         }
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
@@ -341,30 +315,20 @@
             }).join('');
         }
 
+        function getProjectDateRange(tasks) {
+            let dates = [];
+            tasks.forEach(t => { if (t.start_date) dates.push(new Date(t.start_date)); if (t.due_date) dates.push(new Date(t.due_date)); });
+            if (dates.length === 0) return { start: "-", finish: "-" };
+            const sorted = dates.sort((a, b) => a - b);
+            const opt = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            return { start: sorted[0].toLocaleDateString('id-ID', opt), finish: sorted[sorted.length - 1].toLocaleDateString('id-ID', opt) };
+        }
+
         function openProjectModal(projName) {
             document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
-            
-            // --- BAGIAN TANGGAL START DAN DUE DI DALAM DETAIL MODAL ---
-            let minDate = null;
-            let maxDate = null;
-            tasks.forEach(t => {
-                if(t.start_date) { const d = new Date(t.start_date); if(!minDate || d < minDate) minDate = d; }
-                if(t.due_date) { const d = new Date(t.due_date); if(!maxDate || d > maxDate) maxDate = d; }
-            });
-            const rangeStart = minDate ? minDate.toLocaleDateString('id-ID') : '-';
-            const rangeDue = maxDate ? maxDate.toLocaleDateString('id-ID') : '-';
-            
-            document.getElementById('proj-modal-dates').innerHTML = `
-                <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center shadow-sm">
-                    <p class="text-[9px] font-black text-blue-400 uppercase">Project Start</p>
-                    <p class="text-xs font-black text-blue-700">${rangeStart}</p>
-                </div>
-                <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center shadow-sm">
-                    <p class="text-[9px] font-black text-emerald-400 uppercase">Project Deadline</p>
-                    <p class="text-xs font-black text-emerald-700">${rangeDue}</p>
-                </div>`;
-
+            const range = getProjectDateRange(tasks);
+            document.getElementById('proj-modal-dates').innerHTML = `<div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center shadow-sm"><p class="text-[9px] font-black text-blue-400 uppercase">Start</p><p class="text-xs font-black text-blue-700">${range.start}</p></div><div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center shadow-sm"><p class="text-[9px] font-black text-emerald-400 uppercase">Due</p><p class="text-xs font-black text-emerald-700">${range.finish}</p></div>`;
             const container = document.getElementById('proj-modal-list');
             container.innerHTML = tasks.map(t => `
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -373,6 +337,16 @@
                         <span class="text-[9px] font-black px-3 py-1 rounded text-white ${t.status.toUpperCase()==='DONE'?'bg-emerald-500':'bg-blue-600'} uppercase">${t.status}</span>
                     </div>
                     <p class="text-xs font-semibold text-slate-500 mb-4 leading-relaxed">${t.task_desc || '-'}</p>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
+                            <p class="text-[8px] font-black text-slate-400 uppercase">Start</p>
+                            <p class="text-[10px] font-bold text-slate-600">${formatDateTimeClean(t.start_date)}</p>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
+                            <p class="text-[8px] font-black text-slate-400 uppercase">Due</p>
+                            <p class="text-[10px] font-bold text-slate-600">${formatDateTimeClean(t.due_date)}</p>
+                        </div>
+                    </div>
                     <div class="flex items-center gap-4">
                         <div class="progress-bg h-2 flex-grow"><div class="progress-fill ${getProgressColor(t.progress_percent)}" style="width: ${t.progress_percent}%"></div></div>
                         <span class="text-[11px] font-black text-slate-700">${t.progress_percent}%</span>
