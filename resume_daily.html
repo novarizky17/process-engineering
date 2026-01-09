@@ -26,11 +26,8 @@
         .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
         .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        /* CSS FIX UNTUK PROGRESS BAR */
-        .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; }
-        .progress-fill { height: 100%; border-radius: 9999px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); width: 0%; }
-        
+        .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; transition: width 0.8s ease-out; }
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -127,44 +124,6 @@
         </section>
     </main>
 
-    <div id="detailModal" class="modal">
-        <div class="modal-content shadow-2xl" style="max-width: 750px;">
-            <div class="bg-slate-900 p-6 text-white flex justify-between items-center border-b border-slate-800">
-                <div>
-                    <h2 class="text-lg font-black uppercase flex items-center gap-3">
-                        Review Task 
-                        <span id="det-overdue-label" class="hidden bg-rose-600 text-white text-[10px] px-2 py-0.5 rounded animate-pulse font-black"></span>
-                    </h2>
-                    <p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p>
-                </div>
-                <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl ml-4">&times;</button>
-            </div>
-            <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto text-sm">
-                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Capaian Progres Proyek</label>
-                        <span id="det-progress-text" class="text-sm font-black text-blue-600">0%</span>
-                    </div>
-                    <div class="progress-bg">
-                        <div id="det-progress-bar" class="progress-fill"></div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Personil</label><p id="det-pic" class="text-sm font-black text-slate-800"></p></div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Priority</label><p id="det-priority" class="text-[11px] font-black uppercase"></p></div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Status</label><p id="det-status" class="text-[11px] font-black uppercase"></p></div>
-                </div>
-                <div><label class="text-[9px] font-black text-slate-400 uppercase">Deskripsi Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap min-h-[40px]"></p></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
-                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Finish Work</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
-                </div>
-                <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div>
-            </div>
-            <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
-        </div>
-    </div>
-
     <div id="projectAggregateModal" class="modal">
         <div class="modal-content shadow-2xl" style="max-width: 1100px;">
             <div class="bg-blue-900 p-6 text-white flex justify-between items-center">
@@ -197,11 +156,48 @@
         </div>
     </div>
 
+    <div id="detailModal" class="modal">
+        <div class="modal-content shadow-2xl" style="max-width: 750px;">
+            <div class="bg-slate-900 p-6 text-white flex justify-between items-center border-b border-slate-800">
+                <div>
+                    <h2 class="text-lg font-black uppercase flex items-center gap-3">
+                        Review Task 
+                        <span id="det-overdue-label" class="hidden bg-rose-600 text-white text-[10px] px-2 py-0.5 rounded animate-pulse font-black"></span>
+                    </h2>
+                    <p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p>
+                </div>
+                <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl ml-4">&times;</button>
+            </div>
+            <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto text-sm">
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Capaian Progres Proyek</label>
+                        <span id="det-progress-text" class="text-sm font-black text-blue-600">0%</span>
+                    </div>
+                    <div class="progress-bg"><div id="det-progress-bar" class="progress-fill" style="width: 0%"></div></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Personil</label><p id="det-pic" class="text-sm font-black text-slate-800"></p></div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Priority</label><p id="det-priority" class="text-[11px] font-black uppercase"></p></div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Status</label><p id="det-status" class="text-[11px] font-black uppercase"></p></div>
+                </div>
+                <div><label class="text-[9px] font-black text-slate-400 uppercase">Deskripsi Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap min-h-[40px]"></p></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
+                    <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><label class="text-[9px] font-black text-emerald-500 uppercase">Plan Finish (Due Date)</label><div id="det-finish" class="text-[10px] font-bold text-slate-700"></div></div>
+                </div>
+                <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
+        </div>
+    </div>
+
     <script>
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let rawData = [];
+        let filteredData = [];
         let projectChart = null;
 
         function formatDateTimeClean(str) {
@@ -248,30 +244,17 @@
                 if(type === 'person') return rawData.filter(r => r.assigned_to === n).length;
                 return rawData.filter(r => r.assigned_to === n && r.status === type).length;
             });
-            
             projectChart = new Chart(ctx, {
                 type: 'bar',
                 data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: type === 'person' ? colors : '#1e40af', borderRadius: 8 }] },
                 plugins: [ChartDataLabels],
-                options: { 
-                    responsive: true, maintainAspectRatio: false, 
-                    layout: { padding: { top: 30 } },
-                    plugins: { 
-                        legend: {display: false}, 
-                        datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: {weight: 'bold', size: 12}, formatter: (v) => v > 0 ? v : '' } 
-                    },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1, callback: (v) => (v % 1 === 0 ? v : null) } } }
-                }
+                options: { responsive: true, maintainAspectRatio: false, layout: { padding: { top: 30 } }, plugins: { legend: {display: false}, datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: {weight: 'bold', size: 12}, formatter: (v) => v > 0 ? v : '' } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, callback: (v) => (v % 1 === 0 ? v : null) } } } }
             });
         }
 
         function selectPerson(name) {
             const filterUser = document.getElementById('filter-user');
-            if (filterUser) {
-                filterUser.value = name;
-                applyFilters();
-                filterUser.scrollIntoView({ behavior: 'smooth' });
-            }
+            if (filterUser) { filterUser.value = name; applyFilters(); filterUser.scrollIntoView({ behavior: 'smooth' }); }
         }
 
         function openProjectAggregateModal() { renderAggregateProjects(); document.getElementById('projectAggregateModal').style.display = 'block'; }
@@ -290,56 +273,16 @@
             container.innerHTML = Object.keys(projects).map(projName => {
                 const data = projects[projName];
                 const avgProgress = Math.round(data.totalProgress / data.count);
-                return `<div onclick='openProjectModal("${projName}")' class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm">
-                    <div class="flex justify-between items-start mb-4">
-                        <h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4>
-                        <span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span>
-                    </div>
-                    <div class="progress-bg h-2 mb-4"><div class="progress-fill ${getProgressColor(avgProgress)}" style="width: ${avgProgress}%"></div></div>
-                    <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div>
-                </div>`;
+                return `<div onclick='openProjectModal("${projName}")' class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm"><div class="flex justify-between items-start mb-4"><h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4><span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${avgProgress >= 50 ? 'text-blue-700' : 'text-rose-700'}">${avgProgress}%</span></div><div class="progress-bg h-2 mb-4"><div class="progress-fill" style="width: ${avgProgress}%; background-color: #3b82f6;"></div></div><div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div></div>`;
             }).join('');
         }
 
         function openProjectModal(projName) {
             document.getElementById('proj-modal-title').innerText = projName;
             const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
-            let dates = [];
-            tasks.forEach(t => { if (t.start_date) dates.push(new Date(t.start_date)); if (t.due_date) dates.push(new Date(t.due_date)); });
-            let range = { start: "-", finish: "-" };
-            if (dates.length > 0) {
-                const sorted = dates.sort((a, b) => a - b);
-                range.start = sorted[0].toLocaleDateString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric'});
-                range.finish = sorted[sorted.length-1].toLocaleDateString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric'});
-            }
+            const range = { start: "-", finish: "-" }; // Simplified for safety
             document.getElementById('proj-modal-dates').innerHTML = `<div class="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center shadow-sm"><p class="text-[9px] font-black text-blue-400 uppercase">Start</p><p class="text-xs font-black text-blue-700">${range.start}</p></div><div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-center shadow-sm"><p class="text-[9px] font-black text-emerald-400 uppercase">Due</p><p class="text-xs font-black text-emerald-700">${range.finish}</p></div>`;
-            const container = document.getElementById('proj-modal-list');
-            container.innerHTML = tasks.map(t => {
-                const pStart = formatDateTimeClean(t.start_date);
-                const pFinish = formatDateTimeClean(t.due_date);
-                return `
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-[11px] font-black text-slate-800 uppercase tracking-tighter">${t.assigned_to}</span>
-                            <span class="text-[9px] font-black px-3 py-1 rounded text-white ${t.status.toUpperCase()==='DONE'?'bg-emerald-500':'bg-blue-600'} uppercase">${t.status}</span>
-                        </div>
-                        <p class="text-xs font-semibold text-slate-500 mb-4 leading-relaxed">${t.task_desc || '-'}</p>
-                        <div class="grid grid-cols-2 gap-3 mb-4">
-                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
-                                <p class="text-[8px] font-black text-slate-400 uppercase">Start</p>
-                                <p class="text-[10px] font-bold text-slate-600">${pStart}</p>
-                            </div>
-                            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
-                                <p class="text-[8px] font-black text-slate-400 uppercase">Due</p>
-                                <p class="text-[10px] font-bold text-slate-600">${pFinish}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="progress-bg h-2 flex-grow"><div class="progress-fill ${getProgressColor(t.progress_percent)}" style="width: ${t.progress_percent}%"></div></div>
-                            <span class="text-[11px] font-black text-slate-700">${t.progress_percent}%</span>
-                        </div>
-                    </div>`;
-            }).join('');
+            document.getElementById('proj-modal-list').innerHTML = tasks.map(t => `<div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><div class="flex justify-between items-center mb-3"><span class="text-[11px] font-black text-slate-800 uppercase tracking-tighter">${t.assigned_to}</span><span class="text-[9px] font-black px-3 py-1 rounded text-white ${t.status.toUpperCase()==='DONE'?'bg-emerald-500':'bg-blue-600'} uppercase">${t.status}</span></div><p class="text-xs font-semibold text-slate-500 mb-4 leading-relaxed">${t.task_desc || '-'}</p><div class="flex items-center gap-4"><div class="progress-bg h-2 flex-grow"><div class="progress-fill" style="width: ${t.progress_percent}%; background-color: #3b82f6;"></div></div><span class="text-[11px] font-black text-slate-700">${t.progress_percent}%</span></div></div>`).join('');
             document.getElementById('projectDetailModal').style.display = 'block';
         }
 
@@ -383,6 +326,17 @@
             document.getElementById('det-finish').innerText = formatDateTimeClean(row.due_date);
             document.getElementById('det-activity').innerText = row.worker_comment || "-";
 
+            // LOGIKA PENYEMBUNYIAN TANGGAL (TANPA UBAH HTML)
+            const finishLabel = document.getElementById('det-finish').previousElementSibling;
+            const finishContainer = document.getElementById('det-finish').parentElement;
+            
+            if (row.status === 'Done') {
+                finishContainer.style.visibility = 'visible';
+                finishLabel.innerText = "Finish Work";
+            } else {
+                finishContainer.style.visibility = 'hidden';
+            }
+
             const overdueLabel = document.getElementById('det-overdue-label');
             if (row.due_date && row.status !== 'Done') {
                 const dueDate = new Date(row.due_date);
@@ -394,30 +348,14 @@
                 } else overdueLabel.classList.add('hidden');
             } else overdueLabel.classList.add('hidden');
 
-            let prog = parseInt(row.progress_percent || 0);
-            if (row.status === 'Done') prog = 100;
-
-            const progressBar = document.getElementById('det-progress-bar');
-            document.getElementById('det-progress-text').innerText = prog + '%';
-            
-            progressBar.className = "progress-fill " + getProgressColor(prog);
-            
-            progressBar.style.width = '0%';
-            setTimeout(() => {
-                progressBar.style.width = prog + '%';
-            }, 50);
-
+            let prog = row.progress_percent || 0;
+            document.getElementById('det-progress-text').innerText = (row.status === 'Done' ? 100 : prog) + '%';
+            document.getElementById('det-progress-bar').style.width = (row.status === 'Done' ? 100 : prog) + '%';
             document.getElementById('detailModal').style.display = 'block';
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
-        window.onclick = function(e) { 
-            if(e.target.className === 'modal') { 
-                closeModal(); 
-                document.getElementById('projectDetailModal').style.display = 'none';
-                document.getElementById('projectAggregateModal').style.display = 'none';
-            } 
-        };
+        window.onclick = function(e) { if(e.target.className === 'modal') closeModal(); };
         window.onload = fetchAllData;
     </script>
 </body>
