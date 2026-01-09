@@ -134,7 +134,6 @@
                 <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
             </div>
             <div class="p-8 max-h-[80vh] overflow-y-auto custom-scroll bg-slate-50 text-center">
-                
                 <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8 inline-block w-full max-w-[450px]">
                     <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Total Progres Seluruh Project</h3>
                     <div class="h-[250px] w-full relative">
@@ -206,6 +205,7 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let rawData = [];
+        let filteredData = [];
         let projectChart = null;
         let pieChartInstance = null;
 
@@ -286,7 +286,15 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
-                        datalabels: { display: false }
+                        datalabels: {
+                            display: true,
+                            color: '#1e293b',
+                            font: { weight: 'bold', size: 14 },
+                            formatter: (val, context) => {
+                                if (context.dataIndex === 0) return val + '%';
+                                return '';
+                            }
+                        }
                     }
                 },
                 plugins: [{
@@ -425,6 +433,8 @@
             document.getElementById('det-status').innerText = row.status || "PENDING";
             document.getElementById('det-priority').innerText = row.priority || "MID";
             document.getElementById('det-start').innerText = formatDateTimeClean(row.start_date);
+            
+            // Perbaikan agar Laporan Aktivitas (worker_comment) Muncul
             document.getElementById('det-activity').innerText = row.worker_comment || "Belum ada laporan aktivitas.";
 
             const finishValue = document.getElementById('det-finish');
@@ -436,7 +446,6 @@
                 finishLabel.innerText = "Finish Work";
                 finishValue.innerText = formatDateTimeClean(row.actual_finish || row.work_end_time || row.due_date);
             } else {
-                // Berbeda dengan instruksi sebelumnya, kotak ini tetap ditampilkan sebagai Due Date kecuali statusnya DONE
                 finishBox.style.display = 'block';
                 finishLabel.innerText = "Plan Finish (Due Date)";
                 finishValue.innerText = formatDateTimeClean(row.due_date);
@@ -478,7 +487,13 @@
             XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
         }
 
-        window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); document.getElementById('projectDetailModal').style.display = 'none'; document.getElementById('projectAggregateModal').style.display = 'none'; } };
+        window.onclick = function(e) { 
+            if(e.target.className === 'modal') { 
+                closeModal(); 
+                document.getElementById('projectDetailModal').style.display = 'none';
+                document.getElementById('projectAggregateModal').style.display = 'none';
+            } 
+        };
         window.onload = fetchAllData;
     </script>
 </body>
