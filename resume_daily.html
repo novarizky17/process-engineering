@@ -129,17 +129,19 @@
             <div class="bg-blue-900 p-6 text-white flex justify-between items-center">
                 <div>
                     <h2 class="text-lg font-black uppercase tracking-tight">Review Semua Project Aggregated</h2>
-                    <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest">Akumulasi Progres Seluruh Project</p>
+                    <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest">Akumulasi Status Seluruh Proyek</p>
                 </div>
                 <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
             </div>
             <div class="p-8 max-h-[80vh] overflow-y-auto custom-scroll bg-slate-50 text-center">
+                
                 <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8 inline-block w-full max-w-[450px]">
-                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Total Progres Seluruh Project</h3>
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Total Distribusi Status</h3>
                     <div class="h-[250px] w-full relative">
                         <canvas id="projectPieChart"></canvas>
                     </div>
                 </div>
+
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center">
@@ -155,7 +157,6 @@
                 <button onclick="closeProjectModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
             </div>
             <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll">
-                <div id="proj-modal-dates" class="hidden"></div>
                 <div id="proj-modal-list" class="space-y-4"></div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeProjectModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Detail</button></div>
@@ -195,14 +196,8 @@
                         <div id="det-finish" class="text-[10px] font-bold text-slate-700"></div>
                     </div>
                 </div>
-                <div>
-                    <label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label>
-                    <div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div>
-                </div>
-                <div>
-                    <label class="text-[9px] font-black text-rose-500 uppercase">Keterangan (Hold/Pending Reason)</label>
-                    <div id="det-hold-reason" class="bg-rose-50 p-5 rounded-xl text-sm font-bold text-rose-700 border border-rose-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div>
-                </div>
+                <div><label class="text-[9px] font-black text-indigo-500 uppercase">Laporan Aktivitas</label><div id="det-activity" class="bg-indigo-50 p-5 rounded-xl text-sm italic border border-indigo-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div>
+                <div><label class="text-[9px] font-black text-rose-500 uppercase">Keterangan Tambahan</label><div id="det-hold-reason" class="bg-rose-50 p-5 rounded-xl text-sm font-bold text-rose-700 border border-rose-100 whitespace-pre-wrap min-h-[40px]"></div></div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
         </div>
@@ -214,19 +209,7 @@
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let rawData = [];
         let projectChart = null;
-        let pieChartInstance = null;
-
-        function formatDateTimeClean(str) {
-            if (!str) return 'Belum Ada';
-            try {
-                const dateMatch = str.match(/(\d{4}-\d{2}-\d{2})/);
-                if (dateMatch) {
-                    const parts = dateMatch[1].split('-');
-                    return parts[2] + "/" + parts[1] + "/" + parts[0];
-                }
-                return str;
-            } catch (e) { return str; }
-        }
+        let pieChartInstance = null; // Variabel global untuk Pie Chart
 
         async function fetchAllData() {
             const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
@@ -272,67 +255,45 @@
             const ctx = document.getElementById('projectPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
 
-            let totalProg = 0;
-            rawData.forEach(item => totalProg += parseInt(item.progress_percent || 0));
-            const avgProgress = rawData.length > 0 ? Math.round(totalProg / rawData.length) : 0;
-            const remaining = 100 - avgProgress;
+            const statusCounts = { 'Done': 0, 'In Progress': 0, 'Pending': 0, 'Hold': 0 };
+            rawData.forEach(item => { if (statusCounts.hasOwnProperty(item.status)) statusCounts[item.status]++; });
 
-            document.getElementById('overall-prog-label').innerText = avgProgress + '%';
+            const dataValues = Object.values(statusCounts);
+            const total = dataValues.reduce((a, b) => a + b, 0);
+            const colors = ['#10b981', '#3b82f6', '#f59e0b', '#f43f5e'];
 
             pieChartInstance = new Chart(ctx, {
-                type: 'doughnut',
+                type: 'pie',
                 data: {
-                    labels: ['Selesai', 'Belum Selesai'],
+                    labels: Object.keys(statusCounts),
                     datasets: [{
-                        data: [avgProgress, remaining],
-                        backgroundColor: ['#10b981', '#f1f5f9'],
-                        borderWidth: 0,
-                        cutout: '75%'
+                        data: dataValues,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false },
+                        legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 10, weight: 'bold' } } },
                         datalabels: {
-                            display: true,
-                            color: '#1e293b',
-                            font: { weight: 'bold', size: 14 },
-                            formatter: (val, context) => {
-                                if (context.dataIndex === 0) return val + '%';
-                                return '';
+                            color: '#fff',
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (val) => {
+                                const perc = Math.round((val / total) * 100);
+                                return perc > 0 ? perc + "%" : "";
                             }
                         }
                     }
-                },
-                plugins: [{
-                    id: 'centerText',
-                    beforeDraw: function(chart) {
-                        var width = chart.width, height = chart.height, ctx = chart.ctx;
-                        ctx.restore();
-                        var fontSize = (height / 150).toFixed(2);
-                        ctx.font = "bold " + fontSize + "em sans-serif";
-                        ctx.textBaseline = "middle";
-                        ctx.fillStyle = "#1e293b";
-                        var text = avgProgress + "%",
-                            textX = Math.round((width - ctx.measureText(text).width) / 2),
-                            textY = height / 2;
-                        ctx.fillText(text, textX, textY);
-                        ctx.save();
-                    }
-                }]
+                }
             });
-        }
-
-        function selectPerson(name) {
-            const filterUser = document.getElementById('filter-user');
-            if (filterUser) { filterUser.value = name; applyFilters(); filterUser.scrollIntoView({ behavior: 'smooth' }); }
         }
 
         function openProjectAggregateModal() { 
             renderAggregateProjects(); 
-            renderProjectPieChart(); 
+            renderProjectPieChart();
             document.getElementById('projectAggregateModal').style.display = 'block'; 
         }
 
@@ -405,22 +366,7 @@
             tbody.innerHTML = data.map(row => {
                 const pClass = row.priority === 'High' ? 'text-red-600 border-red-200' : (row.priority === 'Low' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
                 const sClass = row.status === 'Done' ? 'text-emerald-600 border-emerald-200' : (row.status === 'Pending' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
-
-                return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold">
-                    <td class="px-6 py-5 uppercase text-slate-800">${row.project_name}
-                        <div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div>
-                    </td>
-                    <td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td>
-                    <td class="px-4 py-5 text-center">
-                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${pClass}">${row.priority || 'Mid'}</span>
-                    </td>
-                    <td class="px-4 py-5 text-center">
-                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${sClass}">${row.status}</span>
-                    </td>
-                    <td class="px-6 py-5 text-center">
-                        <button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button>
-                    </td>
-                </tr>`;
+                return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold"><td class="px-6 py-5 uppercase text-slate-800">${row.project_name}<div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div></td><td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td><td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${pClass}">${row.priority || 'Mid'}</span></td><td class="px-4 py-5 text-center"><span class="px-3 py-1 rounded-full text-[9px] border uppercase ${sClass}">${row.status}</span></td><td class="px-6 py-5 text-center"><button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button></td></tr>`;
             }).join('');
         }
 
@@ -442,10 +388,7 @@
             document.getElementById('det-status').innerText = row.status || "PENDING";
             document.getElementById('det-priority').innerText = row.priority || "MID";
             document.getElementById('det-start').innerText = formatDateTimeClean(row.start_date);
-            
-            // Laporan Aktivitas (worker_comment)
             document.getElementById('det-activity').innerText = row.worker_comment || "-";
-            // Keterangan (hold_reason)
             document.getElementById('det-hold-reason').innerText = row.hold_reason || "-";
 
             const finishValue = document.getElementById('det-finish');
@@ -479,7 +422,6 @@
             const progressBar = document.getElementById('det-progress-bar');
             progressBar.className = "progress-fill " + getProgressColor(progVal);
             progressBar.style.width = progVal + '%';
-
             document.getElementById('detailModal').style.display = 'block';
         }
 
@@ -498,13 +440,7 @@
             XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
         }
 
-        window.onclick = function(e) { 
-            if(e.target.className === 'modal') { 
-                closeModal(); 
-                document.getElementById('projectDetailModal').style.display = 'none';
-                document.getElementById('projectAggregateModal').style.display = 'none';
-            } 
-        };
+        window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); document.getElementById('projectDetailModal').style.display = 'none'; document.getElementById('projectAggregateModal').style.display = 'none'; } };
         window.onload = fetchAllData;
     </script>
 </body>
