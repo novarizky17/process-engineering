@@ -1,47 +1,47 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Superintendent - Approval System</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
-    header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .container { padding: 20px; max-width: 1150px; margin: 0 auto; }
-    
-    .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
-    table { width: 100%; border-collapse: collapse; }
-    th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
-    td { padding: 15px; border-top: 1px solid #eee; font-size: 14px; }
-    
-    .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
-    .status-pending { background: #fff3cd; color: #856404; }
-    .status-approved { background: #d4edda; color: #155724; }
-    .status-rejected { background: #f8d7da; color: #721c24; }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Superintendent - Approval System</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
+        header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .container { padding: 20px; max-width: 1150px; margin: 0 auto; }
+        
+        .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
+        td { padding: 15px; border-top: 1px solid #eee; font-size: 14px; }
+        
+        .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d4edda; color: #155724; }
+        .status-rejected { background: #f8d7da; color: #721c24; }
 
-    .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
-    .btn-primary { background: #007bff; color: white; }
-    .btn-back { background: #6c757d; color: white; text-decoration: none; font-size: 14px; margin-right: 10px; display: inline-flex; align-items: center; }
-    .btn-success { background: #28a745; color: white; width: 45%; }
-    .btn-danger { background: #dc3545; color: white; width: 45%; }
+        .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; font-size: 14px; margin-right: 10px; display: inline-flex; align-items: center; }
+        .btn-success { background: #28a745; color: white; width: 45%; }
+        .btn-danger { background: #dc3545; color: white; }
 
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
-    .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 900px; }
-    
-    .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
-    .grid-item-ng { border: 2px solid #dc3545; padding: 15px; border-radius: 8px; margin-bottom: 10px; background: #fff5f5; }
-    
-    .ng-label { font-weight: bold; color: #b21f2d; font-size: 16px; text-transform: uppercase; }
-    .ng-reason-box { margin-top: 10px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #dc3545; font-size: 15px; color: #333; }
-    .all-ok-msg { color: #28a745; font-weight: bold; padding: 10px; font-style: italic; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
+        .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 900px; }
+        
+        .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
+        .grid-item-ng { border: 2px solid #dc3545; padding: 15px; border-radius: 8px; margin-bottom: 10px; background: #fff5f5; }
+        
+        .ng-label { font-weight: bold; color: #b21f2d; font-size: 16px; text-transform: uppercase; }
+        .ng-reason-box { margin-top: 10px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #dc3545; font-size: 15px; color: #333; }
+        .all-ok-msg { color: #28a745; font-weight: bold; padding: 10px; font-style: italic; }
 
-    .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
 
-    .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
-    canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
-    textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
-  </style>
+        .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
+        canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
+        textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
+    </style>
 </head>
 <body>
 
@@ -84,12 +84,19 @@
 
     <div id="modalBody"></div>
 
+    <div style="margin-top: 20px; padding: 15px; background: #fff5f5; border-radius: 8px; border: 1px solid #feb2b2; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <strong style="color: #c53030;">Hapus Data?</strong>
+            <p style="margin: 0; font-size: 12px; color: #742a2a;">Data yang dihapus tidak dapat dikembalikan.</p>
+        </div>
+        <button class="btn btn-danger" onclick="deleteData()">HAPUS PERMANEN</button>
+    </div>
+
     <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
       <div id="pendingSection" style="display:none; text-align:center;">
         <div style="text-align: left; margin-bottom: 15px;">
             <label><strong>Nama Superintendent:</strong></label>
             <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama atau pilih dari daftar...">
-            
             <datalist id="list-super">
                 <option value="A. Rizki Mubarok K"></option>
             </datalist>
@@ -102,11 +109,11 @@
         <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
         <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
         <div style="display: flex; justify-content: space-around;">
-          <button class="btn btn-success" onclick="processStatus('Approved')">APPROVE</button>
-          <button class="btn btn-danger" onclick="showRejectInput()">REJECT</button>
+          <button class="btn btn-success" style="width: 45%;" onclick="processStatus('Approved')">APPROVE</button>
+          <button class="btn btn-danger" style="width: 45%;" onclick="showRejectInput()">REJECT</button>
         </div>
         <div id="rejectInput" style="display:none; margin-top:20px; text-align:left;">
-          <p style="color: red; font-size: 12px;">*Alasan Reject wajib diisi di kotak Keterangan di atas atau di bawah ini.</p>
+          <p style="color: red; font-size: 12px;">*Alasan Reject wajib diisi di kotak Keterangan di atas.</p>
           <button class="btn btn-danger" style="width:100%;" onclick="processStatus('Rejected')">Kirim Penolakan</button>
         </div>
       </div>
@@ -220,6 +227,25 @@
     document.getElementById('namaSuperintendent').value = '';
     document.getElementById('keteranganSuper').value = '';
     clearSig();
+  }
+
+  // FUNGSI HAPUS DATA
+  async function deleteData() {
+    if(!activeId) return;
+    
+    const konfirmasi = confirm("Apakah Anda yakin ingin menghapus data ini secara permanen? Tindakan ini tidak dapat dibatalkan.");
+    
+    if(konfirmasi) {
+        const { error } = await _supabase.from('checklist').delete().eq('id', activeId);
+        
+        if(!error) {
+            alert("Data berhasil dihapus!");
+            closeModal();
+            loadData();
+        } else {
+            alert("Gagal menghapus data: " + error.message);
+        }
+    }
   }
 
   async function processStatus(st) {
