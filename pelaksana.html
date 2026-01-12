@@ -6,77 +6,19 @@
   <title>Data Pelaksana Checklist</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { 
-        font-family: Arial, sans-serif; 
-        margin: 0; padding: 0; 
-        background-color: #f4f4f4; 
-        color: #333; 
-        min-height: 100vh; 
-        display: flex; 
-        flex-direction: column; 
-    }
-    header { 
-        background-color: #003366; 
-        color: white; 
-        padding: 15px 20px; 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; min-height: 100vh; display: flex; flex-direction: column; }
+    header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
     .logo { font-size: 1.5em; font-weight: bold; }
-    
-    /* Tombol Kembali di Header */
-    .btn-back-header {
-        color: white;
-        text-decoration: none;
-        font-weight: bold;
-        background: #004a99;
-        padding: 8px 20px;
-        border-radius: 6px;
-        font-size: 0.9em;
-        transition: background 0.3s;
-        text-transform: uppercase;
-    }
-    .btn-back-header:hover {
-        background: #0059b3;
-    }
-
+    .btn-back-header { color: white; text-decoration: none; font-weight: bold; background: #004a99; padding: 8px 20px; border-radius: 6px; font-size: 0.9em; transition: background 0.3s; text-transform: uppercase; }
+    .btn-back-header:hover { background: #0059b3; }
     .main-content { flex: 1; padding: 40px 20px; text-align: center; }
-    .form-container { 
-        background: white; 
-        padding: 40px; 
-        border-radius: 12px; 
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-        max-width: 500px; 
-        margin: 0 auto; 
-    }
+    .form-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
     .form-group { margin-bottom: 20px; text-align: left; }
     label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
-    input { 
-        width: 100%; 
-        padding: 12px; 
-        border: 1px solid #ccc; 
-        border-radius: 6px; 
-        box-sizing: border-box; 
-        font-size: 1em; 
-        transition: border-color 0.3s;
-        text-transform: uppercase; 
-    }
+    input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; transition: border-color 0.3s; text-transform: uppercase; }
     input:focus { border-color: #003366; outline: none; }
     #weekChecklist { width: 80px; text-align: center; }
-
-    button.submit { 
-        background-color: #155724; 
-        color: white; 
-        padding: 14px 30px; 
-        border: none; 
-        border-radius: 6px; 
-        cursor: pointer; 
-        font-size: 1.1em; 
-        width: 100%; 
-        margin-top: 10px; 
-        font-weight: bold;
-    }
+    button.submit { background-color: #155724; color: white; padding: 14px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1em; width: 100%; margin-top: 10px; font-weight: bold; }
     button.submit:disabled { background-color: #6c757d; cursor: not-allowed; }
   </style>
 </head>
@@ -97,12 +39,42 @@
       
       <div class="form-group">
         <label>Nama Tools / Equipment</label>
-        <input type="text" id="namaTools" placeholder="Contoh: IRON MAN / COMPRESSOR">
+        <input type="text" id="namaTools" list="toolsList" placeholder="Pilih atau Ketik Nama Alat" oninput="autoFillCapacity()">
+        <datalist id="toolsList">
+            <option value="LIANXIN 80 T (TOAD)">
+            <option value="WIBA 270 T (NEBULA)">
+            <option value="WIBA 240 T (SPIDERMAN)">
+            <option value="WIBA 210 T (THOR)">
+            <option value="WIBA 350 T (IRON MAN)">
+            <option value="ARBURG 320 T (STAR LORD)">
+            <option value="WIBA 500 T (STEVE ROGERS)">
+            <option value="WIBA 500 T (THANOS)">
+            <option value="FCS 220 T (BLACKWIDOW)">
+            <option value="ENGEL 220 T (DEADPOOL)">
+            <option value="ARBURG 200 T (WOLVERINE)">
+            <option value="FCS 380 T (LOKI)">
+            <option value="ENGEL 380 T (INHUMANS)">
+            <option value="ENGEL 380 T (HULK)">
+            <option value="NPC 400 T (WANDA)">
+            <option value="ENGEL 280 T (DOCTOR STRANGE)">
+            <option value="FCS 100 T (ANTMAN)">
+            <option value="NPC 160 T (WASP)">
+            <option value="NPC 160 T (WONG)">
+            <option value="FCS 150 T (ROCKET)">
+            <option value="FCS 150 T (MANTIS)">
+            <option value="NPC 160 T (SHANCHI)">
+            <option value="NPC 260 T (VISION)">
+            <option value="NPC 200 T (MAGNETO)">
+            <option value="FCS 100 T (NICK FURRY)">
+            <option value="FCS 250 T (CYCLOPS)">
+            <option value="NPC 260 T (HAWKEYE)">
+            <option value="EXTRUDER">
+        </datalist>
       </div>
 
       <div class="form-group">
         <label>Capacity</label>
-        <input type="text" id="capacity" placeholder="Contoh: 150T / 10 Bar">
+        <input type="text" id="capacity" placeholder="Otomatis terisi jika memilih alat">
       </div>
 
       <div class="form-group">
@@ -123,6 +95,20 @@
     const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Fungsi otomatis isi Capacity berdasarkan angka T
+    function autoFillCapacity() {
+        const toolsInput = document.getElementById('namaTools').value;
+        const capacityInput = document.getElementById('capacity');
+        
+        // Cari angka sebelum huruf "T" menggunakan regex
+        const match = toolsInput.match(/(\d+)\s*T/i);
+        if (match) {
+            capacityInput.value = match[1] + " T";
+        } else if (toolsInput.toUpperCase() === "EXTRUDER") {
+            capacityInput.value = "-";
+        }
+    }
 
     function getWeekNumber(date) {
         const d = new Date(date);
