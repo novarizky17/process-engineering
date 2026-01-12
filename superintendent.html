@@ -37,6 +37,8 @@
         
         .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
         .grid-item-ng { border: 2px solid #dc3545; padding: 15px; border-radius: 8px; margin-bottom: 10px; background: #fff5f5; }
+        .grid-item-na { border: 1px solid #ccc; padding: 10px; border-radius: 8px; margin-bottom: 10px; background: #f9f9f9; color: #777; font-style: italic; }
+        
         .ng-label { font-weight: bold; color: #b21f2d; font-size: 16px; text-transform: uppercase; }
         .ng-reason-box { margin-top: 10px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #dc3545; font-size: 15px; color: #333; }
         .all-ok-msg { color: #28a745; font-weight: bold; padding: 10px; font-style: italic; }
@@ -155,10 +157,10 @@
         const y = (e.clientY || e.touches[0].clientY) - r.top;
         return { x: x * (canvas.width/r.width), y: y * (canvas.height/r.height) };
     }
-    canvas.onmousedown = (e) => { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+    canvas.onmousedown = (e) => { drawing=true; ctx.beginPath(); const p=getP(e); ctx.moveTo(p.x, p.y); };
     canvas.onmousemove = (e) => { if(!drawing) return; const p=getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
     window.onmouseup = () => drawing=false;
-    canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+    canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); const p=getP(e); ctx.moveTo(p.x, p.y); };
     canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; const p=getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
 
     function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
@@ -209,7 +211,6 @@
         renderTable(filteredData);
     }
 
-    // FUNGSI UTAMA: EXPORT KE EXCEL DENGAN AUTO-WIDTH DINAMIS
     function exportToExcel() {
         if (filteredData.length === 0) {
             alert("Tidak ada data untuk diexport!");
@@ -228,14 +229,13 @@
 
         const worksheet = XLSX.utils.json_to_sheet(dataToExport);
 
-        // LOGIKA AUTO-WIDTH: Menyesuaikan lebar kolom dengan teks terpanjang
         const colWidths = Object.keys(dataToExport[0]).map(key => {
             let maxLen = key.length;
             dataToExport.forEach(row => {
                 let cellValue = row[key] ? row[key].toString() : "";
                 if (cellValue.length > maxLen) maxLen = cellValue.length;
             });
-            return { wch: maxLen + 5 }; // Ditambah buffer agar tidak mepet
+            return { wch: maxLen + 5 };
         });
 
         worksheet['!cols'] = colWidths;
@@ -271,15 +271,24 @@
         const body = document.getElementById('modalBody');
         body.innerHTML = '';
         masterStructure.forEach(sec => {
-            let ngItemsHtml = '';
+            let itemsHtml = '';
             sec.fields.forEach(f => {
                 const dbF = sec.prefix + f;
-                if(row[dbF] === 'NG') {
-                    ngItemsHtml += `<div class="grid-item-ng"><div class="ng-label">${f.replace(/_/g,' ')}</div><div class="ng-reason-box"><strong>Temuan:</strong> ${row[dbF + "_keterangan"]}</div></div>`;
+                const val = row[dbF];
+                
+                if(val === 'NG') {
+                    itemsHtml += `<div class="grid-item-ng"><div class="ng-label">${f.replace(/_/g,' ')}</div><div class="ng-reason-box"><strong>Temuan:</strong> ${row[dbF + "_keterangan"]}</div></div>`;
+                } else if (val === 'N/A') {
+                    itemsHtml += `<div class="grid-item-na"><strong>${f.replace(/_/g,' ').toUpperCase()}:</strong> N/A (Tidak Berlaku)</div>`;
                 }
             });
+            
             body.innerHTML += `<div class="section-header">${sec.section}</div>`;
-            body.innerHTML += ngItemsHtml || `<div class="all-ok-msg">✓ Semua item OK</div>`;
+            if (itemsHtml === '') {
+                body.innerHTML += `<div class="all-ok-msg">✓ Semua item OK</div>`;
+            } else {
+                body.innerHTML += itemsHtml;
+            }
         });
 
         const isP = row.status === 'Pending';
