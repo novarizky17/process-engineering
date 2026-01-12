@@ -11,6 +11,7 @@
         header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
         
+        /* Search & Filter Section */
         .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex-wrap: wrap; }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
 
@@ -102,6 +103,7 @@
             <datalist id="list-super">
                 <option value="A. Rizki Mubarok K"></option>
             </datalist>
+            
             <label><strong>Keterangan / Catatan Tambahan:</strong></label>
             <textarea id="keteranganSuper" placeholder="Tambahkan catatan untuk pelaksana (opsional)..."></textarea>
         </div>
@@ -133,7 +135,7 @@
 
   let activeId = null;
   let rawData = []; 
-  let filteredData = []; // Variabel untuk menampung data yang sedang difilter
+  let filteredData = []; 
   const canvas = document.getElementById('sig-canvas');
   const ctx = canvas.getContext('2d');
   canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
@@ -146,7 +148,7 @@
     { section: "5. DUMMY", prefix: "dummy_", fields: ["vacuum", "condition", "flange", "instalasi", "tubbing"] }
   ];
 
-  // Signature Logic
+  // Logic Tanda Tangan
   let drawing = false;
   function getP(e) {
     const r = canvas.getBoundingClientRect();
@@ -162,18 +164,19 @@
 
   function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
 
+  // Load Data dari Supabase
   async function loadData() {
     const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
     if(error) return;
     rawData = data;
-    filteredData = data; // Awalnya filtered sama dengan raw
+    filteredData = data; 
     renderTable(filteredData);
   }
 
   function renderTable(dataList) {
     const tableBody = document.getElementById('mainTable');
     if (dataList.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Tidak ada data yang cocok.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Tidak ada data.</td></tr>`;
         return;
     }
     tableBody.innerHTML = dataList.map(row => `
@@ -208,7 +211,19 @@
       renderTable(filteredData);
   }
 
-  // FUNGSI UTAMA: EXPORT KE EXCEL (HANYA DATA YANG TAMPIL)
+  // Fungsi Hapus (Pastikan Policy DELETE di Supabase sudah aktif)
+  async function deleteData(id) {
+    if(!confirm("Hapus data ini secara permanen?")) return;
+    const { error } = await _supabase.from('checklist').delete().eq('id', id);
+    if(!error) {
+        alert("Data berhasil dihapus!");
+        loadData();
+    } else {
+        alert("Gagal menghapus: " + error.message);
+    }
+  }
+
+  // Fungsi Export Excel dengan Auto-Width
   function exportToExcel() {
     if (filteredData.length === 0) {
         alert("Tidak ada data untuk diexport!");
@@ -226,18 +241,24 @@
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Checklist Data");
+    
+    // Setting Lebar Kolom agar rapi (Auto-width manual)
+    const colWidths = [
+        { wch: 20 }, // Pelaksana
+        { wch: 25 }, // Superintendent
+        { wch: 20 }, // Equipment
+        { wch: 10 }, // Capacity
+        { wch: 15 }, // Tanggal
+        { wch: 12 }, // Status
+        { wch: 50 }, // Keterangan
+    ];
+    worksheet['!cols'] = colWidths;
 
-    // Nama file dinamis mengikuti filter tanggal jika ada
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data Checklist");
+
     const dateVal = document.getElementById('searchDate').value || "Semua_Tanggal";
     XLSX.writeFile(workbook, `Checklist_Report_${dateVal}.xlsx`);
-  }
-
-  async function deleteData(id) {
-    if(!confirm("Hapus data ini?")) return;
-    const { error } = await _supabase.from('checklist').delete().eq('id', id);
-    if(!error) { alert("Data dihapus!"); loadData(); }
   }
 
   function openModal(row) {
@@ -298,7 +319,7 @@
     }
 
     const { error } = await _supabase.from('checklist').update(update).eq('id', activeId);
-    if(!error) { alert("Berhasil!"); closeModal(); loadData(); }
+    if(!error) { alert("Berhasil diproses!"); closeModal(); loadData(); }
   }
 
   function closeModal() { document.getElementById('modal').style.display = 'none'; }
