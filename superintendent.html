@@ -10,6 +10,10 @@
         header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
         
+        /* Search Section */
+        .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+
         .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
@@ -56,6 +60,12 @@
 </header>
 
 <div class="container">
+  <div class="search-section">
+      <strong>Cari Tanggal Checklist:</strong>
+      <input type="date" id="searchDate" class="input-search" onchange="filterDataByDate()">
+      <button class="btn btn-back" onclick="resetFilter()">Reset</button>
+  </div>
+
   <div class="card">
     <table>
       <thead>
@@ -130,6 +140,7 @@
   const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
   let activeId = null;
+  let rawData = []; // Untuk menyimpan data asli agar filter lancar
   const canvas = document.getElementById('sig-canvas');
   const ctx = canvas.getContext('2d');
   canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
@@ -142,6 +153,7 @@
     { section: "5. DUMMY", prefix: "dummy_", fields: ["vacuum", "condition", "flange", "instalasi", "tubbing"] }
   ];
 
+  // Logic Tanda Tangan
   let drawing = false;
   function getP(e) {
     const r = canvas.getBoundingClientRect();
@@ -157,10 +169,21 @@
 
   function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
 
+  // Load Data
   async function loadData() {
     const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
     if(error) return;
-    document.getElementById('mainTable').innerHTML = data.map(row => `
+    rawData = data;
+    renderTable(rawData);
+  }
+
+  function renderTable(dataList) {
+    const tableBody = document.getElementById('mainTable');
+    if (dataList.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Tidak ada data yang cocok.</td></tr>`;
+        return;
+    }
+    tableBody.innerHTML = dataList.map(row => `
       <tr>
         <td><strong>${row.pelaksana?.nama_pelaksana || '-'}</strong></td>
         <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
@@ -174,6 +197,36 @@
         </td>
       </tr>
     `).join('');
+  }
+
+  // Fungsi Filter Tanggal
+  function filterDataByDate() {
+      const selectedDate = document.getElementById('searchDate').value;
+      if (!selectedDate) {
+          renderTable(rawData);
+          return;
+      }
+      // Filter data yang tanggal_checklist nya sama dengan input
+      const filtered = rawData.filter(row => row.pelaksana?.tanggal_checklist === selectedDate);
+      renderTable(filtered);
+  }
+
+  function resetFilter() {
+      document.getElementById('searchDate').value = '';
+      renderTable(rawData);
+  }
+
+  // Fungsi Hapus (Pastikan RLS DELETE di Supabase sudah Aktif)
+  async function deleteData(id) {
+    if(!confirm("Hapus data ini secara permanen?")) return;
+    
+    const { error } = await _supabase.from('checklist').delete().eq('id', id);
+    if(!error) {
+        alert("Data berhasil dihapus!");
+        loadData();
+    } else {
+        alert("Gagal menghapus: " + error.message);
+    }
   }
 
   function openModal(row) {
@@ -226,20 +279,6 @@
     document.getElementById('namaSuperintendent').value = '';
     document.getElementById('keteranganSuper').value = '';
     clearSig();
-  }
-
-  // FUNGSI HAPUS DATA DARI TABEL
-  async function deleteData(id) {
-    const konfirmasi = confirm("Hapus data ini secara permanen? Tindakan ini tidak dapat dibatalkan.");
-    if(konfirmasi) {
-        const { error } = await _supabase.from('checklist').delete().eq('id', id);
-        if(!error) {
-            alert("Data berhasil dihapus!");
-            loadData();
-        } else {
-            alert("Gagal menghapus data: " + error.message);
-        }
-    }
   }
 
   async function processStatus(st) {
