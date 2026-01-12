@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Superintendent - Approval System</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
         header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
         
-        /* Search Section */
-        .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex-wrap: wrap; }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
 
         .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
@@ -26,9 +26,8 @@
 
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
         .btn-primary { background: #007bff; color: white; }
-        .btn-back { background: #6c757d; color: white; text-decoration: none; font-size: 14px; margin-right: 10px; }
-        .btn-success { background: #28a745; color: white; width: 45%; }
-        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; font-size: 14px; }
         .btn-outline-danger { background: transparent; border: 1px solid #dc3545; color: #dc3545; padding: 6px 10px; }
         .btn-outline-danger:hover { background: #dc3545; color: white; }
 
@@ -37,13 +36,11 @@
         
         .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
         .grid-item-ng { border: 2px solid #dc3545; padding: 15px; border-radius: 8px; margin-bottom: 10px; background: #fff5f5; }
-        
         .ng-label { font-weight: bold; color: #b21f2d; font-size: 16px; text-transform: uppercase; }
         .ng-reason-box { margin-top: 10px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #dc3545; font-size: 15px; color: #333; }
         .all-ok-msg { color: #28a745; font-weight: bold; padding: 10px; font-style: italic; }
 
         .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-
         .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
         canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
         textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
@@ -64,6 +61,7 @@
       <strong>Cari Tanggal Checklist:</strong>
       <input type="date" id="searchDate" class="input-search" onchange="filterDataByDate()">
       <button class="btn btn-back" onclick="resetFilter()">Reset</button>
+      <button class="btn btn-success" onclick="exportToExcel()">📊 Download Excel</button>
   </div>
 
   <div class="card">
@@ -87,14 +85,13 @@
 </div>
 
 <div id="modal" class="modal">
-  <div class="modal-content shadow-2xl">
+  <div class="modal-content">
     <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
     <h2 style="color:#003366; margin:0;">Review Checklist</h2>
     <p id="infoPelaksana" style="color:#666; margin-top:5px; font-weight: bold;"></p>
     <hr>
     
     <div id="superNoteArea"></div>
-
     <div id="modalBody"></div>
 
     <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
@@ -105,7 +102,6 @@
             <datalist id="list-super">
                 <option value="A. Rizki Mubarok K"></option>
             </datalist>
-            
             <label><strong>Keterangan / Catatan Tambahan:</strong></label>
             <textarea id="keteranganSuper" placeholder="Tambahkan catatan untuk pelaksana (opsional)..."></textarea>
         </div>
@@ -114,12 +110,8 @@
         <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
         <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
         <div style="display: flex; justify-content: space-around;">
-          <button class="btn btn-success" onclick="processStatus('Approved')">APPROVE</button>
-          <button class="btn btn-danger" onclick="showRejectInput()">REJECT</button>
-        </div>
-        <div id="rejectInput" style="display:none; margin-top:20px; text-align:left;">
-          <p style="color: red; font-size: 12px;">*Alasan Reject wajib diisi di kotak Keterangan di atas.</p>
-          <button class="btn btn-danger" style="width:100%;" onclick="processStatus('Rejected')">Kirim Penolakan</button>
+          <button class="btn btn-success" style="width: 45%;" onclick="processStatus('Approved')">APPROVE</button>
+          <button class="btn btn-danger" style="width: 45%;" onclick="processStatus('Rejected')">REJECT</button>
         </div>
       </div>
 
@@ -140,7 +132,8 @@
   const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
   let activeId = null;
-  let rawData = []; // Untuk menyimpan data asli agar filter lancar
+  let rawData = []; 
+  let filteredData = []; // Variabel untuk menampung data yang sedang difilter
   const canvas = document.getElementById('sig-canvas');
   const ctx = canvas.getContext('2d');
   canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
@@ -153,7 +146,7 @@
     { section: "5. DUMMY", prefix: "dummy_", fields: ["vacuum", "condition", "flange", "instalasi", "tubbing"] }
   ];
 
-  // Logic Tanda Tangan
+  // Signature Logic
   let drawing = false;
   function getP(e) {
     const r = canvas.getBoundingClientRect();
@@ -169,12 +162,12 @@
 
   function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
 
-  // Load Data
   async function loadData() {
     const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
     if(error) return;
     rawData = data;
-    renderTable(rawData);
+    filteredData = data; // Awalnya filtered sama dengan raw
+    renderTable(filteredData);
   }
 
   function renderTable(dataList) {
@@ -193,75 +186,82 @@
         <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
         <td style="text-align: center; white-space: nowrap;">
             <button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button>
-            <button class="btn btn-outline-danger" title="Hapus Permanen" onclick="deleteData('${row.id}')">🗑️</button>
+            <button class="btn btn-outline-danger" title="Hapus" onclick="deleteData('${row.id}')">🗑️</button>
         </td>
       </tr>
     `).join('');
   }
 
-  // Fungsi Filter Tanggal
   function filterDataByDate() {
       const selectedDate = document.getElementById('searchDate').value;
       if (!selectedDate) {
-          renderTable(rawData);
-          return;
+          filteredData = rawData;
+      } else {
+          filteredData = rawData.filter(row => row.pelaksana?.tanggal_checklist === selectedDate);
       }
-      // Filter data yang tanggal_checklist nya sama dengan input
-      const filtered = rawData.filter(row => row.pelaksana?.tanggal_checklist === selectedDate);
-      renderTable(filtered);
+      renderTable(filteredData);
   }
 
   function resetFilter() {
       document.getElementById('searchDate').value = '';
-      renderTable(rawData);
+      filteredData = rawData;
+      renderTable(filteredData);
   }
 
-  // Fungsi Hapus (Pastikan RLS DELETE di Supabase sudah Aktif)
-  async function deleteData(id) {
-    if(!confirm("Hapus data ini secara permanen?")) return;
-    
-    const { error } = await _supabase.from('checklist').delete().eq('id', id);
-    if(!error) {
-        alert("Data berhasil dihapus!");
-        loadData();
-    } else {
-        alert("Gagal menghapus: " + error.message);
+  // FUNGSI UTAMA: EXPORT KE EXCEL (HANYA DATA YANG TAMPIL)
+  function exportToExcel() {
+    if (filteredData.length === 0) {
+        alert("Tidak ada data untuk diexport!");
+        return;
     }
+
+    const dataToExport = filteredData.map(item => ({
+        "Pelaksana": item.pelaksana?.nama_pelaksana || "-",
+        "Superintendent": item.nama_superintendent || "-",
+        "Equipment": item.pelaksana?.nama_tools || "-",
+        "Capacity": item.pelaksana?.capacity || "-",
+        "Tanggal": item.pelaksana?.tanggal_checklist || "-",
+        "Status": item.status,
+        "Keterangan": item.keterangan || "-"
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Checklist Data");
+
+    // Nama file dinamis mengikuti filter tanggal jika ada
+    const dateVal = document.getElementById('searchDate').value || "Semua_Tanggal";
+    XLSX.writeFile(workbook, `Checklist_Report_${dateVal}.xlsx`);
+  }
+
+  async function deleteData(id) {
+    if(!confirm("Hapus data ini?")) return;
+    const { error } = await _supabase.from('checklist').delete().eq('id', id);
+    if(!error) { alert("Data dihapus!"); loadData(); }
   }
 
   function openModal(row) {
     activeId = row.id;
-    document.getElementById('infoPelaksana').innerText = `WEEK: ${row.pelaksana?.week} | Equipment: ${row.pelaksana?.nama_tools} | Pelaksana: ${row.pelaksana?.nama_pelaksana}`;
+    document.getElementById('infoPelaksana').innerText = `PELAKSANA: ${row.pelaksana?.nama_pelaksana} | UNIT: ${row.pelaksana?.nama_tools}`;
     
     if (row.status !== 'Pending') {
-        document.getElementById('superNoteArea').innerHTML = `
-          <div class="section-header">CATATAN SUPERINTENDENT</div>
-          <div class="super-note-box">
-            <strong>Catatan:</strong> ${row.keterangan || "Tidak ada catatan tambahan."}
-          </div>
-        `;
+        document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan:</strong> ${row.keterangan || "-"}</div>`;
     } else {
         document.getElementById('superNoteArea').innerHTML = '';
     }
 
     const body = document.getElementById('modalBody');
     body.innerHTML = '';
-
     masterStructure.forEach(sec => {
       let ngItemsHtml = '';
       sec.fields.forEach(f => {
         const dbF = sec.prefix + f;
         if(row[dbF] === 'NG') {
-          const reason = row[dbF + "_keterangan"] || "(Tidak ada keterangan)";
-          ngItemsHtml += `
-            <div class="grid-item-ng">
-              <div class="ng-label">${f.replace(/_/g,' ')}</div>
-              <div class="ng-reason-box"><strong>Temuan NG:</strong> ${reason}</div>
-            </div>`;
+          ngItemsHtml += `<div class="grid-item-ng"><div class="ng-label">${f.replace(/_/g,' ')}</div><div class="ng-reason-box"><strong>Temuan:</strong> ${row[dbF + "_keterangan"]}</div></div>`;
         }
       });
       body.innerHTML += `<div class="section-header">${sec.section}</div>`;
-      body.innerHTML += ngItemsHtml || `<div class="all-ok-msg">✓ Semua item pada bagian ini OK</div>`;
+      body.innerHTML += ngItemsHtml || `<div class="all-ok-msg">✓ Semua item OK</div>`;
     });
 
     const isP = row.status === 'Pending';
@@ -269,45 +269,38 @@
     document.getElementById('historySection').style.display = isP ? 'none' : 'block';
     
     if(!isP) {
-      document.getElementById('historyLabel').innerText = row.status === 'Approved' ? '✓ DISETUJUI' : '✘ DITOLAK';
-      document.getElementById('historyNamaSuper').innerText = row.nama_superintendent || '-';
+      document.getElementById('historyLabel').innerText = row.status;
+      document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
       document.getElementById('historySigImg').src = row.signature || '';
-      document.getElementById('historySigArea').style.display = row.status === 'Approved' ? 'block' : 'none';
     }
 
     document.getElementById('modal').style.display = 'block';
-    document.getElementById('namaSuperintendent').value = '';
-    document.getElementById('keteranganSuper').value = '';
     clearSig();
   }
 
   async function processStatus(st) {
     const namaSuper = document.getElementById('namaSuperintendent').value;
-    const ketSuper = document.getElementById('keteranganSuper').value;
-
-    if(!namaSuper) return alert("Nama Superintendent Wajib diisi!");
-    if(st === 'Rejected' && !ketSuper) return alert("Alasan Reject Wajib diisi di kotak Keterangan!");
+    if(!namaSuper) return alert("Isi nama superintendent!");
 
     const update = { 
         status: st, 
         approved_at: new Date().toISOString(),
         nama_superintendent: namaSuper,
-        keterangan: ketSuper 
+        keterangan: document.getElementById('keteranganSuper').value 
     };
 
     if(st === 'Approved') {
         const dataURL = canvas.toDataURL();
         const blank = document.createElement('canvas');
         blank.width = canvas.width; blank.height = canvas.height;
-        if(dataURL === blank.toDataURL()) return alert("Tanda tangan Wajib!");
+        if(dataURL === blank.toDataURL()) return alert("TTD wajib!");
         update.signature = dataURL;
     }
 
     const { error } = await _supabase.from('checklist').update(update).eq('id', activeId);
-    if(!error) { alert("Data berhasil diproses!"); closeModal(); loadData(); }
+    if(!error) { alert("Berhasil!"); closeModal(); loadData(); }
   }
 
-  function showRejectInput() { document.getElementById('rejectInput').style.display = 'block'; }
   function closeModal() { document.getElementById('modal').style.display = 'none'; }
   window.onload = loadData;
 </script>
