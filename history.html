@@ -78,6 +78,8 @@
 
         .status-text { font-weight: bold; font-size: 9pt; }
         .ng-color { color: #d32f2f; }
+        /* TAMBAHAN STYLE N/A */
+        .na-color { color: #757575; font-style: italic; } 
         .ng-text-desc { font-size: 8pt; line-height: 1.2; word-wrap: break-word; color: #d32f2f; font-weight: bold; }
 
         .col-no { width: 30px; }
@@ -293,14 +295,21 @@
                     let char = numToChar(alphabetCounter++);
                     let rHtml = `<tr><td class="font-bold">${char}</td><td class="col-item">${item.name}</td>`;
                     for(let w=1; w<=5; w++) {
-                        let statusText = "", ket = "", ngClass = "";
+                        let statusText = "", ket = "", statusClass = ""; // TAMBAHAN VARIABEL statusClass
                         if(dataMap[w]) {
                             const status = dataMap[w][item.field];
                             statusText = status || "";
-                            ngClass = status === 'NG' ? "ng-color" : "";
+                            
+                            // TAMBAHAN LOGIKA WARNA N/A
+                            if (status === 'NG') {
+                                statusClass = "ng-color";
+                            } else if (status === 'N/A') {
+                                statusClass = "na-color";
+                            }
+                            
                             ket = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
                         }
-                        rHtml += `<td class="col-status font-bold ${ngClass}">${statusText}</td>`;
+                        rHtml += `<td class="col-status font-bold ${statusClass}">${statusText}</td>`; // GUNAKAN statusClass
                         rHtml += `<td class="col-ket" style="text-align:left; padding-left:3px;"><span class="ng-text-desc">${ket}</span></td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
@@ -318,13 +327,20 @@
         function renderSuper(dataMap) {
             const sigFrame = document.getElementById('super-sig');
             const nameLabel = document.getElementById('super-name');
-            const hasFinalWeeks = (dataMap[4] || dataMap[5]);
-            if (hasFinalWeeks) {
-                const latestData = dataMap[5] || dataMap[4];
-                if (latestData && latestData.signature) {
-                    sigFrame.innerHTML = `<img src="${latestData.signature}">`;
-                    nameLabel.innerText = `( ${latestData.nama_superintendent || 'SUPERINTENDENT'} )`;
+            
+            // Mencari data terbaru dari minggu 5 ke 1 untuk mengambil TTD
+            const weeks = [5, 4, 3, 2, 1];
+            let latestData = null;
+            for(let w of weeks) {
+                if(dataMap[w] && dataMap[w].signature) {
+                    latestData = dataMap[w];
+                    break;
                 }
+            }
+
+            if (latestData) {
+                sigFrame.innerHTML = `<img src="${latestData.signature}">`;
+                nameLabel.innerText = `( ${latestData.nama_superintendent || 'SUPERINTENDENT'} )`;
             } else {
                 sigFrame.innerHTML = "";
                 nameLabel.innerText = "( ........................ )";
