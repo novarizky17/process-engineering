@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
-        header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5 rgba(0,0,0,0.1); }
         .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
         
         /* Search & Filter Section */
@@ -50,280 +50,277 @@
 <body>
 
 <header>
-  <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
-  <div>
-    <a href="dashboard.html" class="btn btn-back">← Kembali ke Dashboard</a>
-    <button class="btn btn-primary" onclick="loadData()">Refresh Data</button>
-  </div>
+    <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
+    <div>
+        <a href="dashboard.html" class="btn btn-back">← Kembali ke Dashboard</a>
+        <button class="btn btn-primary" onclick="loadData()">Refresh Data</button>
+    </div>
 </header>
 
 <div class="container">
-  <div class="search-section">
-      <strong>Cari Tanggal Checklist:</strong>
-      <input type="date" id="searchDate" class="input-search" onchange="filterDataByDate()">
-      <button class="btn btn-back" onclick="resetFilter()">Reset</button>
-      <button class="btn btn-success" onclick="exportToExcel()">📊 Download Excel</button>
-  </div>
+    <div class="search-section">
+        <strong>Cari Tanggal Checklist:</strong>
+        <input type="date" id="searchDate" class="input-search" onchange="filterDataByDate()">
+        <button class="btn btn-back" onclick="resetFilter()">Reset</button>
+        <button class="btn btn-success" onclick="exportToExcel()">📊 Download Excel</button>
+    </div>
 
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th>Pelaksana</th>
-          <th>Superintendent</th>
-          <th>Equipment / Capacity</th>
-          <th>Tanggal</th>
-          <th>Keterangan</th> 
-          <th>Status</th>
-          <th style="text-align: center;">Aksi</th>
-        </tr>
-      </thead>
-      <tbody id="mainTable">
-        <tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>
-      </tbody>
-    </table>
-  </div>
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Pelaksana</th>
+                    <th>Superintendent</th>
+                    <th>Equipment / Capacity</th>
+                    <th>Tanggal</th>
+                    <th>Keterangan</th> 
+                    <th>Status</th>
+                    <th style="text-align: center;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="mainTable">
+                <tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <div id="modal" class="modal">
-  <div class="modal-content">
-    <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
-    <h2 style="color:#003366; margin:0;">Review Checklist</h2>
-    <p id="infoPelaksana" style="color:#666; margin-top:5px; font-weight: bold;"></p>
-    <hr>
-    
-    <div id="superNoteArea"></div>
-    <div id="modalBody"></div>
+    <div class="modal-content">
+        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
+        <h2 style="color:#003366; margin:0;">Review Checklist</h2>
+        <p id="infoPelaksana" style="color:#666; margin-top:5px; font-weight: bold;"></p>
+        <hr>
+        
+        <div id="superNoteArea"></div>
+        <div id="modalBody"></div>
 
-    <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
-      <div id="pendingSection" style="display:none; text-align:center;">
-        <div style="text-align: left; margin-bottom: 15px;">
-            <label><strong>Nama Superintendent:</strong></label>
-            <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama atau pilih dari daftar...">
-            <datalist id="list-super">
-                <option value="A. Rizki Mubarok K"></option>
-            </datalist>
-            
-            <label><strong>Keterangan / Catatan Tambahan:</strong></label>
-            <textarea id="keteranganSuper" placeholder="Tambahkan catatan untuk pelaksana (opsional)..."></textarea>
-        </div>
+        <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
+            <div id="pendingSection" style="display:none; text-align:center;">
+                <div style="text-align: left; margin-bottom: 15px;">
+                    <label><strong>Nama Superintendent:</strong></label>
+                    <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama atau pilih dari daftar...">
+                    <datalist id="list-super">
+                        <option value="A. Rizki Mubarok K"></option>
+                    </datalist>
+                    
+                    <label><strong>Keterangan / Catatan Tambahan:</strong></label>
+                    <textarea id="keteranganSuper" placeholder="Tambahkan catatan untuk pelaksana (opsional)..."></textarea>
+                </div>
 
-        <p><strong>Tanda Tangan Superintendent:</strong></p>
-        <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
-        <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
-        <div style="display: flex; justify-content: space-around;">
-          <button class="btn btn-success" style="width: 45%;" onclick="processStatus('Approved')">APPROVE</button>
-          <button class="btn btn-danger" style="width: 45%;" onclick="processStatus('Rejected')">REJECT</button>
-        </div>
-      </div>
+                <p><strong>Tanda Tangan Superintendent:</strong></p>
+                <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
+                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
+                <div style="display: flex; justify-content: space-around;">
+                    <button class="btn btn-success" style="width: 45%;" onclick="processStatus('Approved')">APPROVE</button>
+                    <button class="btn btn-danger" style="width: 45%;" onclick="processStatus('Rejected')">REJECT</button>
+                </div>
+            </div>
 
-      <div id="historySection" style="display:none; text-align:center;">
-        <h3 id="historyLabel"></h3>
-        <p><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
-        <div id="historySigArea">
-            <img id="historySigImg" style="max-width:300px; border:1px solid #ddd; padding:5px; background:white;">
+            <div id="historySection" style="display:none; text-align:center;">
+                <h3 id="historyLabel"></h3>
+                <p><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
+                <div id="historySigArea">
+                    <img id="historySigImg" style="max-width:300px; border:1px solid #ddd; padding:5px; background:white;">
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 
 <script>
-  const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
-  const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
+    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-  let activeId = null;
-  let rawData = []; 
-  let filteredData = []; 
-  const canvas = document.getElementById('sig-canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    let activeId = null;
+    let rawData = []; 
+    let filteredData = []; 
+    const canvas = document.getElementById('sig-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
 
-  const masterStructure = [
-    { section: "1. STAND LABEL", prefix: "", fields: ["wiring", "komponen", "kerapihan", "sensor", "timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator", "selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad", "flange", "vacuum_pad_takeout"] },
-    { section: "2. STACKING", prefix: "stacking_", fields: ["wiring", "sensor", "linier", "mechanical_part", "cylinder", "pneumatic"] },
-    { section: "3. CONVEYOR", prefix: "conveyor_", fields: ["belt", "motor", "rantai", "frame", "inverter"] },
-    { section: "4. DOSING", prefix: "dosing_", fields: ["alarm", "setting"] },
-    { section: "5. DUMMY", prefix: "dummy_", fields: ["vacuum", "condition", "flange", "instalasi", "tubbing"] }
-  ];
-
-  // Logic Tanda Tangan
-  let drawing = false;
-  function getP(e) {
-    const r = canvas.getBoundingClientRect();
-    const x = (e.clientX || e.touches[0].clientX) - r.left;
-    const y = (e.clientY || e.touches[0].clientY) - r.top;
-    return { x: x * (canvas.width/r.width), y: y * (canvas.height/r.height) };
-  }
-  canvas.onmousedown = (e) => { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
-  canvas.onmousemove = (e) => { if(!drawing) return; const p=getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
-  window.onmouseup = () => drawing=false;
-  canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
-  canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; const p=getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
-
-  function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-
-  // Load Data dari Supabase
-  async function loadData() {
-    const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
-    if(error) return;
-    rawData = data;
-    filteredData = data; 
-    renderTable(filteredData);
-  }
-
-  function renderTable(dataList) {
-    const tableBody = document.getElementById('mainTable');
-    if (dataList.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Tidak ada data.</td></tr>`;
-        return;
-    }
-    tableBody.innerHTML = dataList.map(row => `
-      <tr>
-        <td><strong>${row.pelaksana?.nama_pelaksana || '-'}</strong></td>
-        <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
-        <td>${row.pelaksana?.nama_tools || '-'} / ${row.pelaksana?.capacity || '-'}</td>
-        <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
-        <td>${row.keterangan || '<i style="color:#ccc">N/A</i>'}</td>
-        <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
-        <td style="text-align: center; white-space: nowrap;">
-            <button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button>
-            <button class="btn btn-outline-danger" title="Hapus" onclick="deleteData('${row.id}')">🗑️</button>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  function filterDataByDate() {
-      const selectedDate = document.getElementById('searchDate').value;
-      if (!selectedDate) {
-          filteredData = rawData;
-      } else {
-          filteredData = rawData.filter(row => row.pelaksana?.tanggal_checklist === selectedDate);
-      }
-      renderTable(filteredData);
-  }
-
-  function resetFilter() {
-      document.getElementById('searchDate').value = '';
-      filteredData = rawData;
-      renderTable(filteredData);
-  }
-
-  // Fungsi Hapus (Pastikan Policy DELETE di Supabase sudah aktif)
-  async function deleteData(id) {
-    if(!confirm("Hapus data ini secara permanen?")) return;
-    const { error } = await _supabase.from('checklist').delete().eq('id', id);
-    if(!error) {
-        alert("Data berhasil dihapus!");
-        loadData();
-    } else {
-        alert("Gagal menghapus: " + error.message);
-    }
-  }
-
-  // Fungsi Export Excel dengan Auto-Width
-  function exportToExcel() {
-    if (filteredData.length === 0) {
-        alert("Tidak ada data untuk diexport!");
-        return;
-    }
-
-    const dataToExport = filteredData.map(item => ({
-        "Pelaksana": item.pelaksana?.nama_pelaksana || "-",
-        "Superintendent": item.nama_superintendent || "-",
-        "Equipment": item.pelaksana?.nama_tools || "-",
-        "Capacity": item.pelaksana?.capacity || "-",
-        "Tanggal": item.pelaksana?.tanggal_checklist || "-",
-        "Status": item.status,
-        "Keterangan": item.keterangan || "-"
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    
-    // Setting Lebar Kolom agar rapi (Auto-width manual)
-    const colWidths = [
-        { wch: 20 }, // Pelaksana
-        { wch: 25 }, // Superintendent
-        { wch: 20 }, // Equipment
-        { wch: 10 }, // Capacity
-        { wch: 15 }, // Tanggal
-        { wch: 12 }, // Status
-        { wch: 50 }, // Keterangan
+    const masterStructure = [
+        { section: "1. STAND LABEL", prefix: "", fields: ["wiring", "komponen", "kerapihan", "sensor", "timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator", "selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad", "flange", "vacuum_pad_takeout"] },
+        { section: "2. STACKING", prefix: "stacking_", fields: ["wiring", "sensor", "linier", "mechanical_part", "cylinder", "pneumatic"] },
+        { section: "3. CONVEYOR", prefix: "conveyor_", fields: ["belt", "motor", "rantai", "frame", "inverter"] },
+        { section: "4. DOSING", prefix: "dosing_", fields: ["alarm", "setting"] },
+        { section: "5. DUMMY", prefix: "dummy_", fields: ["vacuum", "condition", "flange", "instalasi", "tubbing"] }
     ];
-    worksheet['!cols'] = colWidths;
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Data Checklist");
+    let drawing = false;
+    function getP(e) {
+        const r = canvas.getBoundingClientRect();
+        const x = (e.clientX || e.touches[0].clientX) - r.left;
+        const y = (e.clientY || e.touches[0].clientY) - r.top;
+        return { x: x * (canvas.width/r.width), y: y * (canvas.height/r.height) };
+    }
+    canvas.onmousedown = (e) => { drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+    canvas.onmousemove = (e) => { if(!drawing) return; const p=getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+    window.onmouseup = () => drawing=false;
+    canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; const p=getP(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+    canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; const p=getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
 
-    const dateVal = document.getElementById('searchDate').value || "Semua_Tanggal";
-    XLSX.writeFile(workbook, `Checklist_Report_${dateVal}.xlsx`);
-  }
+    function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
 
-  function openModal(row) {
-    activeId = row.id;
-    document.getElementById('infoPelaksana').innerText = `PELAKSANA: ${row.pelaksana?.nama_pelaksana} | UNIT: ${row.pelaksana?.nama_tools}`;
-    
-    if (row.status !== 'Pending') {
-        document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan:</strong> ${row.keterangan || "-"}</div>`;
-    } else {
-        document.getElementById('superNoteArea').innerHTML = '';
+    async function loadData() {
+        const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
+        if(error) return;
+        rawData = data;
+        filteredData = data; 
+        renderTable(filteredData);
     }
 
-    const body = document.getElementById('modalBody');
-    body.innerHTML = '';
-    masterStructure.forEach(sec => {
-      let ngItemsHtml = '';
-      sec.fields.forEach(f => {
-        const dbF = sec.prefix + f;
-        if(row[dbF] === 'NG') {
-          ngItemsHtml += `<div class="grid-item-ng"><div class="ng-label">${f.replace(/_/g,' ')}</div><div class="ng-reason-box"><strong>Temuan:</strong> ${row[dbF + "_keterangan"]}</div></div>`;
+    function renderTable(dataList) {
+        const tableBody = document.getElementById('mainTable');
+        if (dataList.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Tidak ada data.</td></tr>`;
+            return;
         }
-      });
-      body.innerHTML += `<div class="section-header">${sec.section}</div>`;
-      body.innerHTML += ngItemsHtml || `<div class="all-ok-msg">✓ Semua item OK</div>`;
-    });
-
-    const isP = row.status === 'Pending';
-    document.getElementById('pendingSection').style.display = isP ? 'block' : 'none';
-    document.getElementById('historySection').style.display = isP ? 'none' : 'block';
-    
-    if(!isP) {
-      document.getElementById('historyLabel').innerText = row.status;
-      document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
-      document.getElementById('historySigImg').src = row.signature || '';
+        tableBody.innerHTML = dataList.map(row => `
+            <tr>
+                <td><strong>${row.pelaksana?.nama_pelaksana || '-'}</strong></td>
+                <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
+                <td>${row.pelaksana?.nama_tools || '-'} / ${row.pelaksana?.capacity || '-'}</td>
+                <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
+                <td>${row.keterangan || '<i style="color:#ccc">N/A</i>'}</td>
+                <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
+                <td style="text-align: center; white-space: nowrap;">
+                    <button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button>
+                    <button class="btn btn-outline-danger" title="Hapus" onclick="deleteData('${row.id}')">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
     }
 
-    document.getElementById('modal').style.display = 'block';
-    clearSig();
-  }
-
-  async function processStatus(st) {
-    const namaSuper = document.getElementById('namaSuperintendent').value;
-    if(!namaSuper) return alert("Isi nama superintendent!");
-
-    const update = { 
-        status: st, 
-        approved_at: new Date().toISOString(),
-        nama_superintendent: namaSuper,
-        keterangan: document.getElementById('keteranganSuper').value 
-    };
-
-    if(st === 'Approved') {
-        const dataURL = canvas.toDataURL();
-        const blank = document.createElement('canvas');
-        blank.width = canvas.width; blank.height = canvas.height;
-        if(dataURL === blank.toDataURL()) return alert("TTD wajib!");
-        update.signature = dataURL;
+    function filterDataByDate() {
+        const selectedDate = document.getElementById('searchDate').value;
+        if (!selectedDate) {
+            filteredData = rawData;
+        } else {
+            filteredData = rawData.filter(row => row.pelaksana?.tanggal_checklist === selectedDate);
+        }
+        renderTable(filteredData);
     }
 
-    const { error } = await _supabase.from('checklist').update(update).eq('id', activeId);
-    if(!error) { alert("Berhasil diproses!"); closeModal(); loadData(); }
-  }
+    function resetFilter() {
+        document.getElementById('searchDate').value = '';
+        filteredData = rawData;
+        renderTable(filteredData);
+    }
 
-  function closeModal() { document.getElementById('modal').style.display = 'none'; }
-  window.onload = loadData;
+    // FUNGSI UTAMA: EXPORT KE EXCEL DENGAN AUTO-WIDTH DINAMIS
+    function exportToExcel() {
+        if (filteredData.length === 0) {
+            alert("Tidak ada data untuk diexport!");
+            return;
+        }
+
+        const dataToExport = filteredData.map(item => ({
+            "Pelaksana": item.pelaksana?.nama_pelaksana || "-",
+            "Superintendent": item.nama_superintendent || "-",
+            "Equipment": item.pelaksana?.nama_tools || "-",
+            "Capacity": item.pelaksana?.capacity || "-",
+            "Tanggal": item.pelaksana?.tanggal_checklist || "-",
+            "Status": item.status,
+            "Keterangan": item.keterangan || "-"
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+
+        // LOGIKA AUTO-WIDTH: Menyesuaikan lebar kolom dengan teks terpanjang
+        const colWidths = Object.keys(dataToExport[0]).map(key => {
+            let maxLen = key.length;
+            dataToExport.forEach(row => {
+                let cellValue = row[key] ? row[key].toString() : "";
+                if (cellValue.length > maxLen) maxLen = cellValue.length;
+            });
+            return { wch: maxLen + 5 }; // Ditambah buffer agar tidak mepet
+        });
+
+        worksheet['!cols'] = colWidths;
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Data Checklist");
+
+        const dateVal = document.getElementById('searchDate').value || "Semua_Tanggal";
+        XLSX.writeFile(workbook, `Checklist_Report_${dateVal}.xlsx`);
+    }
+
+    async function deleteData(id) {
+        if(!confirm("Hapus data ini secara permanen?")) return;
+        const { error } = await _supabase.from('checklist').delete().eq('id', id);
+        if(!error) {
+            alert("Data berhasil dihapus!");
+            loadData();
+        } else {
+            alert("Gagal menghapus: " + error.message);
+        }
+    }
+
+    function openModal(row) {
+        activeId = row.id;
+        document.getElementById('infoPelaksana').innerText = `PELAKSANA: ${row.pelaksana?.nama_pelaksana} | UNIT: ${row.pelaksana?.nama_tools}`;
+        
+        if (row.status !== 'Pending') {
+            document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan:</strong> ${row.keterangan || "-"}</div>`;
+        } else {
+            document.getElementById('superNoteArea').innerHTML = '';
+        }
+
+        const body = document.getElementById('modalBody');
+        body.innerHTML = '';
+        masterStructure.forEach(sec => {
+            let ngItemsHtml = '';
+            sec.fields.forEach(f => {
+                const dbF = sec.prefix + f;
+                if(row[dbF] === 'NG') {
+                    ngItemsHtml += `<div class="grid-item-ng"><div class="ng-label">${f.replace(/_/g,' ')}</div><div class="ng-reason-box"><strong>Temuan:</strong> ${row[dbF + "_keterangan"]}</div></div>`;
+                }
+            });
+            body.innerHTML += `<div class="section-header">${sec.section}</div>`;
+            body.innerHTML += ngItemsHtml || `<div class="all-ok-msg">✓ Semua item OK</div>`;
+        });
+
+        const isP = row.status === 'Pending';
+        document.getElementById('pendingSection').style.display = isP ? 'block' : 'none';
+        document.getElementById('historySection').style.display = isP ? 'none' : 'block';
+        
+        if(!isP) {
+            document.getElementById('historyLabel').innerText = row.status;
+            document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
+            document.getElementById('historySigImg').src = row.signature || '';
+        }
+
+        document.getElementById('modal').style.display = 'block';
+        clearSig();
+    }
+
+    async function processStatus(st) {
+        const namaSuper = document.getElementById('namaSuperintendent').value;
+        if(!namaSuper) return alert("Isi nama superintendent!");
+
+        const update = { 
+            status: st, 
+            approved_at: new Date().toISOString(),
+            nama_superintendent: namaSuper,
+            keterangan: document.getElementById('keteranganSuper').value 
+        };
+
+        if(st === 'Approved') {
+            const dataURL = canvas.toDataURL();
+            const blank = document.createElement('canvas');
+            blank.width = canvas.width; blank.height = canvas.height;
+            if(dataURL === blank.toDataURL()) return alert("Tanda tangan wajib!");
+            update.signature = dataURL;
+        }
+
+        const { error } = await _supabase.from('checklist').update(update).eq('id', activeId);
+        if(!error) { alert("Berhasil diproses!"); closeModal(); loadData(); }
+    }
+
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    window.onload = loadData;
 </script>
 </body>
 </html>
