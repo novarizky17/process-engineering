@@ -147,7 +147,10 @@
 
                 <div class="max-w-xl mx-auto mb-6">
                     <div class="relative">
-                        <input type="text" id="search-modal-project" oninput="renderAggregateProjects()" placeholder="Cari Judul Project di sini..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        </span>
+                        <input type="text" id="search-modal-project" oninput="renderAggregateProjects()" placeholder="Cari Judul Project di sini..." class="w-full bg-white border border-slate-200 pl-11 pr-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
                     </div>
                 </div>
 
@@ -394,7 +397,6 @@
             }).join('');
         }
 
-        // NEW: Export Project Summary Function
         function exportProjectSummary() {
             const projects = {};
             rawData.forEach(item => {
@@ -547,11 +549,12 @@
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
         
-        // UPDATED: exportToExcel with Auto-Width Logic
+        // UPDATED: exportToExcel with Column Numbering and Auto-Width
         function exportToExcel() {
             if (rawData.length === 0) return alert("Tidak ada data untuk di-export!");
             
-            const exportData = rawData.map(r => ({
+            const exportData = rawData.map((r, index) => ({
+                'NO': index + 1,
                 'Project Name': (r.project_name || "").toUpperCase(),
                 'Task Description': r.task_desc || "-",
                 'Assigned To': r.assigned_to || "-",
@@ -566,6 +569,7 @@
 
             const ws = XLSX.utils.json_to_sheet(exportData);
 
+            // Auto-width logic for each column
             const colWidths = Object.keys(exportData[0]).map(key => {
                 let maxLen = key.length;
                 exportData.forEach(row => {
