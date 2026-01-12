@@ -36,7 +36,6 @@
     .ng-reason-box { margin-top: 10px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #dc3545; font-size: 15px; color: #333; }
     .all-ok-msg { color: #28a745; font-weight: bold; padding: 10px; font-style: italic; }
 
-    /* Kotak Keterangan Superintendent */
     .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
 
     .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
@@ -89,7 +88,11 @@
       <div id="pendingSection" style="display:none; text-align:center;">
         <div style="text-align: left; margin-bottom: 15px;">
             <label><strong>Nama Superintendent:</strong></label>
-            <input type="text" id="namaSuperintendent" class="input-nama" placeholder="Masukkan nama Anda...">
+            <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama atau pilih dari daftar...">
+            
+            <datalist id="list-super">
+                <option value="A. Rizki Mubarok K"></option>
+            </datalist>
             
             <label><strong>Keterangan / Catatan Tambahan:</strong></label>
             <textarea id="keteranganSuper" placeholder="Tambahkan catatan untuk pelaksana (opsional)..."></textarea>
@@ -171,7 +174,6 @@
     activeId = row.id;
     document.getElementById('infoPelaksana').innerText = `WEEK: ${row.pelaksana?.week} | Equipment: ${row.pelaksana?.nama_tools} | Pelaksana: ${row.pelaksana?.nama_pelaksana}`;
     
-    // Tampilkan Keterangan Superintendent jika sudah diisi
     if (row.status !== 'Pending') {
         document.getElementById('superNoteArea').innerHTML = `
           <div class="section-header">CATATAN SUPERINTENDENT</div>
@@ -231,7 +233,7 @@
         status: st, 
         approved_at: new Date().toISOString(),
         nama_superintendent: namaSuper,
-        keterangan: ketSuper // Simpan keterangan ke database
+        keterangan: ketSuper 
     };
 
     if(st === 'Approved') {
