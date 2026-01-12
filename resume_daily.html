@@ -42,7 +42,7 @@
                 <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Monitoring Progres & Analisis Data Terintegrasi</p>
             </div>
             <div class="flex gap-3">
-                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-emerald-500 transition-all shadow-lg">Download Excel</button>
+                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-emerald-500 transition-all shadow-lg">Download Excel All Task</button>
                 <a href="management_tracker.html" class="bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-white/20 transition-all">Kembali</a>
             </div>
         </div>
@@ -156,8 +156,12 @@
 
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
-            <div class="p-6 bg-white border-t flex justify-center">
-                <button onclick="closeProjectAggregateModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Review</button>
+            <div class="p-6 bg-white border-t flex justify-center gap-4">
+                <button onclick="exportProjectSummary()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] shadow-md transition-all active:scale-95 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    Download Ringkasan Excel
+                </button>
+                <button onclick="closeProjectAggregateModal()" class="bg-slate-800 text-white px-8 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Review</button>
             </div>
         </div>
     </div>
@@ -354,7 +358,6 @@
         }
 
         function openProjectAggregateModal() { 
-            // Reset input search saat modal dibuka
             if(document.getElementById('search-modal-project')) {
                 document.getElementById('search-modal-project').value = '';
             }
@@ -365,14 +368,12 @@
 
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
-        // LOGIKA BARU: RENDER AGGREGATE DENGAN FILTER SEARCH
         function renderAggregateProjects() {
             const searchVal = document.getElementById('search-modal-project')?.value.toLowerCase() || "";
             const projects = {};
             
             rawData.forEach(item => {
                 const name = (item.project_name || "Tanpa Nama").toUpperCase();
-                // Filter berdasarkan input search
                 if (searchVal !== "" && !name.toLowerCase().includes(searchVal)) return;
 
                 if (!projects[name]) {
@@ -404,6 +405,41 @@
                     <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div>
                 </div>`;
             }).join('');
+        }
+
+        // FUNGSI BARU: EXPORT RINGKASAN PROJECT KE EXCEL
+        function exportProjectSummary() {
+            const projects = {};
+            rawData.forEach(item => {
+                const name = (item.project_name || "Tanpa Nama").toUpperCase();
+                if (!projects[name]) {
+                    projects[name] = { totalProgress: 0, count: 0 };
+                }
+                projects[name].totalProgress += parseFloat(item.progress_percent || 0);
+                projects[name].count += 1;
+            });
+
+            const exportData = Object.keys(projects).map(name => ({
+                'JUDUL PROJECT': name,
+                'TOTAL TASK': projects[name].count,
+                'AVERAGE PROGRESS (%)': parseFloat((projects[name].totalProgress / projects[name].count).toFixed(1))
+            }));
+
+            if (exportData.length === 0) return alert("Tidak ada data untuk di-export!");
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            
+            // Atur lebar kolom agar rapi
+            const wscols = [
+                {wch: 40}, // JUDUL PROJECT
+                {wch: 15}, // TOTAL TASK
+                {wch: 25}, // AVERAGE PROGRESS
+            ];
+            ws['!cols'] = wscols;
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "RingkasanProject");
+            XLSX.writeFile(wb, "Ringkasan_Project_Report.xlsx");
         }
 
         function openProjectModal(projName) {
@@ -543,7 +579,7 @@
             const ws = XLSX.utils.json_to_sheet(exportData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "DailyReport");
-            XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
+            XLSX.writeFile(wb, "Resume_Daily_Report_All_Tasks.xlsx");
         }
 
         window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); document.getElementById('projectDetailModal').style.display = 'none'; document.getElementById('projectAggregateModal').style.display = 'none'; } };
