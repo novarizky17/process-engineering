@@ -27,7 +27,7 @@
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
         .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; transition: width Day 0.8s ease-out; }
+        .progress-fill { height: 100%; transition: width 0.8s ease-out; }
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -142,6 +142,15 @@
                     </div>
                     <div class="h-[250px] w-full relative">
                         <canvas id="projectPieChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="max-w-xl mx-auto mb-6">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        </span>
+                        <input type="text" id="search-modal-project" oninput="renderAggregateProjects()" placeholder="Cari Judul Project di sini..." class="w-full bg-white border border-slate-200 pl-11 pr-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
                     </div>
                 </div>
 
@@ -272,7 +281,6 @@
             const ctx = document.getElementById('projectPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
 
-            // 1. Kumpulkan data unik per Judul Project
             const projects = {};
             rawData.forEach(item => {
                 const name = (item.project_name || "Tanpa Nama").toUpperCase();
@@ -283,7 +291,6 @@
                 projects[name].count += 1;
             });
 
-            // 2. Hitung Rata-rata dari Nilai Akhir tiap Project (Tanpa Pembulatan Bulat)
             const projectNames = Object.keys(projects);
             const totalProjectCount = projectNames.length;
             
@@ -293,9 +300,8 @@
                 sumOfProjectAverages += avgPerProject;
             });
 
-            // Angka murni sesuai hasil bagi (Misal 56.5)
             const finalOverallProgress = totalProjectCount > 0 ? (sumOfProjectAverages / totalProjectCount).toFixed(1) : 0;
-            const displayValue = parseFloat(finalOverallProgress); // Menghapus .0 jika angkanya bulat
+            const displayValue = parseFloat(finalOverallProgress);
             const remaining = (100 - displayValue).toFixed(1);
 
             document.getElementById('overall-prog-label').innerText = displayValue + '%';
@@ -348,6 +354,10 @@
         }
 
         function openProjectAggregateModal() { 
+            // Reset input search saat modal dibuka
+            if(document.getElementById('search-modal-project')) {
+                document.getElementById('search-modal-project').value = '';
+            }
             renderAggregateProjects(); 
             renderProjectPieChart();
             document.getElementById('projectAggregateModal').style.display = 'block'; 
@@ -355,10 +365,16 @@
 
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
+        // LOGIKA BARU: RENDER AGGREGATE DENGAN FILTER SEARCH
         function renderAggregateProjects() {
+            const searchVal = document.getElementById('search-modal-project')?.value.toLowerCase() || "";
             const projects = {};
+            
             rawData.forEach(item => {
                 const name = (item.project_name || "Tanpa Nama").toUpperCase();
+                // Filter berdasarkan input search
+                if (searchVal !== "" && !name.toLowerCase().includes(searchVal)) return;
+
                 if (!projects[name]) {
                     projects[name] = { totalProgress: 0, count: 0 };
                 }
@@ -367,9 +383,15 @@
             });
 
             const container = document.getElementById('modal-project-list');
-            container.innerHTML = Object.keys(projects).map(projName => {
+            const projectKeys = Object.keys(projects);
+
+            if (projectKeys.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 font-bold italic">Project tidak ditemukan...</div>`;
+                return;
+            }
+
+            container.innerHTML = projectKeys.map(projName => {
                 const data = projects[projName];
-                // Menggunakan toFixed(1) agar muncul desimal seperti 56.5
                 const avgProgress = (data.totalProgress / data.count).toFixed(1);
                 const displayAvg = parseFloat(avgProgress);
 
