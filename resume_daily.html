@@ -27,7 +27,7 @@
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
         .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; transition: width 0.8s ease-out; }
+        .progress-fill { height: 100%; transition: width Day 0.8s ease-out; }
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -146,18 +146,13 @@
                 </div>
 
                 <div class="max-w-xl mx-auto mb-6">
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                        </span>
-                        <input type="text" id="search-modal-project" oninput="renderAggregateProjects()" placeholder="Cari Judul Project di sini..." class="w-full bg-white border border-slate-200 pl-11 pr-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
-                    </div>
+                    <input type="text" id="search-modal-project" oninput="renderAggregateProjects()" placeholder="Cari Judul Project..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
                 </div>
 
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center gap-4">
-                <button onclick="exportProjectSummary()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] shadow-md transition-all active:scale-95 flex items-center gap-2">
+                <button onclick="exportProjectSummary()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] shadow-md transition-all flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     Download Ringkasan Excel
                 </button>
@@ -281,6 +276,7 @@
             });
         }
 
+        // SISIPAN: Logika hitungan per Project sesuai permintaan desimal 56.5%
         function renderProjectPieChart() {
             const ctx = document.getElementById('projectPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
@@ -288,20 +284,16 @@
             const projects = {};
             rawData.forEach(item => {
                 const name = (item.project_name || "Tanpa Nama").toUpperCase();
-                if (!projects[name]) {
-                    projects[name] = { totalProgress: 0, count: 0 };
-                }
+                if (!projects[name]) { projects[name] = { totalProgress: 0, count: 0 }; }
                 projects[name].totalProgress += parseFloat(item.progress_percent || 0);
                 projects[name].count += 1;
             });
 
             const projectNames = Object.keys(projects);
             const totalProjectCount = projectNames.length;
-            
             let sumOfProjectAverages = 0;
             projectNames.forEach(name => {
-                const avgPerProject = projects[name].totalProgress / projects[name].count;
-                sumOfProjectAverages += avgPerProject;
+                sumOfProjectAverages += (projects[name].totalProgress / projects[name].count);
             });
 
             const finalOverallProgress = totalProjectCount > 0 ? (sumOfProjectAverages / totalProjectCount).toFixed(1) : 0;
@@ -358,9 +350,7 @@
         }
 
         function openProjectAggregateModal() { 
-            if(document.getElementById('search-modal-project')) {
-                document.getElementById('search-modal-project').value = '';
-            }
+            if(document.getElementById('search-modal-project')) document.getElementById('search-modal-project').value = '';
             renderAggregateProjects(); 
             renderProjectPieChart();
             document.getElementById('projectAggregateModal').style.display = 'block'; 
@@ -368,24 +358,21 @@
 
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
+        // SISIPAN: render list project dengan fitur filter search
         function renderAggregateProjects() {
             const searchVal = document.getElementById('search-modal-project')?.value.toLowerCase() || "";
             const projects = {};
-            
             rawData.forEach(item => {
                 const name = (item.project_name || "Tanpa Nama").toUpperCase();
                 if (searchVal !== "" && !name.toLowerCase().includes(searchVal)) return;
 
-                if (!projects[name]) {
-                    projects[name] = { totalProgress: 0, count: 0 };
-                }
+                if (!projects[name]) { projects[name] = { totalProgress: 0, count: 0 }; }
                 projects[name].totalProgress += parseFloat(item.progress_percent || 0);
                 projects[name].count += 1;
             });
 
             const container = document.getElementById('modal-project-list');
             const projectKeys = Object.keys(projects);
-
             if (projectKeys.length === 0) {
                 container.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 font-bold italic">Project tidak ditemukan...</div>`;
                 return;
@@ -407,36 +394,27 @@
             }).join('');
         }
 
-        // FUNGSI BARU: EXPORT RINGKASAN PROJECT KE EXCEL
+        // SISIPAN: Fungsi export khusus judul project saja
         function exportProjectSummary() {
             const projects = {};
             rawData.forEach(item => {
                 const name = (item.project_name || "Tanpa Nama").toUpperCase();
-                if (!projects[name]) {
-                    projects[name] = { totalProgress: 0, count: 0 };
-                }
+                if (!projects[name]) { projects[name] = { totalProgress: 0, count: 0 }; }
                 projects[name].totalProgress += parseFloat(item.progress_percent || 0);
                 projects[name].count += 1;
             });
 
-            const exportData = Object.keys(projects).map(name => ({
-                'JUDUL PROJECT': name,
+            const exportData = Object.keys(projects).map((name, index) => ({
+                'NO': index + 1,
+                'PROJECT': name,
                 'TOTAL TASK': projects[name].count,
                 'AVERAGE PROGRESS (%)': parseFloat((projects[name].totalProgress / projects[name].count).toFixed(1))
             }));
 
-            if (exportData.length === 0) return alert("Tidak ada data untuk di-export!");
+            if (exportData.length === 0) return alert("Tidak ada data!");
 
             const ws = XLSX.utils.json_to_sheet(exportData);
-            
-            // Atur lebar kolom agar rapi
-            const wscols = [
-                {wch: 40}, // JUDUL PROJECT
-                {wch: 15}, // TOTAL TASK
-                {wch: 25}, // AVERAGE PROGRESS
-            ];
-            ws['!cols'] = wscols;
-
+            ws['!cols'] = [{wch: 5}, {wch: 50}, {wch: 15}, {wch: 25}];
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "RingkasanProject");
             XLSX.writeFile(wb, "Ringkasan_Project_Report.xlsx");
