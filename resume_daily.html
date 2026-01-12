@@ -146,13 +146,15 @@
                 </div>
 
                 <div class="max-w-xl mx-auto mb-6">
-                    <input type="text" id="search-modal-project" oninput="renderAggregateProjects()" placeholder="Cari Judul Project..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
+                    <div class="relative">
+                        <input type="text" id="search-modal-project" oninput="renderAggregateProjects()" placeholder="Cari Judul Project di sini..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
+                    </div>
                 </div>
 
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center gap-4">
-                <button onclick="exportProjectSummary()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] shadow-md transition-all flex items-center gap-2">
+                <button onclick="exportProjectSummary()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] shadow-md transition-all active:scale-95 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     Download Ringkasan Excel
                 </button>
@@ -276,7 +278,6 @@
             });
         }
 
-        // SISIPAN: Logika hitungan per Project sesuai permintaan desimal 56.5%
         function renderProjectPieChart() {
             const ctx = document.getElementById('projectPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
@@ -358,7 +359,6 @@
 
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
-        // SISIPAN: render list project dengan fitur filter search
         function renderAggregateProjects() {
             const searchVal = document.getElementById('search-modal-project')?.value.toLowerCase() || "";
             const projects = {};
@@ -394,7 +394,7 @@
             }).join('');
         }
 
-        // SISIPAN: Fungsi export khusus judul project saja
+        // NEW: Export Project Summary Function
         function exportProjectSummary() {
             const projects = {};
             rawData.forEach(item => {
@@ -547,14 +547,36 @@
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
         
+        // UPDATED: exportToExcel with Auto-Width Logic
         function exportToExcel() {
             if (rawData.length === 0) return alert("Tidak ada data untuk di-export!");
+            
             const exportData = rawData.map(r => ({
-                'Project Name': r.project_name, 'Task Description': r.task_desc, 'Assigned To': r.assigned_to,
-                'Priority': r.priority, 'Status': r.status, 'Start Date': r.start_date, 'Due Date': r.due_date,
-                'Actual Finish': r.actual_finish, 'Progress (%)': r.progress_percent, 'Worker Comment': r.worker_comment
+                'Project Name': (r.project_name || "").toUpperCase(),
+                'Task Description': r.task_desc || "-",
+                'Assigned To': r.assigned_to || "-",
+                'Priority': r.priority || "Mid",
+                'Status': r.status || "Pending",
+                'Start Date': r.start_date || "-",
+                'Due Date': r.due_date || "-",
+                'Actual Finish': r.actual_finish || "-",
+                'Progress (%)': r.progress_percent || 0,
+                'Worker Comment': r.worker_comment || "-"
             }));
+
             const ws = XLSX.utils.json_to_sheet(exportData);
+
+            const colWidths = Object.keys(exportData[0]).map(key => {
+                let maxLen = key.length;
+                exportData.forEach(row => {
+                    let cellValue = row[key] ? row[key].toString() : "";
+                    if (cellValue.length > maxLen) maxLen = cellValue.length;
+                });
+                return { wch: maxLen + 5 };
+            });
+
+            ws['!cols'] = colWidths;
+
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "DailyReport");
             XLSX.writeFile(wb, "Resume_Daily_Report_All_Tasks.xlsx");
