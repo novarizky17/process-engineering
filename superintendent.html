@@ -166,7 +166,7 @@
     function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
 
     async function loadData() {
-        // PERUBAHAN: Memastikan mengambil kolom 'week' juga (biasanya otomatis terambil dengan '*')
+        // PERBAIKAN: Mengambil data relasi dari tabel 'pelaksana' agar kolom 'week' bisa diakses
         const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
         if(error) return;
         rawData = data;
@@ -186,7 +186,7 @@
                 <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
                 <td>${row.pelaksana?.nama_tools || '-'} / ${row.pelaksana?.capacity || '-'}</td>
                 <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
-                <td><strong>${row.week || '-'}</strong></td> <td>${row.keterangan || '<i style="color:#ccc">N/A</i>'}</td>
+                <td><strong>${row.pelaksana?.week || '-'}</strong></td> <td>${row.keterangan || '<i style="color:#ccc">N/A</i>'}</td>
                 <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
                 <td style="text-align: center; white-space: nowrap;">
                     <button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button>
@@ -224,7 +224,7 @@
             "Equipment": item.pelaksana?.nama_tools || "-",
             "Capacity": item.pelaksana?.capacity || "-",
             "Tanggal": item.pelaksana?.tanggal_checklist || "-",
-            "Week": item.week || "-", // PERUBAHAN: Mengambil langsung dari DB untuk Excel
+            "Week": item.pelaksana?.week || "-", // PERBAIKAN: Export week dari tabel pelaksana
             "Status": item.status,
             "Keterangan": item.keterangan || "-"
         }));
