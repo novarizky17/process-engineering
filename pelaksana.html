@@ -17,7 +17,10 @@
     label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
     input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; transition: border-color 0.3s; text-transform: uppercase; }
     input:focus { border-color: #003366; outline: none; }
-    #weekChecklist { width: 80px; text-align: center; }
+    
+    /* Style khusus agar operator sadar week harus diisi */
+    #weekChecklist { width: 100%; text-align: center; border: 2px solid #003366; font-weight: bold; }
+    
     button.submit { background-color: #155724; color: white; padding: 14px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1em; width: 100%; margin-top: 10px; font-weight: bold; }
     button.submit:disabled { background-color: #6c757d; cursor: not-allowed; }
   </style>
@@ -78,13 +81,13 @@
       </div>
 
       <div class="form-group">
-        <label>Minggu (Week)</label>
-        <input type="number" id="weekChecklist" placeholder="W" min="1" max="53">
+        <label>Tanggal Checklist</label>
+        <input type="date" id="tanggalChecklist">
       </div>
 
       <div class="form-group">
-        <label>Tanggal Checklist</label>
-        <input type="date" id="tanggalChecklist">
+        <label>Minggu (Week)</label>
+        <input type="number" id="weekChecklist" placeholder="Isi Angka Week (Contoh: 12)" min="1">
       </div>
 
       <button class="submit" id="btnLanjut" onclick="simpanDanLanjut()">Lanjut ke Form Checklist</button>
@@ -110,24 +113,12 @@
         }
     }
 
-    function getWeekNumber(date) {
-        const d = new Date(date);
-        d.setHours(0, 0, 0, 0);
-        d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-        const startOfYear = new Date(d.getFullYear(), 0, 1);
-        return Math.ceil((((d - startOfYear) / 86400000) + 1) / 7);
-    }
-
-    const today = new Date().toISOString().split('T')[0];
-    const dateInput = document.getElementById('tanggalChecklist');
-    const weekInput = document.getElementById('weekChecklist');
-    
-    dateInput.value = today;
-    weekInput.value = getWeekNumber(today);
-
-    dateInput.addEventListener('change', function() {
-        weekInput.value = getWeekNumber(this.value);
-    });
+    // UBAH: Hapus fungsi getWeekNumber dan Event Listener
+    // Set tanggal hari ini saja sebagai default
+    window.onload = function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('tanggalChecklist').value = today;
+    };
 
     async function simpanDanLanjut() {
       const nama = document.getElementById('namaPelaksana').value.trim();
@@ -138,7 +129,7 @@
       const btn = document.getElementById('btnLanjut');
 
       if (!nama || !tools || !capacity || !tanggal || !week) {
-        alert('Mohon lengkapi semua data!');
+        alert('Mohon lengkapi semua data, termasuk Week!');
         return;
       }
 
