@@ -166,11 +166,14 @@
     function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
 
     async function loadData() {
-        // PERBAIKAN: Mengambil data relasi dari tabel 'pelaksana' agar kolom 'week' bisa diakses
+        // Ambil semua data (termasuk Approved) dari database
         const { data, error } = await _supabase.from('checklist').select('*, pelaksana(*)').order('created_at', { ascending: false });
         if(error) return;
         rawData = data;
-        filteredData = data; 
+        
+        // MODIFIKASI: Saat load awal (tanpa filter), HANYA tampilkan status 'Pending'
+        filteredData = rawData.filter(row => row.status === 'Pending'); 
+        
         renderTable(filteredData);
     }
 
@@ -186,7 +189,8 @@
                 <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
                 <td>${row.pelaksana?.nama_tools || '-'} / ${row.pelaksana?.capacity || '-'}</td>
                 <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
-                <td><strong>${row.pelaksana?.week || '-'}</strong></td> <td>${row.keterangan || '<i style="color:#ccc">N/A</i>'}</td>
+                <td><strong>${row.pelaksana?.week || '-'}</strong></td> 
+                <td>${row.keterangan || '<i style="color:#ccc">N/A</i>'}</td>
                 <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
                 <td style="text-align: center; white-space: nowrap;">
                     <button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button>
@@ -199,8 +203,10 @@
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
         if (!selectedDate) {
-            filteredData = rawData;
+            // Jika tanggal dikosongkan, kembali ke mode default: HANYA PENDING
+            filteredData = rawData.filter(row => row.status === 'Pending');
         } else {
+            // Jika ada tanggal dipilih, tampilkan SEMUA STATUS (Pending & Approved) pada tanggal tersebut
             filteredData = rawData.filter(row => row.pelaksana?.tanggal_checklist === selectedDate);
         }
         renderTable(filteredData);
@@ -208,7 +214,8 @@
 
     function resetFilter() {
         document.getElementById('searchDate').value = '';
-        filteredData = rawData;
+        // Reset kembali ke mode default: HANYA PENDING
+        filteredData = rawData.filter(row => row.status === 'Pending');
         renderTable(filteredData);
     }
 
@@ -224,7 +231,7 @@
             "Equipment": item.pelaksana?.nama_tools || "-",
             "Capacity": item.pelaksana?.capacity || "-",
             "Tanggal": item.pelaksana?.tanggal_checklist || "-",
-            "Week": item.pelaksana?.week || "-", // PERBAIKAN: Export week dari tabel pelaksana
+            "Week": item.pelaksana?.week || "-", 
             "Status": item.status,
             "Keterangan": item.keterangan || "-"
         }));
