@@ -38,9 +38,16 @@
   <div class="main-content">
     <h1>Data Pelaksana Checklist</h1>
     <div class="form-container">
+      
       <div class="form-group">
         <label>Nama Pelaksana</label>
-        <input type="text" id="namaPelaksana" placeholder="Masukkan nama lengkap">
+        <input type="text" id="namaPelaksana" list="listPelaksana" placeholder="Pilih atau Ketik Nama Lengkap">
+        <datalist id="listPelaksana">
+            <option value="MUHAMMAD ISYQI ROBBANI">
+            <option value="MOHAMAD RYAN FADILAH">
+            <option value="JUMAWAN ZUHDI AMIN">
+            <option value="A.RIZKI MUBAROK K">
+        </datalist>
       </div>
       
       <div class="form-group">
@@ -80,12 +87,12 @@
 
       <div class="form-group">
         <label>Capacity</label>
-        <input type="text" id="capacity" placeholder="Otomatis terisi..." readonly>
+        <input type="text" id="capacity" placeholder="Otomatis terisi jika memilih alat" readonly>
       </div>
 
       <div class="form-group">
         <label>Minggu (Week)</label>
-        <input type="number" id="weekChecklist" placeholder="Isi Angka Week" min="1">
+        <input type="number" id="weekChecklist" placeholder="Isi Angka Week (Contoh: 12)" min="1">
       </div>
 
       <div class="form-group">
@@ -116,7 +123,7 @@
         }
     }
 
-    // Set tanggal hari ini sebagai default
+    // Set tanggal hari ini saja sebagai default
     window.onload = function() {
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('tanggalChecklist').value = today;
