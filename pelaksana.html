@@ -18,9 +18,12 @@
     input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; transition: border-color 0.3s; text-transform: uppercase; }
     input:focus { border-color: #003366; outline: none; }
     
-    /* Style khusus agar operator sadar week harus diisi */
-    #weekChecklist { width: 100%; text-align: center; border: 2px solid #003366; font-weight: bold; }
-    
+    /* Style read-only untuk capacity */
+    input[readonly] { background-color: #e9ecef; cursor: not-allowed; }
+
+    /* Style khusus input week */
+    #weekChecklist { width: 100%; text-align: center; font-weight: bold; font-size: 1.2em; border: 2px solid #003366; }
+
     button.submit { background-color: #155724; color: white; padding: 14px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1em; width: 100%; margin-top: 10px; font-weight: bold; }
     button.submit:disabled { background-color: #6c757d; cursor: not-allowed; }
   </style>
@@ -77,17 +80,17 @@
 
       <div class="form-group">
         <label>Capacity</label>
-        <input type="text" id="capacity" placeholder="Otomatis terisi jika memilih alat">
-      </div>
-
-      <div class="form-group">
-        <label>Tanggal Checklist</label>
-        <input type="date" id="tanggalChecklist">
+        <input type="text" id="capacity" placeholder="Otomatis terisi..." readonly>
       </div>
 
       <div class="form-group">
         <label>Minggu (Week)</label>
         <input type="number" id="weekChecklist" placeholder="Isi Angka Week (Contoh: 12)" min="1">
+      </div>
+
+      <div class="form-group">
+        <label>Tanggal Checklist</label>
+        <input type="date" id="tanggalChecklist">
       </div>
 
       <button class="submit" id="btnLanjut" onclick="simpanDanLanjut()">Lanjut ke Form Checklist</button>
@@ -113,8 +116,7 @@
         }
     }
 
-    // UBAH: Hapus fungsi getWeekNumber dan Event Listener
-    // Set tanggal hari ini saja sebagai default
+    // Set tanggal hari ini sebagai default
     window.onload = function() {
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('tanggalChecklist').value = today;
@@ -144,7 +146,7 @@
               nama_tools: tools.toUpperCase(), 
               capacity: capacity.toUpperCase(), 
               tanggal_checklist: tanggal,
-              week: parseInt(week)
+              week: parseInt(week) // Simpan angka manual operator ke DB
           }])
           .select('id')
           .single();
