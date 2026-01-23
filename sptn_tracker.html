@@ -63,11 +63,13 @@
                 <div class="w-2 h-6 bg-blue-600 rounded-full"></div>
                 <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider">Assign Project Baru</h2>
             </div>
+            
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 
-                <div class="space-y-2 lg:col-span-2"> 
-                    <div class="flex justify-between items-center mb-1">
+                <div class="space-y-2 lg:col-span-2">
+                    <div class="flex justify-between items-end mb-1">
                         <label class="text-[10px] font-bold text-slate-500 uppercase">Project Name (Termasuk Mesin)</label>
+                        
                         <div class="flex bg-slate-100 p-1 rounded-lg">
                             <label class="cursor-pointer">
                                 <input type="radio" name="proj_mode" value="existing" class="peer sr-only" checked onchange="toggleProjectMode()">
@@ -80,40 +82,49 @@
                         </div>
                     </div>
                     
-                    <select id="in-project-existing" class="edit-input !p-3 !text-sm font-bold uppercase">
-                        <option value="">-- Pilih Project --</option>
+                    <select id="in-project-existing" class="edit-input !p-3 !text-sm font-bold uppercase text-slate-700">
+                        <option value="">-- PILIH PROJECT --</option>
                     </select>
 
-                    <input type="text" id="in-project-new" class="edit-input !p-3 !text-sm uppercase hidden" placeholder="CONTOH: PERBAIKAN MOTOR (TOAD)...">
+                    <input type="text" id="in-project-new" class="edit-input !p-3 !text-sm uppercase hidden border-blue-300" placeholder="KETIK NAMA PROJECT BARU...">
                 </div>
 
-                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label><input type="text" id="in-tugas" class="edit-input !p-3 !text-sm"></div>
+                <div class="space-y-2 lg:col-span-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label><input type="text" id="in-tugas" class="edit-input !p-3 !text-sm"></div>
                 
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To</label>
-                    <select id="in-name" class="edit-input !p-3 !text-sm">
-                        <option value="">Pilih Personil</option>
-                        <option value="RYAN">RYAN</option>
-                        <option value="ISYQI">ISYQI</option> <option value="JUMAWAN">JUMAWAN</option>
-                        <option value="EKO">EKO</option>
-                        <option value="TATA">TATA</option>
-                        <option value="BAROK">BAROK</option>
-                    </select>
+                <div class="lg:col-span-2 space-y-3">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To</label>
+                        <select id="in-name" class="edit-input !p-2 !text-sm">
+                            <option value="">Pilih Personil</option>
+                            <option value="RYAN">RYAN</option>
+                            <option value="ISYQI">ISYQI</option> <option value="JUMAWAN">JUMAWAN</option>
+                            <option value="EKO">EKO</option>
+                            <option value="TATA">TATA</option>
+                            <option value="BAROK">BAROK</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Priority</label>
+                            <select id="in-priority" class="edit-input !p-2 !text-xs">
+                                <option value="Low">Low</option><option value="Mid" selected>Mid</option><option value="High">High</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Target Due</label>
+                            <input type="date" id="in-due" class="edit-input !p-2 !text-xs">
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Priority</label>
-                    <select id="in-priority" class="edit-input !p-3 !text-sm">
-                        <option value="Low">Low</option><option value="Mid" selected>Mid</option><option value="High">High</option>
-                    </select>
-                </div>
-                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Target Due</label><input type="date" id="in-due" class="edit-input !p-3 !text-sm"></div>
             </div>
             
             <input type="hidden" id="in-start" value=""> 
 
             <div class="mt-6 flex justify-end">
-                <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase shadow-lg transition-all transform active:scale-95">Assign Project</button>
+                <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                    Assign Task
+                </button>
             </div>
         </div>
 
@@ -129,7 +140,7 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest border-b border-slate-100">
-                            <th class="px-6 py-5">Project Name</th>
+                            <th class="px-6 py-5">Project Name (Mesin)</th>
                             <th class="px-4 py-5 text-center">Total Task</th>
                             <th class="px-4 py-5 text-center">Avg Progress</th>
                             <th class="px-4 py-5 text-center">Latest Due</th>
@@ -152,7 +163,7 @@
                 <button onclick="closeTaskListModal()" class="text-slate-400 hover:text-slate-600 text-3xl font-light">&times;</button>
             </div>
             
-            <div id="task-list-container" class="space-y-4"></div>
+            <div id="task-list-container" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
         </div>
     </div>
 
@@ -237,12 +248,13 @@
             if (error) return;
             allData = data;
             
-            updateProjectDropdown(allData); // UPDATE DROPDOWN
+            // ISI DROPDOWN DENGAN NAMA PROJECT DARI DB
+            updateProjectDropdown(allData); 
             renderTable();
             updateStats(allData);
         }
 
-        // FUNGSI GANTI MODE INPUT
+        // FUNGSI GANTI MODE INPUT (PILIH LAMA vs BUAT BARU)
         function toggleProjectMode() {
             const mode = document.querySelector('input[name="proj_mode"]:checked').value;
             const inputExisting = document.getElementById('in-project-existing');
@@ -251,27 +263,30 @@
             if (mode === 'existing') {
                 inputExisting.classList.remove('hidden');
                 inputNew.classList.add('hidden');
-                inputNew.value = ""; 
+                inputNew.value = ""; // Reset input baru
             } else {
                 inputExisting.classList.add('hidden');
                 inputNew.classList.remove('hidden');
-                inputExisting.value = ""; 
+                inputExisting.value = ""; // Reset dropdown
             }
         }
 
-        // FUNGSI ISI DROPDOWN PROJECT LAMA
+        // FUNGSI UPDATE DROPDOWN PROJECT LAMA
         function updateProjectDropdown(data) {
+            // Ambil semua nama project unik
             const projectNames = [...new Set(data.map(item => (item.project_name || "").toUpperCase()))].sort();
             const select = document.getElementById('in-project-existing');
             const currentVal = select.value;
             
-            select.innerHTML = '<option value="">-- Pilih Project --</option>';
+            // Reset isi option
+            select.innerHTML = '<option value="">-- PILIH PROJECT --</option>';
             projectNames.forEach(name => {
                 if(name.trim() !== "") {
                     select.innerHTML += `<option value="${name}">${name}</option>`;
                 }
             });
 
+            // Kembalikan pilihan jika masih ada di list
             if(projectNames.includes(currentVal)) select.value = currentVal;
         }
 
@@ -297,7 +312,6 @@
                 const group = grouped[pName];
                 const taskCount = group.tasks.length;
                 const avgProgress = (group.totalProgress / taskCount).toFixed(1);
-                
                 let barColor = avgProgress >= 100 ? 'bg-emerald-500' : 'bg-blue-500';
 
                 return `
@@ -340,7 +354,6 @@
             const container = document.getElementById('task-list-container');
             container.innerHTML = tasks.map(t => {
                 const sClass = t.status === 'Done' ? "bg-emerald-100 text-emerald-700" : (t.status === 'Hold' ? "bg-rose-100 text-rose-700" : "bg-blue-100 text-blue-700");
-                
                 return `
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 hover:border-blue-400 transition-all cursor-pointer group" onclick='openReviewModal(${JSON.stringify(t)})'>
                     <div class="flex justify-between items-start mb-2">
@@ -417,7 +430,7 @@
         }
 
         async function saveToDatabase() {
-            // CEK MODE MANA YANG DIPAKAI
+            // CEK MODE (PILIH LAMA / BARU)
             const mode = document.querySelector('input[name="proj_mode"]:checked').value;
             let projectName = "";
 
