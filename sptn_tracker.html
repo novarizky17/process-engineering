@@ -115,7 +115,7 @@
                         </div>
                     </div>
                     
-                    <input type="text" id="in-project-existing" list="project-list-auto" class="edit-input !p-3 !text-sm font-bold uppercase text-slate-700" placeholder="PILIH ATAU KETIK PROJECT BARU...">
+                    <input type="text" id="in-project-existing" list="project-list-auto" class="edit-input !p-3 !text-sm font-bold uppercase text-slate-700" placeholder="PILIH ATAU KETIK PROJECT...">
 
                     <input type="text" id="in-project-new" list="machine-list" class="edit-input !p-3 !text-sm uppercase hidden border-blue-300 font-bold text-blue-600" placeholder="PILIH MESIN...">
                 </div>
@@ -288,12 +288,11 @@
             if (error) return;
             allData = data;
             
-            updateProjectDatalist(allData); // UPDATE SUGGESTIONS
+            updateProjectDatalist(allData); 
             renderTable();
             updateStats(allData);
         }
 
-        // FUNGSI GANTI MODE INPUT (PILIH LAMA vs NAMA MESIN)
         function toggleProjectMode() {
             const mode = document.querySelector('input[name="proj_mode"]:checked').value;
             const inputExisting = document.getElementById('in-project-existing');
@@ -302,15 +301,14 @@
             if (mode === 'existing') {
                 inputExisting.classList.remove('hidden');
                 inputNew.classList.add('hidden');
-                inputNew.value = ""; // Reset input baru
+                inputNew.value = ""; 
             } else {
                 inputExisting.classList.add('hidden');
                 inputNew.classList.remove('hidden');
-                inputExisting.value = ""; // Reset dropdown
+                inputExisting.value = ""; 
             }
         }
 
-        // FUNGSI ISI LIST PROJECT (SUPAYA BISA DIPILIH)
         function updateProjectDatalist(data) {
             const projectNames = [...new Set(data.map(item => (item.project_name || "").toUpperCase()))].sort();
             const datalist = document.getElementById('project-list-auto');
@@ -476,19 +474,54 @@
         }
 
         async function saveToDatabase() {
-            // CEK MODE (PILIH LAMA / NAMA MESIN)
             const mode = document.querySelector('input[name="proj_mode"]:checked').value;
             let projectName = "";
+            let machineName = "";
 
             if (mode === 'existing') {
                 projectName = document.getElementById('in-project-existing').value;
+                // Jika pilih existing, mesin kosong dulu (atau bisa diisi logika lain)
+                machineName = ""; 
             } else {
-                projectName = document.getElementById('in-project-new').value;
+                // Jika mode NEW (Nama Mesin), Project Name diambil dari Nama Mesin
+                // ATAU logic sebelumnya: project name = nama mesin.
+                // Tapi user minta: "Pilih Project (Existing)" ATAU "Nama Mesin (New)".
+                
+                // KOREKSI LOGIKA SESUAI PERMINTAAN:
+                // Jika pilih existing: ambil value input existing
+                // Jika pilih new (mesin): ambil value input mesin, jadikan project name (atau simpan di mesin?)
+                
+                // Mari kita ikuti pola data tabel: Project Name & Machine Name.
+                // Jika User input di "Pilih Project" (Existing/Baru Ketik): Itu masuk Project Name.
+                // Jika User input di "Nama Mesin" (New): Itu masuk Machine Name (dan Project Name diset sama? Atau bagaimana?)
+                
+                // ASUMSI TERBAIK:
+                // Mode Existing: User input Project Name. Machine Name = "-"
+                // Mode New (Mesin): User input Machine Name. Project Name = Machine Name.
+                
+                // TAPI code sebelumnya:
+                // if mode existing -> projectName = existing.value
+                // if mode new -> projectName = new.value (input mesin)
+                
+                projectName = document.getElementById('in-project-new').value; 
+                machineName = document.getElementById('in-project-new').value; // Asumsi nama project = nama mesin utk mode ini
+            }
+            
+            // TAPI TUNGGU, User bilang: "pilih project bisa di ketik dan menambahkan project baru".
+            // Jadi input 'in-project-existing' itu kuncinya.
+            
+            // Revisi logic save agar aman:
+            if (mode === 'existing') {
+                projectName = document.getElementById('in-project-existing').value;
+                machineName = ""; // Kosongkan mesin jika fokus ke project umum
+            } else {
+                projectName = document.getElementById('in-project-new').value; // Nama Mesin jadi Project Name
+                machineName = document.getElementById('in-project-new').value;
             }
 
             const payload = {
                 project_name: projectName.toUpperCase(),
-                machine_name: document.getElementById('in-machine').value.toUpperCase(), 
+                machine_name: machineName.toUpperCase(),
                 task_desc: document.getElementById('in-tugas').value,
                 assigned_to: document.getElementById('in-name').value,
                 priority: document.getElementById('in-priority').value,
@@ -505,7 +538,6 @@
         function clearInputs() {
             document.getElementById('in-project-existing').value = "";
             document.getElementById('in-project-new').value = "";
-            document.getElementById('in-machine').value = "";
             document.getElementById('in-tugas').value = "";
             document.getElementById('in-name').value = "";
             document.getElementById('in-start').value = "";
