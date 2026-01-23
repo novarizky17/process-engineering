@@ -95,6 +95,8 @@
                 <option value="EXTRUDER">
             </datalist>
 
+            <datalist id="project-list-auto"></datalist>
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 
                 <div class="space-y-2 lg:col-span-2"> 
@@ -113,11 +115,9 @@
                         </div>
                     </div>
                     
-                    <select id="in-project-existing" class="edit-input !p-3 !text-sm font-bold uppercase text-slate-700">
-                        <option value="">-- PILIH PROJECT --</option>
-                    </select>
+                    <input type="text" id="in-project-existing" list="project-list-auto" class="edit-input !p-3 !text-sm font-bold uppercase text-slate-700" placeholder="PILIH ATAU KETIK PROJECT BARU...">
 
-                    <input type="text" id="in-project-new" list="machine-list" class="edit-input !p-3 !text-sm uppercase hidden border-blue-300 font-bold text-blue-600" placeholder="PILIH/KETIK NAMA MESIN...">
+                    <input type="text" id="in-project-new" list="machine-list" class="edit-input !p-3 !text-sm uppercase hidden border-blue-300 font-bold text-blue-600" placeholder="PILIH MESIN...">
                 </div>
 
                 <div class="space-y-2 lg:col-span-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label><input type="text" id="in-tugas" class="edit-input !p-3 !text-sm"></div>
@@ -189,7 +189,7 @@
             <div class="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
                     <h2 class="text-xl font-black text-slate-800 uppercase" id="modal-project-title">Project Name</h2>
-                    <p class="text-xs text-slate-400 font-bold uppercase mt-1">Daftar Tugas & Status</p>
+                    <p class="text-xs text-blue-600 font-bold uppercase mt-1" id="modal-machine-name">Machine Name</p>
                 </div>
                 <button onclick="closeTaskListModal()" class="text-slate-400 hover:text-slate-600 text-3xl font-light">&times;</button>
             </div>
@@ -217,10 +217,19 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input type="hidden" id="rev-id">
-                <div class="md:col-span-2">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Project Name</label>
-                    <input type="text" id="rev-project" class="edit-input !text-sm font-bold uppercase">
+                <div class="md:col-span-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Project Name</label>
+                            <input type="text" id="rev-project" list="project-list-auto" class="edit-input !text-sm font-bold uppercase !bg-white">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Nama Mesin</label>
+                            <input type="text" id="rev-machine" list="machine-list" class="edit-input !text-sm font-bold uppercase !bg-white text-blue-600">
+                        </div>
+                    </div>
                 </div>
+
                 <div class="md:col-span-2">
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Deskripsi Tugas</label>
                     <textarea id="rev-tugas" class="edit-input !text-sm h-16 resize-none"></textarea>
@@ -279,7 +288,7 @@
             if (error) return;
             allData = data;
             
-            updateProjectDropdown(allData); // UPDATE DROPDOWN
+            updateProjectDatalist(allData); // UPDATE SUGGESTIONS
             renderTable();
             updateStats(allData);
         }
@@ -301,20 +310,11 @@
             }
         }
 
-        // FUNGSI UPDATE DROPDOWN PROJECT LAMA
-        function updateProjectDropdown(data) {
+        // FUNGSI ISI LIST PROJECT (SUPAYA BISA DIPILIH)
+        function updateProjectDatalist(data) {
             const projectNames = [...new Set(data.map(item => (item.project_name || "").toUpperCase()))].sort();
-            const select = document.getElementById('in-project-existing');
-            const currentVal = select.value;
-            
-            select.innerHTML = '<option value="">-- PILIH PROJECT --</option>';
-            projectNames.forEach(name => {
-                if(name.trim() !== "") {
-                    select.innerHTML += `<option value="${name}">${name}</option>`;
-                }
-            });
-
-            if(projectNames.includes(currentVal)) select.value = currentVal;
+            const datalist = document.getElementById('project-list-auto');
+            datalist.innerHTML = projectNames.map(name => `<option value="${name}">`).join('');
         }
 
         function renderTable() {
@@ -323,31 +323,42 @@
 
             allData.forEach(item => {
                 const pName = (item.project_name || "NO NAME").toUpperCase();
-                if (query && !pName.toLowerCase().includes(query)) return; 
+                const mName = (item.machine_name || "NO MACHINE").toUpperCase();
+                const groupKey = pName + "||" + mName;
 
-                if (!grouped[pName]) {
-                    grouped[pName] = { tasks: [], totalProgress: 0, latestDue: '' };
+                if (query && !groupKey.toLowerCase().includes(query)) return; 
+
+                if (!grouped[groupKey]) {
+                    grouped[groupKey] = { 
+                        projectName: pName, 
+                        machineName: mName,
+                        tasks: [], 
+                        totalProgress: 0, 
+                        latestDue: '' 
+                    };
                 }
-                grouped[pName].tasks.push(item);
-                grouped[pName].totalProgress += parseFloat(item.progress_percent || 0);
+                grouped[groupKey].tasks.push(item);
+                grouped[groupKey].totalProgress += parseFloat(item.progress_percent || 0);
                 
-                if(item.due_date > grouped[pName].latestDue) grouped[pName].latestDue = item.due_date;
+                if(item.due_date > grouped[groupKey].latestDue) grouped[groupKey].latestDue = item.due_date;
             });
 
             const tbody = document.getElementById('project-body');
-            tbody.innerHTML = Object.keys(grouped).map(pName => {
-                const group = grouped[pName];
+            tbody.innerHTML = Object.keys(grouped).map(key => {
+                const group = grouped[key];
                 const taskCount = group.tasks.length;
                 const avgProgress = (group.totalProgress / taskCount).toFixed(1);
-                
                 let barColor = avgProgress >= 100 ? 'bg-emerald-500' : 'bg-blue-500';
 
                 return `
-                    <tr class="hover:bg-slate-50 transition-colors cursor-pointer" onclick="openTaskListModal('${pName}')">
-                        <td class="px-6 py-6 font-bold uppercase text-slate-800">${pName}</td>
-                        <td class="px-4 py-6 text-center font-bold text-slate-500">${taskCount} Tasks</td>
+                    <tr class="hover:bg-slate-50 transition-colors cursor-pointer" onclick="openTaskListModal('${group.projectName}', '${group.machineName}')">
+                        <td class="px-6 py-6">
+                            <div class="font-bold uppercase text-slate-800 text-sm">${group.projectName}</div>
+                            <div class="text-[10px] font-black text-blue-600 uppercase mt-1 tracking-wider bg-blue-50 px-2 py-0.5 rounded inline-block border border-blue-100">${group.machineName}</div>
+                        </td>
+                        <td class="px-4 py-6 text-center font-bold text-slate-500 text-xs">${taskCount} Tasks</td>
                         <td class="px-4 py-6">
-                            <div class="flex flex-col gap-1.5 w-[180px] mx-auto">
+                            <div class="flex flex-col gap-1.5 w-[140px] mx-auto">
                                 <div class="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase">
                                     <span>Avg. Progress</span>
                                     <span>${avgProgress}%</span>
@@ -357,9 +368,9 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="px-4 py-6 text-center font-bold text-slate-600">${group.latestDue || '-'}</td>
+                        <td class="px-4 py-6 text-center font-bold text-slate-600 text-xs">${group.latestDue || '-'}</td>
                         <td class="px-6 py-6 text-center">
-                            <button class="bg-slate-800 text-white px-5 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-black transition-all shadow-sm">
+                            <button class="bg-slate-800 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-black transition-all shadow-sm">
                                 Lihat Detail
                             </button>
                         </td>
@@ -375,14 +386,18 @@
             document.getElementById('stat-done').innerText = data.filter(r => r.status === 'Done').length;
         }
 
-        function openTaskListModal(pName) {
-            const tasks = allData.filter(item => (item.project_name || "").toUpperCase() === pName);
+        function openTaskListModal(pName, mName) {
+            const tasks = allData.filter(item => 
+                (item.project_name || "").toUpperCase() === pName && 
+                (item.machine_name || "NO MACHINE").toUpperCase() === mName
+            );
+            
             document.getElementById('modal-project-title').innerText = pName;
+            document.getElementById('modal-machine-name').innerText = mName;
             
             const container = document.getElementById('task-list-container');
             container.innerHTML = tasks.map(t => {
                 const sClass = t.status === 'Done' ? "bg-emerald-100 text-emerald-700" : (t.status === 'Hold' ? "bg-rose-100 text-rose-700" : "bg-blue-100 text-blue-700");
-                
                 return `
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 hover:border-blue-400 transition-all cursor-pointer group" onclick='openReviewModal(${JSON.stringify(t)})'>
                     <div class="flex justify-between items-start mb-2">
@@ -407,6 +422,7 @@
         function openReviewModal(row) {
             document.getElementById('rev-id').value = row.id;
             document.getElementById('rev-project').value = row.project_name;
+            document.getElementById('rev-machine').value = row.machine_name || ''; 
             document.getElementById('rev-tugas').value = row.task_desc || '';
             document.getElementById('rev-name').value = row.assigned_to;
             document.getElementById('rev-priority').value = row.priority || 'Mid';
@@ -441,6 +457,7 @@
 
             const { error } = await _sb.from('management_tracker').update({
                 project_name: document.getElementById('rev-project').value,
+                machine_name: document.getElementById('rev-machine').value, 
                 task_desc: document.getElementById('rev-tugas').value,
                 assigned_to: document.getElementById('rev-name').value,
                 priority: document.getElementById('rev-priority').value,
@@ -471,6 +488,7 @@
 
             const payload = {
                 project_name: projectName.toUpperCase(),
+                machine_name: document.getElementById('in-machine').value.toUpperCase(), 
                 task_desc: document.getElementById('in-tugas').value,
                 assigned_to: document.getElementById('in-name').value,
                 priority: document.getElementById('in-priority').value,
@@ -479,9 +497,7 @@
                 progress_percent: 0,
                 status: 'Pending'
             };
-
             if(!payload.project_name || !payload.assigned_to) return alert("Lengkapi data!");
-            
             const { error } = await _sb.from('management_tracker').insert([payload]);
             if (!error) { fetchProjectData(); clearInputs(); }
         }
@@ -489,6 +505,7 @@
         function clearInputs() {
             document.getElementById('in-project-existing').value = "";
             document.getElementById('in-project-new').value = "";
+            document.getElementById('in-machine').value = "";
             document.getElementById('in-tugas').value = "";
             document.getElementById('in-name').value = "";
             document.getElementById('in-start').value = "";
