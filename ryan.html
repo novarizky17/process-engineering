@@ -85,7 +85,7 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.1em]">
                             <th class="px-6 py-5">Project / Mesin</th>
-                            <th class="px-6 py-5">Detail Tugas</th> <th class="px-4 py-5 text-center">Priority</th> 
+                            <th class="px-6 py-5" style="min-width: 200px;">Detail Tugas</th> <th class="px-4 py-5 text-center">Priority</th> 
                             <th class="px-4 py-5 text-center" style="min-width: 150px;">Progress (%)</th> 
                             <th class="px-4 py-5 text-center">Start Date</th>
                             <th class="px-4 py-5 text-center">Finish Date</th>
@@ -141,7 +141,6 @@
                 if(isDone || progress >= 100) barColor = "bg-emerald-500";
                 if(row.status === 'Hold') barColor = "bg-rose-500";
 
-                // Menampilkan nama mesin jika ada
                 const machineDisplay = row.machine_name ? `<div class="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded w-fit mt-1">${row.machine_name}</div>` : '';
 
                 return `
@@ -151,8 +150,11 @@
                             ${machineDisplay}
                         </td>
 
-                        <td class="px-6 py-6 text-slate-600 font-medium text-xs align-top">
-                            ${row.task_desc || '-'}
+                        <td class="px-6 py-6 align-top">
+                            ${isDone ? 
+                                `<p class="text-slate-600 font-medium text-xs whitespace-pre-wrap">${row.task_desc || '-'}</p>` : 
+                                `<textarea id="task-desc-${row.id}" class="w-full border rounded p-2 text-[11px] outline-none font-medium text-slate-700 bg-blue-50/30 focus:bg-white focus:ring-1 focus:ring-blue-300" rows="3" placeholder="Tambahkan detail tugas...">${row.task_desc || ''}</textarea>`
+                            }
                         </td>
 
                         <td class="px-4 py-6 text-center align-top"><span class="px-3 py-1 rounded-lg font-black text-[9px] ${pClass}">${row.priority || 'Mid'}</span></td>
@@ -224,6 +226,7 @@
         }
 
         async function saveAllData(id) {
+            const taskDesc = document.getElementById(`task-desc-${id}`).value; // AMBIL VALUE DETAIL TUGAS
             const comment = document.getElementById(`comment-${id}`).value;
             const holdReason = document.getElementById(`hold-reason-${id}`).value.trim();
             const sTime = document.getElementById(`start-time-${id}`).value;
@@ -239,6 +242,7 @@
 
             const updatePayload = {
                 status: selectedStatus,
+                task_desc: taskDesc, // SIMPAN DETAIL TUGAS YANG BARU
                 worker_comment: comment || '-',
                 hold_reason: holdReason || null,
                 work_start_time: sTime ? sTime.replace('T', ' ') : null,
