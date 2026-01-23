@@ -20,6 +20,35 @@
         input[type="datetime-local"] { font-size: 10px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; }
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; position: relative; }
         .progress-fill { height: 100%; transition: width 0.4s ease-in-out; }
+        
+        /* STYLE UNTUK PANEL KHUSUS (MIRIP GAMBAR) */
+        .panel-container {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .panel-label {
+            font-size: 9px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .panel-input {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #334155;
+            outline: none;
+        }
+        .panel-input:focus { border-color: #3b82f6; ring: 1px; }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -83,7 +112,7 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.1em]">
                             <th class="px-6 py-5">Project / Mesin</th>
-                            <th class="px-6 py-5" style="min-width: 350px;">Rincian Tugas</th> <th class="px-4 py-5 text-center">Priority</th> 
+                            <th class="px-6 py-5" style="min-width: 450px;">Rincian Tugas & Update</th> <th class="px-4 py-5 text-center">Priority</th> 
                             <th class="px-4 py-5 text-center" style="min-width: 150px;">Progress (%)</th> 
                             <th class="px-4 py-5 text-center">Start Date</th>
                             <th class="px-4 py-5 text-center">Finish Date</th>
@@ -120,7 +149,6 @@
         }
 
         async function fetchRyanTasks() {
-            // 1. Ambil Data Tugas Utama
             const { data: mainData, error: mainError } = await _sb
                 .from('management_tracker')
                 .select('*')
@@ -129,22 +157,21 @@
             
             if (mainError) return console.error(mainError);
             
-            // 2. Ambil Sub-Task (Rincian Tambahan)
             const taskIds = mainData.map(t => t.id);
-            if(taskIds.length > 0){
-                const { data: subData } = await _sb
-                    .from('employee_subtasks')
-                    .select('*')
-                    .in('parent_task_id', taskIds)
-                    .order('created_at', { ascending: true });
+            const { data: subData, error: subError } = await _sb
+                .from('employee_subtasks')
+                .select('*')
+                .in('parent_task_id', taskIds)
+                .order('created_at', { ascending: true });
 
-                subTasksMap = {};
-                if(subData) {
-                    subData.forEach(sub => {
-                        if(!subTasksMap[sub.parent_task_id]) subTasksMap[sub.parent_task_id] = [];
-                        subTasksMap[sub.parent_task_id].push(sub);
-                    });
-                }
+            if (subError && subError.code !== '42P01') console.error(subError); 
+
+            subTasksMap = {};
+            if(subData) {
+                subData.forEach(sub => {
+                    if(!subTasksMap[sub.parent_task_id]) subTasksMap[sub.parent_task_id] = [];
+                    subTasksMap[sub.parent_task_id].push(sub);
+                });
             }
 
             allTasks = mainData;
@@ -152,7 +179,6 @@
             updateStats(allTasks);
         }
 
-        // --- FUNGSI TAMBAH SUBTASK ---
         async function addSubTask(parentId) {
             const inputElem = document.getElementById(`new-subtask-${parentId}`);
             const desc = inputElem.value.trim();
@@ -164,17 +190,46 @@
             }]);
 
             if(error) alert("Gagal tambah: " + error.message);
-            else { 
-                inputElem.value = ""; 
-                fetchRyanTasks(); 
-            }
+            else { inputElem.value = ""; fetchRyanTasks(); }
         }
 
-        // --- FUNGSI HAPUS SUBTASK ---
         async function deleteSubTask(subId) {
             if(!confirm("Hapus rincian ini?")) return;
             const { error } = await _sb.from('employee_subtasks').delete().eq('id', subId);
             if(!error) fetchRyanTasks();
+        }
+
+        // FUNGSI SIMPAN DARI PANEL BARU (YANG MIRIP GAMBAR)
+        async function saveFromPanel(id) {
+            const priority = document.getElementById(`panel-priority-${id}`).value;
+            const progress = document.getElementById(`panel-progress-${id}`).value;
+            const start = document.getElementById(`panel-start-${id}`).value;
+            const finish = document.getElementById(`panel-finish-${id}`).value;
+            const jobType = document.getElementById(`panel-job-${id}`).value;
+            const note = document.getElementById(`panel-note-${id}`).value;
+            const status = document.getElementById(`panel-status-${id}`).value;
+
+            if (status === 'Hold' && !note) return alert("Keterangan Hold Wajib Diisi!");
+            if (status === 'Done') {
+                if (!start || !finish) return alert("Start & Finish Date Wajib Diisi!");
+                if (!confirm("Konfirmasi Selesai?")) return;
+            }
+
+            const payload = {
+                priority: priority,
+                progress_percent: status === 'Done' ? 100 : parseInt(progress),
+                work_start_time: start ? start.replace('T', ' ') : null,
+                work_end_time: finish ? finish.replace('T', ' ') : null,
+                job_type: jobType,
+                hold_reason: note, // Keterangan disimpan di hold_reason
+                status: status
+            };
+
+            if (status === 'Done') payload.actual_finish = new Date().toISOString().split('T')[0];
+
+            const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
+            if (error) alert("Gagal update: " + error.message);
+            else { alert("Update Berhasil!"); fetchRyanTasks(); }
         }
 
         function renderTasks(dataList) {
@@ -192,8 +247,9 @@
 
                 const machineDisplay = row.machine_name && row.machine_name !== '-' ? `<div class="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded w-fit mt-1 inline-block">${row.machine_name}</div>` : '';
                 
-                // RENDER LIST SUBTASK (RINCIAN TAMBAHAN)
                 const mySubtasks = subTasksMap[row.id] || [];
+                
+                // RENDER LIST SUBTASK
                 let subtaskHtml = mySubtasks.map(sub => `
                     <div class="flex justify-between items-start mb-1 pb-1 border-b border-dashed border-slate-100 last:border-0">
                         <div class="flex items-start gap-2">
@@ -203,6 +259,66 @@
                         ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-400 hover:text-rose-600 text-[10px] font-bold ml-2">&times;</button>` : ''}
                     </div>
                 `).join('');
+
+                // LOGIKA: PANEL KONTROL HANYA MUNCUL JIKA ADA SUBTASK
+                let controlPanelHtml = '';
+                if (mySubtasks.length > 0 && !isDone) {
+                    controlPanelHtml = `
+                    <div class="panel-container">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                            <div>
+                                <label class="panel-label">Priority</label>
+                                <select id="panel-priority-${row.id}" class="panel-input">
+                                    <option value="Low" ${row.priority==='Low'?'selected':''}>Low</option>
+                                    <option value="Mid" ${row.priority==='Mid'?'selected':''}>Mid</option>
+                                    <option value="High" ${row.priority==='High'?'selected':''}>High</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="panel-label">Progress (%)</label>
+                                <input type="number" id="panel-progress-${row.id}" value="${progress}" min="0" max="100" class="panel-input">
+                            </div>
+                            <div>
+                                <label class="panel-label">Start Date</label>
+                                <input type="datetime-local" id="panel-start-${row.id}" value="${row.work_start_time ? row.work_start_time.substring(0,16) : ''}" class="panel-input">
+                            </div>
+                            <div>
+                                <label class="panel-label">Finish Date</label>
+                                <input type="datetime-local" id="panel-finish-${row.id}" value="${row.work_end_time ? row.work_end_time.substring(0,16) : ''}" class="panel-input">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                            <div>
+                                <label class="panel-label">Jenis Pekerjaan</label>
+                                <select id="panel-job-${row.id}" class="panel-input">
+                                    <option value="-" ${!row.job_type || row.job_type === '-' ? 'selected' : ''}>-</option>
+                                    <option value="Improvement" ${row.job_type === 'Improvement' ? 'selected' : ''}>Improvement</option>
+                                    <option value="Overhaul" ${row.job_type === 'Overhaul' ? 'selected' : ''}>Overhaul</option>
+                                    <option value="Perawatan" ${row.job_type === 'Perawatan' ? 'selected' : ''}>Perawatan</option>
+                                    <option value="New Project" ${row.job_type === 'New Project' ? 'selected' : ''}>New Project</option>
+                                    <option value="Trial" ${row.job_type === 'Trial' ? 'selected' : ''}>Trial</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="panel-label">Keterangan</label>
+                                <textarea id="panel-note-${row.id}" rows="1" class="panel-input resize-none" placeholder="Isi catatan...">${row.hold_reason || ''}</textarea>
+                            </div>
+                            <div class="flex gap-2">
+                                <div class="flex-grow">
+                                    <label class="panel-label">Status</label>
+                                    <select id="panel-status-${row.id}" class="panel-input font-bold text-blue-600">
+                                        <option value="Pending" ${row.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                        <option value="In Progress" ${row.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                                        <option value="Hold" ${row.status === 'Hold' ? 'selected' : ''}>Hold</option>
+                                        <option value="Done">Selesai</option>
+                                    </select>
+                                </div>
+                                <button onclick="saveFromPanel(${row.id})" class="bg-blue-600 text-white font-bold text-[10px] rounded px-4 h-[30px] self-end hover:bg-blue-700 shadow-md">SIMPAN</button>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                }
 
                 return `
                     <tr class="hover:bg-slate-50/50 transition-colors">
@@ -222,10 +338,12 @@
                             </div>
 
                             ${!isDone ? `
-                            <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+                            <div class="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100">
                                 <input type="text" id="new-subtask-${row.id}" class="flex-grow bg-white border border-blue-200 rounded px-2 py-1.5 text-[11px] focus:ring-1 focus:ring-blue-400 outline-none text-slate-700 placeholder-slate-400" placeholder="+ Tambah rincian tugas...">
                                 <button onclick="addSubTask(${row.id})" class="bg-blue-600 hover:bg-blue-700 text-white w-7 h-7 rounded flex items-center justify-center font-bold shadow-sm active:scale-95 transition-transform text-sm">+</button>
                             </div>` : ''}
+
+                            ${controlPanelHtml}
                         </td>
 
                         <td class="px-4 py-6 text-center align-top"><span class="px-3 py-1 rounded-lg font-black text-[9px] ${pClass}">${row.priority || 'Mid'}</span></td>
@@ -321,7 +439,7 @@
 
             const updatePayload = {
                 status: selectedStatus,
-                job_type: jobType,
+                job_type: jobType, 
                 hold_reason: holdReason || null,
                 work_start_time: sTime ? sTime.replace('T', ' ') : null,
                 work_end_time: eTime ? eTime.replace('T', ' ') : null,
