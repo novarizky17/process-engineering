@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Work Panel - Ryan</title>
+    <title>Work Panel - Ryan (Subtasks)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -18,8 +18,6 @@
             background-size: 1.1em;
         }
         input[type="datetime-local"] { font-size: 10px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; }
-        
-        /* Styling Progress Bar */
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; position: relative; }
         .progress-fill { height: 100%; transition: width 0.4s ease-in-out; }
     </style>
@@ -32,7 +30,7 @@
                 <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-black text-white backdrop-blur-md border border-white/30 uppercase">R</div>
                 <div>
                     <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Panel Kerja Ryan</h1>
-                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Monitoring Tugas & Laporan Aktivitas</p>
+                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Monitoring Tugas & Sub-Task</p>
                 </div>
             </div>
             <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all border border-white/20"> Kembali </a>
@@ -62,7 +60,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div class="relative">
                 <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Cari Project / Tugas</label>
-                <input type="text" id="search-input" oninput="filterTable()" placeholder="Ketik nama project atau detail tugas..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm">
+                <input type="text" id="search-input" oninput="filterTable()" placeholder="Ketik nama project..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm">
             </div>
             <div>
                 <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Filter Priority</label>
@@ -85,7 +83,7 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.1em]">
                             <th class="px-6 py-5">Project / Mesin</th>
-                            <th class="px-6 py-5" style="min-width: 200px;">Detail Tugas</th> <th class="px-4 py-5 text-center">Priority</th> 
+                            <th class="px-6 py-5" style="min-width: 300px;">Rincian Tugas</th> <th class="px-4 py-5 text-center">Priority</th> 
                             <th class="px-4 py-5 text-center" style="min-width: 150px;">Progress (%)</th> 
                             <th class="px-4 py-5 text-center">Start Date</th>
                             <th class="px-4 py-5 text-center">Finish Date</th>
@@ -105,6 +103,7 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let allTasks = [];
+        let subTasksMap = {}; // Untuk menyimpan sub-task berdasarkan parent_id
 
         function cleanTimestamp(dateStr) {
             if (!dateStr) return '';
@@ -120,14 +119,70 @@
             return `${datePart} ${timePart}`;
         }
 
+        // FETCH DATA UTAMA & SUBTASK
         async function fetchRyanTasks() {
-            const { data, error } = await _sb.from('management_tracker').select('*').eq('assigned_to', 'RYAN').order('created_at', { ascending: false });
-            if (error) return console.error(error);
-            allTasks = data;
+            // 1. Ambil Tugas Utama dari Bos
+            const { data: mainData, error: mainError } = await _sb
+                .from('management_tracker')
+                .select('*')
+                .eq('assigned_to', 'RYAN')
+                .order('created_at', { ascending: false });
+            
+            if (mainError) return console.error(mainError);
+            
+            // 2. Ambil Sub-Task dari tabel baru (employee_subtasks)
+            // Kita ambil semua subtask yang parent_id nya ada di list tugas Ryan
+            const taskIds = mainData.map(t => t.id);
+            const { data: subData, error: subError } = await _sb
+                .from('employee_subtasks')
+                .select('*')
+                .in('parent_task_id', taskIds)
+                .order('created_at', { ascending: true });
+
+            if (subError && subError.code !== '42P01') console.error(subError); // Ignore if table not exist yet
+
+            // 3. Mapping Subtask ke Parent ID
+            subTasksMap = {};
+            if(subData) {
+                subData.forEach(sub => {
+                    if(!subTasksMap[sub.parent_task_id]) subTasksMap[sub.parent_task_id] = [];
+                    subTasksMap[sub.parent_task_id].push(sub);
+                });
+            }
+
+            allTasks = mainData;
             renderTasks(allTasks);
             updateStats(allTasks);
         }
 
+        // FUNGSI TAMBAH SUB-TASK (TOMBOL +)
+        async function addSubTask(parentId) {
+            const inputElem = document.getElementById(`new-subtask-${parentId}`);
+            const desc = inputElem.value.trim();
+            
+            if(!desc) return alert("Isi rincian tugas dulu!");
+
+            const { error } = await _sb.from('employee_subtasks').insert([{
+                parent_task_id: parentId,
+                subtask_desc: desc
+            }]);
+
+            if(error) {
+                alert("Gagal tambah: " + error.message);
+            } else {
+                inputElem.value = ""; // Reset input
+                fetchRyanTasks(); // Refresh tampilan
+            }
+        }
+
+        // FUNGSI HAPUS SUB-TASK
+        async function deleteSubTask(subId) {
+            if(!confirm("Hapus rincian ini?")) return;
+            const { error } = await _sb.from('employee_subtasks').delete().eq('id', subId);
+            if(!error) fetchRyanTasks();
+        }
+
+        // FUNGSI RENDER UTAMA
         function renderTasks(dataList) {
             const tbody = document.getElementById('ryan-work-body');
             tbody.innerHTML = dataList.map(row => {
@@ -143,6 +198,19 @@
 
                 const machineDisplay = row.machine_name ? `<div class="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded w-fit mt-1">${row.machine_name}</div>` : '';
 
+                // --- GENERATE HTML UNTUK SUB-TASKS ---
+                const mySubtasks = subTasksMap[row.id] || [];
+                let subtaskHtml = mySubtasks.map(sub => `
+                    <div class="flex justify-between items-start group/item mb-1.5 pb-1.5 border-b border-dashed border-slate-200 last:border-0">
+                        <div class="flex items-start gap-2">
+                            <div class="mt-1 w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                            <span class="text-xs text-slate-600 font-medium">${sub.subtask_desc}</span>
+                        </div>
+                        ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-300 hover:text-rose-500 text-[10px] font-bold opacity-0 group-hover/item:opacity-100 transition-opacity">Hapus</button>` : ''}
+                    </div>
+                `).join('');
+                // -------------------------------------
+
                 return `
                     <tr class="hover:bg-slate-50/50 transition-colors">
                         <td class="px-6 py-6 font-bold uppercase text-slate-800 align-top">
@@ -151,10 +219,23 @@
                         </td>
 
                         <td class="px-6 py-6 align-top">
-                            ${isDone ? 
-                                `<p class="text-slate-600 font-medium text-xs whitespace-pre-wrap">${row.task_desc || '-'}</p>` : 
-                                `<textarea id="task-desc-${row.id}" class="w-full border rounded p-2 text-[11px] outline-none font-medium text-slate-700 bg-blue-50/30 focus:bg-white focus:ring-1 focus:ring-blue-300" rows="3" placeholder="Tambahkan detail tugas...">${row.task_desc || ''}</textarea>`
-                            }
+                            <div class="bg-slate-100 p-3 rounded-lg border border-slate-200 mb-3 relative">
+                                <span class="absolute -top-2 left-2 bg-slate-200 text-[8px] font-bold text-slate-500 px-2 py-0.5 rounded uppercase tracking-wider">Instruksi Boss</span>
+                                <p class="text-slate-800 font-bold text-xs whitespace-pre-wrap mt-1">${row.task_desc || '-'}</p>
+                            </div>
+
+                            <div class="pl-1">
+                                ${subtaskHtml}
+                            </div>
+
+                            ${!isDone ? `
+                            <div class="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100">
+                                <input type="text" id="new-subtask-${row.id}" class="flex-grow bg-white border border-blue-200 rounded px-2 py-1.5 text-[11px] focus:ring-1 focus:ring-blue-400 outline-none" placeholder="Tambah rincian tugas...">
+                                <button onclick="addSubTask(${row.id})" class="bg-blue-600 hover:bg-blue-700 text-white w-7 h-7 rounded flex items-center justify-center font-bold shadow-sm active:scale-95 transition-transform">
+                                    +
+                                </button>
+                            </div>
+                            ` : ''}
                         </td>
 
                         <td class="px-4 py-6 text-center align-top"><span class="px-3 py-1 rounded-lg font-black text-[9px] ${pClass}">${row.priority || 'Mid'}</span></td>
@@ -226,7 +307,6 @@
         }
 
         async function saveAllData(id) {
-            const taskDesc = document.getElementById(`task-desc-${id}`).value; // AMBIL VALUE DETAIL TUGAS
             const comment = document.getElementById(`comment-${id}`).value;
             const holdReason = document.getElementById(`hold-reason-${id}`).value.trim();
             const sTime = document.getElementById(`start-time-${id}`).value;
@@ -242,7 +322,6 @@
 
             const updatePayload = {
                 status: selectedStatus,
-                task_desc: taskDesc, // SIMPAN DETAIL TUGAS YANG BARU
                 worker_comment: comment || '-',
                 hold_reason: holdReason || null,
                 work_start_time: sTime ? sTime.replace('T', ' ') : null,
