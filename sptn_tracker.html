@@ -22,7 +22,6 @@
 
         @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
         
-        /* Scrollbar Halus */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
@@ -65,7 +64,14 @@
                 <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider">Assign Project Baru</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Project Name</label><input type="text" id="in-project" class="edit-input !p-3 !text-sm uppercase"></div>
+                
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Project Name</label>
+                    <input type="text" id="in-project" list="project-list" class="edit-input !p-3 !text-sm uppercase" placeholder="Pilih atau Ketik Baru...">
+                    <datalist id="project-list">
+                        </datalist>
+                </div>
+
                 <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label><input type="text" id="in-tugas" class="edit-input !p-3 !text-sm"></div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To</label>
@@ -211,19 +217,27 @@
             const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
             if (error) return;
             allData = data;
+            
+            updateProjectList(allData); // UPDATE SUGGESTION LIST
             renderTable();
             updateStats(allData);
         }
 
-        // FUNGSI RENDER TABEL (DI-GROUP BERDASARKAN NAMA PROJECT)
+        // FITUR BARU: UPDATE LIST PROJECT DI DATALIST
+        function updateProjectList(data) {
+            const projectNames = [...new Set(data.map(item => (item.project_name || "").toUpperCase()))].sort();
+            const datalist = document.getElementById('project-list');
+            datalist.innerHTML = projectNames.map(name => `<option value="${name}">`).join('');
+        }
+
+        // FUNGSI RENDER TABEL (DI-GROUP)
         function renderTable() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const grouped = {};
 
-            // Grouping Logic
             allData.forEach(item => {
                 const pName = (item.project_name || "NO NAME").toUpperCase();
-                if (query && !pName.toLowerCase().includes(query)) return; // Filter search
+                if (query && !pName.toLowerCase().includes(query)) return; 
 
                 if (!grouped[pName]) {
                     grouped[pName] = { tasks: [], totalProgress: 0, latestDue: '' };
@@ -231,7 +245,6 @@
                 grouped[pName].tasks.push(item);
                 grouped[pName].totalProgress += parseFloat(item.progress_percent || 0);
                 
-                // Cari tanggal paling akhir
                 if(item.due_date > grouped[pName].latestDue) grouped[pName].latestDue = item.due_date;
             });
 
@@ -276,7 +289,6 @@
             document.getElementById('stat-done').innerText = data.filter(r => r.status === 'Done').length;
         }
 
-        // BUKA MODAL LIST TUGAS
         function openTaskListModal(pName) {
             const tasks = allData.filter(item => (item.project_name || "").toUpperCase() === pName);
             document.getElementById('modal-project-title').innerText = pName;
@@ -306,9 +318,7 @@
 
         function closeTaskListModal() { document.getElementById('taskListModal').style.display = 'none'; }
 
-        // MODAL EDIT TUGAS (DENGAN LOGIKA NOTIF LATE)
         function openReviewModal(row) {
-            // Isi form edit
             document.getElementById('rev-id').value = row.id;
             document.getElementById('rev-project').value = row.project_name;
             document.getElementById('rev-tugas').value = row.task_desc || '';
@@ -319,17 +329,13 @@
             document.getElementById('rev-activity').value = row.worker_comment || '';
             document.getElementById('rev-hold').value = row.hold_reason || '';
             
-            // LOGIKA NOTIFIKASI LATE
             const alertBox = document.getElementById('rev-late-alert');
             const alertText = document.getElementById('rev-late-text');
-            
-            // Hitung selisih hari
             const today = new Date(); today.setHours(0,0,0,0);
             const dueDate = new Date(row.due_date);
             const diffTime = today - dueDate;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
-            // Jika status belum DONE dan Hari Ini > Due Date
             if (row.status !== 'Done' && diffDays > 0) {
                 alertText.innerText = `Tugas ini sudah terlambat ${diffDays} hari! Segera selesaikan.`;
                 alertBox.classList.remove('hidden');
@@ -361,7 +367,7 @@
 
             if (!error) { 
                 closeReviewModal(); 
-                closeTaskListModal(); // Tutup juga listnya agar refresh
+                closeTaskListModal(); 
                 fetchProjectData(); 
             } else { alert("Gagal update: " + error.message); }
         }
