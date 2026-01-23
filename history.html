@@ -7,110 +7,102 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* ================= PENGATURAN PRINT (KUNCI AGAR 1 HALAMAN) ================= */
+        /* PENGATURAN PRINT AGAR TENGAH DAN GARIS TEGAS */
         @page { 
             size: A4 landscape; 
-            margin: 3mm; /* Margin kertas sangat tipis */
+            margin: 5mm; 
         }
 
         @media print {
             body { 
+                padding: 0; 
+                margin: 0; 
                 background: white !important; 
                 -webkit-print-color-adjust: exact; 
-                transform-origin: top left;
-                width: 100%;
-                height: 100%;
-                overflow: hidden; /* Mencegah scroll bar tercetak */
+                display: flex;
+                justify-content: center; /* Konten ke tengah saat print */
             }
             .no-print { display: none !important; }
-            
             .document-page { 
-                width: 100% !important; 
-                height: 100vh !important; /* Paksa tinggi seukuran kertas */
                 box-shadow: none !important; 
-                border: 2px solid black !important;
-                margin: 0 !important;
-                padding: 5px !important; /* Padding dalam container tipis */
+                border: 1.5pt solid black !important; /* Gunakan pt agar garis tidak hilang */
+                width: 100% !important; 
+                max-width: none !important; 
+                margin: 0 auto !important; 
+                padding: 10px !important;
+                transform: scale(0.96); /* Skala sedikit agar tidak terpotong garis pinggirnya */
+                transform-origin: top center;
             }
-
-            /* Hapus margin otomatis browser */
-            html, body { margin: 0; padding: 0; }
+            /* Mempertegas seluruh garis tabel saat print */
+            .table-official, .table-official th, .table-official td {
+                border: 1pt solid black !important;
+            }
+            .header-box, .header-cell {
+                border: 1.5pt solid black !important;
+            }
         }
-        /* =========================================================================== */
 
         body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
         
+        /* Container Utama Center di Layar */
         .document-page { 
             background: white; 
-            width: 297mm; /* Lebar A4 Landscape */
-            min-height: 210mm; 
+            width: 1200px; 
             margin: 0 auto; 
-            padding: 10px; 
+            padding: 20px; 
             border: 2px solid #000; 
             box-sizing: border-box; 
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
         
         /* HEADER */
-        .header-box { border: 2px solid black; margin-bottom: 5px; display: table; width: 100%; border-collapse: collapse; }
+        .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
+        .logo-area { width: 150px; padding: 5px; text-align: center; }
+        .logo-area img { width: 130px; height: auto; display: block; margin: 0 auto; }
+        .title-area { text-align: center; font-size: 16pt; font-weight: bold; padding: 10px; text-transform: uppercase; color: #000; }
         
-        /* Logo diperkecil agar hemat tempat */
-        .logo-area { width: 100px; padding: 2px; text-align: center; }
-        .logo-area img { width: 80px; height: auto; display: block; margin: 0 auto; }
-        
-        .title-area { text-align: center; font-size: 14pt; font-weight: bold; padding: 5px; text-transform: uppercase; color: #000; }
-        
-        .meta-area { width: 280px; font-size: 8pt; padding: 2px; text-transform: uppercase; color: #000; font-weight: bold; }
+        .meta-area { width: 320px; font-size: 9pt; padding: 5px; text-transform: uppercase; color: #000; font-weight: bold; }
         .meta-table { width: 100%; border-collapse: collapse; }
-        .meta-table td { padding: 1px 3px; border: none !important; white-space: nowrap; }
+        .meta-table td { padding: 2px 5px; vertical-align: middle; border: none !important; white-space: nowrap; height: 25px; }
 
-        /* INFO BARIS (Equip, Capacity, dll) */
-        .meta-info { display: flex; justify-content: space-between; margin: 5px 0; font-weight: bold; font-size: 9pt; text-transform: uppercase; color: #000; }
-        .info-value { border-bottom: 1px solid black; min-width: 150px; display: inline-block; padding: 0 5px; margin-left: 5px; }
+        .meta-info { display: flex; justify-content: space-between; margin: 8px 0; font-weight: bold; font-size: 10pt; align-items: flex-end; text-transform: uppercase; color: #000; }
+        .info-label { width: 110px; display: inline-block; }
+        .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
-        /* TABEL UTAMA */
-        .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; margin-bottom: 5px; }
-        
-        /* FONT TABEL KECIL AGAR MUAT */
-        .table-official th, .table-official td { 
-            border: 1px solid black; 
-            padding: 1px 2px; /* Padding sel sangat tipis */
-            font-size: 6.5pt; /* HURUF KECIL */
-            text-align: center; 
-            vertical-align: middle; 
-            color: #000; 
-            height: 14px; /* Tinggi baris dipadatkan */
-        }
-        .table-official th { background-color: #e5e5e5; font-weight: bold; height: 20px; }
+        /* TABLE STYLING AGAR GARIS TETAP MUNCUL */
+        .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
+        .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; color: #000; }
+        .table-official th { background-color: #e5e5e5; font-weight: bold; }
 
-        .ng-color { color: #d32f2f; font-weight: bold; }
+        .status-text { font-weight: bold; font-size: 9pt; }
+        .ng-color { color: #d32f2f; }
         .na-color { color: #757575; font-style: italic; } 
-        .ng-text-desc { font-size: 6pt; line-height: 1; word-wrap: break-word; color: #d32f2f; font-weight: bold; }
+        .ng-text-desc { font-size: 8pt; line-height: 1.2; word-wrap: break-word; color: #d32f2f; font-weight: bold; }
 
-        /* LEBAR KOLOM */
-        .col-no { width: 25px; }
-        .col-item { width: 160px; text-align: left !important; padding-left: 4px !important; font-weight: bold; }
-        .col-standar { width: 110px; text-align: left !important; padding-left: 4px !important; font-size: 6pt; } /* Font Standar Kecil */
-        .col-status { width: 35px; }
-        .col-ket { width: 65px; }
+        .col-no { width: 30px; }
+        .col-item { width: 150px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
+        /* NEW: Kolom Standar */
+        .col-standar { width: 120px; text-align: left !important; padding-left: 5px !important; font-size: 7pt; } 
+        .col-status { width: 40px; }
+        .col-ket { width: 60px; }
         
-        .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; font-size: 7pt; height: 18px; }
+        .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
         
-        /* FOOTER TANDA TANGAN DIPERPENDEK */
-        .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 7pt; height: 50px; }
-        .sig-td { height: 50px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; }
-        .sig-td img { max-height: 45px; width: auto; filter: grayscale(1) contrast(2) brightness(0.5); }
-
-        .footer-flex { display: flex; justify-content: flex-end; margin-top: 5px; text-transform: uppercase; }
-        .diketahui-box { width: 25%; text-align: center; }
-        .sig-frame { border: 1px solid black; width: 120px; height: 60px; margin: 2px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
-        .sig-frame img { max-height: 55px; width: auto; filter: grayscale(1) contrast(3) brightness(0.4); }
-        .name-line { border-top: 1px solid black; width: 150px; margin: 0 auto; padding-top: 2px; font-weight: bold; font-size: 8pt; }
+        /* FOOTER PARAF */
+        .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 80px; }
+        .sig-td { height: 80px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
+        .sig-td img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2) brightness(0.5); }
 
         .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .no-print input, .no-print select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
+        
+        .footer-flex { display: flex; justify-content: space-between; margin-top: 15px; text-transform: uppercase; }
+        .diketahui-box { width: 30%; text-align: center; margin-left: auto; }
+        .sig-frame { border: 1.5px solid black; width: 160px; height: 80px; margin: 5px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
+        .sig-frame img { max-height: 75px; width: auto; filter: grayscale(1) contrast(3) brightness(0.4); }
+        .name-line { border-top: 1.5px solid black; width: 220px; margin: 0 auto; padding-top: 3px; font-weight: bold; color: #000; text-align: center; }
     </style>
 </head>
 <body>
@@ -144,22 +136,21 @@
             <div class="header-cell title-area">CHECKLIST MONITORING TOOLING SUPPORT</div>
             <div class="header-cell meta-area">
                 <table class="meta-table">
-                    <tr><td style="width: 90px;">NO DOKUMEN</td><td>: -</td></tr>
-                    <tr><td>TANGGAL TERBIT</td><td>: -</td></tr>
-                    <tr><td>HALAMAN</td><td>: 1 DARI 1</td></tr>
+                    <tr><td style="width: 120px;">NO DOKUMEN</td><td>: </td></tr>
+                    <tr><td>TANGGAL TERBIT</td><td>: </td></tr>
+                    <tr><td>HALAMAN</td><td>: </td></tr>
                 </table>
             </div>
         </div>
 
         <div class="meta-info">
             <div class="meta-info-left">
-                <div>EQUIPMENT : <span class="info-value" id="label-merk">-</span></div>
-            </div>
-            <div class="meta-info-center">
-                <div>CAPACITY : <span class="info-value" id="label-tonage">-</span></div>
+                <div class="info-row"><span class="info-label">EQUIPMENT</span> : <span class="info-value" id="label-merk">-</span></div>
+                <div class="info-row"><span class="info-label">CAPACITY</span> : <span class="info-value" id="label-tonage">-</span></div>
             </div>
             <div class="meta-info-right">
-                <div>PERIODE : <span class="info-value"><span id="label-bulan">-</span> <span id="label-tahun">-</span></span></div>
+                <div class="info-row"><span class="info-label">BULAN</span> : <span class="info-value" id="label-bulan">-</span></div>
+                <div class="info-row"><span class="info-label">TAHUN</span> : <span class="info-value" id="label-tahun">-</span></div>
             </div>
         </div>
 
@@ -198,10 +189,10 @@
 
         <div class="footer-flex">
             <div class="diketahui-box">
-                <p style="font-weight: bold; font-size: 8pt; margin-bottom: 2px;">DIKETAHUI</p>
+                <p style="font-weight: bold; margin-bottom: 5px;">DIKETAHUI</p>
                 <div class="sig-frame" id="super-sig"></div>
                 <div id="super-name" class="name-line">( ........................ )</div>
-                <p style="font-size: 7pt; margin-top: 2px; font-weight: bold;">PROCESS ENGINEERING</p>
+                <p style="font-size: 8pt; margin-top: 2px;">PROCESS ENGINEERING</p>
             </div>
         </div>
     </div>
@@ -305,9 +296,11 @@
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
                     alphabetCounter = 1;
+                    // Ubah colspan jadi 13 karena ada tambahan kolom Standar
                     tbody.innerHTML += `<tr><td colspan="3" class="section-header">${item.header}</td><td colspan="10"></td></tr>`;
                 } else {
                     let char = numToChar(alphabetCounter++);
+                    // Tambahkan kolom standar di sini
                     let rHtml = `<tr><td class="font-bold">${char}</td><td class="col-item">${item.name}</td><td class="col-standar">${item.standar}</td>`;
                     for(let w=1; w<=5; w++) {
                         let statusText = "", ket = "", statusClass = "";
@@ -324,7 +317,7 @@
                             ket = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
                         }
                         rHtml += `<td class="col-status font-bold ${statusClass}">${statusText}</td>`;
-                        rHtml += `<td class="col-ket" style="text-align:left; padding-left:1px;"><span class="ng-text-desc">${ket}</span></td>`;
+                        rHtml += `<td class="col-ket" style="text-align:left; padding-left:3px;"><span class="ng-text-desc">${ket}</span></td>`;
                     }
                     tbody.innerHTML += rHtml + `</tr>`;
                 }
