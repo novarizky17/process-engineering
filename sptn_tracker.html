@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Superintendent Tracker - Project Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,16 +11,27 @@
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
         .gradient-navy { background: linear-gradient(135deg, #001f3f 0%, #003366 100%); }
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        .edit-input { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; width: 100%; font-size: 12px; outline: none; transition: all 0.2s; }
+        .edit-input { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; width: 100%; font-size: 14px; outline: none; transition: all 0.2s; }
         .edit-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
         
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
         .modal-content { background: white; margin: 2% auto; padding: 24px; border-radius: 20px; width: 95%; max-width: 800px; animation: slideIn 0.3s; max-height: 90vh; overflow-y: auto; }
         
+        /* STYLE KHUSUS POP-UP PICKER (Supaya enak di HP) */
+        .picker-modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
+        .picker-box { 
+            background: white; position: absolute; bottom: 0; width: 100%; height: 85vh; 
+            border-radius: 24px 24px 0 0; padding: 20px; animation: slideUp 0.3s; display: flex; flex-direction: column; 
+        }
+        .picker-list { overflow-y: auto; flex: 1; margin-top: 10px; }
+        .picker-item { padding: 16px; border-bottom: 1px solid #f1f5f9; font-weight: 600; font-size: 14px; color: #334155; cursor: pointer; }
+        .picker-item:active { background-color: #f0f9ff; color: #2563eb; }
+
+        @keyframes slideUp { from {transform: translateY(100%);} to {transform: translateY(0);} }
+        @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+        
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 8px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.5s ease-in-out; }
-
-        @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
         
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -64,43 +75,6 @@
                 <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider">Assign Project Baru</h2>
             </div>
             
-            <datalist id="machine-list">
-                <option value="LIANXIN 80 T (TOAD)">
-                <option value="WIBA 270 T (NEBULA)">
-                <option value="WIBA 240 T (SPIDERMAN)">
-                <option value="WIBA 210 T (THOR)">
-                <option value="WIBA 350 T (IRON MAN)">
-                <option value="ARBURG 320 T (STAR LORD)">
-                <option value="WIBA 500 T (STEVE ROGERS)">
-                <option value="WIBA 500 T (THANOS)">
-                <option value="FCS 220 T (BLACKWIDOW)">
-                <option value="ENGEL 220 T (DEADPOOL)">
-                <option value="ARBURG 200 T (WOLVERINE)">
-                <option value="FCS 380 T (LOKI)">
-                <option value="ENGEL 380 T (INHUMANS)">
-                <option value="ENGEL 380 T (HULK)">
-                <option value="NPC 400 T (WANDA)">
-                <option value="ENGEL 280 T (DOCTOR STRANGE)">
-                <option value="FCS 100 T (ANTMAN)">
-                <option value="NPC 160 T (WASP)">
-                <option value="NPC 160 T (WONG)">
-                <option value="FCS 150 T (ROCKET)">
-                <option value="FCS 150 T (MANTIS)">
-                <option value="NPC 160 T (SHANCHI)">
-                <option value="NPC 260 T (VISION)">
-                <option value="NPC 200 T (MAGNETO)">
-                <option value="FCS 100 T (NICK FURRY)">
-                <option value="FCS 250 T (CYCLOPS)">
-                <option value="NPC 260 T (HAWKEYE)">
-                <option value="EXTRUDER">
-            </datalist>
-
-            <datalist id="project-list-auto"></datalist>
-            <datalist id="task-list-auto"></datalist>
-            <datalist id="personnel-list-auto">
-                <option value="RYAN"><option value="ISYQI"><option value="JUMAWAN"><option value="EKO"><option value="TATA"><option value="BAROK">
-            </datalist>
-
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 
                 <div class="space-y-2 lg:col-span-2"> 
@@ -117,19 +91,23 @@
                             </label>
                         </div>
                     </div>
-                    <input type="text" id="in-project-existing" list="project-list-auto" class="edit-input !p-3 !text-sm font-bold uppercase text-slate-700" placeholder="PILIH ATAU KETIK PROJECT BARU...">
-                    <input type="text" id="in-project-new" list="machine-list" class="edit-input !p-3 !text-sm uppercase hidden border-blue-300 font-bold text-blue-600" placeholder="PILIH MESIN...">
+                    
+                    <input type="text" id="in-project-existing" readonly onclick="openPicker('project')" class="edit-input !p-3 !text-sm font-bold uppercase text-slate-700 cursor-pointer bg-white border-2 border-blue-50" placeholder="KETIK / PILIH PROJECT...">
+
+                    <input type="text" id="in-project-new" readonly onclick="openPicker('machine')" class="edit-input !p-3 !text-sm uppercase hidden border-2 border-blue-50 font-bold text-blue-600 cursor-pointer bg-white" placeholder="PILIH MESIN...">
                 </div>
 
-                <div class="space-y-2 lg:col-span-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label><input type="text" id="in-tugas" list="task-list-auto" class="edit-input !p-3 !text-sm" placeholder="Pilih Tugas Lama atau Ketik Baru..."></div>
+                <div class="space-y-2 lg:col-span-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label>
+                    <input type="text" id="in-tugas" onclick="openPicker('task')" class="edit-input !p-3 !text-sm" placeholder="Pilih Tugas Lama atau Ketik Baru...">
+                </div>
                 
                 <div class="lg:col-span-2 space-y-3">
                     <div class="grid grid-cols-2 gap-2">
                         <div class="space-y-1">
                             <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To</label>
-                            <input type="text" id="in-name" list="personnel-list-auto" class="edit-input !p-2 !text-sm uppercase" placeholder="Nama Personil...">
+                            <input type="text" id="in-name" readonly onclick="openPicker('personnel')" class="edit-input !p-2 !text-sm uppercase cursor-pointer bg-white" placeholder="Pilih Personil...">
                         </div>
-                        
                         <div class="space-y-1">
                             <label class="text-[10px] font-bold text-slate-500 uppercase">Jenis Pekerjaan</label>
                             <select id="in-job-type" class="edit-input !p-2 !text-xs cursor-pointer bg-slate-50 border-blue-200">
@@ -183,7 +161,8 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest border-b border-slate-100">
                             <th class="px-6 py-5">Project Name / Mesin</th>
-                            <th class="px-4 py-5 text-center">Jenis</th> <th class="px-4 py-5 text-center">Total Task</th>
+                            <th class="px-4 py-5 text-center">Jenis</th> 
+                            <th class="px-4 py-5 text-center">Total Task</th>
                             <th class="px-4 py-5 text-center">Avg Progress</th>
                             <th class="px-4 py-5 text-center">Latest Due</th>
                             <th class="px-6 py-5 text-center">Action</th>
@@ -195,6 +174,25 @@
         </div>
     </div>
 
+    <div id="pickerModal" class="picker-modal" onclick="closePicker(event)">
+        <div class="picker-box" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 id="picker-title" class="text-lg font-black text-slate-800 uppercase">Pilih Data</h3>
+                <button onclick="document.getElementById('pickerModal').style.display='none'" class="text-2xl text-slate-400">&times;</button>
+            </div>
+            
+            <div class="relative mb-3">
+                <input type="text" id="picker-search" oninput="filterPicker()" class="w-full border-2 border-slate-100 rounded-xl p-3 pl-10 text-sm font-bold outline-none focus:border-blue-500 uppercase" placeholder="Cari atau Ketik Baru...">
+                <svg class="w-5 h-5 absolute left-3 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            
+            <button id="btn-add-new" onclick="selectNewValue()" class="w-full bg-blue-100 text-blue-700 py-3 rounded-xl font-bold uppercase text-xs mb-3 hidden">
+                + Gunakan Nama Ini
+            </button>
+
+            <div id="picker-list" class="picker-list space-y-2"></div>
+        </div>
+    </div>
     <div id="taskListModal" class="modal">
         <div class="modal-content shadow-2xl">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -204,7 +202,6 @@
                 </div>
                 <button onclick="closeTaskListModal()" class="text-slate-400 hover:text-slate-600 text-3xl font-light">&times;</button>
             </div>
-            
             <div id="task-list-container" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
         </div>
     </div>
@@ -215,7 +212,6 @@
                 <h2 class="text-xl font-black text-slate-800 uppercase">Edit Task</h2>
                 <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
             </div>
-
             <div id="rev-late-alert" class="hidden mb-6 bg-rose-100 border-l-4 border-rose-500 text-rose-700 p-4 rounded-r-lg shadow-sm animate-pulse">
                 <div class="flex items-center">
                     <div class="py-1"><svg class="fill-current h-6 w-6 text-rose-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/></svg></div>
@@ -232,11 +228,11 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="text-[10px] font-bold text-slate-400 uppercase">Project Name</label>
-                            <input type="text" id="rev-project" list="project-list-auto" class="edit-input !text-sm font-bold uppercase !bg-white">
+                            <input type="text" id="rev-project" class="edit-input !text-sm font-bold uppercase !bg-white">
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-slate-400 uppercase">Nama Mesin</label>
-                            <input type="text" id="rev-machine" list="machine-list" class="edit-input !text-sm font-bold uppercase !bg-white text-blue-600">
+                            <input type="text" id="rev-machine" class="edit-input !text-sm font-bold uppercase !bg-white text-blue-600">
                         </div>
                     </div>
                 </div>
@@ -247,7 +243,7 @@
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Assigned To</label>
-                    <input type="text" id="rev-name" list="personnel-list-auto" class="edit-input font-bold uppercase">
+                    <input type="text" id="rev-name" class="edit-input font-bold uppercase">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Jenis Pekerjaan</label>
@@ -298,18 +294,115 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let allData = [];
+        let currentPickerTarget = ""; // Untuk tau input mana yang lagi diklik
+
+        // DATA MASTER (STATIC + DYNAMIC)
+        const MASTER_DATA = {
+            machine: [
+                "LIANXIN 80 T (TOAD)", "WIBA 270 T (NEBULA)", "WIBA 240 T (SPIDERMAN)", 
+                "WIBA 210 T (THOR)", "WIBA 350 T (IRON MAN)", "ARBURG 320 T (STAR LORD)", 
+                "WIBA 500 T (STEVE ROGERS)", "WIBA 500 T (THANOS)", "FCS 220 T (BLACKWIDOW)", 
+                "ENGEL 220 T (DEADPOOL)", "ARBURG 200 T (WOLVERINE)", "FCS 380 T (LOKI)", 
+                "ENGEL 380 T (INHUMANS)", "ENGEL 380 T (HULK)", "NPC 400 T (WANDA)", 
+                "ENGEL 280 T (DOCTOR STRANGE)", "FCS 100 T (ANTMAN)", "NPC 160 T (WASP)", 
+                "NPC 160 T (WONG)", "FCS 150 T (ROCKET)", "FCS 150 T (MANTIS)", 
+                "NPC 160 T (SHANCHI)", "NPC 260 T (VISION)", "NPC 200 T (MAGNETO)", 
+                "FCS 100 T (NICK FURRY)", "FCS 250 T (CYCLOPS)", "NPC 260 T (HAWKEYE)", "EXTRUDER"
+            ],
+            personnel: ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"],
+            project: [], // Akan diisi dari database
+            task: []     // Akan diisi dari database
+        };
 
         async function fetchProjectData() {
             const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
             if (error) return;
             allData = data;
             
-            updateProjectDatalist(allData); 
-            updateTaskDatalist(allData); 
-            updatePersonnelDatalist(allData); 
+            // UPDATE DATA MASTER DARI DATABASE
+            MASTER_DATA.project = [...new Set(data.map(i => (i.project_name || "").toUpperCase()))].sort();
+            MASTER_DATA.task = [...new Set(data.map(i => (i.task_desc || "").trim()))].sort();
+            const dbPersonnel = data.map(i => (i.assigned_to || "").toUpperCase());
+            MASTER_DATA.personnel = [...new Set([...MASTER_DATA.personnel, ...dbPersonnel])].sort();
+
             renderTable();
             updateStats(allData);
         }
+
+        // --- FUNGSI PICKER POP-UP (SOLUSI ANDROID) ---
+        function openPicker(type) {
+            currentPickerTarget = type;
+            const modal = document.getElementById('pickerModal');
+            const title = document.getElementById('picker-title');
+            const search = document.getElementById('picker-search');
+            
+            search.value = ""; // Reset pencarian
+            document.getElementById('btn-add-new').classList.add('hidden'); 
+
+            let items = [];
+            if(type === 'project') { title.innerText = "PILIH PROJECT"; items = MASTER_DATA.project; }
+            else if(type === 'machine') { title.innerText = "PILIH MESIN"; items = MASTER_DATA.machine; }
+            else if(type === 'personnel') { title.innerText = "PILIH PERSONIL"; items = MASTER_DATA.personnel; }
+            else if(type === 'task') { title.innerText = "PILIH TUGAS"; items = MASTER_DATA.task; }
+
+            renderPickerList(items);
+            modal.style.display = 'block';
+            search.focus(); // Fokus ke pencarian otomatis
+        }
+
+        function renderPickerList(items) {
+            const list = document.getElementById('picker-list');
+            list.innerHTML = items.map(item => `
+                <div class="picker-item hover:bg-slate-50 transition-colors" onclick="selectValue('${item}')">${item}</div>
+            `).join('');
+            
+            if(items.length === 0) list.innerHTML = '<div class="p-4 text-center text-slate-400 text-xs italic">Data tidak ditemukan. Ketik untuk buat baru.</div>';
+        }
+
+        function filterPicker() {
+            const query = document.getElementById('picker-search').value.toUpperCase();
+            const btnAdd = document.getElementById('btn-add-new');
+            
+            let source = [];
+            if(currentPickerTarget === 'project') source = MASTER_DATA.project;
+            else if(currentPickerTarget === 'machine') source = MASTER_DATA.machine;
+            else if(currentPickerTarget === 'personnel') source = MASTER_DATA.personnel;
+            else if(currentPickerTarget === 'task') source = MASTER_DATA.task;
+
+            const filtered = source.filter(item => item.toUpperCase().includes(query));
+            renderPickerList(filtered);
+
+            // Jika mengetik sesuatu yang tidak ada di list, munculkan tombol "Gunakan Nama Ini"
+            if(query.length > 0) {
+                btnAdd.classList.remove('hidden');
+                btnAdd.innerText = `+ PAKAI: "${query}"`;
+            } else {
+                btnAdd.classList.add('hidden');
+            }
+        }
+
+        function selectValue(val) {
+            applyValueToInput(val);
+        }
+
+        function selectNewValue() {
+            const val = document.getElementById('picker-search').value.toUpperCase();
+            applyValueToInput(val);
+        }
+
+        function applyValueToInput(val) {
+            if(currentPickerTarget === 'project') document.getElementById('in-project-existing').value = val;
+            else if(currentPickerTarget === 'machine') document.getElementById('in-project-new').value = val;
+            else if(currentPickerTarget === 'personnel') document.getElementById('in-name').value = val;
+            else if(currentPickerTarget === 'task') document.getElementById('in-tugas').value = val;
+
+            document.getElementById('pickerModal').style.display = 'none';
+        }
+
+        function closePicker(e) {
+            if(e.target.id === 'pickerModal') e.target.style.display = 'none';
+        }
+        // -----------------------------------------------------
 
         function toggleProjectMode() {
             const mode = document.querySelector('input[name="proj_mode"]:checked').value;
@@ -327,31 +420,6 @@
             }
         }
 
-        function updateProjectDatalist(data) {
-            const projectNames = [...new Set(data.map(item => (item.project_name || "").toUpperCase()))].sort();
-            const datalist = document.getElementById('project-list-auto');
-            datalist.innerHTML = projectNames.map(name => `<option value="${name}">`).join('');
-        }
-
-        function updateTaskDatalist(data) {
-            const tasks = [...new Set(data.map(item => (item.task_desc || "").trim()))].sort();
-            const datalist = document.getElementById('task-list-auto');
-            datalist.innerHTML = tasks.map(t => {
-                if(t !== "") return `<option value="${t}">`;
-            }).join('');
-        }
-
-        function updatePersonnelDatalist(data) {
-            const defaultPersonnel = ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
-            const dbPersonnel = data.map(item => (item.assigned_to || "").toUpperCase());
-            const allPersonnel = [...new Set([...defaultPersonnel, ...dbPersonnel])].sort();
-
-            const datalist = document.getElementById('personnel-list-auto');
-            datalist.innerHTML = allPersonnel.map(name => {
-                if(name !== "") return `<option value="${name}">`;
-            }).join('');
-        }
-
         function renderTable() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const grouped = {};
@@ -359,7 +427,7 @@
             allData.forEach(item => {
                 const pName = (item.project_name || "NO NAME").toUpperCase();
                 const mName = (item.machine_name || "NO MACHINE").toUpperCase();
-                const jobType = item.job_type || ""; // Ambil jenis pekerjaan
+                const jobType = item.job_type || "";
                 const groupKey = pName + "||" + mName;
 
                 if (query && !groupKey.toLowerCase().includes(query)) return; 
@@ -387,7 +455,6 @@
                 const avgProgress = (group.totalProgress / taskCount).toFixed(1);
                 let barColor = avgProgress >= 100 ? 'bg-emerald-500' : 'bg-blue-500';
 
-                // TAMPILKAN BADGE JENIS PEKERJAAN
                 let jobBadge = group.jobType && group.jobType !== '-' ? `<span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[9px] font-bold border border-indigo-200 uppercase tracking-wider">${group.jobType}</span>` : '<span class="text-slate-300 text-[10px]">-</span>';
 
                 return `
@@ -464,7 +531,7 @@
             document.getElementById('rev-id').value = row.id;
             document.getElementById('rev-project').value = row.project_name;
             document.getElementById('rev-machine').value = row.machine_name || ''; 
-            document.getElementById('rev-job-type').value = row.job_type || ''; // ISI JOB TYPE SAAT EDIT
+            document.getElementById('rev-job-type').value = row.job_type || ''; 
             document.getElementById('rev-tugas').value = row.task_desc || '';
             document.getElementById('rev-name').value = row.assigned_to;
             document.getElementById('rev-priority').value = row.priority || 'Mid';
@@ -500,7 +567,7 @@
             const { error } = await _sb.from('management_tracker').update({
                 project_name: document.getElementById('rev-project').value,
                 machine_name: document.getElementById('rev-machine').value,
-                job_type: document.getElementById('rev-job-type').value, // UPDATE JOB TYPE
+                job_type: document.getElementById('rev-job-type').value,
                 task_desc: document.getElementById('rev-tugas').value,
                 assigned_to: document.getElementById('rev-name').value,
                 priority: document.getElementById('rev-priority').value,
@@ -534,7 +601,7 @@
             const payload = {
                 project_name: projectName.toUpperCase(),
                 machine_name: machineName.toUpperCase(),
-                job_type: document.getElementById('in-job-type').value, // SIMPAN JOB TYPE
+                job_type: document.getElementById('in-job-type').value,
                 task_desc: document.getElementById('in-tugas').value,
                 assigned_to: document.getElementById('in-name').value.toUpperCase(),
                 priority: document.getElementById('in-priority').value,
@@ -564,7 +631,7 @@
             document.getElementById('in-name').value = "";
             document.getElementById('in-start').value = "";
             document.getElementById('in-due').value = "";
-            document.getElementById('in-job-type').value = ""; // RESET JOB TYPE
+            document.getElementById('in-job-type').value = "";
         }
 
         async function deleteDataInModal() {
