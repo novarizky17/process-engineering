@@ -83,7 +83,8 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.1em]">
                             <th class="px-6 py-5">Project / Mesin</th>
-                            <th class="px-6 py-5" style="min-width: 450px;">Rincian Tugas & Catatan</th> <th class="px-4 py-5 text-center">Priority</th> 
+                            <th class="px-6 py-5" style="min-width: 400px;">Rincian Tugas & Update</th> 
+                            <th class="px-4 py-5 text-center">Priority</th> 
                             <th class="px-4 py-5 text-center" style="min-width: 150px;">Progress (%)</th> 
                             <th class="px-4 py-5 text-center">Start Date</th>
                             <th class="px-4 py-5 text-center">Finish Date</th>
@@ -129,20 +130,20 @@
             if (mainError) return console.error(mainError);
             
             const taskIds = mainData.map(t => t.id);
-            const { data: subData, error: subError } = await _sb
-                .from('employee_subtasks')
-                .select('*')
-                .in('parent_task_id', taskIds)
-                .order('created_at', { ascending: true });
+            if(taskIds.length > 0){
+                const { data: subData } = await _sb
+                    .from('employee_subtasks')
+                    .select('*')
+                    .in('parent_task_id', taskIds)
+                    .order('created_at', { ascending: true });
 
-            if (subError && subError.code !== '42P01') console.error(subError); 
-
-            subTasksMap = {};
-            if(subData) {
-                subData.forEach(sub => {
-                    if(!subTasksMap[sub.parent_task_id]) subTasksMap[sub.parent_task_id] = [];
-                    subTasksMap[sub.parent_task_id].push(sub);
-                });
+                subTasksMap = {};
+                if(subData) {
+                    subData.forEach(sub => {
+                        if(!subTasksMap[sub.parent_task_id]) subTasksMap[sub.parent_task_id] = [];
+                        subTasksMap[sub.parent_task_id].push(sub);
+                    });
+                }
             }
 
             allTasks = mainData;
@@ -161,7 +162,7 @@
                 worker_notes: '' 
             }]);
 
-            if(error) alert("Gagal: " + error.message);
+            if(error) alert("Gagal tambah: " + error.message);
             else { inputElem.value = ""; fetchRyanTasks(); }
         }
 
@@ -171,9 +172,9 @@
             if(!error) fetchRyanTasks();
         }
 
-        // FUNGSI SIMPAN CATATAN RYAN (AUTO SAVE SAAT INPUT DITINGGALKAN/BLUR)
-        async function saveWorkerNote(subId, inputVal) {
-            await _sb.from('employee_subtasks').update({ worker_notes: inputVal }).eq('id', subId);
+        // FUNGSI SIMPAN CATATAN RYAN (ON BLUR)
+        async function saveWorkerNote(subId, val) {
+            await _sb.from('employee_subtasks').update({ worker_notes: val }).eq('id', subId);
         }
 
         function renderTasks(dataList) {
@@ -190,25 +191,25 @@
                 if(row.status === 'Hold') barColor = "bg-rose-500";
 
                 const machineDisplay = row.machine_name && row.machine_name !== '-' ? `<div class="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded w-fit mt-1 inline-block">${row.machine_name}</div>` : '';
-
+                
                 // RENDER SUBTASK MENYAMPING (FLEX ROW)
                 const mySubtasks = subTasksMap[row.id] || [];
                 let subtaskHtml = mySubtasks.map(sub => `
-                    <div class="flex items-center gap-3 mb-2 pb-2 border-b border-dashed border-slate-200 last:border-0">
-                        <div class="w-1/3 min-w-[120px] flex items-start gap-2">
-                            <div class="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></div>
-                            <span class="text-[11px] text-slate-700 font-bold leading-tight">${sub.subtask_desc}</span>
+                    <div class="flex items-center gap-3 mb-1 pb-1 border-b border-dashed border-slate-100 last:border-0">
+                        <div class="flex items-center gap-2 min-w-[30%] max-w-[40%]">
+                            <div class="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"></div>
+                            <span class="text-xs text-slate-700 font-bold leading-tight break-words">${sub.subtask_desc}</span>
                         </div>
 
                         <div class="flex-grow flex items-center gap-2">
                             <input type="text" 
-                                   class="w-full bg-blue-50 border border-blue-200 rounded px-2 py-1.5 text-[10px] text-blue-800 outline-none focus:bg-white focus:border-blue-400 transition-colors placeholder-blue-300"
-                                   placeholder="Tulis update / catatan..." 
+                                   class="w-full bg-blue-50 border border-blue-200 rounded px-2 py-1 text-[10px] text-blue-800 outline-none focus:bg-white focus:border-blue-400 transition-colors placeholder-blue-300"
+                                   placeholder="Catatan..." 
                                    value="${sub.worker_notes || ''}"
                                    ${isDone ? 'disabled' : ''}
                                    onblur="saveWorkerNote(${sub.id}, this.value)">
                             
-                            ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-400 hover:text-rose-600 font-bold text-sm px-1" title="Hapus">&times;</button>` : ''}
+                            ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-400 hover:text-rose-600 font-bold text-lg px-1" title="Hapus">&times;</button>` : ''}
                         </div>
                     </div>
                 `).join('');
@@ -325,12 +326,12 @@
             if (selectedStatus === 'Hold' && !holdReason) return alert("Alasan HOLD wajib diisi!");
             if (selectedStatus === 'Done') {
                 if (!sTime || !eTime) return alert("Wajib isi Tanggal/Jam Start & Finish!");
-                if (!confirm("Konfirmasi Selesai?")) return;
+                if (!confirm("Konfirmasi Selesai? (Progres otomatis menjadi 100%)")) return;
             }
 
             const updatePayload = {
                 status: selectedStatus,
-                job_type: jobType,
+                job_type: jobType, 
                 hold_reason: holdReason || null,
                 work_start_time: sTime ? sTime.replace('T', ' ') : null,
                 work_end_time: eTime ? eTime.replace('T', ' ') : null,
