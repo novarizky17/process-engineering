@@ -63,16 +63,53 @@
                 <div class="w-2 h-6 bg-blue-600 rounded-full"></div>
                 <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider">Assign Project Baru</h2>
             </div>
+            
+            <datalist id="machine-list">
+                <option value="LIANXIN 80 T (TOAD)">
+                <option value="WIBA 270 T (NEBULA)">
+                <option value="WIBA 240 T (SPIDERMAN)">
+                <option value="WIBA 210 T (THOR)">
+                <option value="WIBA 350 T (IRON MAN)">
+                <option value="ARBURG 320 T (STAR LORD)">
+                <option value="WIBA 500 T (STEVE ROGERS)">
+                <option value="WIBA 500 T (THANOS)">
+                <option value="FCS 220 T (BLACKWIDOW)">
+                <option value="ENGEL 220 T (DEADPOOL)">
+                <option value="ARBURG 200 T (WOLVERINE)">
+                <option value="FCS 380 T (LOKI)">
+                <option value="ENGEL 380 T (INHUMANS)">
+                <option value="ENGEL 380 T (HULK)">
+                <option value="NPC 400 T (WANDA)">
+                <option value="ENGEL 280 T (DOCTOR STRANGE)">
+                <option value="FCS 100 T (ANTMAN)">
+                <option value="NPC 160 T (WASP)">
+                <option value="NPC 160 T (WONG)">
+                <option value="FCS 150 T (ROCKET)">
+                <option value="FCS 150 T (MANTIS)">
+                <option value="NPC 160 T (SHANCHI)">
+                <option value="NPC 260 T (VISION)">
+                <option value="NPC 200 T (MAGNETO)">
+                <option value="FCS 100 T (NICK FURRY)">
+                <option value="FCS 250 T (CYCLOPS)">
+                <option value="NPC 260 T (HAWKEYE)">
+                <option value="EXTRUDER">
+            </datalist>
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 
-                <div class="space-y-2">
+                <div class="space-y-2 lg:col-span-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Project Name</label>
-                    <input type="text" id="in-project" list="project-list" class="edit-input !p-3 !text-sm uppercase" placeholder="Pilih atau Ketik Baru...">
-                    <datalist id="project-list">
-                        </datalist>
+                    <input type="text" id="in-project" list="project-list-auto" class="edit-input !p-3 !text-sm uppercase" placeholder="Nama Project...">
+                    <datalist id="project-list-auto"></datalist>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Nama Mesin</label>
+                    <input type="text" id="in-machine" list="machine-list" class="edit-input !p-3 !text-sm uppercase" placeholder="Pilih Mesin...">
                 </div>
 
                 <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label><input type="text" id="in-tugas" class="edit-input !p-3 !text-sm"></div>
+                
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To</label>
                     <select id="in-name" class="edit-input !p-3 !text-sm">
@@ -84,15 +121,13 @@
                         <option value="BAROK">BAROK</option>
                     </select>
                 </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Priority</label>
-                    <select id="in-priority" class="edit-input !p-3 !text-sm">
-                        <option value="Low">Low</option><option value="Mid" selected>Mid</option><option value="High">High</option>
-                    </select>
-                </div>
-                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Start Date</label><input type="date" id="in-start" class="edit-input !p-3 !text-sm"></div>
+                
                 <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Target Due</label><input type="date" id="in-due" class="edit-input !p-3 !text-sm"></div>
             </div>
+            
+            <input type="hidden" id="in-priority" value="Mid"> 
+            <input type="hidden" id="in-start" value=""> 
+
             <div class="mt-6 flex justify-end">
                 <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase shadow-lg transition-all transform active:scale-95">Assign Project</button>
             </div>
@@ -110,8 +145,7 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest border-b border-slate-100">
-                            <th class="px-6 py-5">Project Group</th>
-                            <th class="px-4 py-5 text-center">Total Task</th>
+                            <th class="px-6 py-5">Project & Mesin</th> <th class="px-4 py-5 text-center">Total Task</th>
                             <th class="px-4 py-5 text-center">Avg Progress</th>
                             <th class="px-4 py-5 text-center">Latest Due</th>
                             <th class="px-6 py-5 text-center">Action</th>
@@ -160,6 +194,12 @@
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Project Name</label>
                     <input type="text" id="rev-project" class="edit-input !text-sm font-bold uppercase">
                 </div>
+                
+                <div class="md:col-span-2">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Nama Mesin</label>
+                    <input type="text" id="rev-machine" list="machine-list" class="edit-input !text-sm font-bold uppercase" placeholder="Nama Mesin...">
+                </div>
+
                 <div class="md:col-span-2">
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Deskripsi Tugas</label>
                     <textarea id="rev-tugas" class="edit-input !text-sm h-16 resize-none"></textarea>
@@ -218,19 +258,14 @@
             if (error) return;
             allData = data;
             
-            updateProjectList(allData); // UPDATE SUGGESTION LIST
+            // Populate auto-suggestion for Project Name
+            const pList = [...new Set(data.map(d => d.project_name))].sort();
+            document.getElementById('project-list-auto').innerHTML = pList.map(p => `<option value="${p}">`).join('');
+
             renderTable();
             updateStats(allData);
         }
 
-        // FITUR BARU: UPDATE LIST PROJECT DI DATALIST
-        function updateProjectList(data) {
-            const projectNames = [...new Set(data.map(item => (item.project_name || "").toUpperCase()))].sort();
-            const datalist = document.getElementById('project-list');
-            datalist.innerHTML = projectNames.map(name => `<option value="${name}">`).join('');
-        }
-
-        // FUNGSI RENDER TABEL (DI-GROUP)
         function renderTable() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const grouped = {};
@@ -240,7 +275,8 @@
                 if (query && !pName.toLowerCase().includes(query)) return; 
 
                 if (!grouped[pName]) {
-                    grouped[pName] = { tasks: [], totalProgress: 0, latestDue: '' };
+                    // Simpan machine_name dari item pertama yang ketemu (asumsi sama per project)
+                    grouped[pName] = { tasks: [], totalProgress: 0, latestDue: '', machine: item.machine_name || '-' };
                 }
                 grouped[pName].tasks.push(item);
                 grouped[pName].totalProgress += parseFloat(item.progress_percent || 0);
@@ -258,7 +294,10 @@
 
                 return `
                     <tr class="hover:bg-slate-50 transition-colors cursor-pointer" onclick="openTaskListModal('${pName}')">
-                        <td class="px-6 py-6 font-bold uppercase text-slate-800">${pName}</td>
+                        <td class="px-6 py-6">
+                            <div class="font-bold uppercase text-slate-800">${pName}</div>
+                            <div class="text-[10px] font-bold text-blue-600 uppercase mt-1 tracking-wide">${group.machine}</div>
+                        </td>
                         <td class="px-4 py-6 text-center font-bold text-slate-500">${taskCount} Tasks</td>
                         <td class="px-4 py-6">
                             <div class="flex flex-col gap-1.5 w-[180px] mx-auto">
@@ -303,6 +342,7 @@
                         <div>
                             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${t.assigned_to}</span>
                             <p class="font-bold text-slate-700 text-sm mt-1">${t.task_desc || 'No Description'}</p>
+                            <p class="text-[10px] text-blue-500 font-bold mt-1">${t.machine_name || ''}</p>
                         </div>
                         <span class="px-3 py-1 rounded-full font-black text-[9px] uppercase ${sClass}">${t.status}</span>
                     </div>
@@ -321,6 +361,7 @@
         function openReviewModal(row) {
             document.getElementById('rev-id').value = row.id;
             document.getElementById('rev-project').value = row.project_name;
+            document.getElementById('rev-machine').value = row.machine_name || ''; // ISI NAMA MESIN DI MODAL
             document.getElementById('rev-tugas').value = row.task_desc || '';
             document.getElementById('rev-name').value = row.assigned_to;
             document.getElementById('rev-priority').value = row.priority || 'Mid';
@@ -355,6 +396,7 @@
 
             const { error } = await _sb.from('management_tracker').update({
                 project_name: document.getElementById('rev-project').value,
+                machine_name: document.getElementById('rev-machine').value, // UPDATE MESIN
                 task_desc: document.getElementById('rev-tugas').value,
                 assigned_to: document.getElementById('rev-name').value,
                 priority: document.getElementById('rev-priority').value,
@@ -374,11 +416,12 @@
 
         async function saveToDatabase() {
             const payload = {
-                project_name: document.getElementById('in-project').value,
+                project_name: document.getElementById('in-project').value.toUpperCase(),
+                machine_name: document.getElementById('in-machine').value.toUpperCase(), // SIMPAN MESIN
                 task_desc: document.getElementById('in-tugas').value,
                 assigned_to: document.getElementById('in-name').value,
                 priority: document.getElementById('in-priority').value,
-                start_date: document.getElementById('in-start').value,
+                start_date: document.getElementById('in-start').value || new Date().toISOString().split('T')[0],
                 due_date: document.getElementById('in-due').value,
                 progress_percent: 0,
                 status: 'Pending'
@@ -390,6 +433,7 @@
 
         function clearInputs() {
             document.getElementById('in-project').value = "";
+            document.getElementById('in-machine').value = "";
             document.getElementById('in-tugas').value = "";
             document.getElementById('in-name').value = "";
             document.getElementById('in-start').value = "";
