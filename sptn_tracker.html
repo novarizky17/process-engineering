@@ -97,14 +97,8 @@
 
             <datalist id="project-list-auto"></datalist>
             <datalist id="task-list-auto"></datalist>
-            
             <datalist id="personnel-list-auto">
-                <option value="RYAN">
-                <option value="ISYQI">
-                <option value="JUMAWAN">
-                <option value="EKO">
-                <option value="TATA">
-                <option value="BAROK">
+                <option value="RYAN"><option value="ISYQI"><option value="JUMAWAN"><option value="EKO"><option value="TATA"><option value="BAROK">
             </datalist>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
@@ -112,7 +106,6 @@
                 <div class="space-y-2 lg:col-span-2"> 
                     <div class="flex justify-between items-end mb-1">
                         <label class="text-[10px] font-bold text-slate-500 uppercase">Project / Mesin</label>
-                        
                         <div class="flex bg-slate-100 p-1 rounded-lg">
                             <label class="cursor-pointer">
                                 <input type="radio" name="proj_mode" value="existing" class="peer sr-only" checked onchange="toggleProjectMode()">
@@ -124,41 +117,51 @@
                             </label>
                         </div>
                     </div>
-                    
                     <input type="text" id="in-project-existing" list="project-list-auto" class="edit-input !p-3 !text-sm font-bold uppercase text-slate-700" placeholder="PILIH ATAU KETIK PROJECT BARU...">
-
                     <input type="text" id="in-project-new" list="machine-list" class="edit-input !p-3 !text-sm uppercase hidden border-blue-300 font-bold text-blue-600" placeholder="PILIH MESIN...">
                 </div>
 
                 <div class="space-y-2 lg:col-span-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label><input type="text" id="in-tugas" list="task-list-auto" class="edit-input !p-3 !text-sm" placeholder="Pilih Tugas Lama atau Ketik Baru..."></div>
                 
                 <div class="lg:col-span-2 space-y-3">
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To (Pilih/Ketik)</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To</label>
+                            <input type="text" id="in-name" list="personnel-list-auto" class="edit-input !p-2 !text-sm uppercase" placeholder="Nama Personil...">
+                        </div>
                         
-                        <input type="text" id="in-name" list="personnel-list-auto" class="edit-input !p-2 !text-sm uppercase" placeholder="Nama Personil...">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Jenis Pekerjaan</label>
+                            <select id="in-job-type" class="edit-input !p-2 !text-xs cursor-pointer bg-slate-50 border-blue-200">
+                                <option value="">-- Pilih --</option>
+                                <option value="Improvement">Improvement</option>
+                                <option value="Overhaul">Overhaul</option>
+                                <option value="Perawatan">Perawatan</option>
+                                <option value="New Project">New Project</option>
+                                <option value="Trial">Trial</option>
+                            </select>
+                        </div>
                     </div>
+
                     <div class="grid grid-cols-3 gap-2">
                         <div class="space-y-1">
                             <label class="text-[10px] font-bold text-slate-500 uppercase">Priority</label>
-                            <select id="in-priority" class="edit-input !p-2 !text-xs">
+                            <select id="in-priority" class="edit-input !p-2 !text-xs cursor-pointer">
                                 <option value="Low">Low</option><option value="Mid" selected>Mid</option><option value="High">High</option>
                             </select>
                         </div>
                         <div class="space-y-1">
                             <label class="text-[10px] font-bold text-slate-500 uppercase">Start Date</label>
-                            <input type="date" id="in-start" class="edit-input !p-2 !text-xs">
+                            <input type="date" id="in-start" class="edit-input !p-2 !text-xs cursor-pointer">
                         </div>
                         <div class="space-y-1">
                             <label class="text-[10px] font-bold text-slate-500 uppercase">Target Due</label>
-                            <input type="date" id="in-due" class="edit-input !p-2 !text-xs">
+                            <input type="date" id="in-due" class="edit-input !p-2 !text-xs cursor-pointer">
                         </div>
                     </div>
                 </div>
             </div>
             
-            <input type="hidden" id="in-start" value=""> 
-
             <div class="mt-6 flex justify-end">
                 <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
@@ -180,7 +183,7 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest border-b border-slate-100">
                             <th class="px-6 py-5">Project Name / Mesin</th>
-                            <th class="px-4 py-5 text-center">Total Task</th>
+                            <th class="px-4 py-5 text-center">Jenis</th> <th class="px-4 py-5 text-center">Total Task</th>
                             <th class="px-4 py-5 text-center">Avg Progress</th>
                             <th class="px-4 py-5 text-center">Latest Due</th>
                             <th class="px-6 py-5 text-center">Action</th>
@@ -247,6 +250,17 @@
                     <input type="text" id="rev-name" list="personnel-list-auto" class="edit-input font-bold uppercase">
                 </div>
                 <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Jenis Pekerjaan</label>
+                    <select id="rev-job-type" class="edit-input font-bold text-xs">
+                        <option value="">-- Pilih --</option>
+                        <option value="Improvement">Improvement</option>
+                        <option value="Overhaul">Overhaul</option>
+                        <option value="Perawatan">Perawatan</option>
+                        <option value="New Project">New Project</option>
+                        <option value="Trial">Trial</option>
+                    </select>
+                </div>
+                <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Priority</label>
                     <select id="rev-priority" class="edit-input font-bold">
                         <option value="Low">Low</option><option value="Mid">Mid</option><option value="High">High</option>
@@ -292,7 +306,7 @@
             
             updateProjectDatalist(allData); 
             updateTaskDatalist(allData); 
-            updatePersonnelDatalist(allData); // UPDATE SUGGESTION PERSONIL
+            updatePersonnelDatalist(allData); 
             renderTable();
             updateStats(allData);
         }
@@ -327,9 +341,7 @@
             }).join('');
         }
 
-        // FUNGSI BARU: UPDATE LIST PERSONIL DENGAN NAMA DARI DB
         function updatePersonnelDatalist(data) {
-            // Kita gabungkan personil default dengan yang pernah diinput
             const defaultPersonnel = ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
             const dbPersonnel = data.map(item => (item.assigned_to || "").toUpperCase());
             const allPersonnel = [...new Set([...defaultPersonnel, ...dbPersonnel])].sort();
@@ -347,6 +359,7 @@
             allData.forEach(item => {
                 const pName = (item.project_name || "NO NAME").toUpperCase();
                 const mName = (item.machine_name || "NO MACHINE").toUpperCase();
+                const jobType = item.job_type || ""; // Ambil jenis pekerjaan
                 const groupKey = pName + "||" + mName;
 
                 if (query && !groupKey.toLowerCase().includes(query)) return; 
@@ -355,6 +368,7 @@
                     grouped[groupKey] = { 
                         projectName: pName, 
                         machineName: mName,
+                        jobType: jobType,
                         tasks: [], 
                         totalProgress: 0, 
                         latestDue: '' 
@@ -373,14 +387,18 @@
                 const avgProgress = (group.totalProgress / taskCount).toFixed(1);
                 let barColor = avgProgress >= 100 ? 'bg-emerald-500' : 'bg-blue-500';
 
+                // TAMPILKAN BADGE JENIS PEKERJAAN
+                let jobBadge = group.jobType && group.jobType !== '-' ? `<span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[9px] font-bold border border-indigo-200 uppercase tracking-wider">${group.jobType}</span>` : '<span class="text-slate-300 text-[10px]">-</span>';
+
                 return `
                     <tr class="hover:bg-slate-50 transition-colors cursor-pointer" onclick="openTaskListModal('${group.projectName}', '${group.machineName}')">
                         <td class="px-6 py-6">
                             <div class="font-bold uppercase text-slate-800 text-sm">${group.projectName}</div>
                             <div class="text-[10px] font-black text-blue-600 uppercase mt-1 tracking-wider bg-blue-50 px-2 py-0.5 rounded inline-block border border-blue-100">${group.machineName}</div>
                         </td>
-                        <td class="px-4 py-6 text-center font-bold text-slate-500 text-xs">${taskCount} Tasks</td>
-                        <td class="px-4 py-6">
+                        <td class="px-4 py-6 text-center align-middle">${jobBadge}</td>
+                        <td class="px-4 py-6 text-center font-bold text-slate-500 text-xs align-middle">${taskCount} Tasks</td>
+                        <td class="px-4 py-6 align-middle">
                             <div class="flex flex-col gap-1.5 w-[140px] mx-auto">
                                 <div class="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase">
                                     <span>Avg. Progress</span>
@@ -391,8 +409,8 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="px-4 py-6 text-center font-bold text-slate-600 text-xs">${group.latestDue || '-'}</td>
-                        <td class="px-6 py-6 text-center">
+                        <td class="px-4 py-6 text-center font-bold text-slate-600 text-xs align-middle">${group.latestDue || '-'}</td>
+                        <td class="px-6 py-6 text-center align-middle">
                             <button class="bg-slate-800 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-black transition-all shadow-sm">
                                 Lihat Detail
                             </button>
@@ -446,6 +464,7 @@
             document.getElementById('rev-id').value = row.id;
             document.getElementById('rev-project').value = row.project_name;
             document.getElementById('rev-machine').value = row.machine_name || ''; 
+            document.getElementById('rev-job-type').value = row.job_type || ''; // ISI JOB TYPE SAAT EDIT
             document.getElementById('rev-tugas').value = row.task_desc || '';
             document.getElementById('rev-name').value = row.assigned_to;
             document.getElementById('rev-priority').value = row.priority || 'Mid';
@@ -480,7 +499,8 @@
 
             const { error } = await _sb.from('management_tracker').update({
                 project_name: document.getElementById('rev-project').value,
-                machine_name: document.getElementById('rev-machine').value, 
+                machine_name: document.getElementById('rev-machine').value,
+                job_type: document.getElementById('rev-job-type').value, // UPDATE JOB TYPE
                 task_desc: document.getElementById('rev-tugas').value,
                 assigned_to: document.getElementById('rev-name').value,
                 priority: document.getElementById('rev-priority').value,
@@ -514,8 +534,9 @@
             const payload = {
                 project_name: projectName.toUpperCase(),
                 machine_name: machineName.toUpperCase(),
+                job_type: document.getElementById('in-job-type').value, // SIMPAN JOB TYPE
                 task_desc: document.getElementById('in-tugas').value,
-                assigned_to: document.getElementById('in-name').value.toUpperCase(), // Pastikan tersimpan huruf besar
+                assigned_to: document.getElementById('in-name').value.toUpperCase(),
                 priority: document.getElementById('in-priority').value,
                 start_date: document.getElementById('in-start').value || new Date().toISOString().split('T')[0],
                 due_date: document.getElementById('in-due').value,
@@ -543,6 +564,7 @@
             document.getElementById('in-name').value = "";
             document.getElementById('in-start').value = "";
             document.getElementById('in-due').value = "";
+            document.getElementById('in-job-type').value = ""; // RESET JOB TYPE
         }
 
         async function deleteDataInModal() {
