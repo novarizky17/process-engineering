@@ -133,9 +133,19 @@
 
     <div id="reviewModal" class="modal" style="z-index: 60;">
         <div class="modal-content shadow-2xl">
-            <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <div class="flex justify-between items-center mb-2 border-b pb-4">
                 <h2 class="text-xl font-black text-slate-800 uppercase">Edit Task</h2>
                 <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+            </div>
+
+            <div id="rev-late-alert" class="hidden mb-6 bg-rose-100 border-l-4 border-rose-500 text-rose-700 p-4 rounded-r-lg shadow-sm animate-pulse">
+                <div class="flex items-center">
+                    <div class="py-1"><svg class="fill-current h-6 w-6 text-rose-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/></svg></div>
+                    <div>
+                        <p class="font-bold text-sm uppercase">PERINGATAN TERLAMBAT</p>
+                        <p class="text-xs font-semibold" id="rev-late-text">Tugas ini sudah melewati batas waktu!</p>
+                    </div>
+                </div>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -296,7 +306,7 @@
 
         function closeTaskListModal() { document.getElementById('taskListModal').style.display = 'none'; }
 
-        // MODAL EDIT TUGAS (Sama)
+        // MODAL EDIT TUGAS (DENGAN LOGIKA NOTIF LATE)
         function openReviewModal(row) {
             // Isi form edit
             document.getElementById('rev-id').value = row.id;
@@ -309,6 +319,24 @@
             document.getElementById('rev-activity').value = row.worker_comment || '';
             document.getElementById('rev-hold').value = row.hold_reason || '';
             
+            // LOGIKA NOTIFIKASI LATE
+            const alertBox = document.getElementById('rev-late-alert');
+            const alertText = document.getElementById('rev-late-text');
+            
+            // Hitung selisih hari
+            const today = new Date(); today.setHours(0,0,0,0);
+            const dueDate = new Date(row.due_date);
+            const diffTime = today - dueDate;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+            // Jika status belum DONE dan Hari Ini > Due Date
+            if (row.status !== 'Done' && diffDays > 0) {
+                alertText.innerText = `Tugas ini sudah terlambat ${diffDays} hari! Segera selesaikan.`;
+                alertBox.classList.remove('hidden');
+            } else {
+                alertBox.classList.add('hidden');
+            }
+
             document.getElementById('reviewModal').style.display = 'block';
         }
 
