@@ -63,64 +63,95 @@
                 <div class="w-2 h-6 bg-blue-600 rounded-full"></div>
                 <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider">Assign Project Baru</h2>
             </div>
+            
+            <datalist id="machine-list">
+                <option value="LIANXIN 80 T (TOAD)">
+                <option value="WIBA 270 T (NEBULA)">
+                <option value="WIBA 240 T (SPIDERMAN)">
+                <option value="WIBA 210 T (THOR)">
+                <option value="WIBA 350 T (IRON MAN)">
+                <option value="ARBURG 320 T (STAR LORD)">
+                <option value="WIBA 500 T (STEVE ROGERS)">
+                <option value="WIBA 500 T (THANOS)">
+                <option value="FCS 220 T (BLACKWIDOW)">
+                <option value="ENGEL 220 T (DEADPOOL)">
+                <option value="ARBURG 200 T (WOLVERINE)">
+                <option value="FCS 380 T (LOKI)">
+                <option value="ENGEL 380 T (INHUMANS)">
+                <option value="ENGEL 380 T (HULK)">
+                <option value="NPC 400 T (WANDA)">
+                <option value="ENGEL 280 T (DOCTOR STRANGE)">
+                <option value="FCS 100 T (ANTMAN)">
+                <option value="NPC 160 T (WASP)">
+                <option value="NPC 160 T (WONG)">
+                <option value="FCS 150 T (ROCKET)">
+                <option value="FCS 150 T (MANTIS)">
+                <option value="NPC 160 T (SHANCHI)">
+                <option value="NPC 260 T (VISION)">
+                <option value="NPC 200 T (MAGNETO)">
+                <option value="FCS 100 T (NICK FURRY)">
+                <option value="FCS 250 T (CYCLOPS)">
+                <option value="NPC 260 T (HAWKEYE)">
+                <option value="EXTRUDER">
+            </datalist>
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 
-                <div class="space-y-2 lg:col-span-2"> 
-                    <div class="flex justify-between items-center mb-1">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase">Project Name (Termasuk Mesin)</label>
-                        <div class="flex bg-slate-100 p-1 rounded-lg">
-                            <label class="cursor-pointer">
-                                <input type="radio" name="proj_mode" value="existing" class="peer sr-only" checked onchange="toggleProjectMode()">
-                                <span class="px-3 py-1 rounded-md text-[10px] font-bold uppercase text-slate-400 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition-all">Pilih Lama</span>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="proj_mode" value="new" class="peer sr-only" onchange="toggleProjectMode()">
-                                <span class="px-3 py-1 rounded-md text-[10px] font-bold uppercase text-slate-400 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition-all">Buat Baru</span>
-                            </label>
+                <div class="space-y-2 lg:col-span-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Project Name (Pilih/Ketik Baru)</label>
+                    <input type="text" id="in-project" list="project-list-auto" class="edit-input !p-3 !text-sm uppercase font-bold text-slate-800" placeholder="Ketik Nama Project...">
+                    <datalist id="project-list-auto">
+                        </datalist>
+                </div>
+
+                <div class="space-y-2 lg:col-span-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Nama Mesin</label>
+                    <input type="text" id="in-machine" list="machine-list" class="edit-input !p-3 !text-sm uppercase font-bold text-blue-600" placeholder="Pilih Mesin...">
+                </div>
+
+                <div class="space-y-2 lg:col-span-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label><input type="text" id="in-tugas" class="edit-input !p-3 !text-sm"></div>
+                
+                <div class="lg:col-span-2 space-y-3">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To</label>
+                        <select id="in-name" class="edit-input !p-2 !text-sm">
+                            <option value="">Pilih Personil</option>
+                            <option value="RYAN">RYAN</option>
+                            <option value="ISYQI">ISYQI</option> <option value="JUMAWAN">JUMAWAN</option>
+                            <option value="EKO">EKO</option>
+                            <option value="TATA">TATA</option>
+                            <option value="BAROK">BAROK</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Priority</label>
+                            <select id="in-priority" class="edit-input !p-2 !text-xs">
+                                <option value="Low">Low</option><option value="Mid" selected>Mid</option><option value="High">High</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Target Due</label>
+                            <input type="date" id="in-due" class="edit-input !p-2 !text-xs">
                         </div>
                     </div>
-                    
-                    <select id="in-project-existing" class="edit-input !p-3 !text-sm font-bold uppercase">
-                        <option value="">-- Pilih Project --</option>
-                    </select>
-
-                    <input type="text" id="in-project-new" class="edit-input !p-3 !text-sm uppercase hidden" placeholder="CONTOH: PERBAIKAN MOTOR (TOAD)...">
                 </div>
-
-                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label><input type="text" id="in-tugas" class="edit-input !p-3 !text-sm"></div>
-                
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To</label>
-                    <select id="in-name" class="edit-input !p-3 !text-sm">
-                        <option value="">Pilih Personil</option>
-                        <option value="RYAN">RYAN</option>
-                        <option value="ISYQI">ISYQI</option> <option value="JUMAWAN">JUMAWAN</option>
-                        <option value="EKO">EKO</option>
-                        <option value="TATA">TATA</option>
-                        <option value="BAROK">BAROK</option>
-                    </select>
-                </div>
-                
-                <div class="space-y-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Priority</label>
-                    <select id="in-priority" class="edit-input !p-3 !text-sm">
-                        <option value="Low">Low</option><option value="Mid" selected>Mid</option><option value="High">High</option>
-                    </select>
-                </div>
-                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Target Due</label><input type="date" id="in-due" class="edit-input !p-3 !text-sm"></div>
             </div>
             
             <input type="hidden" id="in-start" value=""> 
 
             <div class="mt-6 flex justify-end">
-                <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase shadow-lg transition-all transform active:scale-95">Assign Project</button>
+                <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                    Assign Task
+                </button>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
-                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Cari Project</label>
-                <input type="text" id="search-input" oninput="renderTable()" placeholder="Ketik nama project..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 shadow-sm uppercase">
+                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Cari Project / Mesin</label>
+                <input type="text" id="search-input" oninput="renderTable()" placeholder="Ketik nama project atau mesin..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 shadow-sm uppercase">
             </div>
         </div>
 
@@ -129,7 +160,7 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest border-b border-slate-100">
-                            <th class="px-6 py-5">Project Name</th>
+                            <th class="px-6 py-5">Project & Mesin</th>
                             <th class="px-4 py-5 text-center">Total Task</th>
                             <th class="px-4 py-5 text-center">Avg Progress</th>
                             <th class="px-4 py-5 text-center">Latest Due</th>
@@ -147,12 +178,12 @@
             <div class="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
                     <h2 class="text-xl font-black text-slate-800 uppercase" id="modal-project-title">Project Name</h2>
-                    <p class="text-xs text-slate-400 font-bold uppercase mt-1">Daftar Tugas & Status</p>
+                    <p class="text-xs text-blue-600 font-bold uppercase mt-1" id="modal-machine-name">Machine Name</p>
                 </div>
                 <button onclick="closeTaskListModal()" class="text-slate-400 hover:text-slate-600 text-3xl font-light">&times;</button>
             </div>
             
-            <div id="task-list-container" class="space-y-4"></div>
+            <div id="task-list-container" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
         </div>
     </div>
 
@@ -175,10 +206,19 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <input type="hidden" id="rev-id">
-                <div class="md:col-span-2">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Project Name</label>
-                    <input type="text" id="rev-project" class="edit-input !text-sm font-bold uppercase">
+                <div class="md:col-span-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Project Name</label>
+                            <input type="text" id="rev-project" list="project-list-auto" class="edit-input !text-sm font-bold uppercase !bg-white">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Nama Mesin</label>
+                            <input type="text" id="rev-machine" list="machine-list" class="edit-input !text-sm font-bold uppercase !bg-white text-blue-600">
+                        </div>
+                    </div>
                 </div>
+
                 <div class="md:col-span-2">
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Deskripsi Tugas</label>
                     <textarea id="rev-tugas" class="edit-input !text-sm h-16 resize-none"></textarea>
@@ -237,75 +277,60 @@
             if (error) return;
             allData = data;
             
-            updateProjectDropdown(allData); // UPDATE DROPDOWN
+            // Populate auto-suggestion for Project Name
+            const pList = [...new Set(data.map(d => d.project_name))].sort();
+            document.getElementById('project-list-auto').innerHTML = pList.map(p => `<option value="${p}">`).join('');
+
             renderTable();
             updateStats(allData);
         }
 
-        // FUNGSI GANTI MODE INPUT
-        function toggleProjectMode() {
-            const mode = document.querySelector('input[name="proj_mode"]:checked').value;
-            const inputExisting = document.getElementById('in-project-existing');
-            const inputNew = document.getElementById('in-project-new');
-
-            if (mode === 'existing') {
-                inputExisting.classList.remove('hidden');
-                inputNew.classList.add('hidden');
-                inputNew.value = ""; 
-            } else {
-                inputExisting.classList.add('hidden');
-                inputNew.classList.remove('hidden');
-                inputExisting.value = ""; 
-            }
-        }
-
-        // FUNGSI ISI DROPDOWN PROJECT LAMA
-        function updateProjectDropdown(data) {
-            const projectNames = [...new Set(data.map(item => (item.project_name || "").toUpperCase()))].sort();
-            const select = document.getElementById('in-project-existing');
-            const currentVal = select.value;
-            
-            select.innerHTML = '<option value="">-- Pilih Project --</option>';
-            projectNames.forEach(name => {
-                if(name.trim() !== "") {
-                    select.innerHTML += `<option value="${name}">${name}</option>`;
-                }
-            });
-
-            if(projectNames.includes(currentVal)) select.value = currentVal;
-        }
-
+        // FUNGSI RENDER TABEL (DI-GROUP BY PROJECT + MESIN)
         function renderTable() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const grouped = {};
 
             allData.forEach(item => {
                 const pName = (item.project_name || "NO NAME").toUpperCase();
-                if (query && !pName.toLowerCase().includes(query)) return; 
-
-                if (!grouped[pName]) {
-                    grouped[pName] = { tasks: [], totalProgress: 0, latestDue: '' };
-                }
-                grouped[pName].tasks.push(item);
-                grouped[pName].totalProgress += parseFloat(item.progress_percent || 0);
+                const mName = (item.machine_name || "NO MACHINE").toUpperCase();
                 
-                if(item.due_date > grouped[pName].latestDue) grouped[pName].latestDue = item.due_date;
+                // Kunci Grouping Unik: PROJECT + MESIN
+                const groupKey = pName + "||" + mName;
+
+                if (query && !groupKey.toLowerCase().includes(query)) return; 
+
+                if (!grouped[groupKey]) {
+                    grouped[groupKey] = { 
+                        projectName: pName, 
+                        machineName: mName,
+                        tasks: [], 
+                        totalProgress: 0, 
+                        latestDue: '' 
+                    };
+                }
+                grouped[groupKey].tasks.push(item);
+                grouped[groupKey].totalProgress += parseFloat(item.progress_percent || 0);
+                
+                if(item.due_date > grouped[groupKey].latestDue) grouped[groupKey].latestDue = item.due_date;
             });
 
             const tbody = document.getElementById('project-body');
-            tbody.innerHTML = Object.keys(grouped).map(pName => {
-                const group = grouped[pName];
+            tbody.innerHTML = Object.keys(grouped).map(key => {
+                const group = grouped[key];
                 const taskCount = group.tasks.length;
                 const avgProgress = (group.totalProgress / taskCount).toFixed(1);
                 
                 let barColor = avgProgress >= 100 ? 'bg-emerald-500' : 'bg-blue-500';
 
                 return `
-                    <tr class="hover:bg-slate-50 transition-colors cursor-pointer" onclick="openTaskListModal('${pName}')">
-                        <td class="px-6 py-6 font-bold uppercase text-slate-800">${pName}</td>
-                        <td class="px-4 py-6 text-center font-bold text-slate-500">${taskCount} Tasks</td>
+                    <tr class="hover:bg-slate-50 transition-colors cursor-pointer" onclick="openTaskListModal('${group.projectName}', '${group.machineName}')">
+                        <td class="px-6 py-6">
+                            <div class="font-bold uppercase text-slate-800 text-sm">${group.projectName}</div>
+                            <div class="text-[10px] font-black text-blue-600 uppercase mt-1 tracking-wider bg-blue-50 px-2 py-0.5 rounded inline-block border border-blue-100">${group.machineName}</div>
+                        </td>
+                        <td class="px-4 py-6 text-center font-bold text-slate-500 text-xs">${taskCount} Tasks</td>
                         <td class="px-4 py-6">
-                            <div class="flex flex-col gap-1.5 w-[180px] mx-auto">
+                            <div class="flex flex-col gap-1.5 w-[140px] mx-auto">
                                 <div class="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase">
                                     <span>Avg. Progress</span>
                                     <span>${avgProgress}%</span>
@@ -315,9 +340,9 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="px-4 py-6 text-center font-bold text-slate-600">${group.latestDue || '-'}</td>
+                        <td class="px-4 py-6 text-center font-bold text-slate-600 text-xs">${group.latestDue || '-'}</td>
                         <td class="px-6 py-6 text-center">
-                            <button class="bg-slate-800 text-white px-5 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-black transition-all shadow-sm">
+                            <button class="bg-slate-800 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-black transition-all shadow-sm">
                                 Lihat Detail
                             </button>
                         </td>
@@ -333,9 +358,15 @@
             document.getElementById('stat-done').innerText = data.filter(r => r.status === 'Done').length;
         }
 
-        function openTaskListModal(pName) {
-            const tasks = allData.filter(item => (item.project_name || "").toUpperCase() === pName);
+        // BUKA MODAL LIST TUGAS (Filter by Project AND Machine)
+        function openTaskListModal(pName, mName) {
+            const tasks = allData.filter(item => 
+                (item.project_name || "").toUpperCase() === pName && 
+                (item.machine_name || "NO MACHINE").toUpperCase() === mName
+            );
+            
             document.getElementById('modal-project-title').innerText = pName;
+            document.getElementById('modal-machine-name').innerText = mName;
             
             const container = document.getElementById('task-list-container');
             container.innerHTML = tasks.map(t => {
@@ -365,6 +396,7 @@
         function openReviewModal(row) {
             document.getElementById('rev-id').value = row.id;
             document.getElementById('rev-project').value = row.project_name;
+            document.getElementById('rev-machine').value = row.machine_name || ''; 
             document.getElementById('rev-tugas').value = row.task_desc || '';
             document.getElementById('rev-name').value = row.assigned_to;
             document.getElementById('rev-priority').value = row.priority || 'Mid';
@@ -399,6 +431,7 @@
 
             const { error } = await _sb.from('management_tracker').update({
                 project_name: document.getElementById('rev-project').value,
+                machine_name: document.getElementById('rev-machine').value, 
                 task_desc: document.getElementById('rev-tugas').value,
                 assigned_to: document.getElementById('rev-name').value,
                 priority: document.getElementById('rev-priority').value,
@@ -417,18 +450,9 @@
         }
 
         async function saveToDatabase() {
-            // CEK MODE MANA YANG DIPAKAI
-            const mode = document.querySelector('input[name="proj_mode"]:checked').value;
-            let projectName = "";
-
-            if (mode === 'existing') {
-                projectName = document.getElementById('in-project-existing').value;
-            } else {
-                projectName = document.getElementById('in-project-new').value;
-            }
-
             const payload = {
-                project_name: projectName.toUpperCase(),
+                project_name: document.getElementById('in-project').value.toUpperCase(),
+                machine_name: document.getElementById('in-machine').value.toUpperCase(), 
                 task_desc: document.getElementById('in-tugas').value,
                 assigned_to: document.getElementById('in-name').value,
                 priority: document.getElementById('in-priority').value,
@@ -437,16 +461,14 @@
                 progress_percent: 0,
                 status: 'Pending'
             };
-
             if(!payload.project_name || !payload.assigned_to) return alert("Lengkapi data!");
-            
             const { error } = await _sb.from('management_tracker').insert([payload]);
             if (!error) { fetchProjectData(); clearInputs(); }
         }
 
         function clearInputs() {
-            document.getElementById('in-project-existing').value = "";
-            document.getElementById('in-project-new').value = "";
+            document.getElementById('in-project').value = "";
+            document.getElementById('in-machine').value = "";
             document.getElementById('in-tugas').value = "";
             document.getElementById('in-name').value = "";
             document.getElementById('in-start').value = "";
