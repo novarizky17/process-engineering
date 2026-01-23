@@ -20,26 +20,6 @@
         input[type="datetime-local"] { font-size: 10px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; }
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; position: relative; }
         .progress-fill { height: 100%; transition: width 0.4s ease-in-out; }
-        
-        /* Style khusus catatan ryan */
-        .ryan-note-input {
-            width: 100%;
-            background-color: #f0f9ff; /* Biru muda sekali */
-            border: 1px dashed #bae6fd;
-            border-radius: 6px;
-            padding: 4px 8px;
-            font-size: 11px;
-            color: #0369a1;
-            margin-top: 4px;
-            outline: none;
-            resize: none;
-            transition: all 0.2s;
-        }
-        .ryan-note-input:focus {
-            background-color: #ffffff;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-        }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -103,7 +83,8 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.1em]">
                             <th class="px-6 py-5">Project / Mesin</th>
-                            <th class="px-6 py-5" style="min-width: 350px;">Rincian Tugas & Catatan</th> <th class="px-4 py-5 text-center">Priority</th> 
+                            <th class="px-6 py-5" style="min-width: 300px;">Rincian Tugas</th> 
+                            <th class="px-4 py-5 text-center">Priority</th> 
                             <th class="px-4 py-5 text-center" style="min-width: 150px;">Progress (%)</th> 
                             <th class="px-4 py-5 text-center">Start Date</th>
                             <th class="px-4 py-5 text-center">Finish Date</th>
@@ -139,7 +120,9 @@
             return `${datePart} ${timePart}`;
         }
 
+        // FETCH DATA
         async function fetchRyanTasks() {
+            // 1. Ambil Tugas Utama (Termasuk kolom job_type yang baru)
             const { data: mainData, error: mainError } = await _sb
                 .from('management_tracker')
                 .select('*')
@@ -148,6 +131,7 @@
             
             if (mainError) return console.error(mainError);
             
+            // 2. Ambil Sub-Task dari tabel employee_subtasks
             const taskIds = mainData.map(t => t.id);
             const { data: subData, error: subError } = await _sb
                 .from('employee_subtasks')
@@ -157,6 +141,7 @@
 
             if (subError && subError.code !== '42P01') console.error(subError); 
 
+            // 3. Mapping
             subTasksMap = {};
             if(subData) {
                 subData.forEach(sub => {
@@ -177,8 +162,7 @@
 
             const { error } = await _sb.from('employee_subtasks').insert([{
                 parent_task_id: parentId,
-                subtask_desc: desc,
-                worker_notes: '' // Default kosong
+                subtask_desc: desc
             }]);
 
             if(error) alert("Gagal tambah: " + error.message);
@@ -189,12 +173,6 @@
             if(!confirm("Hapus rincian ini?")) return;
             const { error } = await _sb.from('employee_subtasks').delete().eq('id', subId);
             if(!error) fetchRyanTasks();
-        }
-
-        // FUNGSI BARU: SIMPAN CATATAN RYAN DI SUBTASK
-        async function saveWorkerNote(subId, input) {
-            const val = input.value;
-            await _sb.from('employee_subtasks').update({ worker_notes: val }).eq('id', subId);
         }
 
         function renderTasks(dataList) {
@@ -211,29 +189,15 @@
                 if(row.status === 'Hold') barColor = "bg-rose-500";
 
                 const machineDisplay = row.machine_name && row.machine_name !== '-' ? `<div class="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded w-fit mt-1 inline-block">${row.machine_name}</div>` : '';
-                const jobType = row.job_type || '-';
-                const jobBadge = row.job_type ? `<span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg text-[10px] font-bold border border-indigo-200 uppercase tracking-wider">${row.job_type}</span>` : '<span class="text-slate-300">-</span>';
-
+                
                 const mySubtasks = subTasksMap[row.id] || [];
                 let subtaskHtml = mySubtasks.map(sub => `
-                    <div class="group/item mb-2 pb-2 border-b border-dashed border-slate-200 last:border-0">
-                        <div class="flex justify-between items-start">
-                            <div class="flex items-start gap-2 w-full">
-                                <div class="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0"></div>
-                                <div class="w-full">
-                                    <span class="text-xs text-slate-700 font-bold block">${sub.subtask_desc}</span>
-                                    
-                                    <textarea 
-                                        onblur="saveWorkerNote(${sub.id}, this)"
-                                        class="ryan-note-input" 
-                                        rows="1" 
-                                        placeholder="Tambahkan catatan/update di sini..."
-                                        ${isDone ? 'disabled' : ''}
-                                    >${sub.worker_notes || ''}</textarea>
-                                </div>
-                            </div>
-                            ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-300 hover:text-rose-500 text-[10px] font-bold opacity-0 group-hover/item:opacity-100 transition-opacity ml-2">Hapus</button>` : ''}
+                    <div class="flex justify-between items-start group/item mb-1.5 pb-1.5 border-b border-dashed border-slate-200 last:border-0">
+                        <div class="flex items-start gap-2">
+                            <div class="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                            <span class="text-xs text-slate-600 font-medium">${sub.subtask_desc}</span>
                         </div>
+                        ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-300 hover:text-rose-500 text-[10px] font-bold opacity-0 group-hover/item:opacity-100 transition-opacity">Hapus</button>` : ''}
                     </div>
                 `).join('');
 
@@ -246,15 +210,20 @@
 
                         <td class="px-6 py-6 align-top">
                             <div class="bg-slate-100 p-3 rounded-lg border border-slate-200 mb-3 relative">
-                                <span class="absolute -top-2 left-2 bg-slate-200 text-[8px] font-bold text-slate-500 px-2 py-0.5 rounded uppercase tracking-wider">Instruksi Boss</span>
+                                <span class="absolute -top-2 left-2 bg-slate-200 text-[8px] font-bold text-slate-500 px-2 py-0.5 rounded uppercase tracking-wider">Instruksi Pengejaan</span>
                                 <p class="text-slate-800 font-bold text-xs whitespace-pre-wrap mt-1">${row.task_desc || '-'}</p>
                             </div>
-                            <div class="pl-1">${subtaskHtml}</div>
+
+                            <div class="pl-1">
+                                ${subtaskHtml}
+                            </div>
+
                             ${!isDone ? `
                             <div class="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100">
                                 <input type="text" id="new-subtask-${row.id}" class="flex-grow bg-white border border-blue-200 rounded px-2 py-1.5 text-[11px] focus:ring-1 focus:ring-blue-400 outline-none" placeholder="Tambah rincian tugas...">
                                 <button onclick="addSubTask(${row.id})" class="bg-blue-600 hover:bg-blue-700 text-white w-7 h-7 rounded flex items-center justify-center font-bold shadow-sm active:scale-95 transition-transform">+</button>
-                            </div>` : ''}
+                            </div>
+                            ` : ''}
                         </td>
 
                         <td class="px-4 py-6 text-center align-top"><span class="px-3 py-1 rounded-lg font-black text-[9px] ${pClass}">${row.priority || 'Mid'}</span></td>
@@ -340,7 +309,7 @@
             const eTime = document.getElementById(`end-time-${id}`).value;
             const selectedStatus = document.getElementById(`status-val-${id}`).value;
             const progressVal = document.getElementById(`prog-num-${id}`).value; 
-            const jobType = document.getElementById(`job-type-${id}`).value;
+            const jobType = document.getElementById(`job-type-${id}`).value; // AMBIL VALUE JOB TYPE
 
             if (selectedStatus === 'Hold' && !holdReason) return alert("Alasan HOLD wajib diisi!");
             if (selectedStatus === 'Done') {
@@ -350,7 +319,7 @@
 
             const updatePayload = {
                 status: selectedStatus,
-                job_type: jobType,
+                job_type: jobType, // SIMPAN PERUBAHAN JOB TYPE
                 hold_reason: holdReason || null,
                 work_start_time: sTime ? sTime.replace('T', ' ') : null,
                 work_end_time: eTime ? eTime.replace('T', ' ') : null,
