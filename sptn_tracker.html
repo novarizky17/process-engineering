@@ -11,7 +11,7 @@
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
         .gradient-navy { background: linear-gradient(135deg, #001f3f 0%, #003366 100%); }
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        .edit-input { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; width: 100%; font-size: 11px; outline: none; transition: all 0.2s; }
+        .edit-input { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; width: 100%; font-size: 12px; outline: none; transition: all 0.2s; }
         .edit-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
         
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
@@ -115,7 +115,7 @@
                         </div>
                     </div>
                     
-                    <input type="text" id="in-project-existing" list="project-list-auto" class="edit-input !p-3 !text-sm font-bold uppercase text-slate-700" placeholder="PILIH ATAU KETIK PROJECT...">
+                    <input type="text" id="in-project-existing" list="project-list-auto" class="edit-input !p-3 !text-sm font-bold uppercase text-slate-700" placeholder="PILIH ATAU KETIK PROJECT BARU...">
 
                     <input type="text" id="in-project-new" list="machine-list" class="edit-input !p-3 !text-sm uppercase hidden border-blue-300 font-bold text-blue-600" placeholder="PILIH MESIN...">
                 </div>
@@ -288,11 +288,12 @@
             if (error) return;
             allData = data;
             
-            updateProjectDatalist(allData); 
+            updateProjectDatalist(allData); // UPDATE SUGGESTIONS
             renderTable();
             updateStats(allData);
         }
 
+        // FUNGSI GANTI MODE INPUT (PILIH LAMA vs NAMA MESIN)
         function toggleProjectMode() {
             const mode = document.querySelector('input[name="proj_mode"]:checked').value;
             const inputExisting = document.getElementById('in-project-existing');
@@ -301,14 +302,15 @@
             if (mode === 'existing') {
                 inputExisting.classList.remove('hidden');
                 inputNew.classList.add('hidden');
-                inputNew.value = ""; 
+                inputNew.value = ""; // Reset input baru
             } else {
                 inputExisting.classList.add('hidden');
                 inputNew.classList.remove('hidden');
-                inputExisting.value = ""; 
+                inputExisting.value = ""; // Reset dropdown
             }
         }
 
+        // FUNGSI ISI LIST PROJECT (SUPAYA BISA DIPILIH)
         function updateProjectDatalist(data) {
             const projectNames = [...new Set(data.map(item => (item.project_name || "").toUpperCase()))].sort();
             const datalist = document.getElementById('project-list-auto');
@@ -396,6 +398,7 @@
             const container = document.getElementById('task-list-container');
             container.innerHTML = tasks.map(t => {
                 const sClass = t.status === 'Done' ? "bg-emerald-100 text-emerald-700" : (t.status === 'Hold' ? "bg-rose-100 text-rose-700" : "bg-blue-100 text-blue-700");
+                
                 return `
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 hover:border-blue-400 transition-all cursor-pointer group" onclick='openReviewModal(${JSON.stringify(t)})'>
                     <div class="flex justify-between items-start mb-2">
@@ -480,42 +483,11 @@
 
             if (mode === 'existing') {
                 projectName = document.getElementById('in-project-existing').value;
-                // Jika pilih existing, mesin kosong dulu (atau bisa diisi logika lain)
-                machineName = ""; 
+                // Jika pilih project umum, mesin kita set kosong atau "-"
+                machineName = "-"; 
             } else {
-                // Jika mode NEW (Nama Mesin), Project Name diambil dari Nama Mesin
-                // ATAU logic sebelumnya: project name = nama mesin.
-                // Tapi user minta: "Pilih Project (Existing)" ATAU "Nama Mesin (New)".
-                
-                // KOREKSI LOGIKA SESUAI PERMINTAAN:
-                // Jika pilih existing: ambil value input existing
-                // Jika pilih new (mesin): ambil value input mesin, jadikan project name (atau simpan di mesin?)
-                
-                // Mari kita ikuti pola data tabel: Project Name & Machine Name.
-                // Jika User input di "Pilih Project" (Existing/Baru Ketik): Itu masuk Project Name.
-                // Jika User input di "Nama Mesin" (New): Itu masuk Machine Name (dan Project Name diset sama? Atau bagaimana?)
-                
-                // ASUMSI TERBAIK:
-                // Mode Existing: User input Project Name. Machine Name = "-"
-                // Mode New (Mesin): User input Machine Name. Project Name = Machine Name.
-                
-                // TAPI code sebelumnya:
-                // if mode existing -> projectName = existing.value
-                // if mode new -> projectName = new.value (input mesin)
-                
-                projectName = document.getElementById('in-project-new').value; 
-                machineName = document.getElementById('in-project-new').value; // Asumsi nama project = nama mesin utk mode ini
-            }
-            
-            // TAPI TUNGGU, User bilang: "pilih project bisa di ketik dan menambahkan project baru".
-            // Jadi input 'in-project-existing' itu kuncinya.
-            
-            // Revisi logic save agar aman:
-            if (mode === 'existing') {
-                projectName = document.getElementById('in-project-existing').value;
-                machineName = ""; // Kosongkan mesin jika fokus ke project umum
-            } else {
-                projectName = document.getElementById('in-project-new').value; // Nama Mesin jadi Project Name
+                // Jika pilih Nama Mesin, maka Project Name kita isi sama dengan nama mesinnya
+                projectName = document.getElementById('in-project-new').value;
                 machineName = document.getElementById('in-project-new').value;
             }
 
@@ -530,9 +502,18 @@
                 progress_percent: 0,
                 status: 'Pending'
             };
-            if(!payload.project_name || !payload.assigned_to) return alert("Lengkapi data!");
+
+            if(!payload.project_name || !payload.assigned_to) return alert("Lengkapi nama project/mesin dan personil!");
+            
             const { error } = await _sb.from('management_tracker').insert([payload]);
-            if (!error) { fetchProjectData(); clearInputs(); }
+            
+            if (error) {
+                alert("GAGAL SIMPAN: " + error.message); // BIAR KETAHUAN ERRORNYA APA
+            } else {
+                fetchProjectData();
+                clearInputs();
+                alert("Berhasil disimpan!");
+            }
         }
 
         function clearInputs() {
