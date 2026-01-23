@@ -15,12 +15,16 @@
         .edit-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
         
         .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-        .modal-content { background: white; margin: 2% auto; padding: 24px; border-radius: 20px; width: 95%; max-width: 650px; animation: slideIn 0.3s; }
+        .modal-content { background: white; margin: 2% auto; padding: 24px; border-radius: 20px; width: 95%; max-width: 800px; animation: slideIn 0.3s; max-height: 90vh; overflow-y: auto; }
         
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 8px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.5s ease-in-out; }
 
         @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+        
+        /* Scrollbar Halus */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -61,7 +65,7 @@
                 <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider">Assign Project Baru</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Project Name</label><input type="text" id="in-project" class="edit-input !p-3 !text-sm"></div>
+                <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Project Name</label><input type="text" id="in-project" class="edit-input !p-3 !text-sm uppercase"></div>
                 <div class="space-y-2"><label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label><input type="text" id="in-tugas" class="edit-input !p-3 !text-sm"></div>
                 <div class="space-y-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To</label>
@@ -90,26 +94,8 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
-                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Cari Project / Tugas</label>
-                <input type="text" id="search-input" oninput="filterTable()" placeholder="Ketik nama project..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
-            </div>
-            <div>
-                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Filter Personil</label>
-                <select id="filter-personil" onchange="filterTable()" class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none shadow-sm">
-                    <option value="">Semua Personil</option>
-                    <option value="RYAN">RYAN</option>
-                    <option value="ISYQI">ISYQI</option> <option value="JUMAWAN">JUMAWAN</option>
-                    <option value="EKO">EKO</option>
-                    <option value="TATA">TATA</option>
-                    <option value="BAROK">BAROK</option>
-                </select>
-            </div>
-            <div>
-                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Filter Priority</label>
-                <select id="filter-priority" onchange="filterTable()" class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none shadow-sm">
-                    <option value="">Semua Priority</option>
-                    <option value="Low">Low</option><option value="Mid">Mid</option><option value="High">High</option>
-                </select>
+                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Cari Project</label>
+                <input type="text" id="search-input" oninput="renderTable()" placeholder="Ketik nama project..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 shadow-sm uppercase">
             </div>
         </div>
 
@@ -118,14 +104,11 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest border-b border-slate-100">
-                            <th class="px-6 py-5">Project</th>
-                            <th class="px-4 py-5 text-center">Priority</th>
-                            <th class="px-4 py-5 text-center">Personil</th>
-                            <th class="px-4 py-5 text-center" style="min-width: 150px;">Progress</th>
-                            <th class="px-4 py-5 text-center">Due Date</th>
-                            <th class="px-4 py-5 text-center">Status</th>
-                            <th class="px-4 py-5 text-center">Over Date</th>
-                            <th class="px-6 py-5 text-center">Review</th>
+                            <th class="px-6 py-5">Project Group</th>
+                            <th class="px-4 py-5 text-center">Total Task</th>
+                            <th class="px-4 py-5 text-center">Avg Progress</th>
+                            <th class="px-4 py-5 text-center">Latest Due</th>
+                            <th class="px-6 py-5 text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody id="project-body" class="divide-y divide-slate-50 text-sm"></tbody>
@@ -134,11 +117,25 @@
         </div>
     </div>
 
-    <div id="reviewModal" class="modal">
+    <div id="taskListModal" class="modal">
         <div class="modal-content shadow-2xl">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
-                <h2 class="text-xl font-black text-slate-800 uppercase">Review & Detail Project</h2>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+                <div>
+                    <h2 class="text-xl font-black text-slate-800 uppercase" id="modal-project-title">Project Name</h2>
+                    <p class="text-xs text-slate-400 font-bold uppercase mt-1">Daftar Tugas & Status</p>
+                </div>
+                <button onclick="closeTaskListModal()" class="text-slate-400 hover:text-slate-600 text-3xl font-light">&times;</button>
+            </div>
+            
+            <div id="task-list-container" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <div id="reviewModal" class="modal" style="z-index: 60;">
+        <div class="modal-content shadow-2xl">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h2 class="text-xl font-black text-slate-800 uppercase">Edit Task</h2>
+                <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -169,24 +166,19 @@
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Progres Kerja (%)</label>
-                    <input type="number" id="rev-progress" min="0" max="100" class="edit-input font-bold text-blue-600" placeholder="0-100">
+                    <input type="number" id="rev-progress" min="0" max="100" class="edit-input font-bold text-blue-600">
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase">Due Date</label>
                     <input type="date" id="rev-due" class="edit-input">
                 </div>
-                <div class="md:col-span-2">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Status</label>
-                    <div id="rev-status-badge" class="mt-1"></div>
-                </div>
-
                 <div class="md:col-span-2 space-y-4 pt-2 border-t mt-2">
                     <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
                         <label class="text-[10px] font-black text-blue-400 uppercase">Activity (Update Lapangan)</label>
                         <textarea id="rev-activity" class="edit-input !bg-transparent border-none font-semibold text-blue-800 uppercase h-16 w-full resize-none"></textarea>
                     </div>
                     <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
-                        <label class="text-[10px] font-black text-rose-400 uppercase">Keterangan</label>
+                        <label class="text-[10px] font-black text-rose-400 uppercase">Keterangan (Hold Reason)</label>
                         <textarea id="rev-hold" class="edit-input !bg-transparent border-none font-bold text-rose-600 italic h-16 w-full resize-none"></textarea>
                     </div>
                 </div>
@@ -209,64 +201,62 @@
             const { data, error } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
             if (error) return;
             allData = data;
-            renderTable(allData);
+            renderTable();
             updateStats(allData);
         }
 
-        function renderTable(dataList) {
-            const tbody = document.getElementById('project-body');
-            tbody.innerHTML = dataList.map(row => {
-                const today = new Date(); today.setHours(0,0,0,0);
-                const dueDate = new Date(row.due_date);
-                const endDate = row.actual_finish ? new Date(row.actual_finish) : today;
-                const diffDays = Math.ceil((endDate - dueDate) / (1000 * 60 * 60 * 24));
-                
-                const progress = row.progress_percent || 0;
-                let barColor = progress >= 100 ? 'bg-emerald-500' : (row.status === 'Hold' ? 'bg-rose-500' : 'bg-blue-500');
+        // FUNGSI RENDER TABEL (DI-GROUP BERDASARKAN NAMA PROJECT)
+        function renderTable() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const grouped = {};
 
-                let overLabel = row.status === 'Done' ? (diffDays > 0 ? `<span class="text-red-500 font-bold">LATE ${diffDays}D</span>` : '<span class="text-emerald-500 font-bold">ON TIME</span>') : (diffDays > 0 ? `<span class="text-red-600 font-black">${diffDays}D Late</span>` : '<span class="text-slate-300 italic text-[10px]">On Schedule</span>');
-                let pColor = row.priority === 'High' ? 'text-red-600' : (row.priority === 'Mid' ? 'text-blue-600' : 'text-slate-500');
-                let sClass = row.status === 'Done' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : (row.status === 'Hold' ? "bg-rose-50 text-rose-600 border-rose-100" : "bg-blue-50 text-blue-600 border-blue-100");
+            // Grouping Logic
+            allData.forEach(item => {
+                const pName = (item.project_name || "NO NAME").toUpperCase();
+                if (query && !pName.toLowerCase().includes(query)) return; // Filter search
+
+                if (!grouped[pName]) {
+                    grouped[pName] = { tasks: [], totalProgress: 0, latestDue: '' };
+                }
+                grouped[pName].tasks.push(item);
+                grouped[pName].totalProgress += parseFloat(item.progress_percent || 0);
+                
+                // Cari tanggal paling akhir
+                if(item.due_date > grouped[pName].latestDue) grouped[pName].latestDue = item.due_date;
+            });
+
+            const tbody = document.getElementById('project-body');
+            tbody.innerHTML = Object.keys(grouped).map(pName => {
+                const group = grouped[pName];
+                const taskCount = group.tasks.length;
+                const avgProgress = (group.totalProgress / taskCount).toFixed(1);
+                
+                let barColor = avgProgress >= 100 ? 'bg-emerald-500' : 'bg-blue-500';
 
                 return `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-6 font-bold uppercase">${row.project_name}</td>
-                        <td class="px-4 py-6 text-center text-[10px] font-black uppercase ${pColor}">${row.priority}</td>
-                        <td class="px-4 py-6 text-center font-bold">${row.assigned_to}</td>
+                    <tr class="hover:bg-slate-50 transition-colors cursor-pointer" onclick="openTaskListModal('${pName}')">
+                        <td class="px-6 py-6 font-bold uppercase text-slate-800">${pName}</td>
+                        <td class="px-4 py-6 text-center font-bold text-slate-500">${taskCount} Tasks</td>
                         <td class="px-4 py-6">
-                            <div class="flex flex-col gap-1.5">
+                            <div class="flex flex-col gap-1.5 w-[180px] mx-auto">
                                 <div class="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase">
-                                    <span>Progress</span>
-                                    <span>${progress}%</span>
+                                    <span>Avg. Progress</span>
+                                    <span>${avgProgress}%</span>
                                 </div>
                                 <div class="progress-bg">
-                                    <div class="progress-fill ${barColor}" style="width: ${progress}%"></div>
+                                    <div class="progress-fill ${barColor}" style="width: ${avgProgress}%"></div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-4 py-6 text-center">${row.due_date}</td>
-                        <td class="px-4 py-6 text-center"><span class="px-3 py-1 rounded-full text-[9px] font-black uppercase border ${sClass}">${row.status}</span></td>
-                        <td class="px-4 py-6 text-center font-bold">${overLabel}</td>
+                        <td class="px-4 py-6 text-center font-bold text-slate-600">${group.latestDue || '-'}</td>
                         <td class="px-6 py-6 text-center">
-                            <button onclick='openReviewModal(${JSON.stringify(row)})' class="bg-blue-600 text-white px-5 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-blue-700 transition-all shadow-sm">Review</button>
+                            <button class="bg-slate-800 text-white px-5 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-black transition-all shadow-sm">
+                                Lihat Detail
+                            </button>
                         </td>
                     </tr>
                 `;
             }).join('');
-        }
-
-        function filterTable() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const personil = document.getElementById('filter-personil').value;
-            const priority = document.getElementById('filter-priority').value;
-
-            const filtered = allData.filter(item => {
-                const matchesSearch = item.project_name.toLowerCase().includes(query) || (item.task_desc && item.task_desc.toLowerCase().includes(query));
-                const matchesPersonil = personil === "" || item.assigned_to === personil;
-                const matchesPriority = priority === "" || item.priority === priority;
-                return matchesSearch && matchesPersonil && matchesPriority;
-            });
-            renderTable(filtered);
         }
 
         function updateStats(data) {
@@ -276,7 +266,39 @@
             document.getElementById('stat-done').innerText = data.filter(r => r.status === 'Done').length;
         }
 
+        // BUKA MODAL LIST TUGAS
+        function openTaskListModal(pName) {
+            const tasks = allData.filter(item => (item.project_name || "").toUpperCase() === pName);
+            document.getElementById('modal-project-title').innerText = pName;
+            
+            const container = document.getElementById('task-list-container');
+            container.innerHTML = tasks.map(t => {
+                const sClass = t.status === 'Done' ? "bg-emerald-100 text-emerald-700" : (t.status === 'Hold' ? "bg-rose-100 text-rose-700" : "bg-blue-100 text-blue-700");
+                
+                return `
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 hover:border-blue-400 transition-all cursor-pointer group" onclick='openReviewModal(${JSON.stringify(t)})'>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${t.assigned_to}</span>
+                            <p class="font-bold text-slate-700 text-sm mt-1">${t.task_desc || 'No Description'}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full font-black text-[9px] uppercase ${sClass}">${t.status}</span>
+                    </div>
+                    <div class="flex justify-between items-end mt-3">
+                        <div class="text-[10px] text-slate-500 font-bold">Due: ${t.due_date || '-'}</div>
+                        <div class="text-xs font-black text-blue-600 group-hover:underline">Edit Task &rarr;</div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            document.getElementById('taskListModal').style.display = 'block';
+        }
+
+        function closeTaskListModal() { document.getElementById('taskListModal').style.display = 'none'; }
+
+        // MODAL EDIT TUGAS (Sama)
         function openReviewModal(row) {
+            // Isi form edit
             document.getElementById('rev-id').value = row.id;
             document.getElementById('rev-project').value = row.project_name;
             document.getElementById('rev-tugas').value = row.task_desc || '';
@@ -286,30 +308,34 @@
             document.getElementById('rev-progress').value = row.progress_percent || 0;
             document.getElementById('rev-activity').value = row.worker_comment || '';
             document.getElementById('rev-hold').value = row.hold_reason || '';
-            const sClass = row.status === 'Done' ? "bg-emerald-100 text-emerald-700" : (row.status === 'Hold' ? "bg-rose-100 text-rose-700" : "bg-blue-100 text-blue-700");
-            document.getElementById('rev-status-badge').innerHTML = `<span class="px-4 py-1 rounded-full font-black text-[10px] uppercase ${sClass}">${row.status}</span>`;
+            
             document.getElementById('reviewModal').style.display = 'block';
         }
 
-        function closeModal() { document.getElementById('reviewModal').style.display = 'none'; }
+        function closeReviewModal() { document.getElementById('reviewModal').style.display = 'none'; }
 
         async function updateData() {
             const id = document.getElementById('rev-id').value;
             const progress = parseInt(document.getElementById('rev-progress').value) || 0;
-            
+            const status = progress >= 100 ? "Done" : (document.getElementById('rev-hold').value ? "Hold" : "In Progress");
+
             const { error } = await _sb.from('management_tracker').update({
                 project_name: document.getElementById('rev-project').value,
                 task_desc: document.getElementById('rev-tugas').value,
                 assigned_to: document.getElementById('rev-name').value,
                 priority: document.getElementById('rev-priority').value,
                 progress_percent: progress,
+                status: status,
                 due_date: document.getElementById('rev-due').value,
                 worker_comment: document.getElementById('rev-activity').value,
                 hold_reason: document.getElementById('rev-hold').value
             }).eq('id', id);
 
-            if (!error) { closeModal(); fetchProjectData(); }
-            else { alert("Gagal update data: " + error.message); }
+            if (!error) { 
+                closeReviewModal(); 
+                closeTaskListModal(); // Tutup juga listnya agar refresh
+                fetchProjectData(); 
+            } else { alert("Gagal update: " + error.message); }
         }
 
         async function saveToDatabase() {
@@ -337,9 +363,15 @@
         }
 
         async function deleteDataInModal() {
-            if(confirm("Hapus project ini secara permanen?")) {
+            if(confirm("Hapus tugas ini?")) {
                 await _sb.from('management_tracker').delete().eq('id', document.getElementById('rev-id').value);
-                closeModal(); fetchProjectData();
+                closeReviewModal(); closeTaskListModal(); fetchProjectData();
+            }
+        }
+
+        window.onclick = function(e) {
+            if(e.target.className.includes('modal')) {
+                e.target.style.display = 'none';
             }
         }
 
