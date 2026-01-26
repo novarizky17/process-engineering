@@ -25,9 +25,14 @@
 
         .section-card { transition: all 0.2s ease-in-out; }
         .section-card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
+
+        /* CANVAS TANDA TANGAN */
+        canvas {
+            touch-action: none; /* Mencegah scroll saat tanda tangan di HP */
+        }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-32">
 
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm bg-opacity-90 backdrop-blur-md">
         <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -77,7 +82,7 @@
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">PIC Trial (Penanggung Jawab)</label>
-                    <input type="text" placeholder="Nama Engineer" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
+                    <input type="text" id="picNameInput" oninput="syncName()" placeholder="Nama Engineer / Leader..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
                 </div>
             </div>
         </div>
@@ -132,10 +137,41 @@
                 <div id="section-6-content" class="space-y-3"></div>
             </div>
 
-            <div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-lg flex gap-4 justify-center z-40">
-                <button type="button" onclick="window.scrollTo(0,0)" class="bg-slate-100 text-slate-600 px-6 py-3 rounded-xl font-bold text-xs uppercase">Atas</button>
-                <button type="button" onclick="submitTrialForm()" class="bg-violet-600 hover:bg-violet-700 text-white px-8 py-3 rounded-xl font-extrabold text-sm uppercase shadow-lg shadow-violet-200 active:scale-95 transition-all w-full md:w-auto md:min-w-[200px]">
-                    Simpan Verifikasi
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 mb-24 section-card">
+                <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-4">
+                    <h3 class="text-lg font-extrabold text-slate-800">7. Konfirmasi & Tanda Tangan</h3>
+                    <span class="bg-slate-800 text-white text-[10px] font-bold px-3 py-1 rounded-full">SIGNATURE</span>
+                </div>
+                
+                <div class="space-y-4">
+                    <p class="text-xs text-slate-500">Dengan ini saya menyatakan bahwa pengecekan di atas telah dilakukan dengan sebenar-benarnya sesuai kondisi aktual.</p>
+                    
+                    <div class="border-2 border-dashed border-slate-300 rounded-2xl bg-slate-50 relative h-48 w-full cursor-crosshair overflow-hidden group">
+                        <canvas id="signature-pad" class="w-full h-full block"></canvas>
+                        
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-slate-300 font-bold text-2xl pointer-events-none select-none opacity-50 group-hover:opacity-20 transition-opacity">
+                            TANDA TANGAN DISINI
+                        </div>
+
+                        <button type="button" onclick="clearSignature()" class="absolute bottom-3 right-3 bg-white text-rose-500 border border-rose-200 hover:bg-rose-50 px-3 py-1 rounded-lg text-xs font-bold shadow-sm transition-all z-10">
+                            Ulangi / Hapus
+                        </button>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Jelas Pelaksana</label>
+                        <input type="text" id="signerName" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none cursor-not-allowed">
+                        <p class="text-[10px] text-slate-400 mt-1">*Otomatis terisi dari PIC Trial di atas</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] flex gap-4 justify-center z-40">
+                <button type="button" onclick="window.scrollTo(0,0)" class="bg-slate-100 text-slate-600 px-6 py-3 rounded-xl font-bold text-xs uppercase hover:bg-slate-200 transition-colors">
+                    Ke Atas
+                </button>
+                <button type="button" onclick="submitTrialForm()" class="bg-violet-600 hover:bg-violet-700 text-white px-8 py-3 rounded-xl font-extrabold text-sm uppercase shadow-lg shadow-violet-200 active:scale-95 transition-all w-full md:w-auto md:min-w-[250px]">
+                    Simpan & Konfirmasi
                 </button>
             </div>
         </form>
@@ -144,7 +180,7 @@
     <script>
         document.getElementById('trialDate').valueAsDate = new Date();
 
-        // Data Checklist
+        // 1. DATA CHECKLIST
         const checklistData = {
             "section-1-content": [
                 { id: "m1", title: "Kapasitas Tonase", desc: "Tonase sesuai clamping force mold." },
@@ -186,21 +222,18 @@
             ]
         };
 
-        // Render Function (TOMBOL DI KANAN SEJAJAR TEKS)
+        // 2. RENDER ITEMS
         function renderItems() {
             for (const [sectionId, items] of Object.entries(checklistData)) {
                 const container = document.getElementById(sectionId);
                 items.forEach(item => {
                     const html = `
                     <div class="border border-slate-100 rounded-xl p-3 bg-slate-50/50 hover:bg-white transition-all">
-                        
                         <div class="flex flex-row items-center justify-between gap-4">
-                            
                             <div class="flex-1">
                                 <h4 class="text-sm font-bold text-slate-800">${item.title}</h4>
                                 <p class="text-[10px] text-slate-500 mt-0.5 leading-tight">${item.desc}</p>
                             </div>
-                            
                             <div class="flex gap-1 shrink-0">
                                 <label class="radio-option radio-ok cursor-pointer">
                                     <input type="radio" name="status_${item.id}" value="OK" class="peer sr-only" onchange="toggleNote('${item.id}', this.value)">
@@ -215,24 +248,20 @@
                                     <div class="w-10 h-8 flex items-center justify-center rounded-lg text-[10px] font-bold text-slate-400 border border-slate-200 bg-white peer-checked:bg-slate-400 hover:bg-slate-100 transition-all">NA</div>
                                 </label>
                             </div>
-
                         </div>
-
                         <div id="note_box_${item.id}" class="hidden mt-3 pt-2 border-t border-slate-100 animate-fade-in">
                             <input type="text" id="note_${item.id}" class="w-full border border-rose-200 bg-rose-50 rounded-lg px-3 py-2 text-xs text-rose-800 placeholder-rose-300 focus:outline-none focus:ring-1 focus:ring-rose-500" placeholder="Jelaskan masalahnya (Wajib)...">
                         </div>
-                    </div>
-                    `;
+                    </div>`;
                     container.insertAdjacentHTML('beforeend', html);
                 });
             }
         }
 
-        // Logic Toggle Keterangan
+        // 3. LOGIC TOGGLE NOTE
         function toggleNote(id, status) {
             const noteBox = document.getElementById(`note_box_${id}`);
             const noteInput = document.getElementById(`note_${id}`);
-            
             if (status === 'NG') {
                 noteBox.classList.remove('hidden');
                 noteInput.focus();
@@ -242,21 +271,90 @@
             }
         }
 
-        // Validation & Submit
+        // 4. SIGNATURE PAD LOGIC
+        const canvas = document.getElementById('signature-pad');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let hasSignature = false; // Flag untuk validasi
+
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            ctx.scale(ratio, ratio);
+        }
+        window.addEventListener("resize", resizeCanvas);
+        // Panggil resize setelah load
+        setTimeout(resizeCanvas, 500); 
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function startDraw(e) {
+            e.preventDefault();
+            isDrawing = true;
+            hasSignature = true; // User mulai menggambar
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#1e293b'; // Slate-800
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+        }
+
+        function stopDraw() {
+            isDrawing = false;
+        }
+
+        // Event Listeners Canvas
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDraw);
+        canvas.addEventListener('mouseout', stopDraw);
+        
+        canvas.addEventListener('touchstart', startDraw);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', stopDraw);
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasSignature = false;
+        }
+
+        // Sync Nama PIC ke Bawah
+        function syncName() {
+            const picVal = document.getElementById('picNameInput').value;
+            document.getElementById('signerName').value = picVal;
+        }
+
+        // 5. SUBMIT & VALIDASI
         function submitTrialForm() {
             let totalItems = 0;
             let filledItems = 0;
             let ngIssue = false;
 
+            // Cek Radio Buttons
             for (const items of Object.values(checklistData)) {
                 items.forEach(item => {
                     totalItems++;
                     const radios = document.getElementsByName(`status_${item.id}`);
                     let selectedValue = null;
-                    
-                    for (const radio of radios) {
-                        if (radio.checked) selectedValue = radio.value;
-                    }
+                    for (const radio of radios) { if (radio.checked) selectedValue = radio.value; }
 
                     if (selectedValue) {
                         filledItems++;
@@ -281,16 +379,34 @@
                 return;
             }
 
+            // Validasi Tanda Tangan
+            if (!hasSignature) {
+                Swal.fire({ icon: 'warning', title: 'Tanda Tangan Diperlukan', text: 'Mohon tanda tangan pada kotak yang disediakan.', confirmButtonColor: '#f59e0b' });
+                return;
+            }
+
+            // Validasi Nama PIC
+            if (document.getElementById('signerName').value.trim() === '') {
+                Swal.fire({ icon: 'warning', title: 'Nama Kosong', text: 'Isi PIC Trial di bagian atas halaman.', confirmButtonColor: '#f59e0b' });
+                document.getElementById('picNameInput').focus();
+                return;
+            }
+
+            // Sukses
             Swal.fire({
                 title: 'Konfirmasi',
-                text: 'Simpan verifikasi ini?',
+                text: 'Simpan verifikasi dan tanda tangan ini?',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#7c3aed',
                 confirmButtonText: 'Ya, Simpan!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire('Berhasil!', 'Data checklist tersimpan.', 'success');
+                    // DISINI LOGIKA SIMPAN KE DATABASE (misal convert canvas to Image Base64)
+                    // const signatureData = canvas.toDataURL(); 
+                    Swal.fire('Berhasil!', 'Data checklist & tanda tangan tersimpan.', 'success').then(() => {
+                        window.location.href = 'dashboard.html'; // Redirect
+                    });
                 }
             });
         }
