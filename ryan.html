@@ -21,11 +21,33 @@
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; position: relative; }
         .progress-fill { height: 100%; transition: width 0.4s ease-in-out; }
         
-        /* CSS Khusus Form Tambah Subtask (Horizontal) */
-        .add-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-top: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .add-label { font-size: 9px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; display: block; }
-        .add-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 6px; font-size: 10px; height: 28px; outline: none; }
-        .add-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+        /* STYLE KHUSUS UNTUK FORM KESAMPING */
+        .horizontal-form-container {
+            display: flex;
+            flex-direction: row; /* Pastikan ke samping */
+            align-items: flex-end;
+            gap: 6px;
+            overflow-x: auto; /* Scroll samping jika layar sempit */
+            padding-bottom: 5px;
+            margin-top: 8px;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 8px;
+        }
+        /* Custom Scrollbar tipis biar cantik */
+        .horizontal-form-container::-webkit-scrollbar { height: 4px; }
+        .horizontal-form-container::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+        
+        .mini-input-group { min-width: max-content; }
+        .mini-label { font-size: 8px; font-weight: 700; color: #64748b; margin-bottom: 2px; display: block; }
+        .mini-input { 
+            border: 1px solid #cbd5e1; 
+            border-radius: 4px; 
+            padding: 4px; 
+            font-size: 10px; 
+            height: 28px; 
+            outline: none;
+        }
+        .mini-input:focus { border-color: #3b82f6; }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -89,7 +111,7 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.1em]">
                             <th class="px-6 py-5">Project / Mesin</th>
-                            <th class="px-6 py-5" style="min-width: 650px;">Rincian Tugas & Sub-Task</th> 
+                            <th class="px-6 py-5" style="min-width: 600px;">Rincian Tugas & Update</th> 
                             <th class="px-4 py-5 text-center">Priority</th> 
                             <th class="px-4 py-5 text-center" style="min-width: 150px;">Progress (%)</th> 
                             <th class="px-4 py-5 text-center">Start Date</th>
@@ -127,28 +149,44 @@
         }
 
         async function fetchRyanTasks() {
+            // Gunakan ILIKE agar tidak case sensitive (Ryan, RYAN, ryan)
             const { data: mainData, error: mainError } = await _sb
-                .from('management_tracker').select('*').eq('assigned_to', 'RYAN').order('created_at', { ascending: false });
+                .from('management_tracker')
+                .select('*')
+                .ilike('assigned_to', 'ryan') 
+                .order('created_at', { ascending: false });
             
             if (mainError) return console.error(mainError);
             
-            const taskIds = mainData.map(t => t.id);
-            if(taskIds.length > 0){
-                const { data: subData } = await _sb.from('employee_subtasks').select('*').in('parent_task_id', taskIds).order('created_at', { ascending: true });
-                if(subData) {
-                    subTasksMap = {};
-                    subData.forEach(sub => {
-                        if(!subTasksMap[sub.parent_task_id]) subTasksMap[sub.parent_task_id] = [];
-                        subTasksMap[sub.parent_task_id].push(sub);
-                    });
-                }
+            if (!mainData || mainData.length === 0) {
+                document.getElementById('ryan-work-body').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-400">Belum ada data tugas untuk Ryan.</td></tr>`;
+                updateStats([]);
+                return;
             }
+
+            const taskIds = mainData.map(t => t.id);
+            const { data: subData, error: subError } = await _sb
+                .from('employee_subtasks')
+                .select('*')
+                .in('parent_task_id', taskIds)
+                .order('created_at', { ascending: true });
+
+            if (subError && subError.code !== '42P01') console.error(subError); 
+
+            subTasksMap = {};
+            if(subData) {
+                subData.forEach(sub => {
+                    if(!subTasksMap[sub.parent_task_id]) subTasksMap[sub.parent_task_id] = [];
+                    subTasksMap[sub.parent_task_id].push(sub);
+                });
+            }
+
             allTasks = mainData;
             renderTasks(allTasks);
             updateStats(allTasks);
         }
 
-        // --- FUNGSI TAMBAH SUBTASK DENGAN DETAIL (MENYAMPING) ---
+        // --- FUNGSI TAMBAH DATA SUBTASK LENGKAP ---
         async function addSubTask(parentId) {
             const desc = document.getElementById(`new-desc-${parentId}`).value;
             const prio = document.getElementById(`new-prio-${parentId}`).value;
@@ -159,7 +197,7 @@
             const note = document.getElementById(`new-note-${parentId}`).value;
             const stat = document.getElementById(`new-stat-${parentId}`).value;
 
-            if(!desc) return alert("Nama rincian tugas harus diisi!");
+            if(!desc) return alert("Rincian tugas wajib diisi!");
 
             const { error } = await _sb.from('employee_subtasks').insert([{
                 parent_task_id: parentId,
@@ -183,6 +221,37 @@
             if(!error) fetchRyanTasks();
         }
 
+        // FUNGSI SIMPAN DARI PANEL MAIN
+        async function saveAllData(id) {
+            const holdReason = document.getElementById(`hold-reason-${id}`).value.trim();
+            const sTime = document.getElementById(`start-time-${id}`).value;
+            const eTime = document.getElementById(`end-time-${id}`).value;
+            const selectedStatus = document.getElementById(`status-val-${id}`).value;
+            const progressVal = document.getElementById(`prog-num-${id}`).value; 
+            const jobType = document.getElementById(`job-type-${id}`).value;
+
+            if (selectedStatus === 'Hold' && !holdReason) return alert("Alasan HOLD wajib diisi!");
+            if (selectedStatus === 'Done') {
+                if (!sTime || !eTime) return alert("Wajib isi Tanggal/Jam Start & Finish!");
+                if (!confirm("Konfirmasi Selesai? (Progres otomatis menjadi 100%)")) return;
+            }
+
+            const updatePayload = {
+                status: selectedStatus,
+                job_type: jobType,
+                hold_reason: holdReason || null,
+                work_start_time: sTime ? sTime.replace('T', ' ') : null,
+                work_end_time: eTime ? eTime.replace('T', ' ') : null,
+                progress_percent: selectedStatus === 'Done' ? 100 : parseInt(progressVal) 
+            };
+
+            if (selectedStatus === 'Done') updatePayload.actual_finish = new Date().toISOString().split('T')[0];
+
+            const { error } = await _sb.from('management_tracker').update(updatePayload).eq('id', id);
+            if (error) alert("Gagal Simpan: " + error.message);
+            else { alert("Data Tersimpan!"); fetchRyanTasks(); }
+        }
+
         function renderTasks(dataList) {
             const tbody = document.getElementById('ryan-work-body');
             tbody.innerHTML = dataList.map(row => {
@@ -190,25 +259,26 @@
                 const progress = row.progress_percent || 0; 
                 
                 let pClass = row.priority === 'High' ? "bg-red-100 text-red-600 border border-red-200" : (row.priority === 'Mid' ? "bg-blue-100 text-blue-600 border border-blue-200" : "bg-slate-100 text-slate-500");
-                let barColor = isDone || progress >= 100 ? "bg-emerald-500" : (row.status === 'Hold' ? "bg-rose-500" : "bg-blue-500");
+                let borderClass = row.status === 'In Progress' ? "border-blue-500 text-blue-600 bg-blue-50" : (row.status === 'Hold' ? "border-rose-400 text-rose-600 bg-rose-50" : "border-slate-200 text-slate-600");
+
+                let barColor = "bg-blue-500";
+                if(isDone || progress >= 100) barColor = "bg-emerald-500";
+                if(row.status === 'Hold') barColor = "bg-rose-500";
 
                 const machineDisplay = row.machine_name && row.machine_name !== '-' ? `<div class="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded w-fit mt-1 inline-block">${row.machine_name}</div>` : '';
-
-                // RENDER LIST SUBTASKS (YANG SUDAH ADA)
+                
                 const mySubtasks = subTasksMap[row.id] || [];
+                
+                // RENDER LIST SUBTASK (HASIL)
                 let subtaskHtml = mySubtasks.map(sub => `
-                    <div class="flex items-center gap-2 mb-1 pb-1 border-b border-dashed border-slate-200 last:border-0 bg-slate-50 p-2 rounded">
-                        <div class="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-white text-[8px] font-bold shadow-sm">✓</div>
-                        <div class="flex flex-col flex-grow">
-                            <span class="text-[11px] font-bold text-slate-800">${sub.subtask_desc}</span>
-                            <div class="flex gap-2 text-[9px] text-slate-500 mt-0.5">
-                                <span>Pri: <b>${sub.priority}</b></span>
-                                <span>Prog: <b>${sub.progress_percent}%</b></span>
-                                <span>Job: <b>${sub.job_type}</b></span>
-                                <span>Stat: <b class="${sub.status==='Done'?'text-emerald-600':''}">${sub.status}</b></span>
-                            </div>
-                        </div>
-                        <button onclick="deleteSubTask(${sub.id})" class="text-rose-400 hover:text-rose-600 font-bold text-[10px]">Hapus</button>
+                    <div class="flex items-center gap-2 mb-1 pb-1 border-b border-dashed border-slate-200 last:border-0 bg-white p-1 rounded">
+                        <span class="text-[10px] font-bold min-w-[100px] text-blue-900">● ${sub.subtask_desc}</span>
+                        <span class="text-[9px] bg-slate-50 px-1 border rounded">Prio: ${sub.priority||'-'}</span>
+                        <span class="text-[9px] bg-slate-50 px-1 border rounded">${sub.progress_percent||0}%</span>
+                        <span class="text-[9px] bg-slate-50 px-1 border rounded text-purple-600 font-bold">${sub.job_type||'-'}</span>
+                        <span class="text-[9px] bg-slate-50 px-1 border rounded italic text-gray-500">${sub.worker_notes||''}</span>
+                        <span class="text-[9px] font-bold ${sub.status==='Done'?'text-emerald-600':'text-slate-500'}">${sub.status||'Pending'}</span>
+                        ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-400 hover:text-rose-600 text-[10px] font-bold ml-auto">&times;</button>` : ''}
                     </div>
                 `).join('');
 
@@ -220,67 +290,58 @@
                         </td>
 
                         <td class="px-6 py-6 align-top">
-                            <div class="bg-blue-50 p-2 rounded border border-blue-100 mb-2">
-                                <span class="text-[8px] font-bold text-blue-400 uppercase">Instruksi Boss</span>
-                                <p class="text-slate-800 font-bold text-xs mt-1">${row.task_desc || '-'}</p>
+                            <div class="bg-slate-100 p-3 rounded-lg border border-slate-200 mb-3 relative">
+                                <span class="absolute -top-2 left-2 bg-slate-200 text-[8px] font-bold text-slate-500 px-2 py-0.5 rounded uppercase tracking-wider">Instruksi Boss</span>
+                                <p class="text-slate-800 font-bold text-xs whitespace-pre-wrap mt-1">${row.task_desc || '-'}</p>
                             </div>
 
-                            <div class="mb-3 space-y-1">${subtaskHtml}</div>
+                            <div class="pl-1 mb-2">
+                                ${subtaskHtml}
+                            </div>
 
                             ${!isDone ? `
-                            <div class="add-box">
-                                <p class="text-[10px] font-bold text-blue-600 mb-2">+ Tambah Rincian Tugas</p>
-                                
-                                <div class="mb-2">
-                                    <input type="text" id="new-desc-${row.id}" class="add-input" placeholder="Nama Sub-task...">
+                            <div class="horizontal-form-container">
+                                <div class="mini-input-group">
+                                    <label class="mini-label">Deskripsi</label>
+                                    <input type="text" id="new-desc-${row.id}" class="mini-input w-40" placeholder="Tugas...">
                                 </div>
-
-                                <div class="flex gap-2 items-end">
-                                    <div class="w-16">
-                                        <label class="add-label">Prio</label>
-                                        <select id="new-prio-${row.id}" class="add-input">
-                                            <option value="Mid">Mid</option>
-                                            <option value="Low">Low</option>
-                                            <option value="High">High</option>
-                                        </select>
-                                    </div>
-                                    <div class="w-12">
-                                        <label class="add-label">Prog%</label>
-                                        <input type="number" id="new-prog-${row.id}" class="add-input text-center" value="0">
-                                    </div>
-                                    <div class="w-24">
-                                        <label class="add-label">Start</label>
-                                        <input type="datetime-local" id="new-start-${row.id}" class="add-input">
-                                    </div>
-                                    <div class="w-24">
-                                        <label class="add-label">Finish</label>
-                                        <input type="datetime-local" id="new-finish-${row.id}" class="add-input">
-                                    </div>
-                                    <div class="w-24">
-                                        <label class="add-label">Job</label>
-                                        <select id="new-job-${row.id}" class="add-input">
-                                            <option value="-">-</option>
-                                            <option value="Improvement">Improvement</option>
-                                            <option value="Overhaul">Overhaul</option>
-                                            <option value="Perawatan">Perawatan</option>
-                                        </select>
-                                    </div>
-                                    <div class="flex-grow">
-                                        <label class="add-label">Note</label>
-                                        <input type="text" id="new-note-${row.id}" class="add-input" placeholder="...">
-                                    </div>
-                                    <div class="w-20">
-                                        <label class="add-label">Status</label>
-                                        <select id="new-stat-${row.id}" class="add-input text-blue-600 font-bold">
-                                            <option value="Pending">Pending</option>
-                                            <option value="In Progress">In Progress</option>
-                                            <option value="Done">Done</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <button onclick="addSubTask(${row.id})" class="bg-blue-600 hover:bg-blue-700 text-white h-[28px] px-3 rounded-lg font-bold text-[10px] shadow-sm active:scale-95 transition-all">
-                                        SIMPAN
-                                    </button>
+                                <div class="mini-input-group">
+                                    <label class="mini-label">Prio</label>
+                                    <select id="new-prio-${row.id}" class="mini-input w-16">
+                                        <option value="Mid">Mid</option><option value="Low">Low</option><option value="High">High</option>
+                                    </select>
+                                </div>
+                                <div class="mini-input-group">
+                                    <label class="mini-label">Prog%</label>
+                                    <input type="number" id="new-prog-${row.id}" class="mini-input w-12 text-center" value="0">
+                                </div>
+                                <div class="mini-input-group">
+                                    <label class="mini-label">Start</label>
+                                    <input type="datetime-local" id="new-start-${row.id}" class="mini-input w-24">
+                                </div>
+                                <div class="mini-input-group">
+                                    <label class="mini-label">Finish</label>
+                                    <input type="datetime-local" id="new-finish-${row.id}" class="mini-input w-24">
+                                </div>
+                                <div class="mini-input-group">
+                                    <label class="mini-label">Job Type</label>
+                                    <select id="new-job-${row.id}" class="mini-input w-24">
+                                        <option value="-">-</option><option value="Improvement">Improvement</option><option value="Overhaul">Overhaul</option><option value="Perawatan">Perawatan</option>
+                                    </select>
+                                </div>
+                                <div class="mini-input-group">
+                                    <label class="mini-label">Catatan</label>
+                                    <input type="text" id="new-note-${row.id}" class="mini-input w-24" placeholder="...">
+                                </div>
+                                <div class="mini-input-group">
+                                    <label class="mini-label">Status</label>
+                                    <select id="new-stat-${row.id}" class="mini-input w-20 text-blue-600 font-bold">
+                                        <option value="Pending">Pending</option><option value="In Progress">In Progress</option><option value="Done">Done</option>
+                                    </select>
+                                </div>
+                                <div class="mini-input-group">
+                                    <label class="mini-label">&nbsp;</label>
+                                    <button onclick="addSubTask(${row.id})" class="bg-blue-600 hover:bg-blue-700 text-white w-8 h-[28px] rounded flex items-center justify-center font-bold shadow-sm">+</button>
                                 </div>
                             </div>` : ''}
                         </td>
@@ -290,23 +351,27 @@
                         <td class="px-4 py-6 align-top">
                             <div class="flex flex-col gap-2">
                                 <div class="flex items-center gap-2">
-                                    <input type="number" id="prog-num-${row.id}" min="0" max="100" value="${progress}" ${isDone ? 'disabled' : ''} class="w-16 p-1 border rounded text-center text-xs font-bold outline-none" oninput="document.getElementById('bar-inner-${row.id}').style.width = this.value + '%'">
+                                    <input type="number" id="prog-num-${row.id}" min="0" max="100" value="${progress}" ${isDone ? 'disabled' : ''} class="w-16 p-1 border rounded text-center text-xs font-bold focus:ring-2 focus:ring-blue-400 outline-none" oninput="document.getElementById('bar-inner-${row.id}').style.width = this.value + '%'">
                                     <span class="text-[10px] font-bold text-slate-400">%</span>
                                 </div>
-                                <div class="progress-bg"><div id="bar-inner-${row.id}" class="progress-fill ${barColor}" style="width: ${progress}%"></div></div>
+                                <div class="progress-bg">
+                                    <div id="bar-inner-${row.id}" class="progress-fill ${barColor}" style="width: ${progress}%"></div>
+                                </div>
                             </div>
                         </td>
 
                         <td class="px-4 py-6 text-center align-top">
-                            ${isDone ? `<span class="text-[10px] font-bold text-slate-700">${formatDisplayFixed(row.work_start_time)}</span>` : `<input type="datetime-local" id="start-time-${row.id}" value="${row.work_start_time ? row.work_start_time.substring(0,16) : ''}" class="w-full">`}
+                            ${isDone ? `<span class="text-[10px] font-bold text-slate-700">${formatDisplayFixed(row.work_start_time)}</span>` : 
+                            `<input type="datetime-local" id="start-time-${row.id}" value="${row.work_start_time ? row.work_start_time.substring(0,16) : ''}" class="w-full">`}
                         </td>
                         <td class="px-4 py-6 text-center align-top">
-                            ${isDone ? `<span class="text-[10px] font-bold text-emerald-600">${formatDisplayFixed(row.work_end_time)}</span>` : `<input type="datetime-local" id="end-time-${row.id}" value="${row.work_end_time ? row.work_end_time.substring(0,16) : ''}" class="w-full">`}
+                            ${isDone ? `<span class="text-[10px] font-bold text-emerald-600">${formatDisplayFixed(row.work_end_time)}</span>` : 
+                            `<input type="datetime-local" id="end-time-${row.id}" value="${row.work_end_time ? row.work_end_time.substring(0,16) : ''}" class="w-full">`}
                         </td>
 
                         <td class="px-4 py-6 text-center align-top">
                             ${isDone ? `<span class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded text-[10px] font-bold border border-indigo-200 uppercase">${row.job_type || '-'}</span>` : 
-                            `<select id="job-type-${row.id}" class="bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] rounded px-2 py-1 font-bold outline-none cursor-pointer w-full">
+                            `<select id="job-type-${row.id}" class="bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] rounded px-2 py-1 font-bold outline-none cursor-pointer">
                                 <option value="-" ${!row.job_type || row.job_type === '-' ? 'selected' : ''}>-</option>
                                 <option value="Improvement" ${row.job_type === 'Improvement' ? 'selected' : ''}>Improvement</option>
                                 <option value="Overhaul" ${row.job_type === 'Overhaul' ? 'selected' : ''}>Overhaul</option>
@@ -317,7 +382,8 @@
                         </td>
 
                         <td class="px-6 py-6 align-top">
-                            ${isDone ? `<p class="text-rose-500 text-[11px] font-medium">${row.hold_reason || '-'}</p>` : `<textarea id="hold-reason-${row.id}" placeholder="Keterangan..." class="w-full border rounded p-2 text-[11px] outline-none" rows="2">${row.hold_reason || ''}</textarea>`}
+                            ${isDone ? `<p class="text-rose-500 text-[11px] font-medium">${row.hold_reason || '-'}</p>` : 
+                            `<textarea id="hold-reason-${row.id}" placeholder="Keterangan..." class="w-full border rounded p-2 text-[11px] outline-none" rows="2">${row.hold_reason || ''}</textarea>`}
                         </td>
                         <td class="px-6 py-6 text-center align-top">
                             ${isDone ? `<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 font-black text-[9px] uppercase tracking-widest">FINISHED</span>` : 
@@ -352,36 +418,6 @@
             document.getElementById('stat-pending').innerText = data.filter(r => r.status === 'Pending').length;
             document.getElementById('stat-hold').innerText = data.filter(r => r.status === 'Hold').length;
             document.getElementById('stat-finished').innerText = data.filter(r => r.status === 'Done').length;
-        }
-
-        async function saveAllData(id) {
-            const holdReason = document.getElementById(`hold-reason-${id}`).value.trim();
-            const sTime = document.getElementById(`start-time-${id}`).value;
-            const eTime = document.getElementById(`end-time-${id}`).value;
-            const selectedStatus = document.getElementById(`status-val-${id}`).value;
-            const progressVal = document.getElementById(`prog-num-${id}`).value; 
-            const jobType = document.getElementById(`job-type-${id}`).value;
-
-            if (selectedStatus === 'Hold' && !holdReason) return alert("Alasan HOLD wajib diisi!");
-            if (selectedStatus === 'Done') {
-                if (!sTime || !eTime) return alert("Wajib isi Tanggal/Jam Start & Finish!");
-                if (!confirm("Konfirmasi Selesai? (Progres otomatis menjadi 100%)")) return;
-            }
-
-            const updatePayload = {
-                status: selectedStatus,
-                job_type: jobType,
-                hold_reason: holdReason || null,
-                work_start_time: sTime ? sTime.replace('T', ' ') : null,
-                work_end_time: eTime ? eTime.replace('T', ' ') : null,
-                progress_percent: selectedStatus === 'Done' ? 100 : parseInt(progressVal) 
-            };
-
-            if (selectedStatus === 'Done') updatePayload.actual_finish = new Date().toISOString().split('T')[0];
-
-            const { error } = await _sb.from('management_tracker').update(updatePayload).eq('id', id);
-            if (error) alert("Gagal Simpan: " + error.message);
-            else { alert("Data Tersimpan!"); fetchRyanTasks(); }
         }
 
         window.onload = fetchRyanTasks;
