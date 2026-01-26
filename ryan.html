@@ -17,14 +17,15 @@
             background-position: right 0.5rem center;
             background-size: 1.1em;
         }
-        input[type="datetime-local"] { font-size: 10px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px; }
+        input[type="datetime-local"] { font-size: 10px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; }
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; position: relative; }
         .progress-fill { height: 100%; transition: width 0.4s ease-in-out; }
         
-        /* STYLE INPUT FORM TAMBAH (MIRIP GAMBAR) */
-        .add-label { font-size: 8px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; display: block; }
-        .add-input { width: 100%; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 8px; font-size: 10px; font-weight: 600; outline: none; height: 28px; }
-        .add-input:focus { border-color: #3b82f6; }
+        /* CSS Khusus Form Tambah Subtask (Horizontal) */
+        .add-box { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; margin-top: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .add-label { font-size: 9px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px; display: block; }
+        .add-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 6px; font-size: 10px; height: 28px; outline: none; }
+        .add-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -88,7 +89,7 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.1em]">
                             <th class="px-6 py-5">Project / Mesin</th>
-                            <th class="px-6 py-5" style="min-width: 550px;">Rincian Tugas & Sub-Task</th> 
+                            <th class="px-6 py-5" style="min-width: 650px;">Rincian Tugas & Sub-Task</th> 
                             <th class="px-4 py-5 text-center">Priority</th> 
                             <th class="px-4 py-5 text-center" style="min-width: 150px;">Progress (%)</th> 
                             <th class="px-4 py-5 text-center">Start Date</th>
@@ -126,16 +127,11 @@
         }
 
         async function fetchRyanTasks() {
-            // 1. Ambil Data Tugas Utama
             const { data: mainData, error: mainError } = await _sb
-                .from('management_tracker')
-                .select('*')
-                .eq('assigned_to', 'RYAN')
-                .order('created_at', { ascending: false });
+                .from('management_tracker').select('*').eq('assigned_to', 'RYAN').order('created_at', { ascending: false });
             
             if (mainError) return console.error(mainError);
             
-            // 2. Ambil Sub-Task
             const taskIds = mainData.map(t => t.id);
             if(taskIds.length > 0){
                 const { data: subData } = await _sb.from('employee_subtasks').select('*').in('parent_task_id', taskIds).order('created_at', { ascending: true });
@@ -152,9 +148,8 @@
             updateStats(allTasks);
         }
 
-        // --- FUNGSI TAMBAH SUBTASK DENGAN DETAIL (SESUAI GAMBAR) ---
+        // --- FUNGSI TAMBAH SUBTASK DENGAN DETAIL (MENYAMPING) ---
         async function addSubTask(parentId) {
-            // Ambil semua value dari form mini
             const desc = document.getElementById(`new-desc-${parentId}`).value;
             const prio = document.getElementById(`new-prio-${parentId}`).value;
             const prog = document.getElementById(`new-prog-${parentId}`).value;
@@ -164,7 +159,7 @@
             const note = document.getElementById(`new-note-${parentId}`).value;
             const stat = document.getElementById(`new-stat-${parentId}`).value;
 
-            if(!desc) return alert("Nama rincian tugas wajib diisi!");
+            if(!desc) return alert("Nama rincian tugas harus diisi!");
 
             const { error } = await _sb.from('employee_subtasks').insert([{
                 parent_task_id: parentId,
@@ -188,11 +183,6 @@
             if(!error) fetchRyanTasks();
         }
 
-        // Fungsi Simpan Catatan saat di-edit langsung di list
-        async function saveWorkerNote(subId, val) {
-            await _sb.from('employee_subtasks').update({ worker_notes: val }).eq('id', subId);
-        }
-
         function renderTasks(dataList) {
             const tbody = document.getElementById('ryan-work-body');
             tbody.innerHTML = dataList.map(row => {
@@ -204,20 +194,21 @@
 
                 const machineDisplay = row.machine_name && row.machine_name !== '-' ? `<div class="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded w-fit mt-1 inline-block">${row.machine_name}</div>` : '';
 
-                // RENDER LIST SUBTASKS
+                // RENDER LIST SUBTASKS (YANG SUDAH ADA)
                 const mySubtasks = subTasksMap[row.id] || [];
                 let subtaskHtml = mySubtasks.map(sub => `
-                    <div class="flex flex-wrap items-center gap-2 mb-1 pb-1 border-b border-dashed border-slate-200 last:border-0 bg-white p-2 rounded border">
-                        <div class="w-full flex justify-between">
-                            <span class="text-[11px] font-bold text-slate-800">● ${sub.subtask_desc}</span>
-                            ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-500 font-bold text-[9px] hover:underline">Hapus</button>` : ''}
+                    <div class="flex items-center gap-2 mb-1 pb-1 border-b border-dashed border-slate-200 last:border-0 bg-slate-50 p-2 rounded">
+                        <div class="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center text-white text-[8px] font-bold shadow-sm">✓</div>
+                        <div class="flex flex-col flex-grow">
+                            <span class="text-[11px] font-bold text-slate-800">${sub.subtask_desc}</span>
+                            <div class="flex gap-2 text-[9px] text-slate-500 mt-0.5">
+                                <span>Pri: <b>${sub.priority}</b></span>
+                                <span>Prog: <b>${sub.progress_percent}%</b></span>
+                                <span>Job: <b>${sub.job_type}</b></span>
+                                <span>Stat: <b class="${sub.status==='Done'?'text-emerald-600':''}">${sub.status}</b></span>
+                            </div>
                         </div>
-                        <div class="flex gap-2 w-full">
-                            <span class="text-[9px] bg-slate-100 px-1 rounded border">Prio: ${sub.priority || '-'}</span>
-                            <span class="text-[9px] bg-slate-100 px-1 rounded border">Prog: ${sub.progress_percent || 0}%</span>
-                            <span class="text-[9px] bg-slate-100 px-1 rounded border text-blue-600 font-bold">${sub.status || 'Pending'}</span>
-                            <input type="text" class="flex-grow bg-transparent border-b border-slate-200 text-[9px] outline-none focus:border-blue-400" placeholder="Catatan..." value="${sub.worker_notes || ''}" onblur="saveWorkerNote(${sub.id}, this.value)">
-                        </div>
+                        <button onclick="deleteSubTask(${sub.id})" class="text-rose-400 hover:text-rose-600 font-bold text-[10px]">Hapus</button>
                     </div>
                 `).join('');
 
@@ -229,45 +220,44 @@
                         </td>
 
                         <td class="px-6 py-6 align-top">
-                            <div class="bg-blue-50 p-2 rounded border border-blue-100 mb-3">
+                            <div class="bg-blue-50 p-2 rounded border border-blue-100 mb-2">
                                 <span class="text-[8px] font-bold text-blue-400 uppercase">Instruksi Boss</span>
                                 <p class="text-slate-800 font-bold text-xs mt-1">${row.task_desc || '-'}</p>
                             </div>
 
-                            <div class="mb-3">${subtaskHtml}</div>
+                            <div class="mb-3 space-y-1">${subtaskHtml}</div>
 
                             ${!isDone ? `
-                            <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm">
-                                <div class="flex gap-2 mb-2">
-                                    <input type="text" id="new-desc-${row.id}" class="w-full border border-slate-300 rounded px-3 py-1.5 text-[11px] font-bold outline-none focus:border-blue-500" placeholder="+ Tambah rincian tugas...">
-                                    <button onclick="addSubTask(${row.id})" class="bg-blue-600 hover:bg-blue-700 text-white w-8 h-8 rounded flex items-center justify-center font-bold shadow transition-transform active:scale-95">+</button>
-                                </div>
+                            <div class="add-box">
+                                <p class="text-[10px] font-bold text-blue-600 mb-2">+ Tambah Rincian Tugas</p>
                                 
-                                <div class="grid grid-cols-4 gap-2">
-                                    <div>
-                                        <label class="add-label">Priority</label>
+                                <div class="mb-2">
+                                    <input type="text" id="new-desc-${row.id}" class="add-input" placeholder="Nama Sub-task...">
+                                </div>
+
+                                <div class="flex gap-2 items-end">
+                                    <div class="w-16">
+                                        <label class="add-label">Prio</label>
                                         <select id="new-prio-${row.id}" class="add-input">
                                             <option value="Mid">Mid</option>
                                             <option value="Low">Low</option>
                                             <option value="High">High</option>
                                         </select>
                                     </div>
-                                    <div>
-                                        <label class="add-label">Progress (%)</label>
-                                        <input type="number" id="new-prog-${row.id}" class="add-input" value="0">
+                                    <div class="w-12">
+                                        <label class="add-label">Prog%</label>
+                                        <input type="number" id="new-prog-${row.id}" class="add-input text-center" value="0">
                                     </div>
-                                    <div>
-                                        <label class="add-label">Start Date</label>
+                                    <div class="w-24">
+                                        <label class="add-label">Start</label>
                                         <input type="datetime-local" id="new-start-${row.id}" class="add-input">
                                     </div>
-                                    <div>
-                                        <label class="add-label">Finish Date</label>
+                                    <div class="w-24">
+                                        <label class="add-label">Finish</label>
                                         <input type="datetime-local" id="new-finish-${row.id}" class="add-input">
                                     </div>
-                                </div>
-                                <div class="grid grid-cols-3 gap-2 mt-2">
-                                    <div>
-                                        <label class="add-label">Jenis Job</label>
+                                    <div class="w-24">
+                                        <label class="add-label">Job</label>
                                         <select id="new-job-${row.id}" class="add-input">
                                             <option value="-">-</option>
                                             <option value="Improvement">Improvement</option>
@@ -275,11 +265,11 @@
                                             <option value="Perawatan">Perawatan</option>
                                         </select>
                                     </div>
-                                    <div class="col-span-1">
-                                        <label class="add-label">Catatan</label>
+                                    <div class="flex-grow">
+                                        <label class="add-label">Note</label>
                                         <input type="text" id="new-note-${row.id}" class="add-input" placeholder="...">
                                     </div>
-                                    <div>
+                                    <div class="w-20">
                                         <label class="add-label">Status</label>
                                         <select id="new-stat-${row.id}" class="add-input text-blue-600 font-bold">
                                             <option value="Pending">Pending</option>
@@ -287,6 +277,10 @@
                                             <option value="Done">Done</option>
                                         </select>
                                     </div>
+                                    
+                                    <button onclick="addSubTask(${row.id})" class="bg-blue-600 hover:bg-blue-700 text-white h-[28px] px-3 rounded-lg font-bold text-[10px] shadow-sm active:scale-95 transition-all">
+                                        SIMPAN
+                                    </button>
                                 </div>
                             </div>` : ''}
                         </td>
@@ -304,12 +298,10 @@
                         </td>
 
                         <td class="px-4 py-6 text-center align-top">
-                            ${isDone ? `<span class="text-[10px] font-bold text-slate-700">${formatDisplayFixed(row.work_start_time)}</span>` : 
-                            `<input type="datetime-local" id="start-time-${row.id}" value="${row.work_start_time ? row.work_start_time.substring(0,16) : ''}" class="w-full">`}
+                            ${isDone ? `<span class="text-[10px] font-bold text-slate-700">${formatDisplayFixed(row.work_start_time)}</span>` : `<input type="datetime-local" id="start-time-${row.id}" value="${row.work_start_time ? row.work_start_time.substring(0,16) : ''}" class="w-full">`}
                         </td>
                         <td class="px-4 py-6 text-center align-top">
-                            ${isDone ? `<span class="text-[10px] font-bold text-emerald-600">${formatDisplayFixed(row.work_end_time)}</span>` : 
-                            `<input type="datetime-local" id="end-time-${row.id}" value="${row.work_end_time ? row.work_end_time.substring(0,16) : ''}" class="w-full">`}
+                            ${isDone ? `<span class="text-[10px] font-bold text-emerald-600">${formatDisplayFixed(row.work_end_time)}</span>` : `<input type="datetime-local" id="end-time-${row.id}" value="${row.work_end_time ? row.work_end_time.substring(0,16) : ''}" class="w-full">`}
                         </td>
 
                         <td class="px-4 py-6 text-center align-top">
@@ -325,8 +317,7 @@
                         </td>
 
                         <td class="px-6 py-6 align-top">
-                            ${isDone ? `<p class="text-rose-500 text-[11px] font-medium">${row.hold_reason || '-'}</p>` : 
-                            `<textarea id="hold-reason-${row.id}" placeholder="Keterangan..." class="w-full border rounded p-2 text-[11px] outline-none" rows="2">${row.hold_reason || ''}</textarea>`}
+                            ${isDone ? `<p class="text-rose-500 text-[11px] font-medium">${row.hold_reason || '-'}</p>` : `<textarea id="hold-reason-${row.id}" placeholder="Keterangan..." class="w-full border rounded p-2 text-[11px] outline-none" rows="2">${row.hold_reason || ''}</textarea>`}
                         </td>
                         <td class="px-6 py-6 text-center align-top">
                             ${isDone ? `<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 font-black text-[9px] uppercase tracking-widest">FINISHED</span>` : 
