@@ -21,25 +21,39 @@
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; position: relative; }
         .progress-fill { height: 100%; transition: width 0.4s ease-in-out; }
 
-        /* MODAL STYLE */
+        /* === FLOATING BUTTON (+) POJOK KANAN BAWAH === */
+        .float-btn {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 60px; height: 60px;
+            background: #2563eb; color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 32px; font-weight: bold;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.6);
+            transition: all 0.3s ease; z-index: 50; cursor: pointer;
+            border: 4px solid white;
+        }
+        .float-btn:hover { transform: scale(1.1) rotate(90deg); background: #1d4ed8; }
+
+        /* === MODAL STYLE === */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(3px);
             z-index: 60; display: none; justify-content: center; align-items: center;
         }
         .modal-box {
-            background: white; width: 95%; max-width: 600px;
-            border-radius: 16px; padding: 20px;
+            background: white; width: 95%; max-width: 500px;
+            border-radius: 20px; padding: 24px;
+            max-height: 90vh; overflow-y: auto;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             animation: popUp 0.2s ease-out;
         }
         @keyframes popUp { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        /* INPUT STYLE DI DALAM MODAL */
-        .modal-label { font-size: 10px; font-weight: 700; color: #64748b; display: block; margin-bottom: 4px; }
+        .modal-label { font-size: 11px; font-weight: 700; color: #64748b; display: block; margin-bottom: 4px; }
         .modal-input { 
             width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; 
-            padding: 8px; font-size: 12px; outline: none; transition: all 0.2s;
+            padding: 10px; font-size: 13px; outline: none; transition: all 0.2s;
+            font-weight: 500; color: #334155;
         }
         .modal-input:focus { border-color: #3b82f6; ring: 2px; }
     </style>
@@ -121,70 +135,86 @@
         </div>
     </div>
 
+    <button onclick="openSubtaskModal()" class="float-btn" title="Tambah Rincian Tugas">
+        +
+    </button>
+
     <div id="subtaskModal" class="modal-overlay">
         <div class="modal-box">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <h3 class="text-lg font-bold text-slate-800">Tambah Rincian Tugas</h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 font-bold text-xl">&times;</button>
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h3 class="text-xl font-black text-slate-800 uppercase">Tambah Rincian Tugas</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 font-bold text-2xl">&times;</button>
             </div>
             
-            <input type="hidden" id="modal-parent-id">
+            <div class="grid grid-cols-1 gap-4">
+                <div>
+                    <label class="modal-label text-blue-600">PILIH PROJECT / MESIN (WAJIB)</label>
+                    <select id="modal-parent-id" class="modal-input border-blue-300 bg-blue-50 font-bold">
+                        <option value="">-- Pilih Project --</option>
+                        </select>
+                </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="md:col-span-2">
-                    <label class="modal-label">Nama / Deskripsi Tugas</label>
-                    <input type="text" id="modal-desc" class="modal-input" placeholder="Contoh: Bongkar Cylinder...">
+                <div>
+                    <label class="modal-label">Nama / Rincian Tugas</label>
+                    <input type="text" id="modal-desc" class="modal-input" placeholder="Apa yang dikerjakan...">
                 </div>
                 
-                <div>
-                    <label class="modal-label">Priority</label>
-                    <select id="modal-prio" class="modal-input">
-                        <option value="Mid">Mid</option>
-                        <option value="Low">Low</option>
-                        <option value="High">High</option>
-                    </select>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="modal-label">Priority</label>
+                        <select id="modal-prio" class="modal-input">
+                            <option value="Mid">Mid</option>
+                            <option value="Low">Low</option>
+                            <option value="High">High</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="modal-label">Progress (%)</label>
+                        <input type="number" id="modal-prog" class="modal-input" value="0" min="0" max="100">
+                    </div>
                 </div>
-                <div>
-                    <label class="modal-label">Progress (%)</label>
-                    <input type="number" id="modal-prog" class="modal-input" value="0" min="0" max="100">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="modal-label">Start Date</label>
+                        <input type="datetime-local" id="modal-start" class="modal-input">
+                    </div>
+                    <div>
+                        <label class="modal-label">Finish Date</label>
+                        <input type="datetime-local" id="modal-finish" class="modal-input">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="modal-label">Job Type</label>
+                        <select id="modal-job" class="modal-input">
+                            <option value="-">-</option>
+                            <option value="Improvement">Improvement</option>
+                            <option value="Overhaul">Overhaul</option>
+                            <option value="Perawatan">Perawatan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="modal-label">Status</label>
+                        <select id="modal-status" class="modal-input font-bold text-blue-600">
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Done">Done</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div>
-                    <label class="modal-label">Start Date</label>
-                    <input type="datetime-local" id="modal-start" class="modal-input">
-                </div>
-                <div>
-                    <label class="modal-label">Finish Date</label>
-                    <input type="datetime-local" id="modal-finish" class="modal-input">
-                </div>
-
-                <div>
-                    <label class="modal-label">Job Type</label>
-                    <select id="modal-job" class="modal-input">
-                        <option value="-">-</option>
-                        <option value="Improvement">Improvement</option>
-                        <option value="Overhaul">Overhaul</option>
-                        <option value="Perawatan">Perawatan</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="modal-label">Status</label>
-                    <select id="modal-status" class="modal-input text-blue-600 font-bold">
-                        <option value="Pending">Pending</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Done">Done</option>
-                    </select>
-                </div>
-
-                <div class="md:col-span-2">
                     <label class="modal-label">Catatan Tambahan</label>
                     <input type="text" id="modal-note" class="modal-input" placeholder="Opsional...">
                 </div>
             </div>
 
-            <div class="mt-6 flex gap-3">
-                <button onclick="closeModal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 py-2.5 rounded-xl font-bold text-xs uppercase">Batal</button>
-                <button onclick="saveSubtask()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-bold text-xs uppercase shadow-md active:scale-95 transition-all">Simpan Tugas</button>
+            <div class="mt-8">
+                <button onclick="saveSubtask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-sm uppercase shadow-lg active:scale-95 transition-all">
+                    Simpan Tugas
+                </button>
             </div>
         </div>
     </div>
@@ -211,6 +241,7 @@
         }
 
         async function fetchRyanTasks() {
+            // Ambil semua project untuk dropdown
             const { data: mainData, error: mainError } = await _sb
                 .from('management_tracker')
                 .select('*')
@@ -219,38 +250,42 @@
             
             if (mainError) return console.error(mainError);
             
-            if (!mainData || mainData.length === 0) {
-                document.getElementById('ryan-work-body').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-400 italic">Belum ada data tugas untuk Ryan.</td></tr>`;
-                updateStats([]);
-                return;
-            }
+            allTasks = mainData;
+            fillProjectDropdown(mainData); // Isi dropdown di modal
 
             const taskIds = mainData.map(t => t.id);
-            const { data: subData, error: subError } = await _sb
-                .from('employee_subtasks')
-                .select('*')
-                .in('parent_task_id', taskIds)
-                .order('created_at', { ascending: true });
-
-            if (subError && subError.code !== '42P01') console.error(subError); 
-
-            subTasksMap = {};
-            if(subData) {
-                subData.forEach(sub => {
-                    if(!subTasksMap[sub.parent_task_id]) subTasksMap[sub.parent_task_id] = [];
-                    subTasksMap[sub.parent_task_id].push(sub);
-                });
+            if(taskIds.length > 0) {
+                const { data: subData } = await _sb.from('employee_subtasks').select('*').in('parent_task_id', taskIds).order('created_at', { ascending: true });
+                subTasksMap = {};
+                if(subData) {
+                    subData.forEach(sub => {
+                        if(!subTasksMap[sub.parent_task_id]) subTasksMap[sub.parent_task_id] = [];
+                        subTasksMap[sub.parent_task_id].push(sub);
+                    });
+                }
+            } else {
+                subTasksMap = {};
             }
 
-            allTasks = mainData;
             renderTasks(allTasks);
             updateStats(allTasks);
         }
 
+        function fillProjectDropdown(tasks) {
+            const select = document.getElementById('modal-parent-id');
+            select.innerHTML = '<option value="">-- Pilih Project (Wajib) --</option>';
+            tasks.forEach(task => {
+                // Jangan tampilkan project yang statusnya Done di dropdown (opsional, tapi biar rapi)
+                if (task.status !== 'Done') {
+                    select.innerHTML += `<option value="${task.id}">${task.project_name} (${task.machine_name || '-'})</option>`;
+                }
+            });
+        }
+
         // --- MODAL FUNCTIONS ---
-        function openSubtaskModal(parentId) {
-            document.getElementById('modal-parent-id').value = parentId;
+        function openSubtaskModal() {
             // Reset Form
+            document.getElementById('modal-parent-id').value = '';
             document.getElementById('modal-desc').value = '';
             document.getElementById('modal-prio').value = 'Mid';
             document.getElementById('modal-prog').value = '0';
@@ -271,7 +306,8 @@
             const parentId = document.getElementById('modal-parent-id').value;
             const desc = document.getElementById('modal-desc').value;
             
-            if(!desc) return alert("Deskripsi tugas wajib diisi!");
+            if(!parentId) return alert("Harap pilih Project / Mesin terlebih dahulu!");
+            if(!desc) return alert("Deskripsi rincian tugas wajib diisi!");
 
             const payload = {
                 parent_task_id: parentId,
@@ -332,12 +368,21 @@
 
         function renderTasks(dataList) {
             const tbody = document.getElementById('ryan-work-body');
+            
+            if(dataList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="p-10 text-center text-slate-400 font-medium">Belum ada penugasan sama sekali.</td></tr>`;
+                return;
+            }
+
             tbody.innerHTML = dataList.map(row => {
                 const isDone = row.status === 'Done';
                 const progress = row.progress_percent || 0; 
                 let pClass = row.priority === 'High' ? "bg-red-100 text-red-600 border border-red-200" : (row.priority === 'Mid' ? "bg-blue-100 text-blue-600 border border-blue-200" : "bg-slate-100 text-slate-500");
-                let borderClass = row.status === 'In Progress' ? "border-blue-500 text-blue-600 bg-blue-50" : (row.status === 'Hold' ? "border-rose-400 text-rose-600 bg-rose-50" : "border-slate-200 text-slate-600");
-                if (row.status === 'Pending') borderClass = "border-amber-400 text-amber-600 bg-amber-50";
+                
+                let borderClass = "border-slate-200 text-slate-600";
+                if(row.status === 'In Progress') borderClass = "border-blue-500 text-blue-600 bg-blue-50";
+                if(row.status === 'Hold') borderClass = "border-rose-400 text-rose-600 bg-rose-50";
+                if(row.status === 'Pending') borderClass = "border-amber-400 text-amber-600 bg-amber-50";
 
                 let barColor = isDone || progress >= 100 ? "bg-emerald-500" : (row.status === 'Hold' ? "bg-rose-500" : "bg-blue-500");
                 const machineDisplay = row.machine_name && row.machine_name !== '-' ? `<div class="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded w-fit mt-1 inline-block">${row.machine_name}</div>` : '';
@@ -365,13 +410,7 @@
                                 <p class="text-slate-800 font-bold text-xs whitespace-pre-wrap mt-1">${row.task_desc || '-'}</p>
                             </div>
                             <div class="pl-1 mb-2 space-y-1">${subtaskHtml}</div>
-                            
-                            ${!isDone ? `
-                            <button onclick="openSubtaskModal('${row.id}')" class="w-full mt-2 border-2 border-dashed border-blue-200 text-blue-500 hover:bg-blue-50 hover:border-blue-400 rounded-lg py-1.5 text-[10px] font-bold flex items-center justify-center gap-1 transition-all">
-                                <span class="text-lg leading-none">+</span> Tambah Rincian
-                            </button>` : ''}
                         </td>
-
                         <td class="px-4 py-6 text-center align-top"><span class="px-3 py-1 rounded-lg font-black text-[9px] ${pClass}">${row.priority || 'Mid'}</span></td>
                         <td class="px-4 py-6 align-top">
                             <div class="flex flex-col gap-2">
@@ -422,7 +461,7 @@
         function filterTable() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const priorityFilter = document.getElementById('filter-priority').value;
-            const filtered = allTasks.filter(task => {
+            const filtered = allTasks.filter(task => { // FILTER SEMUA DATA
                 const matchesSearch = task.project_name.toLowerCase().includes(query) || (task.task_desc && task.task_desc.toLowerCase().includes(query));
                 const matchesPriority = priorityFilter === "" || task.priority === priorityFilter;
                 return matchesSearch && matchesPriority;
