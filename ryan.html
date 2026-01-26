@@ -11,13 +11,12 @@
         
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #f1f5f9; /* Background agak lebih gelap dikit biar kontras */
+            background-color: #f1f5f9; 
             color: #1e293b;
         }
         
         .gradient-blue { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }
         
-        /* Custom Select Arrow */
         .status-select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23334155'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -26,7 +25,6 @@
             background-size: 1em;
         }
 
-        /* Input Date yang lebih jelas */
         input[type="datetime-local"] { 
             font-family: 'Inter', sans-serif;
             font-size: 13px; 
@@ -37,11 +35,10 @@
             border: 1px solid #cbd5e1;
         }
 
-        /* Progress Bar */
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; position: relative; border: 1px solid #cbd5e1; }
         .progress-fill { height: 100%; transition: width 0.4s ease-in-out; }
 
-        /* === FLOATING BUTTON (+) LEBIH JELAS === */
+        /* FLOATING BUTTON */
         .float-btn {
             position: fixed; bottom: 40px; right: 40px;
             width: 64px; height: 64px;
@@ -54,7 +51,7 @@
         }
         .float-btn:hover { transform: scale(1.1); background: #1d4ed8; }
 
-        /* === MODAL STYLE LEBIH LEGA === */
+        /* MODAL STYLE */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
@@ -69,7 +66,6 @@
         }
         @keyframes popUp { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        /* Label & Input Modal */
         .modal-label { 
             font-size: 13px; font-weight: 700; color: #475569; 
             display: block; margin-bottom: 6px; letter-spacing: 0.025em;
@@ -172,12 +168,14 @@
         <div class="modal-box">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
                 <div>
-                    <h3 class="text-xl font-black text-slate-800 uppercase">Tambah Rincian Tugas</h3>
-                    <p class="text-xs text-slate-500 font-medium">Isi detail pekerjaan sub-task baru</p>
+                    <h3 id="modal-title" class="text-xl font-black text-slate-800 uppercase">Tambah Rincian Tugas</h3>
+                    <p class="text-xs text-slate-500 font-medium">Formulir Sub-Task</p>
                 </div>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 font-bold text-3xl">&times;</button>
             </div>
             
+            <input type="hidden" id="modal-subtask-id" value="">
+
             <div class="grid grid-cols-1 gap-5">
                 <div>
                     <label class="modal-label text-blue-700">PILIH PROJECT / MESIN (WAJIB)</label>
@@ -245,7 +243,7 @@
 
             <div class="mt-8">
                 <button onclick="saveSubtask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-extrabold text-sm uppercase shadow-xl hover:shadow-2xl active:scale-95 transition-all tracking-wide">
-                    Simpan Tugas
+                    Simpan Perubahan
                 </button>
             </div>
         </div>
@@ -304,17 +302,29 @@
 
         function fillProjectDropdown(tasks) {
             const select = document.getElementById('modal-parent-id');
+            // Simpan value saat ini jika sedang edit, biar gak kereset
+            const currentValue = select.value;
+            
             select.innerHTML = '<option value="">-- Pilih Project (Wajib) --</option>';
             tasks.forEach(task => {
                 if (task.status !== 'Done') {
                     select.innerHTML += `<option value="${task.id}">${task.project_name} (${task.machine_name || '-'})</option>`;
                 }
             });
+
+            if (currentValue) select.value = currentValue;
         }
 
-        // --- MODAL FUNCTIONS ---
+        // --- MODAL FUNCTIONS (TAMBAH & EDIT) ---
+        
+        // Mode TAMBAH
         function openSubtaskModal() {
+            document.getElementById('modal-title').innerText = "Tambah Rincian Tugas";
+            document.getElementById('modal-subtask-id').value = ""; // Reset ID (Tanda Insert)
+            
+            // Reset Form Values
             document.getElementById('modal-parent-id').value = '';
+            document.getElementById('modal-parent-id').disabled = false; // Enable select project
             document.getElementById('modal-desc').value = '';
             document.getElementById('modal-prio').value = 'Mid';
             document.getElementById('modal-prog').value = '0';
@@ -323,6 +333,33 @@
             document.getElementById('modal-job').value = '-';
             document.getElementById('modal-note').value = '';
             document.getElementById('modal-status').value = 'Pending';
+            
+            document.getElementById('subtaskModal').style.display = 'flex';
+        }
+
+        // Mode EDIT (Fungsi Baru!)
+        function editSubtask(subId, parentId) {
+            // Cari data subtask di memori
+            const tasksList = subTasksMap[parentId];
+            const task = tasksList.find(t => t.id == subId);
+
+            if (!task) return alert("Data tidak ditemukan!");
+
+            document.getElementById('modal-title').innerText = "Edit Rincian Tugas";
+            document.getElementById('modal-subtask-id').value = subId; // Set ID (Tanda Update)
+
+            // Isi Form dengan Data Lama
+            document.getElementById('modal-parent-id').value = parentId;
+            document.getElementById('modal-parent-id').disabled = true; // Gaboleh ganti project pas edit (biar aman)
+            document.getElementById('modal-desc').value = task.subtask_desc;
+            document.getElementById('modal-prio').value = task.priority || 'Mid';
+            document.getElementById('modal-prog').value = task.progress_percent || 0;
+            document.getElementById('modal-start').value = task.start_date ? task.start_date.substring(0, 16) : '';
+            document.getElementById('modal-finish').value = task.end_date ? task.end_date.substring(0, 16) : '';
+            document.getElementById('modal-job').value = task.job_type || '-';
+            document.getElementById('modal-note').value = task.worker_notes || '';
+            document.getElementById('modal-status').value = task.status || 'Pending';
+
             document.getElementById('subtaskModal').style.display = 'flex';
         }
 
@@ -331,6 +368,7 @@
         }
 
         async function saveSubtask() {
+            const subId = document.getElementById('modal-subtask-id').value;
             const parentId = document.getElementById('modal-parent-id').value;
             const desc = document.getElementById('modal-desc').value;
             
@@ -349,7 +387,17 @@
                 status: document.getElementById('modal-status').value
             };
 
-            const { error } = await _sb.from('employee_subtasks').insert([payload]);
+            let error;
+            
+            if (subId) {
+                // UPDATE (Jika ada ID)
+                const res = await _sb.from('employee_subtasks').update(payload).eq('id', subId);
+                error = res.error;
+            } else {
+                // INSERT (Jika tidak ada ID)
+                const res = await _sb.from('employee_subtasks').insert([payload]);
+                error = res.error;
+            }
 
             if(error) alert("Gagal simpan: " + error.message);
             else {
@@ -396,12 +444,6 @@
 
         function renderTasks(dataList) {
             const tbody = document.getElementById('ryan-work-body');
-            
-            if(dataList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="p-10 text-center text-slate-400 font-bold bg-slate-50">Belum ada penugasan sama sekali.</td></tr>`;
-                return;
-            }
-
             tbody.innerHTML = dataList.map(row => {
                 const isDone = row.status === 'Done';
                 const progress = row.progress_percent || 0; 
@@ -424,7 +466,17 @@
                                 <span class="${sub.status === 'Done' ? 'text-emerald-600 font-bold bg-emerald-50 px-1.5 rounded' : 'text-slate-500'}">${sub.status || 'Pending'}</span>
                             </div>
                         </div>
-                        ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 w-6 h-6 flex items-center justify-center rounded transition-all font-bold text-lg">&times;</button>` : ''}
+                        
+                        ${!isDone ? `
+                        <div class="flex gap-1">
+                            <button onclick="editSubtask('${sub.id}', '${row.id}')" class="text-amber-500 hover:text-amber-600 hover:bg-amber-50 w-7 h-7 flex items-center justify-center rounded transition-all font-bold" title="Edit">
+                                ✏️
+                            </button>
+                            <button onclick="deleteSubTask('${sub.id}')" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 w-7 h-7 flex items-center justify-center rounded transition-all font-bold text-lg" title="Hapus">
+                                &times;
+                            </button>
+                        </div>
+                        ` : ''}
                     </div>
                 `).join('');
 
