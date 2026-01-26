@@ -83,7 +83,7 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.1em]">
                             <th class="px-6 py-5">Project / Mesin</th>
-                            <th class="px-6 py-5" style="min-width: 300px;">Rincian Tugas</th> 
+                            <th class="px-6 py-5" style="min-width: 500px;">Rincian Tugas & Update</th> 
                             <th class="px-4 py-5 text-center">Priority</th> 
                             <th class="px-4 py-5 text-center" style="min-width: 150px;">Progress (%)</th> 
                             <th class="px-4 py-5 text-center">Start Date</th>
@@ -120,18 +120,21 @@
             return `${datePart} ${timePart}`;
         }
 
-        // FETCH DATA
         async function fetchRyanTasks() {
-            // 1. Ambil Tugas Utama (Termasuk kolom job_type yang baru)
             const { data: mainData, error: mainError } = await _sb
                 .from('management_tracker')
                 .select('*')
-                .eq('assigned_to', 'RYAN')
+                .ilike('assigned_to', 'ryan') 
                 .order('created_at', { ascending: false });
             
             if (mainError) return console.error(mainError);
             
-            // 2. Ambil Sub-Task dari tabel employee_subtasks
+            if (!mainData || mainData.length === 0) {
+                document.getElementById('ryan-work-body').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-400 italic">Belum ada data tugas untuk Ryan.</td></tr>`;
+                updateStats([]);
+                return;
+            }
+
             const taskIds = mainData.map(t => t.id);
             const { data: subData, error: subError } = await _sb
                 .from('employee_subtasks')
@@ -141,7 +144,6 @@
 
             if (subError && subError.code !== '42P01') console.error(subError); 
 
-            // 3. Mapping
             subTasksMap = {};
             if(subData) {
                 subData.forEach(sub => {
@@ -155,24 +157,40 @@
             updateStats(allTasks);
         }
 
-        async function addSubTask(parentId) {
-            const inputElem = document.getElementById(`new-subtask-${parentId}`);
-            const desc = inputElem.value.trim();
-            if(!desc) return alert("Isi rincian tugas dulu!");
-
-            const { error } = await _sb.from('employee_subtasks').insert([{
-                parent_task_id: parentId,
-                subtask_desc: desc
-            }]);
-
-            if(error) alert("Gagal tambah: " + error.message);
-            else { inputElem.value = ""; fetchRyanTasks(); }
-        }
-
         async function deleteSubTask(subId) {
             if(!confirm("Hapus rincian ini?")) return;
             const { error } = await _sb.from('employee_subtasks').delete().eq('id', subId);
             if(!error) fetchRyanTasks();
+        }
+
+        async function saveAllData(id) {
+            const holdReason = document.getElementById(`hold-reason-${id}`).value.trim();
+            const sTime = document.getElementById(`start-time-${id}`).value;
+            const eTime = document.getElementById(`end-time-${id}`).value;
+            const selectedStatus = document.getElementById(`status-val-${id}`).value;
+            const progressVal = document.getElementById(`prog-num-${id}`).value; 
+            const jobType = document.getElementById(`job-type-${id}`).value;
+
+            if (selectedStatus === 'Hold' && !holdReason) return alert("Alasan HOLD wajib diisi!");
+            if (selectedStatus === 'Done') {
+                if (!sTime || !eTime) return alert("Wajib isi Tanggal/Jam Start & Finish!");
+                if (!confirm("Konfirmasi Selesai? (Progres otomatis menjadi 100%)")) return;
+            }
+
+            const updatePayload = {
+                status: selectedStatus,
+                job_type: jobType,
+                hold_reason: holdReason || null,
+                work_start_time: sTime ? sTime.replace('T', ' ') : null,
+                work_end_time: eTime ? eTime.replace('T', ' ') : null,
+                progress_percent: selectedStatus === 'Done' ? 100 : parseInt(progressVal) 
+            };
+
+            if (selectedStatus === 'Done') updatePayload.actual_finish = new Date().toISOString().split('T')[0];
+
+            const { error } = await _sb.from('management_tracker').update(updatePayload).eq('id', id);
+            if (error) alert("Gagal Simpan: " + error.message);
+            else { alert("Data Tersimpan!"); fetchRyanTasks(); }
         }
 
         function renderTasks(dataList) {
@@ -191,13 +209,20 @@
                 const machineDisplay = row.machine_name && row.machine_name !== '-' ? `<div class="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded w-fit mt-1 inline-block">${row.machine_name}</div>` : '';
                 
                 const mySubtasks = subTasksMap[row.id] || [];
+                
+                // RENDER LIST SUBTASK
                 let subtaskHtml = mySubtasks.map(sub => `
-                    <div class="flex justify-between items-start group/item mb-1.5 pb-1.5 border-b border-dashed border-slate-200 last:border-0">
-                        <div class="flex items-start gap-2">
-                            <div class="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-                            <span class="text-xs text-slate-600 font-medium">${sub.subtask_desc}</span>
+                    <div class="flex items-center gap-2 mb-1 pb-1 border-b border-dashed border-slate-200 last:border-0 bg-white p-2 rounded shadow-sm">
+                        <div class="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0"></div>
+                        <div class="flex-grow">
+                            <div class="text-[11px] font-bold text-slate-800">${sub.subtask_desc}</div>
+                            <div class="text-[9px] text-slate-400 flex gap-2">
+                                <span>${sub.priority || '-'}</span> | 
+                                <span>${sub.progress_percent || 0}%</span> | 
+                                <span class="${sub.status === 'Done' ? 'text-emerald-500 font-bold' : ''}">${sub.status || 'Pending'}</span>
+                            </div>
                         </div>
-                        ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-300 hover:text-rose-500 text-[10px] font-bold opacity-0 group-hover/item:opacity-100 transition-opacity">Hapus</button>` : ''}
+                        ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-400 hover:text-rose-600 text-[10px] font-bold px-2 py-1 bg-rose-50 rounded">&times;</button>` : ''}
                     </div>
                 `).join('');
 
@@ -209,32 +234,23 @@
                         </td>
 
                         <td class="px-6 py-6 align-top">
-                            <div class="bg-slate-100 p-3 rounded-lg border border-slate-200 mb-3 relative">
-                                <span class="absolute -top-2 left-2 bg-slate-200 text-[8px] font-bold text-slate-500 px-2 py-0.5 rounded uppercase tracking-wider">Instruksi Pengejaan</span>
+                            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 mb-3 relative">
+                                <span class="absolute -top-2 left-2 bg-blue-100 text-[8px] font-bold text-blue-600 px-2 py-0.5 rounded uppercase tracking-wider">Instruksi Boss</span>
                                 <p class="text-slate-800 font-bold text-xs whitespace-pre-wrap mt-1">${row.task_desc || '-'}</p>
                             </div>
 
-                            <div class="pl-1">
+                            <div class="pl-1 mb-2 space-y-1">
                                 ${subtaskHtml}
                             </div>
 
-                            ${!isDone ? `
-                            <div class="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100">
-                                <input type="text" id="new-subtask-${row.id}" class="flex-grow bg-white border border-blue-200 rounded px-2 py-1.5 text-[11px] focus:ring-1 focus:ring-blue-400 outline-none" placeholder="Tambah rincian tugas...">
-                                <button onclick="addSubTask(${row.id})" class="bg-blue-600 hover:bg-blue-700 text-white w-7 h-7 rounded flex items-center justify-center font-bold shadow-sm active:scale-95 transition-transform">+</button>
-                            </div>
-                            ` : ''}
-                        </td>
+                            </td>
 
                         <td class="px-4 py-6 text-center align-top"><span class="px-3 py-1 rounded-lg font-black text-[9px] ${pClass}">${row.priority || 'Mid'}</span></td>
                         
                         <td class="px-4 py-6 align-top">
                             <div class="flex flex-col gap-2">
                                 <div class="flex items-center gap-2">
-                                    <input type="number" id="prog-num-${row.id}" min="0" max="100" value="${progress}" 
-                                        ${isDone ? 'disabled' : ''}
-                                        class="w-16 p-1 border rounded text-center text-xs font-bold focus:ring-2 focus:ring-blue-400 outline-none"
-                                        oninput="document.getElementById('bar-inner-${row.id}').style.width = this.value + '%'">
+                                    <input type="number" id="prog-num-${row.id}" min="0" max="100" value="${progress}" ${isDone ? 'disabled' : ''} class="w-16 p-1 border rounded text-center text-xs font-bold focus:ring-2 focus:ring-blue-400 outline-none" oninput="document.getElementById('bar-inner-${row.id}').style.width = this.value + '%'">
                                     <span class="text-[10px] font-bold text-slate-400">%</span>
                                 </div>
                                 <div class="progress-bg">
@@ -301,36 +317,6 @@
             document.getElementById('stat-pending').innerText = data.filter(r => r.status === 'Pending').length;
             document.getElementById('stat-hold').innerText = data.filter(r => r.status === 'Hold').length;
             document.getElementById('stat-finished').innerText = data.filter(r => r.status === 'Done').length;
-        }
-
-        async function saveAllData(id) {
-            const holdReason = document.getElementById(`hold-reason-${id}`).value.trim();
-            const sTime = document.getElementById(`start-time-${id}`).value;
-            const eTime = document.getElementById(`end-time-${id}`).value;
-            const selectedStatus = document.getElementById(`status-val-${id}`).value;
-            const progressVal = document.getElementById(`prog-num-${id}`).value; 
-            const jobType = document.getElementById(`job-type-${id}`).value; // AMBIL VALUE JOB TYPE
-
-            if (selectedStatus === 'Hold' && !holdReason) return alert("Alasan HOLD wajib diisi!");
-            if (selectedStatus === 'Done') {
-                if (!sTime || !eTime) return alert("Wajib isi Tanggal/Jam Start & Finish!");
-                if (!confirm("Konfirmasi Selesai? (Progres otomatis menjadi 100%)")) return;
-            }
-
-            const updatePayload = {
-                status: selectedStatus,
-                job_type: jobType, // SIMPAN PERUBAHAN JOB TYPE
-                hold_reason: holdReason || null,
-                work_start_time: sTime ? sTime.replace('T', ' ') : null,
-                work_end_time: eTime ? eTime.replace('T', ' ') : null,
-                progress_percent: selectedStatus === 'Done' ? 100 : parseInt(progressVal) 
-            };
-
-            if (selectedStatus === 'Done') updatePayload.actual_finish = new Date().toISOString().split('T')[0];
-
-            const { error } = await _sb.from('management_tracker').update(updatePayload).eq('id', id);
-            if (error) alert("Gagal Simpan: " + error.message);
-            else { alert("Data Tersimpan!"); fetchRyanTasks(); }
         }
 
         window.onload = fetchRyanTasks;
