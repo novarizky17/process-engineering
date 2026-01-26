@@ -7,100 +7,127 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .gradient-blue { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f1f5f9; /* Background agak lebih gelap dikit biar kontras */
+            color: #1e293b;
+        }
+        
+        .gradient-blue { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }
+        
+        /* Custom Select Arrow */
         .status-select {
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23334155'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 0.5rem center;
-            background-size: 1.1em;
+            background-position: right 0.75rem center;
+            background-size: 1em;
         }
-        input[type="datetime-local"] { font-size: 10px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; }
-        .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; position: relative; }
+
+        /* Input Date yang lebih jelas */
+        input[type="datetime-local"] { 
+            font-family: 'Inter', sans-serif;
+            font-size: 13px; 
+            font-weight: 600;
+            color: #334155;
+            padding: 6px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        /* Progress Bar */
+        .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden; position: relative; border: 1px solid #cbd5e1; }
         .progress-fill { height: 100%; transition: width 0.4s ease-in-out; }
 
-        /* === FLOATING BUTTON (+) POJOK KANAN BAWAH === */
+        /* === FLOATING BUTTON (+) LEBIH JELAS === */
         .float-btn {
-            position: fixed; bottom: 30px; right: 30px;
-            width: 60px; height: 60px;
+            position: fixed; bottom: 40px; right: 40px;
+            width: 64px; height: 64px;
             background: #2563eb; color: white;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 32px; font-weight: bold;
-            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.6);
-            transition: all 0.3s ease; z-index: 50; cursor: pointer;
+            font-size: 36px; font-weight: 800;
+            box-shadow: 0 10px 30px -5px rgba(37, 99, 235, 0.7);
+            transition: all 0.2s ease; z-index: 50; cursor: pointer;
             border: 4px solid white;
         }
-        .float-btn:hover { transform: scale(1.1) rotate(90deg); background: #1d4ed8; }
+        .float-btn:hover { transform: scale(1.1); background: #1d4ed8; }
 
-        /* === MODAL STYLE === */
+        /* === MODAL STYLE LEBIH LEGA === */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(3px);
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
             z-index: 60; display: none; justify-content: center; align-items: center;
         }
         .modal-box {
-            background: white; width: 95%; max-width: 500px;
-            border-radius: 20px; padding: 24px;
+            background: white; width: 95%; max-width: 550px;
+            border-radius: 20px; padding: 28px;
             max-height: 90vh; overflow-y: auto;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            animation: popUp 0.2s ease-out;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: popUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        @keyframes popUp { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes popUp { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        .modal-label { font-size: 11px; font-weight: 700; color: #64748b; display: block; margin-bottom: 4px; }
-        .modal-input { 
-            width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; 
-            padding: 10px; font-size: 13px; outline: none; transition: all 0.2s;
-            font-weight: 500; color: #334155;
+        /* Label & Input Modal */
+        .modal-label { 
+            font-size: 13px; font-weight: 700; color: #475569; 
+            display: block; margin-bottom: 6px; letter-spacing: 0.025em;
         }
-        .modal-input:focus { border-color: #3b82f6; ring: 2px; }
+        .modal-input { 
+            width: 100%; border: 2px solid #e2e8f0; border-radius: 10px; 
+            padding: 10px 12px; font-size: 14px; font-weight: 500; color: #1e293b;
+            outline: none; transition: all 0.2s;
+        }
+        .modal-input:focus { border-color: #3b82f6; background-color: #eff6ff; }
+        .modal-input::placeholder { color: #94a3b8; font-weight: 400; }
     </style>
 </head>
-<body class="min-h-screen pb-12">
+<body class="min-h-screen pb-20">
 
-    <div class="gradient-blue w-full pt-12 pb-24 px-8 mb-[-80px] shadow-2xl">
+    <div class="gradient-blue w-full pt-12 pb-28 px-8 mb-[-90px] shadow-xl">
         <div class="max-w-[98%] mx-auto flex justify-between items-end">
             <div class="flex items-center gap-6">
-                <div class="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center text-3xl font-black text-white backdrop-blur-md border border-white/30 uppercase">R</div>
+                <div class="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center text-4xl font-black text-white backdrop-blur-md border border-white/30 shadow-inner">R</div>
                 <div>
-                    <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Panel Kerja Ryan</h1>
-                    <p class="text-blue-100 text-sm mt-1 font-medium tracking-wide">Monitoring Tugas & Sub-Task</p>
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight drop-shadow-md">Panel Kerja Ryan</h1>
+                    <p class="text-blue-100 text-sm mt-1 font-semibold tracking-wide">Monitoring Tugas & Sub-Task</p>
                 </div>
             </div>
-            <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all border border-white/20"> Kembali </a>
+            <a href="employee_report.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-bold text-sm uppercase transition-all border border-white/20 shadow-lg"> 
+                Kembali Menu
+            </a>
         </div>
     </div>
 
     <div class="max-w-[98%] mx-auto px-4">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10 relative z-10">
-            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-blue-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">In Progress</p>
-                <h3 id="stat-active" class="text-3xl font-black text-slate-800">0</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-10 relative z-10">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-blue-600">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">In Progress</p>
+                <h3 id="stat-active" class="text-4xl font-black text-slate-800">0</h3>
             </div>
-            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-amber-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pending</p>
-                <h3 id="stat-pending" class="text-3xl font-black text-slate-800">0</h3>
+            <div class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-amber-500">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Pending</p>
+                <h3 id="stat-pending" class="text-4xl font-black text-slate-800">0</h3>
             </div>
-            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-rose-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hold</p>
-                <h3 id="stat-hold" class="text-3xl font-black text-rose-600">0</h3>
+            <div class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-rose-500">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Hold</p>
+                <h3 id="stat-hold" class="text-4xl font-black text-rose-600">0</h3>
             </div>
-            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-emerald-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Selesai</p>
-                <h3 id="stat-finished" class="text-3xl font-black text-emerald-600">0</h3>
+            <div class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-emerald-500">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Selesai</p>
+                <h3 id="stat-finished" class="text-4xl font-black text-emerald-600">0</h3>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="relative">
-                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Cari Project / Tugas</label>
-                <input type="text" id="search-input" oninput="filterTable()" placeholder="Ketik nama project..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm">
+                <label class="text-xs font-bold text-slate-600 uppercase ml-1 mb-2 block">Cari Project / Tugas</label>
+                <input type="text" id="search-input" oninput="filterTable()" placeholder="Ketik nama project..." class="w-full bg-white border-2 border-slate-200 px-5 py-3 rounded-xl text-sm font-semibold outline-none focus:border-blue-500 transition-all shadow-sm text-slate-800">
             </div>
             <div>
-                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Filter Priority</label>
-                <select id="filter-priority" onchange="filterTable()" class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm">
+                <label class="text-xs font-bold text-slate-600 uppercase ml-1 mb-2 block">Filter Priority</label>
+                <select id="filter-priority" onchange="filterTable()" class="w-full bg-white border-2 border-slate-200 px-5 py-3 rounded-xl text-sm font-semibold outline-none focus:border-blue-500 transition-all shadow-sm text-slate-800 cursor-pointer">
                     <option value="">Semua Priority</option>
                     <option value="Low">Low</option>
                     <option value="Mid">Mid</option>
@@ -109,27 +136,29 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
-            <div class="p-6 border-b border-slate-50 flex justify-between items-center">
-                <h2 class="text-lg font-bold text-slate-800 uppercase tracking-tight">Daftar Penugasan</h2>
-                <button onclick="fetchRyanTasks()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl text-[10px] font-bold uppercase transition-all">Refresh Data</button>
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                <h2 class="text-xl font-extrabold text-slate-800 tracking-tight">Daftar Penugasan</h2>
+                <button onclick="fetchRyanTasks()" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-5 py-2.5 rounded-lg text-xs font-bold uppercase transition-all shadow-sm">
+                    Refresh Data
+                </button>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.1em]">
+                        <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-extrabold tracking-wider border-b border-slate-200">
                             <th class="px-6 py-5">Project / Mesin</th>
                             <th class="px-6 py-5" style="min-width: 500px;">Rincian Tugas & Update</th> 
                             <th class="px-4 py-5 text-center">Priority</th> 
-                            <th class="px-4 py-5 text-center" style="min-width: 150px;">Progress (%)</th> 
-                            <th class="px-4 py-5 text-center">Start Date</th>
-                            <th class="px-4 py-5 text-center">Finish Date</th>
+                            <th class="px-4 py-5 text-center" style="min-width: 160px;">Progress (%)</th> 
+                            <th class="px-4 py-5 text-center" style="min-width: 180px;">Start Date</th>
+                            <th class="px-4 py-5 text-center" style="min-width: 180px;">Finish Date</th>
                             <th class="px-4 py-5 text-center">Jenis Pekerjaan</th> 
-                            <th class="px-6 py-5">Keterangan</th> 
-                            <th class="px-6 py-5 text-center">Status</th>
+                            <th class="px-6 py-5" style="min-width: 200px;">Keterangan</th> 
+                            <th class="px-6 py-5 text-center" style="min-width: 150px;">Status</th>
                         </tr>
                     </thead>
-                    <tbody id="ryan-work-body" class="divide-y divide-slate-50 text-sm"></tbody>
+                    <tbody id="ryan-work-body" class="divide-y divide-slate-200 text-sm font-medium text-slate-700 bg-white"></tbody>
                 </table>
             </div>
         </div>
@@ -142,24 +171,27 @@
     <div id="subtaskModal" class="modal-overlay">
         <div class="modal-box">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
-                <h3 class="text-xl font-black text-slate-800 uppercase">Tambah Rincian Tugas</h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 font-bold text-2xl">&times;</button>
+                <div>
+                    <h3 class="text-xl font-black text-slate-800 uppercase">Tambah Rincian Tugas</h3>
+                    <p class="text-xs text-slate-500 font-medium">Isi detail pekerjaan sub-task baru</p>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 font-bold text-3xl">&times;</button>
             </div>
             
-            <div class="grid grid-cols-1 gap-4">
+            <div class="grid grid-cols-1 gap-5">
                 <div>
-                    <label class="modal-label text-blue-600">PILIH PROJECT / MESIN (WAJIB)</label>
-                    <select id="modal-parent-id" class="modal-input border-blue-300 bg-blue-50 font-bold">
+                    <label class="modal-label text-blue-700">PILIH PROJECT / MESIN (WAJIB)</label>
+                    <select id="modal-parent-id" class="modal-input border-blue-400 bg-blue-50 font-bold text-blue-900 h-12">
                         <option value="">-- Pilih Project --</option>
-                        </select>
+                    </select>
                 </div>
 
                 <div>
                     <label class="modal-label">Nama / Rincian Tugas</label>
-                    <input type="text" id="modal-desc" class="modal-input" placeholder="Apa yang dikerjakan...">
+                    <input type="text" id="modal-desc" class="modal-input" placeholder="Contoh: Bongkar Cylinder...">
                 </div>
                 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-5">
                     <div>
                         <label class="modal-label">Priority</label>
                         <select id="modal-prio" class="modal-input">
@@ -174,18 +206,18 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-5">
                     <div>
                         <label class="modal-label">Start Date</label>
-                        <input type="datetime-local" id="modal-start" class="modal-input">
+                        <input type="datetime-local" id="modal-start" class="modal-input text-xs">
                     </div>
                     <div>
                         <label class="modal-label">Finish Date</label>
-                        <input type="datetime-local" id="modal-finish" class="modal-input">
+                        <input type="datetime-local" id="modal-finish" class="modal-input text-xs">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-5">
                     <div>
                         <label class="modal-label">Job Type</label>
                         <select id="modal-job" class="modal-input">
@@ -212,7 +244,7 @@
             </div>
 
             <div class="mt-8">
-                <button onclick="saveSubtask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-sm uppercase shadow-lg active:scale-95 transition-all">
+                <button onclick="saveSubtask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-extrabold text-sm uppercase shadow-xl hover:shadow-2xl active:scale-95 transition-all tracking-wide">
                     Simpan Tugas
                 </button>
             </div>
@@ -241,7 +273,6 @@
         }
 
         async function fetchRyanTasks() {
-            // Ambil semua project untuk dropdown
             const { data: mainData, error: mainError } = await _sb
                 .from('management_tracker')
                 .select('*')
@@ -251,7 +282,7 @@
             if (mainError) return console.error(mainError);
             
             allTasks = mainData;
-            fillProjectDropdown(mainData); // Isi dropdown di modal
+            fillProjectDropdown(mainData);
 
             const taskIds = mainData.map(t => t.id);
             if(taskIds.length > 0) {
@@ -275,7 +306,6 @@
             const select = document.getElementById('modal-parent-id');
             select.innerHTML = '<option value="">-- Pilih Project (Wajib) --</option>';
             tasks.forEach(task => {
-                // Jangan tampilkan project yang statusnya Done di dropdown (opsional, tapi biar rapi)
                 if (task.status !== 'Done') {
                     select.innerHTML += `<option value="${task.id}">${task.project_name} (${task.machine_name || '-'})</option>`;
                 }
@@ -284,7 +314,6 @@
 
         // --- MODAL FUNCTIONS ---
         function openSubtaskModal() {
-            // Reset Form
             document.getElementById('modal-parent-id').value = '';
             document.getElementById('modal-desc').value = '';
             document.getElementById('modal-prio').value = 'Mid';
@@ -294,7 +323,6 @@
             document.getElementById('modal-job').value = '-';
             document.getElementById('modal-note').value = '';
             document.getElementById('modal-status').value = 'Pending';
-            
             document.getElementById('subtaskModal').style.display = 'flex';
         }
 
@@ -370,66 +398,74 @@
             const tbody = document.getElementById('ryan-work-body');
             
             if(dataList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="p-10 text-center text-slate-400 font-medium">Belum ada penugasan sama sekali.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="p-10 text-center text-slate-400 font-bold bg-slate-50">Belum ada penugasan sama sekali.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = dataList.map(row => {
                 const isDone = row.status === 'Done';
                 const progress = row.progress_percent || 0; 
-                let pClass = row.priority === 'High' ? "bg-red-100 text-red-600 border border-red-200" : (row.priority === 'Mid' ? "bg-blue-100 text-blue-600 border border-blue-200" : "bg-slate-100 text-slate-500");
-                
-                let borderClass = "border-slate-200 text-slate-600";
-                if(row.status === 'In Progress') borderClass = "border-blue-500 text-blue-600 bg-blue-50";
-                if(row.status === 'Hold') borderClass = "border-rose-400 text-rose-600 bg-rose-50";
-                if(row.status === 'Pending') borderClass = "border-amber-400 text-amber-600 bg-amber-50";
+                let pClass = row.priority === 'High' ? "bg-rose-100 text-rose-700 border border-rose-200" : (row.priority === 'Mid' ? "bg-blue-100 text-blue-700 border border-blue-200" : "bg-slate-100 text-slate-700");
+                let borderClass = row.status === 'In Progress' ? "border-blue-500 text-blue-700 bg-blue-50" : (row.status === 'Hold' ? "border-rose-500 text-rose-700 bg-rose-50" : "border-slate-300 text-slate-700");
+                if (row.status === 'Pending') borderClass = "border-amber-400 text-amber-700 bg-amber-50";
 
-                let barColor = isDone || progress >= 100 ? "bg-emerald-500" : (row.status === 'Hold' ? "bg-rose-500" : "bg-blue-500");
-                const machineDisplay = row.machine_name && row.machine_name !== '-' ? `<div class="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded w-fit mt-1 inline-block">${row.machine_name}</div>` : '';
+                let barColor = isDone || progress >= 100 ? "bg-emerald-500" : (row.status === 'Hold' ? "bg-rose-500" : "bg-blue-600");
+                const machineDisplay = row.machine_name && row.machine_name !== '-' ? `<div class="text-xs font-black text-blue-600 bg-blue-50 border border-blue-200 px-3 py-1 rounded-lg w-fit mt-1.5 inline-block">${row.machine_name}</div>` : '';
                 const mySubtasks = subTasksMap[row.id] || [];
                 
                 let subtaskHtml = mySubtasks.map(sub => `
-                    <div class="flex items-center gap-2 mb-1 pb-1 border-b border-dashed border-slate-200 last:border-0 bg-white p-2 rounded shadow-sm">
-                        <div class="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0"></div>
+                    <div class="flex items-center gap-3 mb-2 pb-2 border-b border-dashed border-slate-200 last:border-0 bg-slate-50 p-3 rounded-lg shadow-sm border border-slate-100 hover:bg-white transition-colors">
+                        <div class="w-2 h-2 bg-blue-500 rounded-full shrink-0"></div>
                         <div class="flex-grow">
-                            <div class="text-[11px] font-bold text-slate-800">${sub.subtask_desc}</div>
-                            <div class="text-[9px] text-slate-400 flex gap-2">
-                                <span>${sub.priority || '-'}</span> | <span>${sub.progress_percent || 0}%</span> | <span class="${sub.status === 'Done' ? 'text-emerald-500 font-bold' : ''}">${sub.status || 'Pending'}</span>
+                            <div class="text-sm font-bold text-slate-800">${sub.subtask_desc}</div>
+                            <div class="text-xs text-slate-500 flex flex-wrap gap-2 mt-1">
+                                <span class="bg-white px-1.5 border rounded">Pri: ${sub.priority || '-'}</span> 
+                                <span class="bg-white px-1.5 border rounded">Prog: ${sub.progress_percent || 0}%</span> 
+                                <span class="${sub.status === 'Done' ? 'text-emerald-600 font-bold bg-emerald-50 px-1.5 rounded' : 'text-slate-500'}">${sub.status || 'Pending'}</span>
                             </div>
                         </div>
-                        ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-400 hover:text-rose-600 text-[10px] font-bold px-2 py-1 bg-rose-50 rounded">&times;</button>` : ''}
+                        ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-400 hover:text-rose-600 hover:bg-rose-50 w-6 h-6 flex items-center justify-center rounded transition-all font-bold text-lg">&times;</button>` : ''}
                     </div>
                 `).join('');
 
                 return `
-                    <tr class="hover:bg-slate-50/50 transition-colors">
-                        <td class="px-6 py-6 font-bold uppercase text-slate-800 align-top">${row.project_name}<br>${machineDisplay}</td>
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0">
+                        <td class="px-6 py-6 font-bold uppercase text-slate-800 align-top text-sm">
+                            ${row.project_name}<br>${machineDisplay}
+                        </td>
+
                         <td class="px-6 py-6 align-top">
-                            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 mb-3 relative">
-                                <span class="absolute -top-2 left-2 bg-blue-100 text-[8px] font-bold text-blue-600 px-2 py-0.5 rounded uppercase tracking-wider">Instruksi Boss</span>
-                                <p class="text-slate-800 font-bold text-xs whitespace-pre-wrap mt-1">${row.task_desc || '-'}</p>
+                            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-4 relative shadow-sm">
+                                <span class="absolute -top-2.5 left-3 bg-blue-600 text-[10px] font-bold text-white px-3 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Instruksi Boss</span>
+                                <p class="text-slate-700 font-semibold text-sm whitespace-pre-wrap mt-1 leading-relaxed">"${row.task_desc || '-'}"</p>
                             </div>
                             <div class="pl-1 mb-2 space-y-1">${subtaskHtml}</div>
                         </td>
-                        <td class="px-4 py-6 text-center align-top"><span class="px-3 py-1 rounded-lg font-black text-[9px] ${pClass}">${row.priority || 'Mid'}</span></td>
+
+                        <td class="px-4 py-6 text-center align-top"><span class="px-3 py-1.5 rounded-lg font-black text-xs ${pClass}">${row.priority || 'Mid'}</span></td>
+                        
                         <td class="px-4 py-6 align-top">
                             <div class="flex flex-col gap-2">
                                 <div class="flex items-center gap-2">
-                                    <input type="number" id="prog-num-${row.id}" min="0" max="100" value="${progress}" ${isDone ? 'disabled' : ''} class="w-16 p-1 border rounded text-center text-xs font-bold focus:ring-2 focus:ring-blue-400 outline-none" oninput="document.getElementById('bar-inner-${row.id}').style.width = this.value + '%'">
-                                    <span class="text-[10px] font-bold text-slate-400">%</span>
+                                    <input type="number" id="prog-num-${row.id}" min="0" max="100" value="${progress}" ${isDone ? 'disabled' : ''} class="w-16 p-1.5 border-2 border-slate-200 rounded-lg text-center text-sm font-bold focus:border-blue-500 outline-none text-slate-700" oninput="document.getElementById('bar-inner-${row.id}').style.width = this.value + '%'">
+                                    <span class="text-xs font-bold text-slate-400">%</span>
                                 </div>
                                 <div class="progress-bg"><div id="bar-inner-${row.id}" class="progress-fill ${barColor}" style="width: ${progress}%"></div></div>
                             </div>
                         </td>
+
                         <td class="px-4 py-6 text-center align-top">
-                            ${isDone ? `<span class="text-[10px] font-bold text-slate-700">${formatDisplayFixed(row.work_start_time)}</span>` : `<input type="datetime-local" id="start-time-${row.id}" value="${row.work_start_time ? row.work_start_time.substring(0,16) : ''}" class="w-full">`}
+                            ${isDone ? `<span class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded">${formatDisplayFixed(row.work_start_time)}</span>` : 
+                            `<input type="datetime-local" id="start-time-${row.id}" value="${row.work_start_time ? row.work_start_time.substring(0,16) : ''}" class="w-full">`}
                         </td>
                         <td class="px-4 py-6 text-center align-top">
-                            ${isDone ? `<span class="text-[10px] font-bold text-emerald-600">${formatDisplayFixed(row.work_end_time)}</span>` : `<input type="datetime-local" id="end-time-${row.id}" value="${row.work_end_time ? row.work_end_time.substring(0,16) : ''}" class="w-full">`}
+                            ${isDone ? `<span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">${formatDisplayFixed(row.work_end_time)}</span>` : 
+                            `<input type="datetime-local" id="end-time-${row.id}" value="${row.work_end_time ? row.work_end_time.substring(0,16) : ''}" class="w-full">`}
                         </td>
+
                         <td class="px-4 py-6 text-center align-top">
-                            ${isDone ? `<span class="bg-indigo-100 text-indigo-700 px-2 py-1 rounded text-[10px] font-bold border border-indigo-200 uppercase">${row.job_type || '-'}</span>` : 
-                            `<select id="job-type-${row.id}" class="bg-indigo-50 border border-indigo-200 text-indigo-700 text-[10px] rounded px-2 py-1 font-bold outline-none cursor-pointer">
+                            ${isDone ? `<span class="bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-bold border border-indigo-200 uppercase tracking-wide">${row.job_type || '-'}</span>` : 
+                            `<select id="job-type-${row.id}" class="bg-white border-2 border-indigo-100 text-indigo-700 text-xs rounded-lg px-2 py-2 font-bold outline-none cursor-pointer focus:border-indigo-400 w-full">
                                 <option value="-" ${!row.job_type || row.job_type === '-' ? 'selected' : ''}>-</option>
                                 <option value="Improvement" ${row.job_type === 'Improvement' ? 'selected' : ''}>Improvement</option>
                                 <option value="Overhaul" ${row.job_type === 'Overhaul' ? 'selected' : ''}>Overhaul</option>
@@ -438,19 +474,22 @@
                                 <option value="Trial" ${row.job_type === 'Trial' ? 'selected' : ''}>Trial</option>
                             </select>`}
                         </td>
+
                         <td class="px-6 py-6 align-top">
-                            ${isDone ? `<p class="text-rose-500 text-[11px] font-medium">${row.hold_reason || '-'}</p>` : `<textarea id="hold-reason-${row.id}" placeholder="Keterangan..." class="w-full border rounded p-2 text-[11px] outline-none" rows="2">${row.hold_reason || ''}</textarea>`}
+                            ${isDone ? `<p class="text-rose-600 text-xs font-bold bg-rose-50 px-3 py-2 rounded-lg border border-rose-100">${row.hold_reason || '-'}</p>` : 
+                            `<textarea id="hold-reason-${row.id}" placeholder="Keterangan..." class="w-full border-2 border-slate-200 rounded-lg p-2 text-xs font-medium outline-none focus:border-blue-400 text-slate-700 resize-none h-20">${row.hold_reason || ''}</textarea>`}
                         </td>
+
                         <td class="px-6 py-6 text-center align-top">
-                            ${isDone ? `<span class="px-4 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 font-black text-[9px] uppercase tracking-widest">FINISHED</span>` : 
-                                `<div class="flex flex-col gap-2 min-w-[120px]">
-                                    <select id="status-val-${row.id}" class="status-select px-3 py-2 rounded-xl text-[10px] font-black border-2 outline-none ${borderClass}">
+                            ${isDone ? `<span class="px-4 py-2 rounded-xl bg-emerald-100 text-emerald-700 border border-emerald-200 font-black text-xs uppercase tracking-widest shadow-sm block">FINISHED</span>` : 
+                                `<div class="flex flex-col gap-3 min-w-[140px]">
+                                    <select id="status-val-${row.id}" class="status-select px-4 py-2.5 rounded-xl text-xs font-extrabold border-2 outline-none shadow-sm cursor-pointer ${borderClass}">
                                         <option value="Pending" ${row.status === 'Pending' ? 'selected' : ''}>Pending</option>
                                         <option value="In Progress" ${row.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
                                         <option value="Hold" ${row.status === 'Hold' ? 'selected' : ''}>Hold</option>
                                         <option value="Done">Selesai</option>
                                     </select>
-                                    <button onclick="saveAllData('${row.id}')" class="bg-blue-600 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl font-bold text-[10px] uppercase shadow-md active:scale-95 transition-all">Simpan</button>
+                                    <button onclick="saveAllData('${row.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs uppercase shadow-md active:scale-95 transition-all tracking-wide">Simpan</button>
                                 </div>`}
                         </td>
                     </tr>
@@ -461,7 +500,7 @@
         function filterTable() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const priorityFilter = document.getElementById('filter-priority').value;
-            const filtered = allTasks.filter(task => { // FILTER SEMUA DATA
+            const filtered = allTasks.filter(task => {
                 const matchesSearch = task.project_name.toLowerCase().includes(query) || (task.task_desc && task.task_desc.toLowerCase().includes(query));
                 const matchesPriority = priorityFilter === "" || task.priority === priorityFilter;
                 return matchesSearch && matchesPriority;
