@@ -9,29 +9,25 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #f8fafc;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
 
-        /* Custom Checkbox Style */
-        .custom-checkbox input:checked + div {
-            background-color: #7c3aed; /* Violet-600 */
-            border-color: #7c3aed;
-        }
-        .custom-checkbox input:checked + div svg {
-            display: block;
+        /* Style Radio Button Custom */
+        .radio-option input:checked + div {
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         
-        .section-card {
-            transition: all 0.2s ease-in-out;
-        }
-        .section-card:hover {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-        }
+        /* Warna saat Checked */
+        .radio-ok input:checked + div { background-color: #10b981; } /* Emerald */
+        .radio-ng input:checked + div { background-color: #f43f5e; } /* Rose */
+        .radio-na input:checked + div { background-color: #94a3b8; } /* Slate */
+
+        .section-card { transition: all 0.2s ease-in-out; }
+        .section-card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
     </style>
 </head>
-<body class="pb-20">
+<body class="pb-24">
 
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm bg-opacity-90 backdrop-blur-md">
         <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -42,13 +38,7 @@
                 </a>
                 <div>
                     <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Formulir Kesiapan Trial</h1>
-                    <p class="text-xs text-violet-600 font-bold uppercase tracking-wider">Plastic Injection Dept.</p>
-                </div>
-            </div>
-            <div class="hidden md:block">
-                <div class="text-right">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase">No. Dokumen</p>
-                    <p class="text-xs font-mono font-bold text-slate-600">FRM-TRL-001/REV.02</p>
+                    <p class="text-xs text-violet-600 font-bold uppercase tracking-wider">OK / NG / NA System</p>
                 </div>
             </div>
         </div>
@@ -56,456 +46,259 @@
 
     <div class="max-w-5xl mx-auto px-4 mt-8">
         
-        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-lg border border-slate-100 mb-8 relative overflow-hidden">
+        <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-100 mb-8 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-violet-500 to-fuchsia-500"></div>
-            
-            <h2 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <svg class="w-5 h-5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Informasi Trial
-            </h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Tanggal Trial</label>
-                    <input type="date" id="trialDate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500 transition-all">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tanggal Trial</label>
+                    <input type="date" id="trialDate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Kode / Nama Mold</label>
-                    <input type="text" placeholder="Contoh: MLD-X500 Cover" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500 transition-all">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Mold Code</label>
+                    <input type="text" placeholder="Input Kode Mold..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
                 </div>
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Nomor Mesin</label>
-                    <select class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500 transition-all cursor-pointer">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Mesin</label>
+                    <select class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none cursor-pointer">
                         <option value="">Pilih Mesin...</option>
                         <option>Inj-01 (150T)</option>
                         <option>Inj-02 (200T)</option>
                         <option>Inj-03 (350T)</option>
-                        <option>Inj-04 (500T)</option>
                     </select>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Material Resin</label>
-                    <input type="text" placeholder="Contoh: ABS Toyolac 700" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500 transition-all">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">PIC Trial (Penanggung Jawab)</label>
-                    <input type="text" placeholder="Nama Engineer / Teknisi" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500 transition-all">
                 </div>
             </div>
         </div>
 
         <form id="trialForm">
+            
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 mb-6 section-card">
                 <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-4">
                     <h3 class="text-lg font-extrabold text-slate-800">1. Verifikasi Mesin Injeksi</h3>
-                    <span class="bg-violet-100 text-violet-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase">Injection Machine</span>
+                    <span class="bg-violet-100 text-violet-700 text-[10px] font-bold px-3 py-1 rounded-full">MACHINE</span>
                 </div>
-                <div class="space-y-3">
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only" name="chk_machine_1">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Kapasitas Tonase</span>
-                            <span class="text-xs text-slate-500">Pastikan tonase mesin sesuai dengan kebutuhan gaya penjepitan (clamping force) mold.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only" name="chk_machine_2">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Kapasitas Injeksi (Shot Size)</span>
-                            <span class="text-xs text-slate-500">Volume penyuntikan mold berada di rentang 20% - 80% dari kapasitas maksimal barrel.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only" name="chk_machine_3">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Kondisi Nozzle</span>
-                            <span class="text-xs text-slate-500">Periksa kebersihan tip nozzle & pastikan radius nozzle sesuai dengan locating ring mold.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only" name="chk_machine_4">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Fungsi Ejektor</span>
-                            <span class="text-xs text-slate-500">Pastikan batang ejektor mesin terhubung dengan benar dan langkahnya (stroke) cukup.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only" name="chk_machine_5">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Kalibrasi & Sensor</span>
-                            <span class="text-xs text-slate-500">Pastikan sensor suhu dan tekanan pada mesin berfungsi normal.</span>
-                        </div>
-                    </label>
-                </div>
+                <div id="section-1-content" class="space-y-4"></div>
             </div>
 
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 mb-6 section-card">
                 <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-4">
                     <h3 class="text-lg font-extrabold text-slate-800">2. Persiapan Mold (Cetakan)</h3>
-                    <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase">Mold Setup</span>
+                    <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-3 py-1 rounded-full">MOLD</span>
                 </div>
-                <div class="space-y-3">
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Kebersihan Core & Cavity</span>
-                            <span class="text-xs text-slate-500">Pastikan tidak ada sisa anti-karat, debu, atau kotoran di permukaan cetakan.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Locating Ring & Clamping</span>
-                            <span class="text-xs text-slate-500">Pastikan ukuran sesuai dengan spesifikasi mesin. Baut clamping terpasang kuat.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Sliding & Moving Parts</span>
-                            <span class="text-xs text-slate-500">Berikan pelumas (grease) secukupnya pada leader pin, slider, dan lifter.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Sistem Pendingin (Cooling)</span>
-                            <span class="text-xs text-slate-500">Pastikan tidak ada kebocoran atau sumbatan pada saluran air (water line).</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Sistem Kelistrikan (Hot Runner)</span>
-                            <span class="text-xs text-slate-500">Cek kontinuitas kabel dan pastikan thermocouple berfungsi (Jika pakai Hot Runner).</span>
-                        </div>
-                    </label>
-                </div>
+                <div id="section-2-content" class="space-y-4"></div>
             </div>
 
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 mb-6 section-card">
                 <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-4">
                     <h3 class="text-lg font-extrabold text-slate-800">3. Peralatan Pendukung</h3>
-                    <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase">Auxiliary</span>
+                    <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-3 py-1 rounded-full">AUX</span>
                 </div>
-                <div class="space-y-3">
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Mold Temperature Controller (MTC)</span>
-                            <span class="text-xs text-slate-500">Unit siap, level air/oli cukup, dan selang tahan tekanan tersedia.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Chiller</span>
-                            <span class="text-xs text-slate-500">Suhu air pendingin stabil sesuai setting yang diminta.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Dryer / Hopper Loader</span>
-                            <span class="text-xs text-slate-500">Material kering sesuai TDS. Cek suhu dan waktu pengeringan.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Robot / Sprue Picker</span>
-                            <span class="text-xs text-slate-500">Vacuum cup/gripper terpasang, tekanan angin cukup, dan program robot siap.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Granulator</span>
-                            <span class="text-xs text-slate-500">Siap di samping mesin untuk daur ulang runner (jika diperlukan).</span>
-                        </div>
-                    </label>
-                </div>
+                <div id="section-3-content" class="space-y-4"></div>
             </div>
 
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 mb-6 section-card">
                 <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-4">
-                    <h3 class="text-lg font-extrabold text-slate-800">4. Material & Bahan Kimia</h3>
-                    <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase">Raw Material</span>
+                    <h3 class="text-lg font-extrabold text-slate-800">4. Material & Kimia</h3>
+                    <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-3 py-1 rounded-full">RESIN</span>
                 </div>
-                <div class="space-y-3">
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Resin / Raw Material</span>
-                            <span class="text-xs text-slate-500">Jumlah material cukup untuk trial (termasuk untuk purging).</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Masterbatch / Additive</span>
-                            <span class="text-xs text-slate-500">Rasio pencampuran sudah benar (jika menggunakan pewarna/aditif).</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Purging Compound</span>
-                            <span class="text-xs text-slate-500">Bahan pembersih barrel siap (jika pindah material kontras/warna).</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Mold Release Agent</span>
-                            <span class="text-xs text-slate-500">Semprotan silikon/non-silikon tersedia jika part sulit lepas.</span>
-                        </div>
-                    </label>
-                </div>
+                <div id="section-4-content" class="space-y-4"></div>
             </div>
 
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 mb-6 section-card">
                 <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-4">
-                    <h3 class="text-lg font-extrabold text-slate-800">5. Alat Ukur & Dokumentasi</h3>
-                    <span class="bg-sky-100 text-sky-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase">QC Tools</span>
+                    <h3 class="text-lg font-extrabold text-slate-800">5. Alat Ukur & Dokumen</h3>
+                    <span class="bg-sky-100 text-sky-700 text-[10px] font-bold px-3 py-1 rounded-full">QC TOOLS</span>
                 </div>
-                <div class="space-y-3">
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Alat Ukur Dimensi</span>
-                            <span class="text-xs text-slate-500">Caliper, mikrometer, pin gauge, atau timbangan digital.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Termometer Laser</span>
-                            <span class="text-xs text-slate-500">Untuk memverifikasi suhu permukaan mold secara manual.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Formulir Trial Report</span>
-                            <span class="text-xs text-slate-500">Lembar data untuk mencatat parameter mesin (injection speed, pressure, temp, cycle time).</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-violet-600 peer-checked:border-violet-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Gambar Teknik (Blue Print)</span>
-                            <span class="text-xs text-slate-500">Tersedia sebagai referensi standar produk yang diinginkan.</span>
-                        </div>
-                    </label>
-                </div>
+                <div id="section-5-content" class="space-y-4"></div>
             </div>
 
             <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 mb-8 section-card">
                 <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-4">
-                    <h3 class="text-lg font-extrabold text-slate-800">6. Aspek Keselamatan (Safety)</h3>
-                    <span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase">K3 / SHE</span>
+                    <h3 class="text-lg font-extrabold text-slate-800">6. Safety (K3)</h3>
+                    <span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-3 py-1 rounded-full">SAFETY</span>
                 </div>
-                <div class="space-y-3">
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-rose-600 peer-checked:border-rose-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">APD Lengkap</span>
-                            <span class="text-xs text-slate-500">Sarung tangan tahan panas, kacamata pelindung, dan sepatu safety digunakan.</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-rose-600 peer-checked:border-rose-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Safety Gate & Sensor</span>
-                            <span class="text-xs text-slate-500">Pastikan sensor pintu mesin berfungsi (mesin mati jika pintu dibuka).</span>
-                        </div>
-                    </label>
-                    <label class="custom-checkbox flex items-start gap-4 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-200">
-                        <div class="relative flex items-center">
-                            <input type="checkbox" class="peer sr-only">
-                            <div class="w-6 h-6 border-2 border-slate-300 rounded-lg peer-checked:bg-rose-600 peer-checked:border-rose-600 transition-all flex items-center justify-center">
-                                <svg class="w-4 h-4 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                            </div>
-                        </div>
-                        <div>
-                            <span class="block text-sm font-bold text-slate-700">Emergency Stop</span>
-                            <span class="text-xs text-slate-500">Lakukan tes tombol darurat sebelum trial dimulai.</span>
-                        </div>
-                    </label>
-                </div>
+                <div id="section-6-content" class="space-y-4"></div>
             </div>
 
-            <div class="mb-8">
-                <label class="block text-sm font-bold text-slate-600 mb-2 uppercase">Catatan Tambahan (Opsional)</label>
-                <textarea class="w-full bg-white border border-slate-200 rounded-2xl p-4 text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-violet-500 h-28 resize-none shadow-sm" placeholder="Tulis catatan jika ada ketidaksesuaian atau hal khusus..."></textarea>
-            </div>
-
-            <div class="flex gap-4">
-                <button type="button" onclick="submitTrialForm()" class="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-extrabold py-4 rounded-2xl shadow-lg shadow-violet-200 active:scale-95 transition-all text-sm uppercase tracking-wide">
-                    Simpan & Verifikasi
+            <div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 shadow-lg flex gap-4 justify-center z-40">
+                <button type="button" onclick="window.scrollTo(0,0)" class="bg-slate-100 text-slate-600 px-6 py-3 rounded-xl font-bold text-xs uppercase">Atas</button>
+                <button type="button" onclick="submitTrialForm()" class="bg-violet-600 hover:bg-violet-700 text-white px-8 py-3 rounded-xl font-extrabold text-sm uppercase shadow-lg shadow-violet-200 active:scale-95 transition-all w-full md:w-auto md:min-w-[200px]">
+                    Simpan Verifikasi
                 </button>
             </div>
         </form>
-
     </div>
 
     <script>
-        // Set Today's Date
         document.getElementById('trialDate').valueAsDate = new Date();
 
-        function submitTrialForm() {
-            // Hitung jumlah checkbox yang dicentang
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            const checked = document.querySelectorAll('input[type="checkbox"]:checked');
-            const percentage = Math.round((checked.length / checkboxes.length) * 100);
+        // Data Checklist
+        const checklistData = {
+            "section-1-content": [
+                { id: "m1", title: "Kapasitas Tonase", desc: "Tonase sesuai clamping force mold." },
+                { id: "m2", title: "Kapasitas Injeksi", desc: "Shot size 20% - 80% kapasitas barrel." },
+                { id: "m3", title: "Kondisi Nozzle", desc: "Radius nozzle & centering locating ring." },
+                { id: "m4", title: "Fungsi Ejektor", desc: "Koneksi ejektor & stroke cukup." },
+                { id: "m5", title: "Kalibrasi", desc: "Sensor suhu & tekanan normal." }
+            ],
+            "section-2-content": [
+                { id: "md1", title: "Kebersihan Mold", desc: "Core/Cavity bersih dari karat/kotoran." },
+                { id: "md2", title: "Clamping Plate", desc: "Ukuran sesuai, baut terikat kuat." },
+                { id: "md3", title: "Moving Parts", desc: "Leader pin & slider sudah digrease." },
+                { id: "md4", title: "Cooling System", desc: "Tidak ada bocor/sumbatan jalur air." },
+                { id: "md5", title: "Hot Runner", desc: "Koneksi kabel & thermocouple (jika ada)." }
+            ],
+            "section-3-content": [
+                { id: "ax1", title: "MTC / Mold Temp", desc: "Level media cukup, selang aman." },
+                { id: "ax2", title: "Chiller", desc: "Suhu air stabil sesuai standar." },
+                { id: "ax3", title: "Dryer Material", desc: "Suhu & waktu drying tercapai." },
+                { id: "ax4", title: "Robot", desc: "Gripper/cup terpasang, angin cukup." },
+                { id: "ax5", title: "Granulator", desc: "Siap untuk recycle runner." }
+            ],
+            "section-4-content": [
+                { id: "mat1", title: "Resin Material", desc: "Stok cukup untuk trial & purging." },
+                { id: "mat2", title: "Masterbatch", desc: "Rasio mixing pewarna sudah benar." },
+                { id: "mat3", title: "Purging Compound", desc: "Tersedia untuk bersih barrel." },
+                { id: "mat4", title: "Mold Release", desc: "Spray silikon tersedia." }
+            ],
+            "section-5-content": [
+                { id: "qc1", title: "Alat Ukur Dimensi", desc: "Caliper/Micrometer/Pin Gauge." },
+                { id: "qc2", title: "Termometer Laser", desc: "Cek aktual suhu mold." },
+                { id: "qc3", title: "Form Trial Report", desc: "Lembar pencatatan parameter." },
+                { id: "qc4", title: "Drawing Produk", desc: "2D Drawing / Sampel Limit." }
+            ],
+            "section-6-content": [
+                { id: "sf1", title: "APD Lengkap", desc: "Sarung tangan, kacamata, sepatu." },
+                { id: "sf2", title: "Safety Gate", desc: "Sensor pintu & interlock berfungsi." },
+                { id: "sf3", title: "Emergency Stop", desc: "Tombol darurat berfungsi." }
+            ]
+        };
 
-            // Tampilkan Alert
+        // Render Function
+        function renderItems() {
+            for (const [sectionId, items] of Object.entries(checklistData)) {
+                const container = document.getElementById(sectionId);
+                items.forEach(item => {
+                    const html = `
+                    <div class="border border-slate-100 rounded-xl p-4 bg-slate-50/50 hover:bg-white transition-all">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800">${item.title}</h4>
+                                <p class="text-[10px] text-slate-500 mt-0.5">${item.desc}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex gap-2 bg-white p-1 rounded-lg border border-slate-200 shadow-sm">
+                                <label class="radio-option radio-ok cursor-pointer">
+                                    <input type="radio" name="status_${item.id}" value="OK" class="peer sr-only" onchange="toggleNote('${item.id}', this.value)">
+                                    <div class="px-4 py-1.5 rounded-md text-[10px] font-bold text-slate-400 border border-transparent peer-checked:bg-emerald-500 hover:bg-slate-50 transition-all">OK</div>
+                                </label>
+                                <label class="radio-option radio-ng cursor-pointer">
+                                    <input type="radio" name="status_${item.id}" value="NG" class="peer sr-only" onchange="toggleNote('${item.id}', this.value)">
+                                    <div class="px-4 py-1.5 rounded-md text-[10px] font-bold text-slate-400 border border-transparent peer-checked:bg-rose-500 hover:bg-slate-50 transition-all">NG</div>
+                                </label>
+                                <label class="radio-option radio-na cursor-pointer">
+                                    <input type="radio" name="status_${item.id}" value="NA" class="peer sr-only" onchange="toggleNote('${item.id}', this.value)">
+                                    <div class="px-4 py-1.5 rounded-md text-[10px] font-bold text-slate-400 border border-transparent peer-checked:bg-slate-400 hover:bg-slate-50 transition-all">NA</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="note_box_${item.id}" class="hidden mt-3 pt-3 border-t border-slate-100 animate-fade-in">
+                            <label class="block text-[10px] font-bold text-rose-500 uppercase mb-1">Keterangan NG (Wajib Diisi):</label>
+                            <input type="text" id="note_${item.id}" class="w-full border border-rose-200 bg-rose-50 rounded-lg px-3 py-2 text-xs text-rose-800 placeholder-rose-300 focus:outline-none focus:ring-1 focus:ring-rose-500" placeholder="Jelaskan masalahnya...">
+                        </div>
+                    </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', html);
+                });
+            }
+        }
+
+        // Logic Toggle Keterangan
+        function toggleNote(id, status) {
+            const noteBox = document.getElementById(`note_box_${id}`);
+            const noteInput = document.getElementById(`note_${id}`);
+            
+            if (status === 'NG') {
+                noteBox.classList.remove('hidden');
+                noteInput.focus();
+            } else {
+                noteBox.classList.add('hidden');
+                noteInput.value = ''; // Reset kalo diganti jadi OK/NA
+            }
+        }
+
+        // Validation & Submit
+        function submitTrialForm() {
+            let totalItems = 0;
+            let filledItems = 0;
+            let ngIssue = false;
+
+            // Loop semua item di data
+            for (const items of Object.values(checklistData)) {
+                items.forEach(item => {
+                    totalItems++;
+                    const radios = document.getElementsByName(`status_${item.id}`);
+                    let selectedValue = null;
+                    
+                    for (const radio of radios) {
+                        if (radio.checked) selectedValue = radio.value;
+                    }
+
+                    if (selectedValue) {
+                        filledItems++;
+                        // Cek Validasi NG
+                        if (selectedValue === 'NG') {
+                            const noteVal = document.getElementById(`note_${item.id}`).value.trim();
+                            if (!noteVal) {
+                                ngIssue = true;
+                                document.getElementById(`note_${item.id}`).classList.add('ring-2', 'ring-rose-600');
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (ngIssue) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Data Belum Lengkap',
+                    text: 'Item dengan status NG wajib menyertakan Keterangan Masalah!',
+                    confirmButtonColor: '#f43f5e'
+                });
+                return;
+            }
+
+            if (filledItems < totalItems) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Belum Selesai',
+                    text: `Baru terisi ${filledItems} dari ${totalItems} item. Mohon lengkapi semua checklist.`,
+                    confirmButtonColor: '#f59e0b'
+                });
+                return;
+            }
+
+            // Success
             Swal.fire({
-                title: 'Konfirmasi Simpan',
-                text: `Kesiapan Trial: ${percentage}% terisi. Simpan data ini?`,
+                title: 'Konfirmasi',
+                text: 'Data sudah lengkap. Simpan verifikasi ini?',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#7c3aed',
-                cancelButtonColor: '#94a3b8',
                 confirmButtonText: 'Ya, Simpan!',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire(
-                        'Tersimpan!',
-                        'Data ceklist trial berhasil disimpan ke database.',
-                        'success'
-                    );
-                    // Di sini logika simpan ke database (PHP/JS Backend) akan diletakkan
+                    Swal.fire('Berhasil!', 'Data checklist trial tersimpan.', 'success');
+                    // Logic kirim ke database disini
                 }
             });
         }
+
+        // Initialize
+        renderItems();
     </script>
 </body>
 </html>
