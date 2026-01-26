@@ -48,23 +48,36 @@
         
         <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-100 mb-8 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-violet-500 to-fuchsia-500"></div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 mb-4">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tanggal Trial</label>
                     <input type="date" id="trialDate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Mold Code</label>
-                    <input type="text" placeholder="Input Kode Mold..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Mesin</label>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Mesin Injection</label>
                     <select class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none cursor-pointer">
                         <option value="">Pilih Mesin...</option>
                         <option>Inj-01 (150T)</option>
                         <option>Inj-02 (200T)</option>
                         <option>Inj-03 (350T)</option>
+                        <option>Inj-04 (500T)</option>
                     </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Kode / Nama Mold</label>
+                    <input type="text" placeholder="Input Kode Mold..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-100 pt-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Material Resin</label>
+                    <input type="text" placeholder="Contoh: ABS, PP, PA6..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">PIC Trial (Penanggung Jawab)</label>
+                    <input type="text" placeholder="Nama Engineer / Leader..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
                 </div>
             </div>
         </div>
@@ -173,7 +186,7 @@
             ]
         };
 
-        // Render Function (DIPERBAIKI: TOMBOL DI KANAN SEJAJAR TEKS)
+        // Render Function (TOMBOL DI KANAN SEJAJAR TEKS)
         function renderItems() {
             for (const [sectionId, items] of Object.entries(checklistData)) {
                 const container = document.getElementById(sectionId);
