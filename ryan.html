@@ -21,31 +21,30 @@
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; position: relative; }
         .progress-fill { height: 100%; transition: width 0.4s ease-in-out; }
 
-        /* === FLOATING BUTTON (+) KHUSUS PROJECT BARU === */
+        /* FLOATING BUTTON (+) */
         .float-btn {
             position: fixed; bottom: 30px; right: 30px;
             width: 60px; height: 60px;
             background: #2563eb; color: white;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 32px; font-weight: bold;
-            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.6);
+            font-size: 30px; font-weight: bold;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.5);
             transition: all 0.3s ease; z-index: 50; cursor: pointer;
             border: 4px solid white;
         }
-        .float-btn:hover { transform: scale(1.1); background: #1d4ed8; }
+        .float-btn:hover { transform: scale(1.1) rotate(90deg); background: #1d4ed8; }
         
-        /* Badge Merah (Jumlah Project Baru) */
         .float-badge {
-            position: absolute; top: -2px; right: -2px;
+            position: absolute; top: -5px; right: -5px;
             background: #ef4444; color: white;
             font-size: 12px; font-weight: 800;
             width: 24px; height: 24px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            border: 2px solid white; animation: bounce 2s infinite;
+            border: 2px solid white; animation: bounce 1s infinite;
         }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
-        /* === MODAL POPUP STYLE === */
+        /* MODAL POPUP */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
@@ -138,7 +137,7 @@
         </div>
     </div>
 
-    <button onclick="openNewProjectModal()" class="float-btn" title="Cek Project Baru">
+    <button onclick="openNewProjectModal()" class="float-btn" title="Cek Tugas Baru">
         +
         <span id="new-task-count" class="float-badge hidden">0</span>
     </button>
@@ -147,8 +146,8 @@
         <div class="modal-box relative">
             <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
                 <div>
-                    <h2 class="text-xl font-black text-slate-800 uppercase">Tugas Baru Masuk</h2>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Acuan: Status 'Pending'</p>
+                    <h2 class="text-xl font-black text-slate-800 uppercase">Tugas Baru (Pending)</h2>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Segera ambil tindakan</p>
                 </div>
                 <button onclick="document.getElementById('newProjectModal').style.display='none'" class="bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center text-slate-500 font-bold hover:bg-slate-200">&times;</button>
             </div>
@@ -167,8 +166,7 @@
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
-        let allTasks = []; // Data semua tugas
-        let pendingTasks = []; // Khusus tugas baru (Pending)
+        let allTasks = []; // Menyimpan SEMUA data (Pending + Active)
         let subTasksMap = {}; 
 
         function cleanTimestamp(dateStr) {
@@ -186,7 +184,6 @@
         }
 
         async function fetchRyanTasks() {
-            // Ambil SEMUA data
             const { data: mainData, error: mainError } = await _sb
                 .from('management_tracker')
                 .select('*')
@@ -195,51 +192,46 @@
             
             if (mainError) return console.error(mainError);
             
+            // Simpan semua data ke variabel global
             allTasks = mainData;
 
-            // Filter tugas baru (Pending) untuk dimasukkan ke Tombol (+)
-            pendingTasks = mainData.filter(t => t.status === 'Pending');
-
-            // Update Badge Notifikasi di Tombol (+)
+            // Update Badge (Hanya hitung yang Pending)
+            const pendingCount = mainData.filter(t => t.status === 'Pending').length;
             const badge = document.getElementById('new-task-count');
-            if (pendingTasks.length > 0) {
-                badge.innerText = pendingTasks.length;
+            if (pendingCount > 0) {
+                badge.innerText = pendingCount;
                 badge.classList.remove('hidden');
             } else {
                 badge.classList.add('hidden');
             }
 
-            // Ambil Subtasks (agar tabel utama lengkap)
             const taskIds = mainData.map(t => t.id);
-            if(taskIds.length > 0) {
-                const { data: subData } = await _sb.from('employee_subtasks').select('*').in('parent_task_id', taskIds).order('created_at', { ascending: true });
-                subTasksMap = {};
-                if(subData) {
-                    subData.forEach(sub => {
-                        if(!subTasksMap[sub.parent_task_id]) subTasksMap[sub.parent_task_id] = [];
-                        subTasksMap[sub.parent_task_id].push(sub);
-                    });
-                }
-            } else {
-                subTasksMap = {};
+            const { data: subData } = await _sb.from('employee_subtasks').select('*').in('parent_task_id', taskIds).order('created_at', { ascending: true });
+
+            subTasksMap = {};
+            if(subData) {
+                subData.forEach(sub => {
+                    if(!subTasksMap[sub.parent_task_id]) subTasksMap[sub.parent_task_id] = [];
+                    subTasksMap[sub.parent_task_id].push(sub);
+                });
             }
 
-            // Render Tabel Utama (Menampilkan SEMUA data, termasuk Pending)
+            // RENDER SEMUA DATA (Active & Pending)
             renderTasks(allTasks);
             updateStats(allTasks);
         }
 
-        // --- MODAL PROJECT BARU (Hanya menampilkan yg Pending) ---
+        // --- FUNGSI MODAL PROJECT BARU ---
         function openNewProjectModal() {
             document.getElementById('newProjectModal').style.display = 'flex';
             const listContainer = document.getElementById('new-project-list');
+            const pendingTasks = allTasks.filter(t => t.status === 'Pending');
             
             if(pendingTasks.length === 0) {
                 listContainer.innerHTML = `
                     <div class="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                        <div class="text-4xl mb-3">✅</div>
-                        <p class="text-slate-600 font-bold">Tidak ada tugas baru.</p>
-                        <p class="text-[10px] text-slate-400 mt-1">Semua project baru sudah Anda proses.</p>
+                        <div class="text-4xl mb-3">📭</div>
+                        <p class="text-slate-600 font-bold">Tidak ada tugas pending.</p>
                     </div>`;
                 return;
             }
@@ -248,11 +240,10 @@
                 <div class="bg-white border-l-4 border-blue-500 p-4 rounded-r-xl shadow-sm hover:shadow-md transition-all border border-slate-100">
                     <div class="flex justify-between items-start mb-2">
                         <div>
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Project / Mesin</span>
                             <h4 class="font-black text-slate-800 text-sm uppercase">${task.project_name}</h4>
                             <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 mt-1 inline-block">${task.machine_name || '-'}</span>
                         </div>
-                        <span class="bg-amber-100 text-amber-600 text-[9px] font-black px-2 py-1 rounded uppercase tracking-wider animate-pulse">BARU</span>
+                        <span class="bg-amber-100 text-amber-600 text-[9px] font-black px-2 py-1 rounded uppercase tracking-wider animate-pulse">PENDING</span>
                     </div>
                     
                     <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 mb-4 mt-2">
@@ -261,15 +252,15 @@
                     </div>
 
                     <button onclick="startTask('${task.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs uppercase shadow-lg shadow-blue-200 active:scale-95 transition-all flex items-center justify-center gap-2">
-                        <span>🚀</span> Ambil & Kerjakan
+                        <span>🚀</span> Mulai Kerjakan (Set In Progress)
                     </button>
                 </div>
             `).join('');
         }
 
-        // --- FUNGSI AMBIL TUGAS (Ubah Status -> Hilang dari Tombol +, Tampil beda di Table) ---
+        // --- FUNGSI AMBIL TUGAS (UBAH STATUS JADI IN PROGRESS) ---
         async function startTask(id) {
-            if(!confirm("Ambil tugas ini? Status akan berubah menjadi In Progress.")) return;
+            if(!confirm("Ubah status jadi In Progress?")) return;
 
             const { error } = await _sb.from('management_tracker').update({
                 status: 'In Progress',
@@ -279,11 +270,11 @@
             if(error) alert("Gagal update: " + error.message);
             else {
                 document.getElementById('newProjectModal').style.display = 'none';
-                fetchRyanTasks(); // Refresh: Tugas ini akan hilang dari pendingTasks (tombol +)
-                alert("Tugas diambil! Status di tabel utama telah berubah.");
+                fetchRyanTasks(); 
             }
         }
 
+        // --- FUNGSI DI TABEL UTAMA ---
         async function deleteSubTask(subId) {
             if(!confirm("Hapus rincian ini?")) return;
             const { error } = await _sb.from('employee_subtasks').delete().eq('id', subId);
@@ -333,12 +324,13 @@
                 const progress = row.progress_percent || 0; 
                 let pClass = row.priority === 'High' ? "bg-red-100 text-red-600 border border-red-200" : (row.priority === 'Mid' ? "bg-blue-100 text-blue-600 border border-blue-200" : "bg-slate-100 text-slate-500");
                 
+                // Set warna border & status
                 let borderClass = "border-slate-200 text-slate-600";
                 if(row.status === 'In Progress') borderClass = "border-blue-500 text-blue-600 bg-blue-50";
                 if(row.status === 'Hold') borderClass = "border-rose-400 text-rose-600 bg-rose-50";
-                if(row.status === 'Pending') borderClass = "border-amber-400 text-amber-600 bg-amber-50";
+                if(row.status === 'Pending') borderClass = "border-amber-400 text-amber-600 bg-amber-50"; // Tambah warna Pending
 
-                let barColor = isDone || progress >= 100 ? "bg-emerald-500" : (row.status === 'Hold' ? "bg-rose-500" : (row.status === 'Pending' ? "bg-amber-400" : "bg-blue-500"));
+                let barColor = isDone || progress >= 100 ? "bg-emerald-500" : (row.status === 'Hold' ? "bg-rose-500" : "bg-blue-500");
                 const machineDisplay = row.machine_name && row.machine_name !== '-' ? `<div class="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded w-fit mt-1 inline-block">${row.machine_name}</div>` : '';
                 const mySubtasks = subTasksMap[row.id] || [];
                 
@@ -415,7 +407,7 @@
         function filterTable() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const priorityFilter = document.getElementById('filter-priority').value;
-            const filtered = allTasks.filter(task => { // FILTER DARI SEMUA TASKS
+            const filtered = allTasks.filter(task => { // FILTER DARI ALL TASKS
                 const matchesSearch = task.project_name.toLowerCase().includes(query) || (task.task_desc && task.task_desc.toLowerCase().includes(query));
                 const matchesPriority = priorityFilter === "" || task.priority === priorityFilter;
                 return matchesSearch && matchesPriority;
