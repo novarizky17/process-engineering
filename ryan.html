@@ -20,47 +20,6 @@
         input[type="datetime-local"] { font-size: 10px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px; }
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; position: relative; }
         .progress-fill { height: 100%; transition: width 0.4s ease-in-out; }
-        
-        /* === STYLE BARU UNTUK FORM MENYAMPING === */
-        .horizontal-form {
-            display: flex;
-            flex-direction: row;
-            align-items: flex-end; /* Supaya label dan input sejajar bawah */
-            gap: 8px;
-            padding: 10px;
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            margin-top: 10px;
-            overflow-x: auto; /* Bisa digeser ke samping jika layar sempit */
-            white-space: nowrap;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .horizontal-form::-webkit-scrollbar { height: 6px; }
-        .horizontal-form::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-
-        .form-group { display: flex; flex-direction: column; flex-shrink: 0; }
-        
-        .form-label {
-            font-size: 10px; /* Huruf Label agak besar */
-            font-weight: 700;
-            color: #64748b;
-            margin-bottom: 3px;
-            margin-left: 2px;
-        }
-
-        .form-input {
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            padding: 4px 8px;
-            font-size: 11px; /* Huruf Input diperbesar */
-            font-weight: 600;
-            color: #334155;
-            height: 34px; /* Tinggi input pas */
-            outline: none;
-        }
-        .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -124,7 +83,7 @@
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-[0.1em]">
                             <th class="px-6 py-5">Project / Mesin</th>
-                            <th class="px-6 py-5" style="min-width: 800px;">Rincian Tugas & Update</th> 
+                            <th class="px-6 py-5" style="min-width: 300px;">Rincian Tugas</th> 
                             <th class="px-4 py-5 text-center">Priority</th> 
                             <th class="px-4 py-5 text-center" style="min-width: 150px;">Progress (%)</th> 
                             <th class="px-4 py-5 text-center">Start Date</th>
@@ -161,22 +120,18 @@
             return `${datePart} ${timePart}`;
         }
 
+        // FETCH DATA
         async function fetchRyanTasks() {
-            // Menggunakan ILIKE agar pencarian 'Ryan', 'RYAN', 'ryan' tetap ketemu
+            // 1. Ambil Tugas Utama (Termasuk kolom job_type yang baru)
             const { data: mainData, error: mainError } = await _sb
                 .from('management_tracker')
                 .select('*')
-                .ilike('assigned_to', 'ryan') 
+                .eq('assigned_to', 'RYAN')
                 .order('created_at', { ascending: false });
             
             if (mainError) return console.error(mainError);
             
-            if (!mainData || mainData.length === 0) {
-                document.getElementById('ryan-work-body').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-gray-400 italic">Belum ada data tugas untuk Ryan.</td></tr>`;
-                updateStats([]);
-                return;
-            }
-
+            // 2. Ambil Sub-Task dari tabel employee_subtasks
             const taskIds = mainData.map(t => t.id);
             const { data: subData, error: subError } = await _sb
                 .from('employee_subtasks')
@@ -186,6 +141,7 @@
 
             if (subError && subError.code !== '42P01') console.error(subError); 
 
+            // 3. Mapping
             subTasksMap = {};
             if(subData) {
                 subData.forEach(sub => {
@@ -199,71 +155,24 @@
             updateStats(allTasks);
         }
 
-        // --- FUNGSI TAMBAH SUBTASK (MENGAMBIL DATA DARI FORM MENYAMPING) ---
         async function addSubTask(parentId) {
-            const desc = document.getElementById(`new-desc-${parentId}`).value;
-            const prio = document.getElementById(`new-prio-${parentId}`).value;
-            const prog = document.getElementById(`new-prog-${parentId}`).value;
-            const start = document.getElementById(`new-start-${parentId}`).value;
-            const finish = document.getElementById(`new-finish-${parentId}`).value;
-            const job = document.getElementById(`new-job-${parentId}`).value;
-            const note = document.getElementById(`new-note-${parentId}`).value;
-            const stat = document.getElementById(`new-stat-${parentId}`).value;
+            const inputElem = document.getElementById(`new-subtask-${parentId}`);
+            const desc = inputElem.value.trim();
+            if(!desc) return alert("Isi rincian tugas dulu!");
 
-            if(!desc) return alert("Rincian tugas wajib diisi!");
-
-            // Pastikan kolom-kolom ini ada di tabel employee_subtasks di Database
             const { error } = await _sb.from('employee_subtasks').insert([{
                 parent_task_id: parentId,
-                subtask_desc: desc,
-                priority: prio,
-                progress_percent: prog,
-                start_date: start ? start : null,
-                end_date: finish ? finish : null,
-                job_type: job,
-                worker_notes: note,
-                status: stat
+                subtask_desc: desc
             }]);
 
             if(error) alert("Gagal tambah: " + error.message);
-            else { fetchRyanTasks(); }
+            else { inputElem.value = ""; fetchRyanTasks(); }
         }
 
         async function deleteSubTask(subId) {
             if(!confirm("Hapus rincian ini?")) return;
             const { error } = await _sb.from('employee_subtasks').delete().eq('id', subId);
             if(!error) fetchRyanTasks();
-        }
-
-        // FUNGSI SIMPAN UNTUK MAIN TASK (PANEL KANAN)
-        async function saveAllData(id) {
-            const holdReason = document.getElementById(`hold-reason-${id}`).value.trim();
-            const sTime = document.getElementById(`start-time-${id}`).value;
-            const eTime = document.getElementById(`end-time-${id}`).value;
-            const selectedStatus = document.getElementById(`status-val-${id}`).value;
-            const progressVal = document.getElementById(`prog-num-${id}`).value; 
-            const jobType = document.getElementById(`job-type-${id}`).value;
-
-            if (selectedStatus === 'Hold' && !holdReason) return alert("Alasan HOLD wajib diisi!");
-            if (selectedStatus === 'Done') {
-                if (!sTime || !eTime) return alert("Wajib isi Tanggal/Jam Start & Finish!");
-                if (!confirm("Konfirmasi Selesai? (Progres otomatis menjadi 100%)")) return;
-            }
-
-            const updatePayload = {
-                status: selectedStatus,
-                job_type: jobType,
-                hold_reason: holdReason || null,
-                work_start_time: sTime ? sTime.replace('T', ' ') : null,
-                work_end_time: eTime ? eTime.replace('T', ' ') : null,
-                progress_percent: selectedStatus === 'Done' ? 100 : parseInt(progressVal) 
-            };
-
-            if (selectedStatus === 'Done') updatePayload.actual_finish = new Date().toISOString().split('T')[0];
-
-            const { error } = await _sb.from('management_tracker').update(updatePayload).eq('id', id);
-            if (error) alert("Gagal Simpan: " + error.message);
-            else { alert("Data Tersimpan!"); fetchRyanTasks(); }
         }
 
         function renderTasks(dataList) {
@@ -282,17 +191,13 @@
                 const machineDisplay = row.machine_name && row.machine_name !== '-' ? `<div class="text-[9px] font-black text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded w-fit mt-1 inline-block">${row.machine_name}</div>` : '';
                 
                 const mySubtasks = subTasksMap[row.id] || [];
-                
-                // RENDER LIST SUBTASK (YANG SUDAH ADA)
                 let subtaskHtml = mySubtasks.map(sub => `
-                    <div class="flex items-center gap-2 mb-1 pb-1 border-b border-dashed border-slate-200 last:border-0 bg-white p-1 rounded">
-                        <span class="text-[11px] font-bold min-w-[120px] text-blue-900">● ${sub.subtask_desc}</span>
-                        <span class="text-[10px] bg-slate-50 px-1 border rounded">Prio: ${sub.priority||'-'}</span>
-                        <span class="text-[10px] bg-slate-50 px-1 border rounded">Prog: ${sub.progress_percent||0}%</span>
-                        <span class="text-[10px] bg-slate-50 px-1 border rounded text-purple-600 font-bold">${sub.job_type||'-'}</span>
-                        <span class="text-[10px] bg-slate-50 px-1 border rounded italic text-gray-500">${sub.worker_notes||''}</span>
-                        <span class="text-[10px] font-bold ${sub.status==='Done'?'text-emerald-600':'text-slate-500'}">${sub.status||'Pending'}</span>
-                        ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-400 hover:text-rose-600 text-[10px] font-bold ml-auto">&times;</button>` : ''}
+                    <div class="flex justify-between items-start group/item mb-1.5 pb-1.5 border-b border-dashed border-slate-200 last:border-0">
+                        <div class="flex items-start gap-2">
+                            <div class="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                            <span class="text-xs text-slate-600 font-medium">${sub.subtask_desc}</span>
+                        </div>
+                        ${!isDone ? `<button onclick="deleteSubTask(${sub.id})" class="text-rose-300 hover:text-rose-500 text-[10px] font-bold opacity-0 group-hover/item:opacity-100 transition-opacity">Hapus</button>` : ''}
                     </div>
                 `).join('');
 
@@ -304,60 +209,21 @@
                         </td>
 
                         <td class="px-6 py-6 align-top">
-                            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 mb-3 relative">
-                                <span class="absolute -top-2 left-2 bg-blue-100 text-[8px] font-bold text-blue-600 px-2 py-0.5 rounded uppercase tracking-wider">Instruksi Boss</span>
+                            <div class="bg-slate-100 p-3 rounded-lg border border-slate-200 mb-3 relative">
+                                <span class="absolute -top-2 left-2 bg-slate-200 text-[8px] font-bold text-slate-500 px-2 py-0.5 rounded uppercase tracking-wider">Instruksi Pengejaan</span>
                                 <p class="text-slate-800 font-bold text-xs whitespace-pre-wrap mt-1">${row.task_desc || '-'}</p>
                             </div>
 
-                            <div class="pl-1 mb-2">
+                            <div class="pl-1">
                                 ${subtaskHtml}
                             </div>
 
                             ${!isDone ? `
-                            <div class="horizontal-form">
-                                <div class="form-group">
-                                    <label class="form-label">Rincian Tugas</label>
-                                    <input type="text" id="new-desc-${row.id}" class="form-input w-40" placeholder="Tugas...">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Prio</label>
-                                    <select id="new-prio-${row.id}" class="form-input w-16">
-                                        <option value="Mid">Mid</option><option value="Low">Low</option><option value="High">High</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Prog%</label>
-                                    <input type="number" id="new-prog-${row.id}" class="form-input w-16 text-center" value="0">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Start</label>
-                                    <input type="datetime-local" id="new-start-${row.id}" class="form-input w-28">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Finish</label>
-                                    <input type="datetime-local" id="new-finish-${row.id}" class="form-input w-28">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Job Type</label>
-                                    <select id="new-job-${row.id}" class="form-input w-28">
-                                        <option value="-">-</option><option value="Improvement">Improvement</option><option value="Overhaul">Overhaul</option><option value="Perawatan">Perawatan</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Catatan</label>
-                                    <input type="text" id="new-note-${row.id}" class="form-input w-32" placeholder="...">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Status</label>
-                                    <select id="new-stat-${row.id}" class="form-input w-24 text-blue-600 font-bold">
-                                        <option value="Pending">Pending</option><option value="In Progress">In Progress</option><option value="Done">Done</option>
-                                    </select>
-                                </div>
-                                
-                                <button onclick="addSubTask(${row.id})" class="bg-blue-600 hover:bg-blue-700 text-white h-[34px] px-4 rounded-lg font-bold text-[10px] shadow-md uppercase tracking-wider flex items-center justify-center shrink-0">
-                                    SIMPAN
-                                </button>
-                            </div>` : ''}
+                            <div class="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100">
+                                <input type="text" id="new-subtask-${row.id}" class="flex-grow bg-white border border-blue-200 rounded px-2 py-1.5 text-[11px] focus:ring-1 focus:ring-blue-400 outline-none" placeholder="Tambah rincian tugas...">
+                                <button onclick="addSubTask(${row.id})" class="bg-blue-600 hover:bg-blue-700 text-white w-7 h-7 rounded flex items-center justify-center font-bold shadow-sm active:scale-95 transition-transform">+</button>
+                            </div>
+                            ` : ''}
                         </td>
 
                         <td class="px-4 py-6 text-center align-top"><span class="px-3 py-1 rounded-lg font-black text-[9px] ${pClass}">${row.priority || 'Mid'}</span></td>
@@ -365,7 +231,10 @@
                         <td class="px-4 py-6 align-top">
                             <div class="flex flex-col gap-2">
                                 <div class="flex items-center gap-2">
-                                    <input type="number" id="prog-num-${row.id}" min="0" max="100" value="${progress}" ${isDone ? 'disabled' : ''} class="w-16 p-1 border rounded text-center text-xs font-bold focus:ring-2 focus:ring-blue-400 outline-none" oninput="document.getElementById('bar-inner-${row.id}').style.width = this.value + '%'">
+                                    <input type="number" id="prog-num-${row.id}" min="0" max="100" value="${progress}" 
+                                        ${isDone ? 'disabled' : ''}
+                                        class="w-16 p-1 border rounded text-center text-xs font-bold focus:ring-2 focus:ring-blue-400 outline-none"
+                                        oninput="document.getElementById('bar-inner-${row.id}').style.width = this.value + '%'">
                                     <span class="text-[10px] font-bold text-slate-400">%</span>
                                 </div>
                                 <div class="progress-bg">
@@ -432,6 +301,36 @@
             document.getElementById('stat-pending').innerText = data.filter(r => r.status === 'Pending').length;
             document.getElementById('stat-hold').innerText = data.filter(r => r.status === 'Hold').length;
             document.getElementById('stat-finished').innerText = data.filter(r => r.status === 'Done').length;
+        }
+
+        async function saveAllData(id) {
+            const holdReason = document.getElementById(`hold-reason-${id}`).value.trim();
+            const sTime = document.getElementById(`start-time-${id}`).value;
+            const eTime = document.getElementById(`end-time-${id}`).value;
+            const selectedStatus = document.getElementById(`status-val-${id}`).value;
+            const progressVal = document.getElementById(`prog-num-${id}`).value; 
+            const jobType = document.getElementById(`job-type-${id}`).value; // AMBIL VALUE JOB TYPE
+
+            if (selectedStatus === 'Hold' && !holdReason) return alert("Alasan HOLD wajib diisi!");
+            if (selectedStatus === 'Done') {
+                if (!sTime || !eTime) return alert("Wajib isi Tanggal/Jam Start & Finish!");
+                if (!confirm("Konfirmasi Selesai? (Progres otomatis menjadi 100%)")) return;
+            }
+
+            const updatePayload = {
+                status: selectedStatus,
+                job_type: jobType, // SIMPAN PERUBAHAN JOB TYPE
+                hold_reason: holdReason || null,
+                work_start_time: sTime ? sTime.replace('T', ' ') : null,
+                work_end_time: eTime ? eTime.replace('T', ' ') : null,
+                progress_percent: selectedStatus === 'Done' ? 100 : parseInt(progressVal) 
+            };
+
+            if (selectedStatus === 'Done') updatePayload.actual_finish = new Date().toISOString().split('T')[0];
+
+            const { error } = await _sb.from('management_tracker').update(updatePayload).eq('id', id);
+            if (error) alert("Gagal Simpan: " + error.message);
+            else { alert("Data Tersimpan!"); fetchRyanTasks(); }
         }
 
         window.onload = fetchRyanTasks;
