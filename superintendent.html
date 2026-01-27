@@ -11,11 +11,10 @@
         header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5 rgba(0,0,0,0.1); }
         .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
         
-        /* --- Tambahan Style Tab --- */
+        /* --- Style Tab Menu --- */
         .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: #e0e0e0; color: #666; transition: 0.3s; }
         .tab-btn.active { background: #003366; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        /* -------------------------- */
 
         .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex-wrap: wrap; }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
@@ -79,8 +78,7 @@
     <div class="card">
         <table>
             <thead>
-                <tr id="tableHeader">
-                    </tr>
+                <tr id="tableHeader"></tr>
             </thead>
             <tbody id="mainTable">
                 <tr><td colspan="8" style="text-align:center;">Memuat data...</td></tr>
@@ -103,8 +101,9 @@
                     <label><strong>Nama Superintendent:</strong></label>
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama...">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
-                    <label><strong>Keterangan / Catatan Tambahan:</strong></label>
-                    <textarea id="keteranganSuper" placeholder="Tambahkan catatan..."></textarea>
+                    
+                    <label><strong>Keterangan Superintendent:</strong></label>
+                    <textarea id="keteranganSuper" placeholder="Tambahkan catatan approval..."></textarea>
                 </div>
                 <p><strong>Tanda Tangan Superintendent:</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
@@ -131,13 +130,12 @@
     let activeId = null;
     let rawData = []; 
     let filteredData = []; 
-    let currentTab = 'rutin'; // 'rutin' atau 'trial'
+    let currentTab = 'rutin'; 
 
     const canvas = document.getElementById('sig-canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
 
-    // Logika Tab
     function switchTab(tab) {
         currentTab = tab;
         document.getElementById('tabRutin').classList.toggle('active', tab === 'rutin');
@@ -146,7 +144,6 @@
         loadData();
     }
 
-    // Tanda Tangan Logic tetap sama
     let drawing = false;
     function getP(e) {
         const r = canvas.getBoundingClientRect();
@@ -161,11 +158,9 @@
     canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; const p=getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
 
     function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-
     function refreshData() { loadData(); }
 
     async function loadData() {
-        // Tentukan tabel berdasarkan tab
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
 
@@ -181,11 +176,10 @@
         const header = document.getElementById('tableHeader');
         const tableBody = document.getElementById('mainTable');
 
-        // Set Header dinamis
         if (currentTab === 'rutin') {
             header.innerHTML = `<th>Pelaksana</th><th>Superintendent</th><th>Equipment / Capacity</th><th>Tanggal</th><th>Week</th><th>Keterangan</th><th>Status</th><th style="text-align: center;">Aksi</th>`;
         } else {
-            header.innerHTML = `<th>Operator Trial</th><th>Superintendent</th><th>Mold Name / Part</th><th>Tanggal Trial</th><th>Mesin</th><th>Berat (g)</th><th>Status</th><th style="text-align: center;">Aksi</th>`;
+            header.innerHTML = `<th>Operator Trial</th><th>Superintendent</th><th>Mold Name / Part</th><th>Tanggal Trial</th><th>Mesin</th><th>Keterangan (Operator)</th><th>Status</th><th style="text-align: center;">Aksi</th>`;
         }
 
         if (dataList.length === 0) {
@@ -202,12 +196,11 @@
                     <td>${row.pelaksana?.nama_tools || '-'} / ${row.pelaksana?.capacity || '-'}</td>
                     <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
                     <td><strong>${row.pelaksana?.week || '-'}</strong></td> 
-                    <td>${row.keterangan || '<i style="color:#ccc">N/A</i>'}</td>
+                    <td>${row.keterangan || '-'}</td>
                     <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
                     <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
                 </tr>`;
             } else {
-                // Tampilan untuk Trial Mold
                 return `
                 <tr>
                     <td><strong>${row.operator || '-'}</strong></td>
@@ -215,7 +208,7 @@
                     <td>${row.nama_mold || '-'}</td>
                     <td>${row.tanggal_trial || '-'}</td>
                     <td>${row.mesin || '-'}</td> 
-                    <td>${row.berat_produk || '-'} g</td>
+                    <td>${row.keterangan || '-'}</td>
                     <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
                     <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
                 </tr>`;
@@ -242,7 +235,6 @@
         renderTable(filteredData);
     }
 
-    // Modal Review
     function openModal(row) {
         activeId = row.id;
         const info = currentTab === 'rutin' ? 
@@ -252,8 +244,10 @@
         document.getElementById('infoPelaksana').innerText = info;
         document.getElementById('modalTitle').innerText = currentTab === 'rutin' ? "Review Checklist Rutin" : "Review Checklist Trial Mold";
 
+        // Tampilan History Note di atas
         if (row.status !== 'Pending') {
-            document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan:</strong> ${row.keterangan || "-"}</div>`;
+            const noteText = currentTab === 'rutin' ? row.keterangan : (row.keterangan_superintendent || '-');
+            document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan Superintendent:</strong> ${noteText}</div>`;
         } else {
             document.getElementById('superNoteArea').innerHTML = '';
         }
@@ -262,7 +256,6 @@
         body.innerHTML = '';
 
         if (currentTab === 'rutin') {
-            // Logika struktur lama tetap dipertahankan
             const masterStructure = [
                 { section: "1. STAND LABEL", prefix: "", fields: ["wiring", "komponen", "kerapihan", "sensor", "timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator", "selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad", "flange", "vacuum_pad_takeout"] },
                 { section: "2. STACKING", prefix: "stacking_", fields: ["wiring", "sensor", "linier", "mechanical_part", "cylinder", "pneumatic"] },
@@ -286,12 +279,15 @@
                 body.innerHTML += itemsHtml === '' ? `<div class="all-ok-msg">✓ Semua item OK</div>` : itemsHtml;
             });
         } else {
-            // Tampilan Detail untuk Trial Mold
+            // PERUBAHAN: Menampilkan Keterangan Superintendent secara terpisah
             body.innerHTML = `
                 <div class="section-header">DETAIL PARAMETER TRIAL</div>
-                <p><strong>Berat Produk:</strong> ${row.berat_produk} gram</p>
+                <p><strong>Mesin:</strong> ${row.mesin || '-'}</p>
+                <p><strong>Keterangan (Operator):</strong> ${row.keterangan || '-'}</p>
                 <p><strong>Kondisi Mold:</strong> ${row.kondisi_mold || 'OK'}</p>
                 <p><strong>Catatan Operator:</strong> ${row.catatan_operator || '-'}</p>
+                <hr>
+                <p><strong>Keterangan Superintendent:</strong> ${row.keterangan_superintendent || '<span style="color:red">Belum diisi</span>'}</p>
             `;
         }
 
@@ -311,19 +307,26 @@
 
     async function processStatus(st) {
         const namaSuper = document.getElementById('namaSuperintendent').value;
+        const ketInput = document.getElementById('keteranganSuper').value;
+        
         if(!namaSuper) return alert("Isi nama superintendent!");
 
-        const update = { 
+        let update = { 
             status: st, 
-            approved_at: new Date().toISOString(),
-            nama_superintendent: namaSuper,
-            keterangan: document.getElementById('keteranganSuper').value 
+            approved_at: new Date().toISOString(), 
+            nama_superintendent: namaSuper
         };
+
+        // PERUBAHAN: Memisahkan penyimpanan field keterangan untuk Trial Mold agar tidak menimpa data operator
+        if (currentTab === 'rutin') {
+            update.keterangan = ketInput; 
+        } else {
+            update.keterangan_superintendent = ketInput; // Simpan ke kolom khusus di tabel checklist_trial
+        }
 
         if(st === 'Approved') {
             const dataURL = canvas.toDataURL();
-            const updateSignature = dataURL;
-            update.signature = updateSignature;
+            update.signature = dataURL;
         }
 
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
