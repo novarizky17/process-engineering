@@ -27,7 +27,7 @@
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
-        .status-completed { background: #fff3cd; color: #856404; } /* Mapping Completed ke warna Pending/Warning */
+        .status-completed { background: #d1ecf1; color: #0c5460; } /* Warna status completed */
 
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
         .btn-primary { background: #007bff; color: white; }
@@ -52,11 +52,11 @@
         canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
         textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
         
-        /* Tambahan untuk JSON Table */
-        .json-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .json-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 14px; }
+        .json-table th { background: #eee; text-align: left; padding: 8px; border-bottom: 2px solid #ddd; }
         .json-table td { padding: 8px; border-bottom: 1px solid #eee; }
-        .status-ok { color: green; font-weight: bold; }
         .status-ng { color: red; font-weight: bold; }
+        .status-ok { color: green; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -100,25 +100,32 @@
         <h2 id="modalTitle" style="color:#003366; margin:0;">Review Checklist</h2>
         <p id="infoPelaksana" style="color:#666; margin-top:5px; font-weight: bold;"></p>
         <hr>
+        
         <div id="superNoteArea"></div>
+        
         <div id="modalBody"></div>
+
         <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
             <div id="pendingSection" style="display:none; text-align:center;">
                 <div style="text-align: left; margin-bottom: 15px;">
                     <label><strong>Nama Superintendent:</strong></label>
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama...">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
-                    <label><strong>Keterangan Superintendent:</strong></label>
-                    <textarea id="keteranganSuper" placeholder="Tambahkan catatan approval..."></textarea>
+                    
+                    <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
+                    <textarea id="keteranganSuper" placeholder="Tuliskan komentar, instruksi, atau alasan reject di sini..."></textarea>
                 </div>
+
                 <p><strong>Tanda Tangan Superintendent:</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
                 <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
+                
                 <div style="display: flex; justify-content: space-around;">
                     <button class="btn btn-success" style="width: 45%;" onclick="processStatus('Approved')">APPROVE</button>
                     <button class="btn btn-danger" style="width: 45%;" onclick="processStatus('Rejected')">REJECT</button>
                 </div>
             </div>
+
             <div id="historySection" style="display:none; text-align:center;">
                 <h3 id="historyLabel"></h3>
                 <p><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
@@ -168,15 +175,13 @@
 
     async function loadData() {
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
-        // Select all untuk trial karena struktur tabel baru
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
 
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
         if(error) return console.error(error);
         
         rawData = data;
-        // Filter: Tampilkan yang statusnya 'Pending' (atau 'Completed' untuk tabel trial awal sebelum diapprove)
-        // Kita asumsikan 'Completed' di tabel trial berarti siap direview superintendent
+        // Tampilkan Pending dan Completed (Completed = Status awal trial dari form operator)
         filteredData = rawData.filter(row => {
             if(currentTab === 'rutin') return row.status === 'Pending';
             return row.status === 'Completed' || row.status === 'Pending'; 
@@ -191,12 +196,12 @@
         if (currentTab === 'rutin') {
             header.innerHTML = `<th>Pelaksana</th><th>Superintendent</th><th>Equipment</th><th>Tanggal</th><th>Week</th><th>Keterangan</th><th>Status</th><th>Aksi</th>`;
         } else {
-            // Header Baru Sesuai Tabel checklist_trial Anda
+            // Header Baru Sesuai Tabel checklist_trial
             header.innerHTML = `<th>PIC Trial</th><th>Superintendent</th><th>Mesin</th><th>Mold Code</th><th>Tanggal</th><th>Material</th><th>Status</th><th>Aksi</th>`;
         }
 
         if (dataList.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Tidak ada data pending/completed.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Tidak ada data pending.</td></tr>`;
             return;
         }
 
@@ -213,7 +218,6 @@
                     <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
                 </tr>`;
             } else {
-                // Mapping Data Trial dari Tabel Baru
                 return `<tr>
                     <td><strong>${row.pic_trial || '-'}</strong></td>
                     <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
@@ -221,7 +225,7 @@
                     <td>${row.mold_code || '-'}</td>
                     <td>${row.trial_date || '-'}</td> 
                     <td>${row.material_resin || '-'}</td>
-                    <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
+                    <td><span class="badge status-${row.status === 'Completed' ? 'completed' : row.status.toLowerCase()}">${row.status}</span></td>
                     <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
                 </tr>`;
             }
@@ -249,22 +253,31 @@
         refreshData();
     }
 
-    // Fungsi Helper untuk Render JSON Check
+    // Fungsi Render JSON untuk Trial Mold
     function renderJsonCheck(title, jsonData) {
         if (!jsonData || Object.keys(jsonData).length === 0) return '';
         let rows = '';
-        for (const [key, val] of Object.entries(jsonData)) {
-            // Asumsi val bisa object {status: 'OK', note: ''} atau string 'OK'
-            let status = typeof val === 'object' ? val.status : val;
-            let note = typeof val === 'object' ? (val.note || '-') : '-';
-            let colorClass = status === 'NG' ? 'status-ng' : 'status-ok';
-            
-            rows += `<tr>
-                <td>${key.replace(/_/g, ' ').toUpperCase()}</td>
-                <td class="${colorClass}">${status}</td>
-                <td>${note}</td>
-            </tr>`;
+        // Cek jika jsonData berupa array atau object
+        const items = Array.isArray(jsonData) ? jsonData : Object.entries(jsonData);
+        
+        if(Array.isArray(jsonData)){
+             // Handle jika format array (jika ada perubahan format di form input)
+             // ... logic array
+        } else {
+             // Handle format object { item_name: {status, note} }
+             for (const [key, val] of Object.entries(jsonData)) {
+                let status = typeof val === 'object' ? val.status : val;
+                let note = typeof val === 'object' ? (val.note || '-') : '-';
+                let colorClass = status === 'NG' ? 'status-ng' : 'status-ok';
+                
+                rows += `<tr>
+                    <td>${key.replace(/_/g, ' ').toUpperCase()}</td>
+                    <td class="${colorClass}">${status}</td>
+                    <td>${note}</td>
+                </tr>`;
+            }
         }
+       
         return `<div class="section-header">${title}</div>
                 <table class="json-table">
                     <tr><th>Item</th><th>Status</th><th>Note</th></tr>
@@ -281,10 +294,13 @@
         document.getElementById('infoPelaksana').innerText = info;
         document.getElementById('modalTitle').innerText = currentTab === 'rutin' ? "Review Checklist Rutin" : "Review Checklist Trial Mold";
 
-        // Note Superintendent
+        // Reset Input Keterangan Superintendent saat buka modal baru
+        document.getElementById('keteranganSuper').value = '';
+
+        // Note Superintendent (History)
         if (row.status === 'Approved' || row.status === 'Rejected') {
             const noteText = currentTab === 'rutin' ? row.keterangan : (row.keterangan_superintendent || '-');
-            document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan Superintendent:</strong> ${noteText}</div>`;
+            document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan Superintendent Sebelumnya:</strong> ${noteText}</div>`;
         } else {
             document.getElementById('superNoteArea').innerHTML = '';
         }
@@ -293,16 +309,15 @@
         body.innerHTML = '';
 
         if (currentTab === 'rutin') {
-            // Logika Rutin (Lama)
-            const masterStructure = [
-                { section: "1. STAND LABEL", prefix: "", fields: ["wiring", "komponen", "kerapihan"] } // Disingkat untuk contoh
-                // ... (Logic lama Anda tetap disini)
-            ];
-            // Render logic lama... (Saya sederhanakan agar tidak terlalu panjang, gunakan logic sebelumnya jika full)
-            body.innerHTML = "<p>Detail item rutin...</p>"; 
+            // Logic Rutin Lama (Simplified for brevity)
+            body.innerHTML = "<p>Detail item checklist rutin...</p>"; 
         } else {
-            // Logika Trial (Baru - Parse JSONB)
-            let content = '';
+            // Logic Trial Mold Baru (Parse JSONB)
+            let content = `<div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px; background:#f9f9f9; padding:10px; border-radius:5px;">
+                <div><strong>Mesin:</strong> ${row.machine_name}</div>
+                <div><strong>Resin:</strong> ${row.material_resin}</div>
+            </div>`;
+            
             content += renderJsonCheck("1. MESIN INJEKSI", row.check_machine);
             content += renderJsonCheck("2. PERSIAPAN MOLD", row.check_mold);
             content += renderJsonCheck("3. AUXILIARY", row.check_aux);
@@ -312,16 +327,13 @@
             body.innerHTML = content;
         }
 
-        // Tampilkan tombol approve jika status Pending atau Completed (Trial)
         const isReviewable = row.status === 'Pending' || row.status === 'Completed';
-        
         document.getElementById('pendingSection').style.display = isReviewable ? 'block' : 'none';
         document.getElementById('historySection').style.display = isReviewable ? 'none' : 'block';
         
         if(!isReviewable) {
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
-            // Handle signature field yang berbeda
             const sigUrl = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
             document.getElementById('historySigImg').src = sigUrl || '';
         }
@@ -332,7 +344,7 @@
 
     async function processStatus(st) {
         const namaSuper = document.getElementById('namaSuperintendent').value;
-        const ketInput = document.getElementById('keteranganSuper').value;
+        const ketInput = document.getElementById('keteranganSuper').value; // Mengambil nilai dari kotak input
         
         if(!namaSuper) return alert("Isi nama superintendent!");
 
@@ -342,9 +354,11 @@
             nama_superintendent: namaSuper
         };
 
+        // LOGIKA PENYIMPANAN KETERANGAN SUPERINTENDENT
         if (currentTab === 'rutin') {
             update.keterangan = ketInput; 
         } else {
+            // Simpan ke kolom khusus di tabel checklist_trial
             update.keterangan_superintendent = ketInput; 
         }
 
@@ -353,14 +367,20 @@
             if (currentTab === 'rutin') {
                 update.signature = dataURL;
             } else {
-                update.signature_superintendent = dataURL; // Simpan ke kolom baru
+                update.signature_superintendent = dataURL; // Simpan TTD ke kolom khusus
             }
         }
 
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const { error } = await _supabase.from(tableName).update(update).eq('id', activeId);
-        if(!error) { alert("Berhasil!"); closeModal(); loadData(); }
-        else { alert("Error: " + error.message); }
+        
+        if(!error) { 
+            alert("Berhasil disimpan!"); 
+            closeModal(); 
+            loadData(); 
+        } else { 
+            alert("Error: " + error.message); 
+        }
     }
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
