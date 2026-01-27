@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRINT FORM TRIAL MOLD</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* SETUP KERTAS A4 PORTRAIT */
+        @page { size: A4 portrait; margin: 10mm; }
+
+        @media print {
+            body { 
+                padding: 0; margin: 0; background: white !important; 
+                -webkit-print-color-adjust: exact; 
+            }
+            .no-print { display: none !important; }
+            .document-page { 
+                border: none !important; 
+                width: 100% !important; 
+                box-shadow: none !important;
+                margin: 0 !important;
+            }
+            /* Paksa garis hitam pekat saat print */
+            .table-official, .table-official th, .table-official td, 
+            .header-box, .header-cell, .info-grid, .info-val, .ttd-img-box, .note-box {
+                border-color: #000 !important;
+            }
+        }
+
+        body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
+        
+        /* CONTAINER DOKUMEN */
+        .document-page { 
+            background: white; 
+            width: 210mm; 
+            min-height: 297mm;
+            margin: 0 auto; 
+            padding: 10mm; 
+            border: 1px solid #ccc; 
+            box-sizing: border-box; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* KOP SURAT (MIRIP HISTORY) */
+        .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
+        .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
+        .header-cell:last-child { border-right: none; }
+        
+        .logo-area { width: 120px; padding: 5px; text-align: center; }
+        .logo-area img { width: 100px; height: auto; display: block; margin: 0 auto; }
+        
+        /* JUDUL DOKUMEN - FORM */
+        .title-area { text-align: center; font-size: 16pt; font-weight: bold; padding: 10px; text-transform: uppercase; }
+        
+        .meta-area { width: 250px; font-size: 8pt; padding: 5px; text-transform: uppercase; font-weight: bold; }
+        .meta-table { width: 100%; border-collapse: collapse; }
+        .meta-table td { padding: 2px; border: none !important; }
+
+        /* INFO DATA TRIAL */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; border: 1px solid #000; padding: 10px; font-size: 9pt; }
+        .info-item { display: flex; margin-bottom: 5px; border-bottom: 1px dotted #ccc; padding-bottom: 2px; }
+        .info-label { width: 130px; font-weight: bold; }
+        .info-val { flex: 1; text-transform: uppercase; font-weight: bold; }
+
+        /* TABEL ISI */
+        .table-official { width: 100%; border-collapse: collapse; border: 2px solid black; font-size: 9pt; margin-bottom: 15px; }
+        .table-official th { background-color: #e5e5e5; font-weight: bold; border: 1px solid black; padding: 6px; text-align: center; }
+        .table-official td { border: 1px solid black; padding: 5px; vertical-align: middle; }
+        
+        .col-no { width: 30px; text-align: center; }
+        .col-item { font-weight: bold; }
+        .col-status { width: 80px; text-align: center; font-weight: bold; }
+        .col-note { }
+
+        .status-ok { color: green; }
+        .status-ng { color: red; }
+        .section-row { background-color: #f2f2f2; font-weight: bold; text-transform: uppercase; }
+
+        /* KOLOM CATATAN */
+        .note-box { border: 1px solid black; padding: 10px; margin-bottom: 20px; font-size: 9pt; min-height: 50px; }
+
+        /* KOLOM TANDA TANGAN (FOOTER) */
+        .footer-ttd { display: flex; justify-content: space-around; margin-top: 10px; text-align: center; font-size: 9pt; }
+        .ttd-box { width: 40%; }
+        .ttd-title { font-weight: bold; margin-bottom: 10px; text-decoration: underline; }
+        .ttd-img-box { height: 90px; border-bottom: 1px solid black; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; }
+        .ttd-img-box img { max-height: 80px; filter: grayscale(1) contrast(1.5); }
+        .ttd-name { font-weight: bold; text-transform: uppercase; font-size: 10pt; }
+
+        /* NAVIGASI ATAS (TIDAK DIPRINT) */
+        .no-print { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input, select, button { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .btn-blue { background:#003366; color:white; }
+        .btn-dark { background:#333; color:white; }
+        .btn-gray { background:#777; color:white; }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <select id="filter-bulan">
+            <option value="">-- PILIH BULAN --</option>
+            <option value="01">JANUARI</option><option value="02">FEBRUARI</option><option value="03">MARET</option>
+            <option value="04">APRIL</option><option value="05">MEI</option><option value="06">JUNI</option>
+            <option value="07">JULI</option><option value="08">AGUSTUS</option><option value="09">SEPTEMBER</option>
+            <option value="10">OKTOBER</option><option value="11">NOVEMBER</option><option value="12">DESEMBER</option>
+        </select>
+        <input type="text" id="filter-mold" placeholder="Cari Nama Mold...">
+        <button onclick="cariData()" class="btn-blue">TAMPILKAN DATA</button>
+        <button onclick="window.print()" class="btn-dark">CETAK FORM</button>
+        <button onclick="window.location.href='dashboard.html'" class="btn-gray">DASHBOARD</button>
+    </div>
+
+    <div id="report-container">
+        <div class="document-page" style="display:flex; align-items:center; justify-content:center;">
+            <h3 style="color:#ccc;">SILAHKAN PILIH BULAN & KLIK TAMPILKAN DATA</h3>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
+        const _sb = supabase.createClient(SB_URL, SB_KEY);
+
+        async function cariData() {
+            const bln = document.getElementById('filter-bulan').value;
+            const mold = document.getElementById('filter-mold').value.trim();
+
+            if(!bln) return alert("Harap pilih bulan terlebih dahulu!");
+
+            // Ambil hanya data yang sudah APPROVED (Sudah resmi jadi Form)
+            let query = _sb.from('checklist_trial')
+                           .select('*')
+                           .eq('status', 'Approved') 
+                           .order('created_at', {ascending: false});
+            
+            const { data, error } = await query;
+            if(error) return alert("Error: " + error.message);
+
+            // Filter Data di Client
+            const filtered = data.filter(item => {
+                const itemBulan = item.trial_date ? item.trial_date.split('-')[1] : ''; 
+                const matchBulan = itemBulan === bln;
+                const matchMold = mold ? (item.mold_code || '').toLowerCase().includes(mold.toLowerCase()) : true;
+                return matchBulan && matchMold;
+            });
+
+            if(filtered.length === 0) return alert("Data Formulir tidak ditemukan.");
+
+            renderPages(filtered);
+        }
+
+        function renderPages(dataList) {
+            const container = document.getElementById('report-container');
+            container.innerHTML = ""; 
+
+            dataList.forEach(row => {
+                const page = document.createElement('div');
+                page.className = 'document-page';
+                page.innerHTML = `
+                    <div class="header-box">
+                        <div class="header-cell logo-area"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO AKG"></div>
+                        <div class="header-cell title-area">FORM CHECKLIST TRIAL MOLD</div>
+                        <div class="header-cell meta-area">
+                            <table class="meta-table">
+                                <tr><td>NO DOK</td><td>: FM-MTC-00X</td></tr> <tr><td>TANGGAL</td><td>: ${row.trial_date || '-'}</td></tr>
+                                <tr><td>HALAMAN</td><td>: 1 DARI 1</td></tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-left">
+                            <div class="info-item"><span class="info-label">NAMA MESIN</span><span class="info-val">: ${row.machine_name || '-'}</span></div>
+                            <div class="info-item"><span class="info-label">KODE MOLD / PART</span><span class="info-val">: ${row.mold_code || '-'}</span></div>
+                            <div class="info-item"><span class="info-label">MATERIAL / RESIN</span><span class="info-val">: ${row.material_resin || '-'}</span></div>
+                        </div>
+                        <div class="info-right">
+                            <div class="info-item"><span class="info-label">PIC TRIAL</span><span class="info-val">: ${row.pic_trial || '-'}</span></div>
+                            <div class="info-item"><span class="info-label">TANGGAL TRIAL</span><span class="info-val">: ${row.trial_date || '-'}</span></div>
+                            <div class="info-item"><span class="info-label">STATUS FORM</span><span class="info-val" style="color:green">: ${row.status}</span></div>
+                        </div>
+                    </div>
+
+                    <table class="table-official">
+                        <thead>
+                            <tr>
+                                <th class="col-no">NO</th>
+                                <th class="col-item">PARAMETER PENGECEKAN</th>
+                                <th class="col-status">STATUS</th>
+                                <th class="col-note">KETERANGAN / HASIL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${renderSection("I. KONDISI MESIN INJEKSI", row.check_machine)}
+                            ${renderSection("II. PERSIAPAN MOLD", row.check_mold)}
+                            ${renderSection("III. PERALATAN TAMBAHAN (AUXILIARY)", row.check_aux)}
+                            ${renderSection("IV. MATERIAL & RESIN", row.check_material)}
+                            ${renderSection("V. ALAT UKUR (QC TOOLS)", row.check_qc)}
+                            ${renderSection("VI. SAFETY & LINGKUNGAN", row.check_safety)}
+                        </tbody>
+                    </table>
+
+                    <div class="note-box">
+                        <strong>CATATAN / KESIMPULAN SUPERINTENDENT:</strong><br><br>
+                        ${row.keterangan_superintendent || '-'}
+                    </div>
+
+                    <div class="footer-ttd">
+                        <div class="ttd-box">
+                            <div class="ttd-title">DIBUAT OLEH (OPERATOR)</div>
+                            <div class="ttd-img-box">
+                                ${row.signature_data ? `<img src="${row.signature_data}">` : ''}
+                            </div>
+                            <div class="ttd-name">${row.pic_trial || '..................'}</div>
+                            <div>TECHNICIAN</div>
+                        </div>
+                        <div class="ttd-box">
+                            <div class="ttd-title">DIKETAHUI OLEH (SUPERINTENDENT)</div>
+                            <div class="ttd-img-box">
+                                ${row.signature_superintendent ? `<img src="${row.signature_superintendent}">` : ''}
+                            </div>
+                            <div class="ttd-name">${row.nama_superintendent || '..................'}</div>
+                            <div>SUPERINTENDENT</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(page);
+                
+                // Page Break untuk print banyak data sekaligus
+                const pb = document.createElement('div');
+                pb.style.pageBreakAfter = "always";
+                container.appendChild(pb);
+            });
+        }
+
+        function renderSection(title, jsonData) {
+            if(!jsonData || Object.keys(jsonData).length === 0) return "";
+            
+            let html = `<tr class="section-row"><td colspan="4" style="text-align:left; padding-left:10px;">${title}</td></tr>`;
+            let no = 1;
+            
+            for (const [key, val] of Object.entries(jsonData)) {
+                let status = typeof val === 'object' ? val.status : val;
+                let note = typeof val === 'object' ? (val.note || '') : '';
+                let colorClass = status === 'NG' ? 'status-ng' : (status === 'OK' ? 'status-ok' : '');
+                
+                html += `
+                    <tr>
+                        <td class="col-no">${no++}</td>
+                        <td class="col-item">${key.replace(/_/g, " ").toUpperCase()}</td>
+                        <td class="col-status ${colorClass}">${status}</td>
+                        <td class="col-note">${note}</td>
+                    </tr>
+                `;
+            }
+            return html;
+        }
+    </script>
+</body>
+</html>
