@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Superintendent - Dual Approval System</title>
+    <title>Superintendent - Approval System</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -11,11 +11,11 @@
         header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5 rgba(0,0,0,0.1); }
         .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
         
-        /* Tab Navigation */
-        .tab-navigation { display: flex; gap: 10px; margin-bottom: 20px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .tab-btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .tab-active { background: #003366 !important; color: white !important; }
-        .tab-inactive { background: #e9ecef; color: #495057; }
+        /* --- Tambahan Style Tab --- */
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: #e0e0e0; color: #666; transition: 0.3s; }
+        .tab-btn.active { background: #003366; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        /* -------------------------- */
 
         .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex-wrap: wrap; }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
@@ -44,6 +44,11 @@
         .grid-item-ng { border: 2px solid #dc3545; padding: 15px; border-radius: 8px; margin-bottom: 10px; background: #fff5f5; }
         .grid-item-na { border: 1px solid #ccc; padding: 10px; border-radius: 8px; margin-bottom: 10px; background: #f9f9f9; color: #777; font-style: italic; }
         
+        .ng-label { font-weight: bold; color: #b21f2d; font-size: 16px; text-transform: uppercase; }
+        .ng-reason-box { margin-top: 10px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #dc3545; font-size: 15px; color: #333; }
+        .all-ok-msg { color: #28a745; font-weight: bold; padding: 10px; font-style: italic; }
+
+        .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
         canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
         textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
@@ -54,28 +59,27 @@
 <header>
     <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
     <div>
-        <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
-        <button class="btn btn-primary" onclick="refreshCurrentData()">Refresh Data</button>
+        <a href="dashboard.html" class="btn btn-back">← Kembali ke Dashboard</a>
+        <button class="btn btn-primary" onclick="refreshData()">Refresh Data</button>
     </div>
 </header>
 
 <div class="container">
-    <div class="tab-navigation">
-        <button id="btnRutin" class="tab-btn tab-active" onclick="switchTab('rutin')">📋 Checklist Rutin</button>
-        <button id="btnTrial" class="tab-btn tab-inactive" onclick="switchTab('trial')">🧪 Checklist Trial Mold</button>
+    <div class="tab-menu">
+        <button id="tabRutin" class="tab-btn active" onclick="switchTab('rutin')">📋 Checklist Rutin</button>
+        <button id="tabTrial" class="tab-btn" onclick="switchTab('trial')">🧪 Checklist Trial Mold</button>
     </div>
-
     <div class="search-section">
-        <strong>Filter Tanggal:</strong>
-        <input type="date" id="searchDate" class="input-search" onchange="filterData()">
+        <strong id="filterLabel">Cari Tanggal Checklist:</strong>
+        <input type="date" id="searchDate" class="input-search" onchange="filterDataByDate()">
         <button class="btn btn-back" onclick="resetFilter()">Reset</button>
-        <button class="btn btn-success" onclick="exportToExcel()">📊 Export Excel</button>
+        <button class="btn btn-success" onclick="exportToExcel()">📊 Download Excel</button>
     </div>
 
     <div class="card">
         <table>
             <thead>
-                <tr id="tableHead">
+                <tr id="tableHeader">
                     </tr>
             </thead>
             <tbody id="mainTable">
@@ -88,33 +92,32 @@
 <div id="modal" class="modal">
     <div class="modal-content">
         <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
-        <h2 id="modalTitle" style="color:#003366; margin:0;">Review Data</h2>
+        <h2 id="modalTitle" style="color:#003366; margin:0;">Review Checklist</h2>
         <p id="infoPelaksana" style="color:#666; margin-top:5px; font-weight: bold;"></p>
         <hr>
         <div id="superNoteArea"></div>
         <div id="modalBody"></div>
-
         <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
-            <div id="pendingSection" style="display:none;">
-                <label><strong>Nama Superintendent:</strong></label>
-                <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama...">
-                <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
-                
-                <label><strong>Catatan Tambahan:</strong></label>
-                <textarea id="keteranganSuper" placeholder="Opsional..."></textarea>
-
-                <p><strong>Tanda Tangan:</strong></p>
+            <div id="pendingSection" style="display:none; text-align:center;">
+                <div style="text-align: left; margin-bottom: 15px;">
+                    <label><strong>Nama Superintendent:</strong></label>
+                    <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama...">
+                    <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
+                    <label><strong>Keterangan / Catatan Tambahan:</strong></label>
+                    <textarea id="keteranganSuper" placeholder="Tambahkan catatan..."></textarea>
+                </div>
+                <p><strong>Tanda Tangan Superintendent:</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
-                <button class="btn btn-back" onclick="clearSig()">Hapus TTD</button>
-                <div style="display: flex; justify-content: space-between; margin-top:15px;">
-                    <button class="btn btn-success" style="width: 48%;" onclick="processStatus('Approved')">APPROVE</button>
-                    <button class="btn btn-outline-danger" style="width: 48%;" onclick="processStatus('Rejected')">REJECT</button>
+                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
+                <div style="display: flex; justify-content: space-around;">
+                    <button class="btn btn-success" style="width: 45%;" onclick="processStatus('Approved')">APPROVE</button>
+                    <button class="btn btn-danger" style="width: 45%;" onclick="processStatus('Rejected')">REJECT</button>
                 </div>
             </div>
             <div id="historySection" style="display:none; text-align:center;">
                 <h3 id="historyLabel"></h3>
                 <p><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
-                <img id="historySigImg" style="max-width:300px; border:1px solid #ddd; background:white;">
+                <div id="historySigArea"><img id="historySigImg" style="max-width:300px; border:1px solid #ddd; padding:5px; background:white;"></div>
             </div>
         </div>
     </div>
@@ -125,135 +128,25 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    let currentTab = 'rutin';
-    let rawData = [];
     let activeId = null;
+    let rawData = []; 
+    let filteredData = []; 
+    let currentTab = 'rutin'; // 'rutin' atau 'trial'
 
     const canvas = document.getElementById('sig-canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
 
-    // Switch Antar Tab
+    // Logika Tab
     function switchTab(tab) {
         currentTab = tab;
-        document.getElementById('btnRutin').className = tab === 'rutin' ? 'tab-btn tab-active' : 'tab-btn tab-inactive';
-        document.getElementById('btnTrial').className = tab === 'trial' ? 'tab-btn tab-active' : 'tab-btn tab-inactive';
-        refreshCurrentData();
+        document.getElementById('tabRutin').classList.toggle('active', tab === 'rutin');
+        document.getElementById('tabTrial').classList.toggle('active', tab === 'trial');
+        document.getElementById('filterLabel').innerText = tab === 'rutin' ? 'Cari Tanggal Checklist:' : 'Cari Tanggal Trial:';
+        loadData();
     }
 
-    async function refreshCurrentData() {
-        document.getElementById('mainTable').innerHTML = `<tr><td colspan="8" style="text-align:center;">Memuat data...</td></tr>`;
-        const table = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
-        const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
-        
-        const { data, error } = await _supabase.from(table).select(selectQuery).order('created_at', { ascending: false });
-        if(error) return alert("Error: " + error.message);
-        
-        rawData = data;
-        filterData();
-    }
-
-    function filterData() {
-        const selectedDate = document.getElementById('searchDate').value;
-        let displayData = [];
-
-        if (!selectedDate) {
-            displayData = rawData.filter(row => row.status === 'Pending');
-        } else {
-            displayData = rawData.filter(row => {
-                const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.tanggal_trial;
-                return rowDate === selectedDate;
-            });
-        }
-        renderTable(displayData);
-    }
-
-    function renderTable(data) {
-        const head = document.getElementById('tableHead');
-        const body = document.getElementById('mainTable');
-
-        // Header Dinamis
-        if (currentTab === 'rutin') {
-            head.innerHTML = `<th>Pelaksana</th><th>Superintendent</th><th>Tooling/Unit</th><th>Tanggal</th><th>Week</th><th>Status</th><th>Aksi</th>`;
-        } else {
-            head.innerHTML = `<th>Operator</th><th>Superintendent</th><th>Mold Name</th><th>Trial Date</th><th>Category</th><th>Status</th><th>Aksi</th>`;
-        }
-
-        if (data.length === 0) {
-            body.innerHTML = `<tr><td colspan="8" style="text-align:center;">Data tidak ditemukan.</td></tr>`;
-            return;
-        }
-
-        body.innerHTML = data.map(row => {
-            const col1 = currentTab === 'rutin' ? (row.pelaksana?.nama_pelaksana || '-') : (row.operator || '-');
-            const col2 = row.nama_superintendent || '<i style="color:#ccc">N/A</i>';
-            const col3 = currentTab === 'rutin' ? (row.pelaksana?.nama_tools || '-') : (row.nama_mold || '-');
-            const col4 = currentTab === 'rutin' ? (row.pelaksana?.tanggal_checklist || '-') : (row.tanggal_trial || '-');
-            const col5 = currentTab === 'rutin' ? (row.pelaksana?.week || '-') : (row.kategori || '-');
-
-            return `
-                <tr>
-                    <td><strong>${col1}</strong></td>
-                    <td>${col2}</td>
-                    <td>${col3}</td>
-                    <td>${col4}</td>
-                    <td>${col5}</td>
-                    <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
-                    <td><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    function openModal(row) {
-        activeId = row.id;
-        const info = currentTab === 'rutin' 
-            ? `PELAKSANA: ${row.pelaksana?.nama_pelaksana} | TOOLING: ${row.pelaksana?.nama_tools}`
-            : `OPERATOR: ${row.operator} | MOLD: ${row.nama_mold}`;
-        
-        document.getElementById('infoPelaksana').innerText = info;
-        document.getElementById('modalTitle').innerText = currentTab === 'rutin' ? 'Review Checklist Rutin' : 'Review Checklist Trial Mold';
-        
-        // Render Detail (Sederhana untuk Trial, Kompleks untuk Rutin)
-        const body = document.getElementById('modalBody');
-        body.innerHTML = currentTab === 'rutin' ? 'Detail item pengecekan rutin...' : `
-            <div class="section-header">DATA TRIAL MOLD</div>
-            <p><strong>Mesin:</strong> ${row.mesin || '-'}</p>
-            <p><strong>Berat Produk:</strong> ${row.berat_produk || '-'} g</p>
-            <p><strong>Status Trial:</strong> ${row.hasil_trial || '-'}</p>
-        `;
-
-        const isP = row.status === 'Pending';
-        document.getElementById('pendingSection').style.display = isP ? 'block' : 'none';
-        document.getElementById('historySection').style.display = isP ? 'none' : 'block';
-
-        if(!isP) {
-            document.getElementById('historyLabel').innerText = row.status;
-            document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
-            document.getElementById('historySigImg').src = row.signature || '';
-        }
-        document.getElementById('modal').style.display = 'block';
-        clearSig();
-    }
-
-    async function processStatus(st) {
-        const name = document.getElementById('namaSuperintendent').value;
-        if(!name) return alert("Nama Superintendent wajib diisi!");
-        
-        const table = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
-        const update = {
-            status: st,
-            nama_superintendent: name,
-            approved_at: new Date().toISOString(),
-            keterangan: document.getElementById('keteranganSuper').value,
-            signature: canvas.toDataURL()
-        };
-
-        const { error } = await _supabase.from(table).update(update).eq('id', activeId);
-        if(!error) { alert("Data Berhasil di-Update!"); closeModal(); refreshCurrentData(); }
-    }
-
-    // TTD Logic
+    // Tanda Tangan Logic tetap sama
     let drawing = false;
     function getP(e) {
         const r = canvas.getBoundingClientRect();
@@ -264,11 +157,182 @@
     canvas.onmousedown = (e) => { drawing=true; ctx.beginPath(); const p=getP(e); ctx.moveTo(p.x, p.y); };
     canvas.onmousemove = (e) => { if(!drawing) return; const p=getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
     window.onmouseup = () => drawing=false;
-    function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }
-    function resetFilter() { document.getElementById('searchDate').value = ''; filterData(); }
+    canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); const p=getP(e); ctx.moveTo(p.x, p.y); };
+    canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; const p=getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
 
-    window.onload = () => refreshCurrentData();
+    function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+
+    function refreshData() { loadData(); }
+
+    async function loadData() {
+        // Tentukan tabel berdasarkan tab
+        const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
+        const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
+
+        const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
+        if(error) return console.error(error);
+        
+        rawData = data;
+        filteredData = rawData.filter(row => row.status === 'Pending'); 
+        renderTable(filteredData);
+    }
+
+    function renderTable(dataList) {
+        const header = document.getElementById('tableHeader');
+        const tableBody = document.getElementById('mainTable');
+
+        // Set Header dinamis
+        if (currentTab === 'rutin') {
+            header.innerHTML = `<th>Pelaksana</th><th>Superintendent</th><th>Equipment / Capacity</th><th>Tanggal</th><th>Week</th><th>Keterangan</th><th>Status</th><th style="text-align: center;">Aksi</th>`;
+        } else {
+            header.innerHTML = `<th>Operator Trial</th><th>Superintendent</th><th>Mold Name / Part</th><th>Tanggal Trial</th><th>Mesin</th><th>Berat (g)</th><th>Status</th><th style="text-align: center;">Aksi</th>`;
+        }
+
+        if (dataList.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Tidak ada data pending.</td></tr>`;
+            return;
+        }
+
+        tableBody.innerHTML = dataList.map(row => {
+            if (currentTab === 'rutin') {
+                return `
+                <tr>
+                    <td><strong>${row.pelaksana?.nama_pelaksana || '-'}</strong></td>
+                    <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
+                    <td>${row.pelaksana?.nama_tools || '-'} / ${row.pelaksana?.capacity || '-'}</td>
+                    <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
+                    <td><strong>${row.pelaksana?.week || '-'}</strong></td> 
+                    <td>${row.keterangan || '<i style="color:#ccc">N/A</i>'}</td>
+                    <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
+                    <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
+                </tr>`;
+            } else {
+                // Tampilan untuk Trial Mold
+                return `
+                <tr>
+                    <td><strong>${row.operator || '-'}</strong></td>
+                    <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
+                    <td>${row.nama_mold || '-'}</td>
+                    <td>${row.tanggal_trial || '-'}</td>
+                    <td>${row.mesin || '-'}</td> 
+                    <td>${row.berat_produk || '-'} g</td>
+                    <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
+                    <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
+                </tr>`;
+            }
+        }).join('');
+    }
+
+    function filterDataByDate() {
+        const selectedDate = document.getElementById('searchDate').value;
+        if (!selectedDate) {
+            filteredData = rawData.filter(row => row.status === 'Pending');
+        } else {
+            filteredData = rawData.filter(row => {
+                const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.tanggal_trial;
+                return rowDate === selectedDate;
+            });
+        }
+        renderTable(filteredData);
+    }
+
+    function resetFilter() {
+        document.getElementById('searchDate').value = '';
+        filteredData = rawData.filter(row => row.status === 'Pending');
+        renderTable(filteredData);
+    }
+
+    // Modal Review
+    function openModal(row) {
+        activeId = row.id;
+        const info = currentTab === 'rutin' ? 
+            `PELAKSANA: ${row.pelaksana?.nama_pelaksana} | UNIT: ${row.pelaksana?.nama_tools}` :
+            `OPERATOR TRIAL: ${row.operator} | MOLD: ${row.nama_mold}`;
+        
+        document.getElementById('infoPelaksana').innerText = info;
+        document.getElementById('modalTitle').innerText = currentTab === 'rutin' ? "Review Checklist Rutin" : "Review Checklist Trial Mold";
+
+        if (row.status !== 'Pending') {
+            document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan:</strong> ${row.keterangan || "-"}</div>`;
+        } else {
+            document.getElementById('superNoteArea').innerHTML = '';
+        }
+
+        const body = document.getElementById('modalBody');
+        body.innerHTML = '';
+
+        if (currentTab === 'rutin') {
+            // Logika struktur lama tetap dipertahankan
+            const masterStructure = [
+                { section: "1. STAND LABEL", prefix: "", fields: ["wiring", "komponen", "kerapihan", "sensor", "timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator", "selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad", "flange", "vacuum_pad_takeout"] },
+                { section: "2. STACKING", prefix: "stacking_", fields: ["wiring", "sensor", "linier", "mechanical_part", "cylinder", "pneumatic"] },
+                { section: "3. CONVEYOR", prefix: "conveyor_", fields: ["belt", "motor", "rantai", "frame", "inverter"] },
+                { section: "4. DOSING", prefix: "dosing_", fields: ["alarm", "setting"] },
+                { section: "5. DUMMY", prefix: "dummy_", fields: ["vacuum", "condition", "flange", "instalasi", "tubbing"] }
+            ];
+
+            masterStructure.forEach(sec => {
+                let itemsHtml = '';
+                sec.fields.forEach(f => {
+                    const dbF = sec.prefix + f;
+                    const val = row[dbF];
+                    if(val === 'NG') {
+                        itemsHtml += `<div class="grid-item-ng"><div class="ng-label">${f.replace(/_/g,' ')}</div><div class="ng-reason-box"><strong>Temuan:</strong> ${row[dbF + "_keterangan"]}</div></div>`;
+                    } else if (val === 'N/A') {
+                        itemsHtml += `<div class="grid-item-na"><strong>${f.replace(/_/g,' ').toUpperCase()}:</strong> N/A (Tidak Berlaku)</div>`;
+                    }
+                });
+                body.innerHTML += `<div class="section-header">${sec.section}</div>`;
+                body.innerHTML += itemsHtml === '' ? `<div class="all-ok-msg">✓ Semua item OK</div>` : itemsHtml;
+            });
+        } else {
+            // Tampilan Detail untuk Trial Mold
+            body.innerHTML = `
+                <div class="section-header">DETAIL PARAMETER TRIAL</div>
+                <p><strong>Berat Produk:</strong> ${row.berat_produk} gram</p>
+                <p><strong>Kondisi Mold:</strong> ${row.kondisi_mold || 'OK'}</p>
+                <p><strong>Catatan Operator:</strong> ${row.catatan_operator || '-'}</p>
+            `;
+        }
+
+        const isP = row.status === 'Pending';
+        document.getElementById('pendingSection').style.display = isP ? 'block' : 'none';
+        document.getElementById('historySection').style.display = isP ? 'none' : 'block';
+        
+        if(!isP) {
+            document.getElementById('historyLabel').innerText = row.status;
+            document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
+            document.getElementById('historySigImg').src = row.signature || '';
+        }
+
+        document.getElementById('modal').style.display = 'block';
+        clearSig();
+    }
+
+    async function processStatus(st) {
+        const namaSuper = document.getElementById('namaSuperintendent').value;
+        if(!namaSuper) return alert("Isi nama superintendent!");
+
+        const update = { 
+            status: st, 
+            approved_at: new Date().toISOString(),
+            nama_superintendent: namaSuper,
+            keterangan: document.getElementById('keteranganSuper').value 
+        };
+
+        if(st === 'Approved') {
+            const dataURL = canvas.toDataURL();
+            const updateSignature = dataURL;
+            update.signature = updateSignature;
+        }
+
+        const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
+        const { error } = await _supabase.from(tableName).update(update).eq('id', activeId);
+        if(!error) { alert("Berhasil!"); closeModal(); loadData(); }
+    }
+
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    window.onload = loadData;
 </script>
 </body>
 </html>
