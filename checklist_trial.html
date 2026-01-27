@@ -6,6 +6,7 @@
     <title>Checklist Trial - Plastic Injection</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
@@ -27,9 +28,7 @@
         .section-card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
 
         /* CANVAS TANDA TANGAN */
-        canvas {
-            touch-action: none; /* Mencegah scroll saat tanda tangan di HP */
-        }
+        canvas { touch-action: none; }
     </style>
 </head>
 <body class="pb-32">
@@ -61,24 +60,24 @@
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Mesin Injection</label>
-                    <select class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none cursor-pointer">
+                    <select id="machineSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none cursor-pointer">
                         <option value="">Pilih Mesin...</option>
-                        <option>Inj-01 (150T)</option>
-                        <option>Inj-02 (200T)</option>
-                        <option>Inj-03 (350T)</option>
-                        <option>Inj-04 (500T)</option>
+                        <option value="Inj-01 (150T)">Inj-01 (150T)</option>
+                        <option value="Inj-02 (200T)">Inj-02 (200T)</option>
+                        <option value="Inj-03 (350T)">Inj-03 (350T)</option>
+                        <option value="Inj-04 (500T)">Inj-04 (500T)</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Kode / Nama Mold</label>
-                    <input type="text" placeholder="Input Kode Mold..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
+                    <input type="text" id="moldCode" placeholder="Input Kode Mold..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-100 pt-4">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Material Resin</label>
-                    <input type="text" placeholder="Contoh: ABS, PP, PA6..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
+                    <input type="text" id="resinInfo" placeholder="Contoh: ABS, PP, PA6..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">PIC Trial (Penanggung Jawab)</label>
@@ -148,11 +147,9 @@
                     
                     <div class="border-2 border-dashed border-slate-300 rounded-2xl bg-slate-50 relative h-48 w-full cursor-crosshair overflow-hidden group">
                         <canvas id="signature-pad" class="w-full h-full block"></canvas>
-                        
                         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-slate-300 font-bold text-2xl pointer-events-none select-none opacity-50 group-hover:opacity-20 transition-opacity">
                             TANDA TANGAN DISINI
                         </div>
-
                         <button type="button" onclick="clearSignature()" class="absolute bottom-3 right-3 bg-white text-rose-500 border border-rose-200 hover:bg-rose-50 px-3 py-1 rounded-lg text-xs font-bold shadow-sm transition-all z-10">
                             Ulangi / Hapus
                         </button>
@@ -178,6 +175,11 @@
     </div>
 
     <script>
+        // --- KONFIGURASI SUPABASE ---
+        const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co"; // Ganti dengan URL Project Anda
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA"; // Ganti dengan Anon Key Anda
+        const _sb = supabase.createClient(SB_URL, SB_KEY);
+
         document.getElementById('trialDate').valueAsDate = new Date();
 
         // 1. DATA CHECKLIST
@@ -275,7 +277,7 @@
         const canvas = document.getElementById('signature-pad');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
-        let hasSignature = false; // Flag untuk validasi
+        let hasSignature = false; 
 
         function resizeCanvas() {
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
@@ -284,29 +286,25 @@
             ctx.scale(ratio, ratio);
         }
         window.addEventListener("resize", resizeCanvas);
-        // Panggil resize setelah load
         setTimeout(resizeCanvas, 500); 
 
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return {
-                x: clientX - rect.left,
-                y: clientY - rect.top
-            };
+            return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
         function startDraw(e) {
             e.preventDefault();
             isDrawing = true;
-            hasSignature = true; // User mulai menggambar
+            hasSignature = true; 
             const pos = getPos(e);
             ctx.beginPath();
             ctx.moveTo(pos.x, pos.y);
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
-            ctx.strokeStyle = '#1e293b'; // Slate-800
+            ctx.strokeStyle = '#1e293b'; 
         }
 
         function draw(e) {
@@ -317,16 +315,12 @@
             ctx.stroke();
         }
 
-        function stopDraw() {
-            isDrawing = false;
-        }
+        function stopDraw() { isDrawing = false; }
 
-        // Event Listeners Canvas
         canvas.addEventListener('mousedown', startDraw);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', stopDraw);
         canvas.addEventListener('mouseout', stopDraw);
-        
         canvas.addEventListener('touchstart', startDraw);
         canvas.addEventListener('touchmove', draw);
         canvas.addEventListener('touchend', stopDraw);
@@ -336,19 +330,18 @@
             hasSignature = false;
         }
 
-        // Sync Nama PIC ke Bawah
         function syncName() {
             const picVal = document.getElementById('picNameInput').value;
             document.getElementById('signerName').value = picVal;
         }
 
-        // 5. SUBMIT & VALIDASI
-        function submitTrialForm() {
+        // 5. SUBMIT TO SUPABASE
+        async function submitTrialForm() {
             let totalItems = 0;
             let filledItems = 0;
             let ngIssue = false;
 
-            // Cek Radio Buttons
+            // Validasi Input
             for (const items of Object.values(checklistData)) {
                 items.forEach(item => {
                     totalItems++;
@@ -379,33 +372,69 @@
                 return;
             }
 
-            // Validasi Tanda Tangan
             if (!hasSignature) {
                 Swal.fire({ icon: 'warning', title: 'Tanda Tangan Diperlukan', text: 'Mohon tanda tangan pada kotak yang disediakan.', confirmButtonColor: '#f59e0b' });
                 return;
             }
 
-            // Validasi Nama PIC
             if (document.getElementById('signerName').value.trim() === '') {
                 Swal.fire({ icon: 'warning', title: 'Nama Kosong', text: 'Isi PIC Trial di bagian atas halaman.', confirmButtonColor: '#f59e0b' });
                 document.getElementById('picNameInput').focus();
                 return;
             }
 
-            // Sukses
+            // --- PROSES SIMPAN KE SUPABASE ---
             Swal.fire({
                 title: 'Konfirmasi',
                 text: 'Simpan verifikasi dan tanda tangan ini?',
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#7c3aed',
-                confirmButtonText: 'Ya, Simpan!'
+                confirmButtonText: 'Ya, Simpan!',
+                showLoaderOnConfirm: true,
+                preConfirm: async () => {
+                    // 1. Ambil Data Checklist per Section
+                    const getSectionData = (sectionId) => {
+                        const data = {};
+                        checklistData[sectionId].forEach(item => {
+                            const radios = document.getElementsByName(`status_${item.id}`);
+                            let status = null;
+                            for (const r of radios) if (r.checked) status = r.value;
+                            const note = document.getElementById(`note_${item.id}`).value;
+                            data[item.title] = { status: status, note: note }; // Simpan pakai Judul Item biar jelas
+                        });
+                        return data;
+                    };
+
+                    // 2. Siapkan Payload
+                    const payload = {
+                        trial_date: document.getElementById('trialDate').value,
+                        machine_name: document.getElementById('machineSelect').value,
+                        mold_code: document.getElementById('moldCode').value, // Pastikan ID input moldCode sudah ada
+                        material_resin: document.getElementById('resinInfo').value, // ID input material
+                        pic_trial: document.getElementById('picNameInput').value,
+                        
+                        check_machine: getSectionData('section-1-content'),
+                        check_mold: getSectionData('section-2-content'),
+                        check_aux: getSectionData('section-3-content'),
+                        check_material: getSectionData('section-4-content'),
+                        check_qc: getSectionData('section-5-content'),
+                        check_safety: getSectionData('section-6-content'),
+                        
+                        signature_data: canvas.toDataURL("image/png")
+                    };
+
+                    // 3. Insert ke Supabase
+                    const { error } = await _sb.from('checklist_trial').insert([payload]);
+                    
+                    if (error) {
+                        Swal.showValidationMessage(`Request failed: ${error.message}`);
+                    }
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // DISINI LOGIKA SIMPAN KE DATABASE (misal convert canvas to Image Base64)
-                    // const signatureData = canvas.toDataURL(); 
                     Swal.fire('Berhasil!', 'Data checklist & tanda tangan tersimpan.', 'success').then(() => {
-                        window.location.href = 'dashboard.html'; // Redirect
+                        window.location.href = 'dashboard.html';
                     });
                 }
             });
