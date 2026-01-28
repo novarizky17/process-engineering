@@ -27,26 +27,19 @@
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
-        .status-completed { background: #d1ecf1; color: #0c5460; } /* Warna status completed */
+        .status-completed { background: #d1ecf1; color: #0c5460; } /* Warna status completed (baru masuk) */
 
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
         .btn-primary { background: #007bff; color: white; }
         .btn-success { background: #28a745; color: white; }
         .btn-back { background: #6c757d; color: white; text-decoration: none; font-size: 14px; }
-        .btn-outline-danger { background: transparent; border: 1px solid #dc3545; color: #dc3545; padding: 6px 10px; }
-        .btn-outline-danger:hover { background: #dc3545; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
 
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
         .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 900px; }
         
         .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
-        .grid-item-ng { border: 2px solid #dc3545; padding: 15px; border-radius: 8px; margin-bottom: 10px; background: #fff5f5; }
-        .grid-item-na { border: 1px solid #ccc; padding: 10px; border-radius: 8px; margin-bottom: 10px; background: #f9f9f9; color: #777; font-style: italic; }
         
-        .ng-label { font-weight: bold; color: #b21f2d; font-size: 16px; text-transform: uppercase; }
-        .ng-reason-box { margin-top: 10px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #dc3545; font-size: 15px; color: #333; }
-        .all-ok-msg { color: #28a745; font-weight: bold; padding: 10px; font-style: italic; }
-
         .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
         canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
@@ -79,7 +72,6 @@
         <strong id="filterLabel">Cari Tanggal:</strong>
         <input type="date" id="searchDate" class="input-search" onchange="filterDataByDate()">
         <button class="btn btn-back" onclick="resetFilter()">Reset</button>
-        <button class="btn btn-success" onclick="exportToExcel()">📊 Download Excel</button>
     </div>
 
     <div class="card">
@@ -184,7 +176,7 @@
         // Tampilkan Pending dan Completed (Completed = Status awal trial dari form operator)
         filteredData = rawData.filter(row => {
             if(currentTab === 'rutin') return row.status === 'Pending';
-            return row.status === 'Completed' || row.status === 'Pending'; 
+            return row.status === 'Completed' || row.status === 'Pending' || row.status === null; 
         });
         renderTable(filteredData);
     }
@@ -196,8 +188,8 @@
         if (currentTab === 'rutin') {
             header.innerHTML = `<th>Pelaksana</th><th>Superintendent</th><th>Equipment</th><th>Tanggal</th><th>Week</th><th>Keterangan</th><th>Status</th><th>Aksi</th>`;
         } else {
-            // Header Baru Sesuai Tabel checklist_trial
-            header.innerHTML = `<th>PIC Trial</th><th>Superintendent</th><th>Mesin</th><th>Mold Code</th><th>Tanggal</th><th>Material</th><th>Status</th><th>Aksi</th>`;
+            // Header Baru Sesuai Tabel checklist_trial (project_name & pic_trial)
+            header.innerHTML = `<th>PIC Trial</th><th>Superintendent</th><th>Mesin</th><th>Project</th><th>Tanggal</th><th>Status</th><th>Aksi</th>`;
         }
 
         if (dataList.length === 0) {
@@ -222,10 +214,9 @@
                     <td><strong>${row.pic_trial || '-'}</strong></td>
                     <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
                     <td>${row.machine_name || '-'}</td>
-                    <td>${row.mold_code || '-'}</td>
+                    <td>${row.project_name || '-'}</td>
                     <td>${row.trial_date || '-'}</td> 
-                    <td>${row.material_resin || '-'}</td>
-                    <td><span class="badge status-${row.status === 'Completed' ? 'completed' : row.status.toLowerCase()}">${row.status}</span></td>
+                    <td><span class="badge status-${(row.status || 'pending').toLowerCase()}">${row.status || 'Pending'}</span></td>
                     <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
                 </tr>`;
             }
@@ -235,17 +226,14 @@
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
         if (!selectedDate) {
-            filteredData = rawData.filter(row => {
-                if(currentTab === 'rutin') return row.status === 'Pending';
-                return row.status === 'Completed' || row.status === 'Pending';
-            });
+            loadData(); // Reload all pending
         } else {
             filteredData = rawData.filter(row => {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
             });
+            renderTable(filteredData);
         }
-        renderTable(filteredData);
     }
 
     function resetFilter() {
@@ -253,29 +241,22 @@
         refreshData();
     }
 
-    // Fungsi Render JSON untuk Trial Mold
+    // Fungsi Render JSON untuk Trial Mold (MAPPING DATA DARI DATABASE)
     function renderJsonCheck(title, jsonData) {
         if (!jsonData || Object.keys(jsonData).length === 0) return '';
         let rows = '';
-        // Cek jika jsonData berupa array atau object
-        const items = Array.isArray(jsonData) ? jsonData : Object.entries(jsonData);
         
-        if(Array.isArray(jsonData)){
-             // Handle jika format array (jika ada perubahan format di form input)
-             // ... logic array
-        } else {
-             // Handle format object { item_name: {status, note} }
-             for (const [key, val] of Object.entries(jsonData)) {
-                let status = typeof val === 'object' ? val.status : val;
-                let note = typeof val === 'object' ? (val.note || '-') : '-';
-                let colorClass = status === 'NG' ? 'status-ng' : 'status-ok';
-                
-                rows += `<tr>
-                    <td>${key.replace(/_/g, ' ').toUpperCase()}</td>
-                    <td class="${colorClass}">${status}</td>
-                    <td>${note}</td>
-                </tr>`;
-            }
+        // Loop object JSONB dari database
+        for (const [key, val] of Object.entries(jsonData)) {
+            let status = val.status || '-';
+            let note = val.note || '-';
+            let colorClass = status === 'NG' ? 'status-ng' : 'status-ok';
+            
+            rows += `<tr>
+                <td>${key}</td>
+                <td class="${colorClass}">${status}</td>
+                <td>${note}</td>
+            </tr>`;
         }
        
         return `<div class="section-header">${title}</div>
@@ -315,7 +296,8 @@
             // Logic Trial Mold Baru (Parse JSONB)
             let content = `<div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px; background:#f9f9f9; padding:10px; border-radius:5px;">
                 <div><strong>Mesin:</strong> ${row.machine_name}</div>
-                <div><strong>Resin:</strong> ${row.material_resin}</div>
+                <div><strong>Project:</strong> ${row.project_name}</div>
+                <div><strong>Mold Code:</strong> ${row.mold_code}</div>
             </div>`;
             
             content += renderJsonCheck("1. MESIN INJEKSI", row.check_machine);
@@ -327,7 +309,7 @@
             body.innerHTML = content;
         }
 
-        const isReviewable = row.status === 'Pending' || row.status === 'Completed';
+        const isReviewable = row.status !== 'Approved' && row.status !== 'Rejected';
         document.getElementById('pendingSection').style.display = isReviewable ? 'block' : 'none';
         document.getElementById('historySection').style.display = isReviewable ? 'none' : 'block';
         
@@ -344,7 +326,7 @@
 
     async function processStatus(st) {
         const namaSuper = document.getElementById('namaSuperintendent').value;
-        const ketInput = document.getElementById('keteranganSuper').value; // Mengambil nilai dari kotak input
+        const ketInput = document.getElementById('keteranganSuper').value; 
         
         if(!namaSuper) return alert("Isi nama superintendent!");
 
