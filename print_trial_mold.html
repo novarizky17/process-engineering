@@ -7,9 +7,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* === PENGATURAN PRINT === */
+        /* === PENGATURAN PRINT UTAMA === */
         @page { 
-            size: A4 landscape; 
+            size: A4 landscape;  /* Wajib Landscape */
             margin: 5mm; 
         }
 
@@ -18,12 +18,16 @@
                 padding: 0; margin: 0; background: white !important; 
                 -webkit-print-color-adjust: exact; 
                 width: 100%;
+                height: 100%;
+                transform: scale(1); /* Pastikan skala 100% */
             }
             .no-print { display: none !important; }
             .document-page { 
                 border: none !important; width: 100% !important; 
                 margin: 0 !important; padding: 0 !important; 
                 box-shadow: none !important;
+                /* Trik CSS untuk memaksa orientasi jika @page gagal */
+                min-height: auto !important; 
             }
             table { width: 100% !important; }
             .table-official, .table-official th, .table-official td { border: 1pt solid black !important; }
@@ -32,11 +36,16 @@
 
         body { font-family: 'Arial', sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
         
-        /* LAYOUT KERTAS */
+        /* LAYOUT KERTAS LANDSCAPE (297mm x 210mm) */
         .document-page { 
-            background: white; width: 290mm; min-height: 200mm; 
-            margin: 0 auto; padding: 10mm; 
-            border: 1px solid #ccc; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            background: white; 
+            width: 297mm;  /* Lebar A4 Landscape */
+            min-height: 210mm; /* Tinggi A4 Landscape */
+            margin: 0 auto; 
+            padding: 10mm; 
+            border: 1px solid #ccc; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
         
         /* === HEADER === */
@@ -122,13 +131,13 @@
         
         <div class="header-box">
             <div class="header-cell logo-area"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO"></div>
-            <div class="header-cell title-area">LAPORAN TRIAL MOLD (PRE-PRODUCTION)</div>
+            <div class="header-cell title-area">LAPORAN VERIFIKASI TRIAL MOLD (PRE-PRODUCTION)</div>
             <div class="header-cell meta-area">
                 <table class="meta-table">
-                    <tr><td>NO DOKUMEN</td><td>: </td></tr>
-                    <tr><td>REVISI</td><td>: </td></tr>
-                    <tr><td>TANGGAL</td><td>: </td></tr>
-                    <tr><td>HALAMAN</td><td>: </td></tr>
+                    <tr><td>NO DOKUMEN</td><td>: FRM-ENG-002</td></tr>
+                    <tr><td>REVISI</td><td>: 00</td></tr>
+                    <tr><td>TANGGAL</td><td>: 01-01-2026</td></tr>
+                    <tr><td>HALAMAN</td><td>: 1 DARI 1</td></tr>
                 </table>
             </div>
         </div>
@@ -221,9 +230,7 @@
         }
 
         function renderReport(record) {
-            // PERBAIKAN DISINI: MENGAMBIL project_name
             document.getElementById('disp-project').innerText = record.project_name || '-'; 
-            
             document.getElementById('disp-mold').innerText = record.mold_code;
             document.getElementById('disp-machine').innerText = record.machine_name;
             document.getElementById('disp-date').innerText = record.trial_date;
