@@ -9,7 +9,7 @@
     <style>
         /* === PENGATURAN PRINT (LANDSCAPE) === */
         @page { 
-            size: A4 landscape; /* UBAH KE LANDSCAPE */
+            size: A4 landscape; 
             margin: 10mm; 
         }
 
@@ -35,11 +35,11 @@
 
         body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
         
-        /* Container Kertas A4 Landscape (Screen View) */
+        /* Container Kertas A4 Landscape */
         .document-page { 
             background: white; 
-            width: 297mm; /* Lebar A4 Landscape */
-            min-height: 210mm; /* Tinggi A4 Landscape */
+            width: 297mm; 
+            min-height: 210mm; 
             margin: 0 auto; 
             padding: 15mm; 
             border: 1px solid #ccc; 
@@ -133,7 +133,6 @@
             <div class="info-col">
                 <div class="info-item"><span class="info-label">KODE MOLD</span>: <span class="info-val" id="disp-mold">-</span></div>
                 <div class="info-item"><span class="info-label">PIC TRIAL</span>: <span class="info-val" id="disp-pic">-</span></div>
-                <div class="info-item"><span class="info-label">STATUS</span>: <span class="info-val" id="disp-status">VERIFIED</span></div>
             </div>
         </div>
 
@@ -238,13 +237,11 @@
             let globalNo = 1;
 
             sections.forEach(sec => {
-                // Section Header Row
                 tbody.innerHTML += `<tr><td colspan="4" class="section-row">${sec.title}</td></tr>`;
                 
                 const items = record[sec.key]; // JSONB data
                 
                 if (items) {
-                    // Loop item dalam JSONB
                     Object.entries(items).forEach(([itemName, val]) => {
                         let statusClass = "status-ok";
                         if (val.status === 'NG') statusClass = "status-ng";
