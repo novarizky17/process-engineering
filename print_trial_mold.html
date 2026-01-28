@@ -7,36 +7,44 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* === SETTING KERTAS UTAMA === */
+        /* === SETTING KERTAS UTAMA (FULL BLEED) === */
         @page { 
             size: A4 landscape; 
-            margin: 0; /* Margin NOL agar browser tidak menambah jarak putih */
+            margin: 5mm; /* Margin tipis 5mm agar tidak terpotong printer, tapi maksimal */
+        }
+
+        /* RESET CSS AGAR KONSISTEN */
+        * { 
+            box-sizing: border-box; 
+            -webkit-print-color-adjust: exact !important;   /* Paksa warna background muncul */
+            print-color-adjust: exact !important; 
         }
 
         body { 
             background-color: #ccc; 
-            font-family: 'Arial Narrow', Arial, sans-serif; /* Font ramping */
+            font-family: 'Arial Narrow', Arial, sans-serif; /* Font ramping hemat tempat */
             margin: 0; padding: 20px;
             display: flex; justify-content: center;
         }
 
-        /* === TAMPILAN DI LAYAR === */
+        /* === TAMPILAN DI LAYAR (PREVIEW) === */
         .sheet {
             background: white;
-            width: 297mm;
-            height: 210mm;
-            padding: 5mm; /* Padding tipis */
+            width: 297mm;  /* Lebar A4 Landscape */
+            height: 210mm; /* Tinggi A4 Landscape */
+            padding: 10mm; /* Padding normal di layar */
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             box-sizing: border-box;
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* === MODE PRINT (RAHASIA FIT 1 HALAMAN) === */
+        /* === MODE PRINT (RAHASIA FIT 1 HALAMAN PENUH) === */
         @media print {
             body { 
                 background: white; margin: 0; padding: 0;
                 width: 100vw; height: 100vh;
-                overflow: hidden; /* Hilangkan scrollbar */
             }
             .no-print { display: none !important; }
             
@@ -44,101 +52,101 @@
                 width: 100%;
                 height: 100%; 
                 box-shadow: none;
-                padding: 5mm; 
                 margin: 0;
+                padding: 0; /* Hilangkan padding container, ikut margin @page */
                 border: none;
-                
-                /* TEKNIK PRESS: SKALA 85% - PASTI MUAT 1 HALAMAN */
-                transform: scale(0.85); 
-                transform-origin: top left; 
-                width: 117%; /* Kompensasi lebar (100 / 0.85) */
+                display: block; /* Pastikan block layout */
             }
+
+            /* OPTIMALISASI RUANG */
+            .header-box { margin-bottom: 5px !important; }
+            .info-bar { margin-bottom: 5px !important; }
+            .footer-container { margin-top: auto !important; padding-bottom: 0 !important; } /* Dorong footer ke bawah */
         }
 
-        /* === GAYA ELEMENT (SUPER COMPACT) === */
+        /* === GAYA ELEMENT === */
         
         /* Header Box */
         .header-box { 
-            display: flex; border: 2px solid black; height: 60px; margin-bottom: 5px; 
+            display: flex; border: 2px solid black; height: 70px; margin-bottom: 10px; width: 100%;
         }
-        .logo-area { width: 90px; display: flex; align-items: center; justify-content: center; border-right: 2px solid black; }
-        .logo-area img { height: 40px; }
+        .logo-area { width: 100px; display: flex; align-items: center; justify-content: center; border-right: 2px solid black; }
+        .logo-area img { height: 50px; }
         
         .title-area { 
             flex: 1; display: flex; align-items: center; justify-content: center; 
-            font-size: 22px; font-weight: 900; text-transform: uppercase; 
+            font-size: 24px; font-weight: 900; text-transform: uppercase; 
             border-right: 2px solid black; background-color: #f8fafc; letter-spacing: 1px;
         }
         
-        .meta-area { width: 180px; font-size: 9px; padding: 2px; }
+        .meta-area { width: 200px; font-size: 9px; padding: 4px; display: flex; align-items: center; }
         .meta-table { width: 100%; border: none; }
-        .meta-table td { padding: 0 2px; font-weight: 600; border: none; line-height: 1.2; }
+        .meta-table td { padding: 1px; font-weight: 600; border: none; line-height: 1.2; }
 
         /* Info Bar Compact */
         .info-bar {
-            border: 1px solid black; padding: 3px; margin-bottom: 5px;
+            border: 1px solid black; padding: 5px 10px; margin-bottom: 10px; width: 100%;
             display: flex; justify-content: space-between;
-            font-size: 10px; font-weight: bold; background: #fff;
+            font-size: 11px; font-weight: bold; background: #fff;
         }
-        .info-group span { font-weight: normal; margin-left: 5px; text-transform: uppercase; }
+        .info-group span { font-weight: normal; margin-left: 5px; text-transform: uppercase; border-bottom: 1px dotted #999; }
 
-        /* Tabel Utama */
+        /* Tabel Utama (Auto Width & Height) */
         .main-table { 
-            width: 100%; border-collapse: collapse; border: 1px solid black; 
-            font-size: 9px; /* Font kecil agar muat */
+            width: 100%; border-collapse: collapse; border: 2px solid black; 
+            font-size: 10px; /* Ukuran font pas */
+            flex-grow: 1; /* Agar tabel mengisi ruang kosong */
         }
         .main-table th { 
-            background-color: #334155; color: white; padding: 3px; 
+            background-color: #334155; color: white; padding: 5px; 
             border: 1px solid black; text-transform: uppercase; 
-            -webkit-print-color-adjust: exact; 
         }
         .main-table td { 
-            border: 1px solid black; padding: 1px 4px; 
-            height: 16px; /* Tinggi baris dipaksa kecil */
+            border: 1px solid black; padding: 2px 5px; 
+            height: 20px; /* Tinggi baris minimal agar tidak terlalu rapat */
             vertical-align: middle;
         }
 
         /* Judul Section */
         .sect-title td { 
-            background-color: #e2e8f0; font-weight: 800; font-size: 9px; 
-            padding: 2px 5px; -webkit-print-color-adjust: exact; 
+            background-color: #e2e8f0; font-weight: 800; font-size: 10px; 
+            padding: 4px 8px; border-top: 2px solid black; border-bottom: 1px solid black;
         }
 
-        /* Mencegah Page Break di tengah baris/tabel */
+        /* Mencegah Page Break */
         tr { page-break-inside: avoid; }
-        .main-table { page-break-inside: auto; }
 
         /* Status & Warna */
         .st-ok { color: green; font-weight: 800; text-align: center; }
-        .st-ng { background: #fee2e2; color: red; font-weight: 800; text-align: center; -webkit-print-color-adjust: exact; }
+        .st-ng { background: #fee2e2; color: red; font-weight: 800; text-align: center; }
         .st-na { color: #aaa; font-style: italic; text-align: center; }
 
         /* Footer Tanda Tangan */
         .footer-container {
-            margin-top: 10px;
+            margin-top: 15px;
             display: flex;
             justify-content: space-between;
-            padding: 0 30px;
-            page-break-inside: avoid; /* Jangan sampai terpotong */
+            padding: 0 50px;
+            page-break-inside: avoid;
+            width: 100%;
         }
         .ttd-box {
-            width: 180px; border: 1px solid black; text-align: center;
+            width: 200px; border: 1px solid black; text-align: center;
         }
         .ttd-header {
-            background: #eee; font-size: 8px; font-weight: bold; 
-            border-bottom: 1px solid black; padding: 2px; 
-            -webkit-print-color-adjust: exact;
+            background: #eee; font-size: 9px; font-weight: bold; 
+            border-bottom: 1px solid black; padding: 4px; 
         }
         .ttd-area {
-            height: 45px; display: flex; align-items: center; justify-content: center;
+            height: 60px; display: flex; align-items: center; justify-content: center;
         }
-        .ttd-area img { height: 35px; }
+        .ttd-area img { height: 50px; }
         .ttd-name {
-            border-top: 1px solid black; font-size: 9px; font-weight: bold; 
-            padding: 2px; text-transform: uppercase;
+            border-top: 1px solid black; font-size: 10px; font-weight: bold; 
+            padding: 4px; text-transform: uppercase;
         }
 
-        /* Panel Kontrol (Tidak ikut diprint) */
+        /* Panel Kontrol */
         .no-print {
             position: fixed; top: 20px; left: 20px; width: 220px;
             background: white; padding: 15px; border-radius: 8px;
