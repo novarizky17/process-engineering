@@ -3,106 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REPORT TRIAL MOLD - OFFICIAL PRINT (LANDSCAPE)</title>
+    <title>REPORT TRIAL MOLD - FULL WIDTH</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* === PENGATURAN PRINT (LANDSCAPE) === */
+        /* === PENGATURAN PRINT UTAMA === */
         @page { 
             size: A4 landscape; 
-            margin: 15mm; 
+            margin: 5mm; /* Margin printer dibuat tipis (0.5cm) agar kertas maksimal */
         }
 
         @media print {
             body { 
                 padding: 0; margin: 0; background: white !important; 
                 -webkit-print-color-adjust: exact; 
-                display: block;
+                width: 100%;
             }
             .no-print { display: none !important; }
+            
             .document-page { 
-                box-shadow: none !important; 
                 border: none !important; 
                 width: 100% !important; 
-                max-width: none !important;
-                margin: 0 auto !important; 
+                margin: 0 !important; 
                 padding: 0 !important;
+                box-shadow: none !important;
             }
-            /* Garis Tabel & Header Tetap Tegas */
-            .table-official, .table-official th, .table-official td { border: 1pt solid black !important; }
-            .header-box, .header-cell { border: 1.5pt solid black !important; }
+
+            /* Paksa Tabel Penuh */
+            table { width: 100% !important; }
+            
+            /* Garis Hitam Pekat */
+            .table-official, .table-official th, .table-official td { border: 1.5pt solid black !important; }
+            .header-box, .header-cell { border: 2pt solid black !important; }
         }
 
-        body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
+        body { font-family: 'Arial', sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
         
-        /* Container Kertas A4 Landscape */
+        /* TAMPILAN DI LAYAR (PREVIEW) */
         .document-page { 
             background: white; 
-            width: 297mm; 
-            min-height: 210mm; 
+            width: 290mm; /* Lebar A4 Landscape Hampir Full */
+            min-height: 200mm; 
             margin: 0 auto; 
-            padding: 15mm; 
+            padding: 10mm; /* Padding dalam dokumen */
             border: 1px solid #ccc; 
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            position: relative;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
         
-        /* HEADER STYLE */
-        .header-box { border: 2px solid black; margin-bottom: 15px; display: table; width: 100%; border-collapse: collapse; }
-        .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
+        /* === HEADER === */
+        .header-box { border: 2px solid black; margin-bottom: 20px; display: table; width: 100%; border-collapse: collapse; }
+        .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; padding: 5px; }
         .header-cell:last-child { border-right: none; }
-        .logo-area { width: 120px; padding: 5px; text-align: center; }
-        .logo-area img { width: 100px; height: auto; display: block; margin: 0 auto; }
-        .title-area { text-align: center; font-size: 16pt; font-weight: bold; padding: 5px; text-transform: uppercase; color: #000; }
         
-        .meta-area { width: 300px; font-size: 9pt; padding: 5px; text-transform: uppercase; color: #000; font-weight: bold; }
+        .logo-area { width: 10%; text-align: center; }
+        .logo-area img { width: 80px; height: auto; display: block; margin: 0 auto; }
+        
+        .title-area { 
+            text-align: center; 
+            font-size: 20pt; /* Judul Besar */
+            font-weight: 900; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            width: 60%;
+        }
+        
+        .meta-area { width: 30%; font-size: 10pt; font-weight: bold; }
         .meta-table { width: 100%; border-collapse: collapse; }
-        .meta-table td { padding: 2px 4px; vertical-align: middle; border: none !important; white-space: nowrap; }
+        .meta-table td { padding: 3px; border: none !important; }
 
-        /* INFO HEADER DATA (SESUAI REQUEST) */
+        /* === INFO GRID === */
         .info-grid { 
             display: grid; 
-            grid-template-columns: 1fr 1fr; /* 2 Kolom */
-            gap: 20px; 
-            margin-bottom: 20px; 
-            border-bottom: 2px solid black; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 40px; /* Jarak antar kolom info lebar */
+            margin-bottom: 25px; 
+            border-bottom: 3px double black; 
             padding-bottom: 15px; 
         }
-        .info-item { display: flex; font-size: 11pt; font-weight: bold; align-items: center; margin-bottom: 8px; }
-        .info-label { width: 180px; } /* Label lebih lebar */
-        .info-val { border-bottom: 1px dotted black; flex: 1; padding-left: 5px; text-transform: uppercase; font-weight: normal; }
+        .info-item { display: flex; font-size: 12pt; font-weight: bold; align-items: center; margin-bottom: 8px; }
+        .info-label { width: 180px; font-weight: 800; } 
+        .info-val { border-bottom: 1px solid black; flex: 1; padding-left: 10px; text-transform: uppercase; font-weight: 500; }
 
-        /* TABLE STYLE */
-        .table-official { width: 100%; border-collapse: collapse; border: 2px solid black; text-transform: uppercase; color: #000; margin-bottom: 20px; table-layout: fixed; }
-        .table-official th, .table-official td { border: 1px solid black; padding: 5px; font-size: 9pt; vertical-align: middle; }
-        .table-official th { background-color: #e5e5e5; font-weight: bold; text-align: center; height: 30px; }
+        /* === TABEL DATA (YANG DIPERBESAR) === */
+        .table-official { width: 100%; border-collapse: collapse; border: 2px solid black; color: #000; margin-bottom: 30px; }
+        .table-official th { background-color: #ddd; font-weight: 900; text-align: center; padding: 8px; font-size: 11pt; border: 1px solid black; }
+        .table-official td { border: 1px solid black; padding: 6px 8px; font-size: 11pt; vertical-align: middle; } /* Font Isi Tabel Besar */
         
-        .col-no { width: 40px; text-align: center; }
-        .col-item { text-align: left; font-weight: bold; width: 40%; }
-        .col-status { width: 80px; text-align: center; font-weight: bold; }
-        .col-note { font-style: italic; text-align: left; }
+        /* Lebar Kolom */
+        .col-no { width: 5%; text-align: center; }
+        .col-item { width: 40%; font-weight: bold; } /* Kolom Item Lebar */
+        .col-status { width: 10%; text-align: center; font-weight: bold; }
+        .col-note { width: 45%; font-style: italic; } /* Kolom Note Paling Lebar */
 
         .status-ok { color: black; }
-        .status-ng { color: white; background-color: #d32f2f; font-weight: bold; }
-        .status-na { color: #757575; background-color: #eee; }
+        .status-ng { background-color: #ef4444; color: white !important; font-weight: bold; -webkit-print-color-adjust: exact; }
+        .status-na { background-color: #e5e7eb; color: #6b7280; -webkit-print-color-adjust: exact; }
 
-        .section-row { background-color: #333; color: white; font-weight: bold; padding-left: 10px; font-size: 10pt; text-transform: uppercase; }
+        .section-row { 
+            background-color: #1e293b; color: white !important; 
+            font-weight: bold; padding: 8px 15px; font-size: 12pt; 
+            text-transform: uppercase; letter-spacing: 1px;
+            -webkit-print-color-adjust: exact; 
+        }
 
-        /* FOOTER TTD */
-        .footer-box { margin-top: 30px; display: flex; justify-content: flex-end; padding-right: 50px; }
-        .ttd-container { border: 1px solid black; width: 220px; text-align: center; padding: 5px; }
-        .ttd-title { font-weight: bold; font-size: 9pt; border-bottom: 1px solid black; padding-bottom: 5px; margin-bottom: 5px; }
-        .ttd-img { height: 80px; display: flex; align-items: center; justify-content: center; }
-        .ttd-img img { max-height: 70px; max-width: 100%; }
-        .ttd-name { font-weight: bold; font-size: 10pt; text-decoration: underline; margin-top: 5px; }
+        /* === FOOTER TTD === */
+        .footer-box { margin-top: 20px; display: flex; justify-content: flex-end; padding-right: 20px; }
+        .ttd-container { border: 2px solid black; width: 250px; text-align: center; }
+        .ttd-title { font-weight: bold; font-size: 10pt; border-bottom: 2px solid black; padding: 5px; background: #eee; }
+        .ttd-img { height: 100px; display: flex; align-items: center; justify-content: center; }
+        .ttd-img img { max-height: 90px; max-width: 100%; }
+        .ttd-name { font-weight: bold; font-size: 11pt; text-decoration: underline; padding: 5px; border-top: 1px solid black; }
 
         /* CONTROLS (NO PRINT) */
-        .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px; padding: 20px; background: #fff; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 50; }
-        .no-print input, .no-print select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
-        .btn { padding: 10px 20px; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; font-size: 12px; text-transform: uppercase; }
-        .btn-search { background: #003366; }
-        .btn-print { background: #222; }
-        .btn-back { background: #555; }
+        .no-print { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; padding: 20px; background: #fff; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 50; }
+        .no-print input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .btn { padding: 10px 25px; border-radius: 5px; font-weight: bold; color: white; cursor: pointer; text-transform: uppercase; }
+        .btn-blue { background: #2563eb; } .btn-black { background: #1e293b; } .btn-gray { background: #64748b; }
     </style>
 </head>
 <body>
@@ -110,9 +126,9 @@
     <div class="no-print">
         <input type="text" id="filter-mold" placeholder="CARI KODE MOLD...">
         <input type="date" id="filter-date">
-        <button onclick="fetchData()" class="btn btn-search">TAMPILKAN DATA</button>
-        <button onclick="window.print()" class="btn btn-print">PRINT REPORT</button>
-        <button onclick="window.location.href='dashboard.html'" class="btn btn-back">KEMBALI</button>
+        <button onclick="fetchData()" class="btn btn-blue">CARI DATA</button>
+        <button onclick="window.print()" class="btn btn-black">🖨️ CETAK FULLSCREEN</button>
+        <button onclick="window.location.href='dashboard.html'" class="btn btn-gray">KEMBALI</button>
     </div>
 
     <div class="document-page" id="report-container">
@@ -132,7 +148,7 @@
 
         <div class="info-grid">
             <div>
-                <div class="info-item"><span class="info-label">NAMA PROJECT / PRODUK</span>: <span class="info-val" id="disp-project">-</span></div>
+                <div class="info-item"><span class="info-label">PROJECT / PRODUK</span>: <span class="info-val" id="disp-project">-</span></div>
                 <div class="info-item"><span class="info-label">KODE MOLD</span>: <span class="info-val" id="disp-mold">-</span></div>
             </div>
             <div>
@@ -151,15 +167,14 @@
                 </tr>
             </thead>
             <tbody id="table-body">
-                <tr><td colspan="4" style="text-align:center; padding:30px; font-style:italic;">Silakan Cari Data Terlebih Dahulu...</td></tr>
+                <tr><td colspan="4" style="text-align:center; padding:40px; font-style:italic; font-size:14pt;">Silakan Cari Data Terlebih Dahulu...</td></tr>
             </tbody>
         </table>
 
         <div class="footer-box">
             <div class="ttd-container">
                 <div class="ttd-title">DIBUAT & DIKETAHUI OLEH</div>
-                <div class="ttd-img" id="signature-box">
-                    </div>
+                <div class="ttd-img" id="signature-box"></div>
                 <div class="ttd-name" id="signer-name">( ........................ )</div>
             </div>
         </div>
@@ -187,15 +202,10 @@
 
             const { data, error } = await query;
 
-            if (error) {
-                console.error(error);
-                alert("Gagal mengambil data.");
-                return;
-            }
-
+            if (error) return alert("Gagal mengambil data.");
+            
             if (data.length === 0) {
-                alert("Data Trial tidak ditemukan!");
-                document.getElementById('table-body').innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; font-weight:bold; color:red;">DATA TIDAK DITEMUKAN</td></tr>`;
+                document.getElementById('table-body').innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; font-weight:bold; color:red;">DATA TIDAK DITEMUKAN</td></tr>`;
                 clearInfo();
                 return;
             }
@@ -210,14 +220,11 @@
         }
 
         function renderReport(record) {
-            // 1. Render Header Info
-            // Mapping: Project diambil dari material_resin (sesuai request untuk isi field Project/Produk)
             document.getElementById('disp-project').innerText = record.material_resin || '-'; 
             document.getElementById('disp-mold').innerText = record.mold_code;
             document.getElementById('disp-machine').innerText = record.machine_name;
             document.getElementById('disp-date').innerText = record.trial_date;
 
-            // 2. Render Signature
             const sigBox = document.getElementById('signature-box');
             if (record.signature_data) {
                 sigBox.innerHTML = `<img src="${record.signature_data}" alt="Tanda Tangan">`;
@@ -226,7 +233,6 @@
             }
             document.getElementById('signer-name').innerText = `( ${record.pic_trial.toUpperCase()} )`;
 
-            // 3. Render Table Body
             const tbody = document.getElementById('table-body');
             tbody.innerHTML = "";
 
@@ -244,7 +250,7 @@
             sections.forEach(sec => {
                 tbody.innerHTML += `<tr><td colspan="4" class="section-row">${sec.title}</td></tr>`;
                 
-                const items = record[sec.key]; // JSONB data
+                const items = record[sec.key];
                 
                 if (items) {
                     Object.entries(items).forEach(([itemName, val]) => {
@@ -262,8 +268,6 @@
                         `;
                         tbody.innerHTML += rowHtml;
                     });
-                } else {
-                    tbody.innerHTML += `<tr><td colspan="4" style="text-align:center; color:#999;">Tidak ada data checklist</td></tr>`;
                 }
             });
         }
