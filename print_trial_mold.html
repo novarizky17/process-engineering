@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REPORT TRIAL MOLD - FIT ONE PAGE</title>
+    <title>REPORT TRIAL MOLD - ONE PAGE PRESS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* === SETTING KERTAS === */
+        /* === SETTING KERTAS UTAMA === */
         @page { 
             size: A4 landscape; 
             margin: 0; /* Margin NOL agar browser tidak menambah jarak putih */
         }
 
         body { 
-            font-family: 'Arial Narrow', Arial, sans-serif; /* Font ramping */
             background-color: #ccc; 
+            font-family: 'Arial Narrow', Arial, sans-serif; /* Font ramping */
             margin: 0; padding: 20px;
             display: flex; justify-content: center;
         }
@@ -25,7 +25,7 @@
             background: white;
             width: 297mm;
             height: 210mm;
-            padding: 10mm;
+            padding: 5mm; /* Padding tipis */
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             box-sizing: border-box;
             position: relative;
@@ -42,66 +42,71 @@
             
             .sheet {
                 width: 100%;
-                height: 100%; /* Paksa tinggi seukuran kertas */
+                height: 100%; 
                 box-shadow: none;
-                padding: 5mm; /* Padding tipis saat print */
+                padding: 5mm; 
                 margin: 0;
+                border: none;
                 
-                /* TEKNIK PRESS: SKALA 85% */
+                /* TEKNIK PRESS: SKALA 85% - PASTI MUAT 1 HALAMAN */
                 transform: scale(0.85); 
-                transform-origin: top center; /* Titik tengah atas */
+                transform-origin: top left; 
                 width: 117%; /* Kompensasi lebar (100 / 0.85) */
             }
         }
 
-        /* === GAYA ELEMENT (DIPERKETAT) === */
+        /* === GAYA ELEMENT (SUPER COMPACT) === */
         
         /* Header Box */
         .header-box { 
-            display: flex; border: 2px solid black; height: 65px; margin-bottom: 5px; 
+            display: flex; border: 2px solid black; height: 60px; margin-bottom: 5px; 
         }
-        .logo-area { width: 100px; display: flex; align-items: center; justify-content: center; border-right: 2px solid black; }
-        .logo-area img { height: 45px; }
+        .logo-area { width: 90px; display: flex; align-items: center; justify-content: center; border-right: 2px solid black; }
+        .logo-area img { height: 40px; }
         
         .title-area { 
             flex: 1; display: flex; align-items: center; justify-content: center; 
-            font-size: 24px; font-weight: 900; text-transform: uppercase; 
+            font-size: 22px; font-weight: 900; text-transform: uppercase; 
             border-right: 2px solid black; background-color: #f8fafc; letter-spacing: 1px;
         }
         
-        .meta-area { width: 200px; font-size: 9px; padding: 2px; }
+        .meta-area { width: 180px; font-size: 9px; padding: 2px; }
         .meta-table { width: 100%; border: none; }
-        .meta-table td { padding: 0 2px; font-weight: 600; border: none; }
+        .meta-table td { padding: 0 2px; font-weight: 600; border: none; line-height: 1.2; }
 
         /* Info Bar Compact */
         .info-bar {
-            border: 1px solid black; padding: 4px; margin-bottom: 5px;
+            border: 1px solid black; padding: 3px; margin-bottom: 5px;
             display: flex; justify-content: space-between;
-            font-size: 11px; font-weight: bold; background: #fff;
+            font-size: 10px; font-weight: bold; background: #fff;
         }
         .info-group span { font-weight: normal; margin-left: 5px; text-transform: uppercase; }
 
         /* Tabel Utama */
         .main-table { 
             width: 100%; border-collapse: collapse; border: 1px solid black; 
-            font-size: 10px; /* Font kecil agar muat */
+            font-size: 9px; /* Font kecil agar muat */
         }
         .main-table th { 
-            background-color: #334155; color: white; padding: 4px; 
+            background-color: #334155; color: white; padding: 3px; 
             border: 1px solid black; text-transform: uppercase; 
             -webkit-print-color-adjust: exact; 
         }
         .main-table td { 
-            border: 1px solid black; padding: 2px 5px; 
-            height: 18px; /* Tinggi baris dipaksa kecil */
+            border: 1px solid black; padding: 1px 4px; 
+            height: 16px; /* Tinggi baris dipaksa kecil */
             vertical-align: middle;
         }
 
         /* Judul Section */
         .sect-title td { 
-            background-color: #e2e8f0; font-weight: 800; font-size: 10px; 
-            padding: 3px 5px; -webkit-print-color-adjust: exact; 
+            background-color: #e2e8f0; font-weight: 800; font-size: 9px; 
+            padding: 2px 5px; -webkit-print-color-adjust: exact; 
         }
+
+        /* Mencegah Page Break di tengah baris/tabel */
+        tr { page-break-inside: avoid; }
+        .main-table { page-break-inside: auto; }
 
         /* Status & Warna */
         .st-ok { color: green; font-weight: 800; text-align: center; }
@@ -113,24 +118,24 @@
             margin-top: 10px;
             display: flex;
             justify-content: space-between;
-            padding: 0 40px;
+            padding: 0 30px;
             page-break-inside: avoid; /* Jangan sampai terpotong */
         }
         .ttd-box {
-            width: 200px; border: 1px solid black; text-align: center;
+            width: 180px; border: 1px solid black; text-align: center;
         }
         .ttd-header {
-            background: #eee; font-size: 9px; font-weight: bold; 
-            border-bottom: 1px solid black; padding: 3px; 
+            background: #eee; font-size: 8px; font-weight: bold; 
+            border-bottom: 1px solid black; padding: 2px; 
             -webkit-print-color-adjust: exact;
         }
         .ttd-area {
-            height: 50px; display: flex; align-items: center; justify-content: center;
+            height: 45px; display: flex; align-items: center; justify-content: center;
         }
-        .ttd-area img { height: 40px; }
+        .ttd-area img { height: 35px; }
         .ttd-name {
-            border-top: 1px solid black; font-size: 10px; font-weight: bold; 
-            padding: 3px; text-transform: uppercase;
+            border-top: 1px solid black; font-size: 9px; font-weight: bold; 
+            padding: 2px; text-transform: uppercase;
         }
 
         /* Panel Kontrol (Tidak ikut diprint) */
@@ -246,20 +251,23 @@
             if(error || !data.length) return alert("Data tidak ditemukan!");
             
             const r = data[0];
+            
+            // ISI INFO UTAMA
             document.getElementById('d-project').innerText = r.project_name || '-';
             document.getElementById('d-mold').innerText = r.mold_code;
             document.getElementById('d-mesin').innerText = r.machine_name;
             document.getElementById('d-date').innerText = r.trial_date;
             document.getElementById('d-pic').innerText = r.pic_trial;
 
-            // TTD PIC
+            // ISI TANDA TANGAN PIC (KIRI)
             document.getElementById('name-pic').innerText = `( ${r.pic_trial} )`;
-            document.getElementById('sig-pic').innerHTML = r.signature_data ? `<img src="${r.signature_data}">` : '<span style="font-size:8px;color:red">BELUM TTD</span>';
+            document.getElementById('sig-pic').innerHTML = r.signature_data ? `<img src="${r.signature_data}">` : '<span style="font-size:8px;color:red;">BELUM TTD</span>';
 
-            // TTD SUPERINTENDENT
+            // ISI TANDA TANGAN SUPERINTENDENT (KANAN) - Jika sudah di-approve
             document.getElementById('name-super').innerText = r.nama_superintendent ? `( ${r.nama_superintendent} )` : '( ................... )';
             document.getElementById('sig-super').innerHTML = r.signature_superintendent ? `<img src="${r.signature_superintendent}">` : '';
 
+            // RENDER TABEL
             const sections = [
                 {k:'check_machine', t:'1. MESIN INJEKSI'}, {k:'check_mold', t:'2. MOLD & CETAKAN'}, 
                 {k:'check_aux', t:'3. AUXILIARY'}, {k:'check_material', t:'4. MATERIAL'},
