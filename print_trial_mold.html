@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FORM CHECKLIST TRIAL MOLD - PRINT</title>
+    <title>REPORT TRIAL MOLD - OFFICIAL PRINT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* PENGATURAN PRINT AGAR TENGAH DAN GARIS TEGAS */
+        /* === PENGATURAN PRINT (SAMA SEPERTI HISTORY) === */
         @page { 
-            size: A4 portrait; /* Trial Mold lebih cocok Portrait karena item ke bawah */
+            size: A4 portrait; /* Trial lebih cocok Portrait karena itemnya banyak ke bawah */
             margin: 10mm; 
         }
 
@@ -16,104 +17,146 @@
             body { 
                 padding: 0; margin: 0; background: white !important; 
                 -webkit-print-color-adjust: exact; 
-                display: block; /* Normal block flow untuk page break */
+                display: block;
             }
             .no-print { display: none !important; }
             .document-page { 
                 box-shadow: none !important; 
-                border: 1.5pt solid black !important; 
+                border: none !important; /* Border luar ilang pas print biar bersih */
                 width: 100% !important; 
                 margin: 0 auto !important; 
-                padding: 10px !important;
-                page-break-after: always; /* Pastikan tiap form di halaman baru */
+                padding: 0 !important;
             }
-            .table-official, .table-official th, .table-official td {
-                border: 1pt solid black !important;
-            }
-            .header-box, .header-cell, .info-grid, .info-val {
-                border: 1.5pt solid black !important;
-            }
+            /* Garis Tabel & Header Tetap Tegas */
+            .table-official, .table-official th, .table-official td { border: 1pt solid black !important; }
+            .header-box, .header-cell { border: 1.5pt solid black !important; }
         }
 
         body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
         
-        /* Container Utama */
+        /* Container Kertas A4 */
         .document-page { 
             background: white; 
-            width: 210mm; 
+            width: 210mm; /* A4 Width */
             min-height: 297mm;
-            margin: 0 auto 20px auto; 
-            padding: 20px; 
-            border: 2px solid #000; 
-            box-sizing: border-box; 
+            margin: 0 auto; 
+            padding: 15mm; 
+            border: 1px solid #ccc; 
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
         
-        /* HEADER */
+        /* HEADER STYLE */
         .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
-        .logo-area { width: 150px; padding: 5px; text-align: center; }
-        .logo-area img { width: 130px; height: auto; display: block; margin: 0 auto; }
-        .title-area { text-align: center; font-size: 16pt; font-weight: bold; padding: 10px; text-transform: uppercase; color: #000; }
+        .logo-area { width: 15%; padding: 5px; text-align: center; }
+        .logo-area img { width: 80px; height: auto; display: block; margin: 0 auto; }
+        .title-area { text-align: center; font-size: 14pt; font-weight: bold; padding: 5px; text-transform: uppercase; color: #000; width: 55%; }
         
-        .meta-area { width: 320px; font-size: 9pt; padding: 5px; text-transform: uppercase; color: #000; font-weight: bold; }
+        .meta-area { width: 30%; font-size: 8pt; padding: 5px; text-transform: uppercase; color: #000; font-weight: bold; }
         .meta-table { width: 100%; border-collapse: collapse; }
-        .meta-table td { padding: 2px 5px; vertical-align: middle; border: none !important; white-space: nowrap; height: 25px; }
+        .meta-table td { padding: 1px 2px; vertical-align: middle; border: none !important; white-space: nowrap; }
 
-        /* INFO GRID (Pengganti Meta Info Flex agar lebih rapi untuk data spesifik) */
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px; border: 2px solid black; padding: 10px; font-size: 10pt; }
-        .info-row { display: flex; margin-bottom: 5px; align-items: center; }
-        .info-label { width: 140px; font-weight: bold; }
-        .info-value { border-bottom: 1px dotted black; flex: 1; font-weight: bold; text-transform: uppercase; padding-left: 5px; }
+        /* INFO HEADER DATA */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid black; padding-bottom: 10px; }
+        .info-item { display: flex; font-size: 9pt; font-weight: bold; align-items: center; }
+        .info-label { width: 100px; }
+        .info-val { border-bottom: 1px dotted black; flex: 1; padding-left: 5px; text-transform: uppercase; }
 
-        /* TABLE STYLING */
-        .table-official { width: 100%; border-collapse: collapse; border: 2px solid black; text-transform: uppercase; color: #000; margin-top: 10px; }
-        .table-official th, .table-official td { border: 1.5px solid black; padding: 4px; font-size: 9pt; text-align: center; vertical-align: middle; color: #000; }
-        .table-official th { background-color: #e5e5e5; font-weight: bold; }
-
-        .col-no { width: 40px; }
-        .col-item { text-align: left !important; padding-left: 10px !important; font-weight: bold; }
-        .col-status { width: 80px; font-weight: bold; }
-        .col-ket { width: 200px; text-align: left !important; padding-left: 5px !important; }
+        /* TABLE STYLE */
+        .table-official { width: 100%; border-collapse: collapse; border: 2px solid black; text-transform: uppercase; color: #000; margin-bottom: 20px; }
+        .table-official th, .table-official td { border: 1px solid black; padding: 4px; font-size: 8pt; vertical-align: middle; }
+        .table-official th { background-color: #e5e5e5; font-weight: bold; text-align: center; }
         
-        .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 10px !important; font-weight: bold; height: 30px; border-top: 2px solid black; }
-        
-        .status-ok { color: green; }
-        .status-ng { color: red; }
+        .col-no { width: 30px; text-align: center; }
+        .col-item { text-align: left; font-weight: bold; }
+        .col-status { width: 60px; text-align: center; font-weight: bold; }
+        .col-note { width: 150px; font-style: italic; }
 
-        /* FOOTER SIGNATURE */
-        .footer-flex { display: flex; justify-content: space-around; margin-top: 30px; text-transform: uppercase; }
-        .sig-box { width: 30%; text-align: center; }
-        .sig-frame { border: 1.5px solid black; width: 100%; height: 90px; margin: 5px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
-        .sig-frame img { max-height: 80px; width: auto; filter: grayscale(1) contrast(2); }
-        .name-line { border-top: 1.5px solid black; margin-top: 5px; padding-top: 3px; font-weight: bold; }
+        .status-ok { color: black; }
+        .status-ng { color: white; background-color: #d32f2f; font-weight: bold; }
+        .status-na { color: #757575; background-color: #eee; }
 
-        /* NO PRINT CONTROLS */
-        .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .no-print input, .no-print select, .no-print button { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .section-row { background-color: #333; color: white; font-weight: bold; padding-left: 10px; font-size: 9pt; }
+
+        /* FOOTER TTD */
+        .footer-box { margin-top: 20px; display: flex; justify-content: flex-end; }
+        .ttd-container { border: 1px solid black; width: 200px; text-align: center; padding: 5px; }
+        .ttd-title { font-weight: bold; font-size: 9pt; border-bottom: 1px solid black; padding-bottom: 5px; margin-bottom: 5px; }
+        .ttd-img { height: 70px; display: flex; align-items: center; justify-content: center; }
+        .ttd-img img { max-height: 60px; max-width: 100%; }
+        .ttd-name { font-weight: bold; font-size: 9pt; text-decoration: underline; margin-top: 5px; }
+
+        /* CONTROLS (NO PRINT) */
+        .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px; padding: 20px; background: #fff; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 50; }
+        .no-print input, .no-print select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+        .btn { padding: 10px 20px; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; font-size: 12px; text-transform: uppercase; }
+        .btn-search { background: #003366; }
+        .btn-print { background: #222; }
+        .btn-back { background: #555; }
     </style>
 </head>
 <body>
 
     <div class="no-print">
-        <select id="filter-bulan">
-            <option value="">-- PILIH BULAN --</option>
-            <option value="01">JANUARI</option><option value="02">FEBRUARI</option><option value="03">MARET</option>
-            <option value="04">APRIL</option><option value="05">MEI</option><option value="06">JUNI</option>
-            <option value="07">JULI</option><option value="08">AGUSTUS</option><option value="09">SEPTEMBER</option>
-            <option value="10">OKTOBER</option><option value="11">NOVEMBER</option><option value="12">DESEMBER</option>
-        </select>
-        <input type="text" id="filter-mold" placeholder="CARI MOLD / MESIN...">
-        <button onclick="renderReport()" style="background: #003366; color: white;">CARI DATA</button>
-        <button onclick="window.print()" style="background: #222; color: white;">PRINT FORM</button>
-        <button onclick="window.location.href='dashboard.html'" style="background: #555; color: white;">KEMBALI</button>
+        <input type="text" id="filter-mold" placeholder="CARI KODE MOLD...">
+        <input type="date" id="filter-date">
+        <button onclick="fetchData()" class="btn btn-search">TAMPILKAN DATA</button>
+        <button onclick="window.print()" class="btn btn-print">PRINT REPORT</button>
+        <button onclick="window.location.href='dashboard.html'" class="btn btn-back">KEMBALI</button>
     </div>
 
-    <div id="report-container">
-        <div class="document-page" style="display:flex; align-items:center; justify-content:center; height:297mm;">
-            <h3 style="color:#ccc;">PILIH BULAN & KLIK CARI DATA</h3>
+    <div class="document-page" id="report-container">
+        
+        <div class="header-box">
+            <div class="header-cell logo-area"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO"></div>
+            <div class="header-cell title-area">LAPORAN VERIFIKASI TRIAL MOLD</div>
+            <div class="header-cell meta-area">
+                <table class="meta-table">
+                    <tr><td>NO DOK</td><td>: FRM-ENG-002</td></tr>
+                    <tr><td>REVISI</td><td>: 00</td></tr>
+                    <tr><td>TANGGAL</td><td>: 01-01-2026</td></tr>
+                </table>
+            </div>
         </div>
+
+        <div class="info-grid">
+            <div class="info-left">
+                <div class="info-item"><span class="info-label">TANGGAL</span>: <span class="info-val" id="disp-date">-</span></div>
+                <div class="info-item"><span class="info-label">MESIN</span>: <span class="info-val" id="disp-machine">-</span></div>
+                <div class="info-item"><span class="info-label">MATERIAL</span>: <span class="info-val" id="disp-material">-</span></div>
+            </div>
+            <div class="info-right">
+                <div class="info-item"><span class="info-label">KODE MOLD</span>: <span class="info-val" id="disp-mold">-</span></div>
+                <div class="info-item"><span class="info-label">PIC TRIAL</span>: <span class="info-val" id="disp-pic">-</span></div>
+                <div class="info-item"><span class="info-label">STATUS</span>: <span class="info-val" id="disp-status">COMPLETED</span></div>
+            </div>
+        </div>
+
+        <table class="table-official">
+            <thead>
+                <tr>
+                    <th class="col-no">NO</th>
+                    <th class="col-item">ITEM PENGECEKAN</th>
+                    <th class="col-status">STATUS</th>
+                    <th class="col-note">KETERANGAN / CATATAN</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <tr><td colspan="4" style="text-align:center; padding:20px;">Silakan Cari Data Terlebih Dahulu...</td></tr>
+            </tbody>
+        </table>
+
+        <div class="footer-box">
+            <div class="ttd-container">
+                <div class="ttd-title">DIBUAT OLEH (PIC)</div>
+                <div class="ttd-img" id="signature-box">
+                    </div>
+                <div class="ttd-name" id="signer-name">( ........................ )</div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -121,142 +164,103 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        async function renderReport() {
-            const bln = document.getElementById('filter-bulan').value;
-            const kw = document.getElementById('filter-mold').value.trim().toLowerCase();
+        async function fetchData() {
+            const moldCode = document.getElementById('filter-mold').value.trim();
+            const dateVal = document.getElementById('filter-date').value;
 
-            if (!bln) return alert("Pilih Bulan Terlebih Dahulu!");
+            if(!moldCode && !dateVal) {
+                alert("Masukkan minimal Kode Mold atau Tanggal!");
+                return;
+            }
 
-            // Ambil data yang statusnya Approved
-            const { data, error } = await _sb
-                .from('checklist_trial')
-                .select('*')
-                .eq('status', 'Approved')
-                .order('created_at', { ascending: false });
+            let query = _sb.from('checklist_trial').select('*').order('created_at', { ascending: false }).limit(1);
 
-            if (error) return alert("Gagal mengambil data: " + error.message);
+            if (moldCode) query = query.ilike('mold_code', `%${moldCode}%`);
+            if (dateVal) query = query.eq('trial_date', dateVal);
 
-            // Filter Client Side (Bulan & Keyword)
-            const filtered = data.filter(row => {
-                const rowMonth = row.trial_date ? row.trial_date.split('-')[1] : '';
-                const matchMonth = rowMonth === bln;
-                const matchKw = kw ? (
-                    (row.mold_code && row.mold_code.toLowerCase().includes(kw)) || 
-                    (row.machine_name && row.machine_name.toLowerCase().includes(kw))
-                ) : true;
-                return matchMonth && matchKw;
-            });
+            const { data, error } = await query;
 
-            if (filtered.length === 0) return alert("Data tidak ditemukan.");
+            if (error) {
+                console.error(error);
+                alert("Gagal mengambil data.");
+                return;
+            }
 
-            const container = document.getElementById('report-container');
-            container.innerHTML = ""; // Bersihkan kontainer
+            if (data.length === 0) {
+                alert("Data Trial tidak ditemukan!");
+                document.getElementById('table-body').innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; font-weight:bold; color:red;">DATA TIDAK DITEMUKAN</td></tr>`;
+                clearInfo();
+                return;
+            }
 
-            // Loop untuk membuat halaman per data
-            filtered.forEach(row => {
-                const pageHtml = `
-                <div class="document-page">
-                    <div class="header-box">
-                        <div class="header-cell logo-area"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO AKG"></div>
-                        <div class="header-cell title-area">FORMULIR CHECKLIST TRIAL MOLD</div>
-                        <div class="header-cell meta-area">
-                            <table class="meta-table">
-                                <tr><td>NO DOKUMEN</td><td>: FM-MTC-TR-01</td></tr>
-                                <tr><td>TANGGAL</td><td>: ${row.trial_date || '-'}</td></tr>
-                                <tr><td>HALAMAN</td><td>: 1 DARI 1</td></tr>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="info-grid">
-                        <div class="info-col">
-                            <div class="info-row"><div class="info-label">MESIN INJECTION</div>: <div class="info-value">${row.machine_name || '-'}</div></div>
-                            <div class="info-row"><div class="info-label">KODE MOLD</div>: <div class="info-value">${row.mold_code || '-'}</div></div>
-                            <div class="info-row"><div class="info-label">MATERIAL RESIN</div>: <div class="info-value">${row.material_resin || '-'}</div></div>
-                        </div>
-                        <div class="info-col">
-                            <div class="info-row"><div class="info-label">PIC TRIAL</div>: <div class="info-value">${row.pic_trial || '-'}</div></div>
-                            <div class="info-row"><div class="info-label">TANGGAL TRIAL</div>: <div class="info-value">${row.trial_date || '-'}</div></div>
-                            <div class="info-row"><div class="info-label">STATUS FORM</div>: <div class="info-value" style="color:green">APPROVED</div></div>
-                        </div>
-                    </div>
-
-                    <table class="table-official">
-                        <thead>
-                            <tr>
-                                <th class="col-no">NO</th>
-                                <th class="col-item">ITEM PENGECEKAN</th>
-                                <th class="col-status">STATUS</th>
-                                <th class="col-ket">KETERANGAN / HASIL</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${generateTableContent(row)}
-                        </tbody>
-                    </table>
-
-                    <div style="border: 2px solid black; padding: 10px; margin-top: 10px; font-size: 10pt;">
-                        <strong>CATATAN SUPERINTENDENT:</strong><br>
-                        ${row.keterangan_superintendent || '-'}
-                    </div>
-
-                    <div class="footer-flex">
-                        <div class="sig-box">
-                            <p style="font-weight:bold;">DIBUAT OLEH</p>
-                            <div class="sig-frame">
-                                ${row.signature_data ? `<img src="${row.signature_data}">` : ''}
-                            </div>
-                            <div class="name-line">${row.pic_trial || '.............'}</div>
-                            <p style="font-size:8pt;">TECHNICIAN</p>
-                        </div>
-                        <div class="sig-box">
-                            <p style="font-weight:bold;">DIKETAHUI OLEH</p>
-                            <div class="sig-frame">
-                                ${row.signature_superintendent ? `<img src="${row.signature_superintendent}">` : ''}
-                            </div>
-                            <div class="name-line">${row.nama_superintendent || '.............'}</div>
-                            <p style="font-size:8pt;">SUPERINTENDENT</p>
-                        </div>
-                    </div>
-                </div>
-                `;
-                container.innerHTML += pageHtml;
-            });
+            renderReport(data[0]);
         }
 
-        function generateTableContent(row) {
-            let html = "";
-            
-            // Helper untuk render section
-            const renderSection = (title, data) => {
-                if (!data) return "";
-                let sectionHtml = `<tr><td colspan="4" class="section-header">${title}</td></tr>`;
-                let no = 1;
-                // Handle JSON object keys
-                for (const [key, val] of Object.entries(data)) {
-                    let status = typeof val === 'object' ? val.status : val;
-                    let note = typeof val === 'object' ? (val.note || '') : '';
-                    let colorClass = status === 'NG' ? 'status-ng' : 'status-ok';
-                    
-                    sectionHtml += `
-                    <tr>
-                        <td class="col-no">${no++}</td>
-                        <td class="col-item">${key.replace(/_/g, " ").toUpperCase()}</td>
-                        <td class="col-status ${colorClass}">${status}</td>
-                        <td class="col-ket">${note}</td>
-                    </tr>`;
+        function clearInfo() {
+            ['disp-date','disp-machine','disp-material','disp-mold','disp-pic'].forEach(id => document.getElementById(id).innerText = "-");
+            document.getElementById('signature-box').innerHTML = "";
+            document.getElementById('signer-name').innerText = "( ........................ )";
+        }
+
+        function renderReport(record) {
+            // 1. Render Header Info
+            document.getElementById('disp-date').innerText = record.trial_date;
+            document.getElementById('disp-machine').innerText = record.machine_name;
+            document.getElementById('disp-material').innerText = record.material_resin;
+            document.getElementById('disp-mold').innerText = record.mold_code;
+            document.getElementById('disp-pic').innerText = record.pic_trial;
+
+            // 2. Render Signature
+            const sigBox = document.getElementById('signature-box');
+            if (record.signature_data) {
+                sigBox.innerHTML = `<img src="${record.signature_data}" alt="Tanda Tangan">`;
+            } else {
+                sigBox.innerHTML = "<span style='color:red; font-size:10px;'>BELUM TTD</span>";
+            }
+            document.getElementById('signer-name').innerText = `( ${record.pic_trial.toUpperCase()} )`;
+
+            // 3. Render Table Body
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = "";
+
+            const sections = [
+                { key: 'check_machine', title: '1. VERIFIKASI MESIN INJEKSI' },
+                { key: 'check_mold', title: '2. PERSIAPAN MOLD (CETAKAN)' },
+                { key: 'check_aux', title: '3. PERALATAN PENDUKUNG' },
+                { key: 'check_material', title: '4. MATERIAL & KIMIA' },
+                { key: 'check_qc', title: '5. ALAT UKUR & DOKUMEN' },
+                { key: 'check_safety', title: '6. SAFETY (K3)' }
+            ];
+
+            let globalNo = 1;
+
+            sections.forEach(sec => {
+                // Section Header Row
+                tbody.innerHTML += `<tr><td colspan="4" class="section-row">${sec.title}</td></tr>`;
+                
+                const items = record[sec.key]; // JSONB data
+                
+                if (items) {
+                    // Loop item dalam JSONB
+                    Object.entries(items).forEach(([itemName, val]) => {
+                        let statusClass = "status-ok";
+                        if (val.status === 'NG') statusClass = "status-ng";
+                        if (val.status === 'NA') statusClass = "status-na";
+
+                        const rowHtml = `
+                            <tr>
+                                <td class="col-no">${globalNo++}</td>
+                                <td class="col-item">${itemName}</td>
+                                <td class="col-status ${statusClass}">${val.status || '-'}</td>
+                                <td class="col-note">${val.note || ''}</td>
+                            </tr>
+                        `;
+                        tbody.innerHTML += rowHtml;
+                    });
+                } else {
+                    tbody.innerHTML += `<tr><td colspan="4" style="text-align:center;">Tidak ada data checklist</td></tr>`;
                 }
-                return sectionHtml;
-            };
-
-            html += renderSection("I. KONDISI MESIN INJEKSI", row.check_machine);
-            html += renderSection("II. PERSIAPAN MOLD", row.check_mold);
-            html += renderSection("III. AUXILIARY EQUIPMENT", row.check_aux);
-            html += renderSection("IV. MATERIAL", row.check_material);
-            html += renderSection("V. QC TOOLS", row.check_qc);
-            html += renderSection("VI. SAFETY", row.check_safety);
-
-            return html;
+            });
         }
     </script>
 </body>
