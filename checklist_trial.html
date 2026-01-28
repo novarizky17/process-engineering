@@ -19,7 +19,6 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         
-        /* Warna saat Checked */
         .radio-ok input:checked + div { background-color: #10b981; } /* Emerald */
         .radio-ng input:checked + div { background-color: #f43f5e; } /* Rose */
         .radio-na input:checked + div { background-color: #94a3b8; } /* Slate */
@@ -27,14 +26,13 @@
         .section-card { transition: all 0.2s ease-in-out; }
         .section-card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
 
-        /* CANVAS TANDA TANGAN */
         canvas { touch-action: none; }
     </style>
 </head>
 <body class="pb-32">
 
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm bg-opacity-90 backdrop-blur-md">
-        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <a href="dashboard.html" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl font-bold text-xs uppercase transition-all flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -42,13 +40,13 @@
                 </a>
                 <div>
                     <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Formulir Kesiapan Trial</h1>
-                    <p class="text-xs text-violet-600 font-bold uppercase tracking-wider">OK / NG / NA System</p>
+                    <p class="text-xs text-violet-600 font-bold uppercase tracking-wider">Pre-Production Check</p>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-5xl mx-auto px-4 mt-8">
+    <div class="max-w-6xl mx-auto px-4 mt-8">
         
         <div class="bg-white rounded-3xl p-6 shadow-lg border border-slate-100 mb-8 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-violet-500 to-fuchsia-500"></div>
@@ -56,12 +54,12 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 mb-4">
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tanggal Trial</label>
-                    <input type="date" id="trialDate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
+                    <input type="date" id="trialDate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500 transition-all">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Mesin Injection</label>
-                    <select id="machineSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none cursor-pointer">
-                        <option value="">Pilih Mesin...</option>
+                    <select id="machineSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none cursor-pointer focus:ring-2 focus:ring-violet-500 transition-all">
+                        <option value="">-- Pilih Mesin --</option>
                         <option value="Inj-01 (150T)">Inj-01 (150T)</option>
                         <option value="Inj-02 (200T)">Inj-02 (200T)</option>
                         <option value="Inj-03 (350T)">Inj-03 (350T)</option>
@@ -70,18 +68,18 @@
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Kode / Nama Mold</label>
-                    <input type="text" id="moldCode" placeholder="Input Kode Mold..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
+                    <input type="text" id="moldCode" placeholder="Input Kode Mold..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500 transition-all">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-100 pt-4">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Material Resin</label>
-                    <input type="text" id="resinInfo" placeholder="Contoh: ABS, PP, PA6..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Material Plastik / Resin</label>
+                    <input type="text" id="resinInfo" placeholder="Contoh: ABS, PP, PA6..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500 transition-all">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">PIC Trial (Penanggung Jawab)</label>
-                    <input type="text" id="picNameInput" oninput="syncName()" placeholder="Nama Engineer / Leader..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">PIC Trial (Engineer)</label>
+                    <input type="text" id="picNameInput" oninput="syncName()" placeholder="Nama Lengkap..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-violet-500 transition-all">
                 </div>
             </div>
         </div>
@@ -151,14 +149,13 @@
                             TANDA TANGAN DISINI
                         </div>
                         <button type="button" onclick="clearSignature()" class="absolute bottom-3 right-3 bg-white text-rose-500 border border-rose-200 hover:bg-rose-50 px-3 py-1 rounded-lg text-xs font-bold shadow-sm transition-all z-10">
-                            Ulangi / Hapus
+                            Hapus
                         </button>
                     </div>
 
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nama Jelas Pelaksana</label>
-                        <input type="text" id="signerName" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-slate-700 outline-none cursor-not-allowed">
-                        <p class="text-[10px] text-slate-400 mt-1">*Otomatis terisi dari PIC Trial di atas</p>
+                        <input type="text" id="signerName" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none cursor-not-allowed">
                     </div>
                 </div>
             </div>
@@ -175,14 +172,12 @@
     </div>
 
     <script>
-        // --- KONFIGURASI SUPABASE ---
-        const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co"; // Ganti dengan URL Project Anda
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA"; // Ganti dengan Anon Key Anda
+        const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
         document.getElementById('trialDate').valueAsDate = new Date();
 
-        // 1. DATA CHECKLIST
         const checklistData = {
             "section-1-content": [
                 { id: "m1", title: "Kapasitas Tonase", desc: "Tonase sesuai clamping force mold." },
@@ -224,7 +219,6 @@
             ]
         };
 
-        // 2. RENDER ITEMS
         function renderItems() {
             for (const [sectionId, items] of Object.entries(checklistData)) {
                 const container = document.getElementById(sectionId);
@@ -260,7 +254,6 @@
             }
         }
 
-        // 3. LOGIC TOGGLE NOTE
         function toggleNote(id, status) {
             const noteBox = document.getElementById(`note_box_${id}`);
             const noteInput = document.getElementById(`note_${id}`);
@@ -273,7 +266,6 @@
             }
         }
 
-        // 4. SIGNATURE PAD LOGIC
         const canvas = document.getElementById('signature-pad');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
@@ -331,17 +323,14 @@
         }
 
         function syncName() {
-            const picVal = document.getElementById('picNameInput').value;
-            document.getElementById('signerName').value = picVal;
+            document.getElementById('signerName').value = document.getElementById('picNameInput').value;
         }
 
-        // 5. SUBMIT TO SUPABASE
         async function submitTrialForm() {
             let totalItems = 0;
             let filledItems = 0;
             let ngIssue = false;
 
-            // Validasi Input
             for (const items of Object.values(checklistData)) {
                 items.forEach(item => {
                     totalItems++;
@@ -383,7 +372,6 @@
                 return;
             }
 
-            // --- PROSES SIMPAN KE SUPABASE ---
             Swal.fire({
                 title: 'Konfirmasi',
                 text: 'Simpan verifikasi dan tanda tangan ini?',
@@ -393,7 +381,6 @@
                 confirmButtonText: 'Ya, Simpan!',
                 showLoaderOnConfirm: true,
                 preConfirm: async () => {
-                    // 1. Ambil Data Checklist per Section
                     const getSectionData = (sectionId) => {
                         const data = {};
                         checklistData[sectionId].forEach(item => {
@@ -401,35 +388,28 @@
                             let status = null;
                             for (const r of radios) if (r.checked) status = r.value;
                             const note = document.getElementById(`note_${item.id}`).value;
-                            data[item.title] = { status: status, note: note }; // Simpan pakai Judul Item biar jelas
+                            data[item.title] = { status: status, note: note };
                         });
                         return data;
                     };
 
-                    // 2. Siapkan Payload
                     const payload = {
                         trial_date: document.getElementById('trialDate').value,
                         machine_name: document.getElementById('machineSelect').value,
-                        mold_code: document.getElementById('moldCode').value, // Pastikan ID input moldCode sudah ada
-                        material_resin: document.getElementById('resinInfo').value, // ID input material
+                        mold_code: document.getElementById('moldCode').value,
+                        material_resin: document.getElementById('resinInfo').value,
                         pic_trial: document.getElementById('picNameInput').value,
-                        
                         check_machine: getSectionData('section-1-content'),
                         check_mold: getSectionData('section-2-content'),
                         check_aux: getSectionData('section-3-content'),
                         check_material: getSectionData('section-4-content'),
                         check_qc: getSectionData('section-5-content'),
                         check_safety: getSectionData('section-6-content'),
-                        
                         signature_data: canvas.toDataURL("image/png")
                     };
 
-                    // 3. Insert ke Supabase
                     const { error } = await _sb.from('checklist_trial').insert([payload]);
-                    
-                    if (error) {
-                        Swal.showValidationMessage(`Request failed: ${error.message}`);
-                    }
+                    if (error) Swal.showValidationMessage(`Request failed: ${error.message}`);
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
