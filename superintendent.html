@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Superintendent - Approval System</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
         header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5 rgba(0,0,0,0.1); }
@@ -50,7 +49,8 @@
         .json-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 14px; }
         .json-table th { background: #eee; text-align: left; padding: 8px; border-bottom: 2px solid #ddd; }
         .json-table td { padding: 8px; border-bottom: 1px solid #eee; }
-        .status-ng { color: red; font-weight: bold; }
+        
+        .status-ng { color: red; font-weight: bold; background-color: #fff5f5; }
         .status-ok { color: green; font-weight: bold; }
         .status-na { color: #666; font-style: italic; font-weight: bold; }
         
@@ -132,6 +132,16 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+    // DAFTAR KOLOM CHECKLIST RUTIN (Untuk Mendeteksi NG)
+    const rutinColumns = [
+        "wiring", "komponen", "kerapihan", "sensor", "timing_belt", "pully", "servo_motor", "linear_bearing", 
+        "rotary_actuator", "selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad", 
+        "flange", "vacuum_pad_takeout", "stacking_wiring", "stacking_sensor", "stacking_linier", "stacking_mechanical_part", 
+        "stacking_cylinder", "stacking_pneumatic", "conveyor_belt", "conveyor_motor", "conveyor_rantai", 
+        "conveyor_frame", "conveyor_inverter", "dosing_alarm", "dosing_setting", "dummy_vacuum", "dummy_condition", 
+        "dummy_flange", "dummy_instalasi", "dummy_tubbing"
+    ];
+
     let activeId = null;
     let rawData = []; 
     let filteredData = []; 
@@ -152,15 +162,13 @@
     let drawing = false;
     function getP(e) {
         const r = canvas.getBoundingClientRect();
-        const x = (e.clientX || e.touches[0].clientX) - r.left;
-        const y = (e.clientY || e.touches[0].clientY) - r.top;
-        return { x: x * (canvas.width/r.width), y: y * (canvas.height/r.height) };
+        return { x: ((e.clientX||e.touches[0].clientX)-r.left)*(canvas.width/r.width), y: ((e.clientY||e.touches[0].clientY)-r.top)*(canvas.height/r.height) };
     }
-    canvas.onmousedown = (e) => { drawing=true; ctx.beginPath(); const p=getP(e); ctx.moveTo(p.x, p.y); };
-    canvas.onmousemove = (e) => { if(!drawing) return; const p=getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+    canvas.onmousedown = (e) => { drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
+    canvas.onmousemove = (e) => { if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
     window.onmouseup = () => drawing=false;
-    canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); const p=getP(e); ctx.moveTo(p.x, p.y); };
-    canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; const p=getP(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+    canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
+    canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
 
     function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
     function refreshData() { loadData(); }
@@ -187,7 +195,6 @@
         if (currentTab === 'rutin') {
             header.innerHTML = `<th>Pelaksana</th><th>Super</th><th>Equip</th><th>Tanggal</th><th>Week</th><th>Ket</th><th>Status</th><th>Aksi</th>`;
         } else {
-            // HEADER TRIAL MOLD (Kolom "Ket. Super" menampilkan 'keterangan_superintendent')
             header.innerHTML = `<th>PIC Trial</th><th>Super</th><th>Mesin</th><th>Project</th><th>Tanggal</th><th>Ket. Super</th><th>Status</th><th>Aksi</th>`;
         }
 
@@ -215,7 +222,8 @@
                     <td>${row.machine_name || '-'}</td>
                     <td>${row.project_name || '-'}</td>
                     <td>${row.trial_date || '-'}</td> 
-                    <td>${row.keterangan_superintendent || '-'}</td> <td><span class="badge status-${(row.status || 'pending').toLowerCase()}">${row.status || 'Pending'}</span></td>
+                    <td>${row.keterangan_superintendent || '-'}</td>
+                    <td><span class="badge status-${(row.status || 'pending').toLowerCase()}">${row.status || 'Pending'}</span></td>
                     <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
                 </tr>`;
             }
@@ -253,6 +261,40 @@
         return `<div class="section-header">${title}</div><table class="json-table"><tr><th>Item</th><th>Status</th><th>Note</th></tr>${rows}</table>`;
     }
 
+    // FUNGSI RENDER KHUSUS CHECKLIST RUTIN (AGAR NG MUNCUL)
+    function renderRutinChecklist(row) {
+        let rows = '';
+        let hasIssues = false;
+
+        rutinColumns.forEach(col => {
+            if (row[col] === 'NG') {
+                hasIssues = true;
+                const note = row[col + '_keterangan'] || '-';
+                rows += `<tr>
+                    <td>${col.replace(/_/g, ' ').toUpperCase()}</td>
+                    <td class="status-ng">NG</td>
+                    <td>${note}</td>
+                </tr>`;
+            }
+        });
+
+        if (!hasIssues) {
+            return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>
+                    <div style="background:#f9f9f9; padding:10px; margin-top:10px;">
+                        <strong>Catatan Pelaksana:</strong> ${row.keterangan || '-'}
+                    </div>`;
+        }
+
+        return `<div class="section-header">TEMUAN MASALAH (NG) - CHECKLIST RUTIN</div>
+                <table class="json-table">
+                    <tr><th>Item</th><th>Status</th><th>Keterangan Kerusakan</th></tr>
+                    ${rows}
+                </table>
+                <div style="background:#f9f9f9; padding:10px; margin-top:10px;">
+                    <strong>Catatan Tambahan:</strong> ${row.keterangan || '-'}
+                </div>`;
+    }
+
     function openModal(row) {
         activeId = row.id;
         const info = currentTab === 'rutin' ? 
@@ -274,20 +316,17 @@
         body.innerHTML = '';
 
         if (currentTab === 'rutin') {
-            body.innerHTML = `<p><strong>Catatan Pelaksana:</strong> ${row.keterangan || '-'}</p>`; 
+            // == LOGIC RUTIN DIKEMBALIKAN (Menampilkan NG) ==
+            body.innerHTML = renderRutinChecklist(row); 
         } else {
-            // Tampilan Modal Trial Mold
+            // == LOGIC TRIAL MOLD ==
             let content = `<div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px; background:#f9f9f9; padding:10px; border-radius:5px;">
                 <div><strong>Mesin:</strong> ${row.machine_name}</div>
                 <div><strong>Project:</strong> ${row.project_name}</div>
                 <div><strong>Mold Code:</strong> ${row.mold_code}</div>
+                <div><strong>Keterangan PIC:</strong> ${row.keterangan || '-'}</div>
             </div>`;
             
-            // Tampilkan Keterangan PIC di dalam modal agar Superintendent bisa baca
-            if(row.keterangan) {
-                content += `<div class="pic-note-box"><strong>Keterangan dari PIC:</strong> ${row.keterangan}</div>`;
-            }
-
             let checksHtml = "";
             checksHtml += renderJsonCheck("1. MESIN INJEKSI", row.check_machine);
             checksHtml += renderJsonCheck("2. PERSIAPAN MOLD", row.check_mold);
@@ -330,7 +369,6 @@
         if (currentTab === 'rutin') {
             update.keterangan = ketInput; 
         } else {
-            // SIMPAN KETERANGAN SUPERINTENDENT KE KOLOM KHUSUS
             update.keterangan_superintendent = ketInput; 
         }
 
@@ -345,7 +383,6 @@
 
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const { error } = await _supabase.from(tableName).update(update).eq('id', activeId);
-        
         if(!error) { alert("Berhasil disimpan!"); closeModal(); loadData(); } 
         else { alert("Error: " + error.message); }
     }
