@@ -30,7 +30,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
             display: flex; flex-direction: column;
             overflow: hidden;
-            font-family: 'Arial Narrow', Arial, sans-serif; 
+            font-family: 'Arial', sans-serif; /* Ganti ke Arial biasa biar ga terlalu padat */
         }
 
         /* === 4. MODE PRINT === */
@@ -64,22 +64,22 @@
 
         .panel-header {
             font-size: 16px; 
-            font-weight: 800; 
+            font-weight: 700; /* Dikurangi */
             color: #1e293b; 
-            margin-bottom: 20px; 
+            margin-bottom: 15px; 
             text-align: center;
             letter-spacing: 0.5px;
             border-bottom: 2px solid #f1f5f9;
             padding-bottom: 10px;
         }
 
-        .input-group { margin-bottom: 15px; }
+        .input-group { margin-bottom: 12px; }
         .input-label { font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block; }
         
         .inp { 
             width: 100%; 
             border: 1px solid #cbd5e1; 
-            padding: 10px 12px; 
+            padding: 8px 12px; 
             border-radius: 6px; 
             font-size: 13px; 
             outline: none;
@@ -88,15 +88,15 @@
         }
         .inp:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
 
-        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .btn-group { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
         
         .btn { 
             width: 100%; 
-            padding: 12px; 
+            padding: 10px; 
             border-radius: 6px; 
             cursor: pointer; 
             border: none; 
-            font-weight: 700; 
+            font-weight: 600; /* Dikurangi */
             font-size: 13px; 
             display: flex; align-items: center; justify-content: center; gap: 8px;
             transition: transform 0.1s, box-shadow 0.2s;
@@ -117,16 +117,26 @@
         .header-table { width: 100%; border-collapse: collapse; border: 2px solid #000; margin-bottom: 3px; }
         .header-table td { border: 1px solid #000; padding: 2px; vertical-align: middle; }
         .logo-img { height: 40px; display: block; margin: 0 auto; }
-        .main-title { font-size: 18pt; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
         
-        .meta-table { width: 100%; font-size: 8pt; font-weight: bold; border: none; }
+        .main-title { 
+            font-size: 18pt; 
+            font-weight: 700; /* Dikurangi dari 900 ke 700 */
+            text-align: center; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+        }
+        
+        .meta-table { width: 100%; font-size: 8pt; font-weight: normal; border: none; } /* Jadi Normal */
         .meta-table td { border: none; padding: 0; line-height: 1.1; }
+        .meta-label { font-weight: 600; } /* Label agak tebal dikit */
 
         /* Info Bar */
         .info-bar {
             border: 1px solid black; padding: 3px 5px; margin-bottom: 3px; width: 100%;
             display: flex; justify-content: space-between;
-            font-size: 9pt; font-weight: bold; background: #fff;
+            font-size: 9pt; 
+            font-weight: 600; /* Dikurangi jadi semi-bold */
+            background: #fff;
         }
         .info-group span { font-weight: normal; margin-left: 3px; text-transform: uppercase; }
 
@@ -135,7 +145,9 @@
         .main-table { width: 100%; border-collapse: collapse; border: 1px solid black; font-size: 9pt; }
         .main-table th { 
             background-color: #334155; color: white; border: 1px solid black; 
-            padding: 3px; text-transform: uppercase; font-size: 8pt;
+            padding: 3px; text-transform: uppercase; 
+            font-size: 8pt;
+            font-weight: 600; /* Dikurangi */
         }
         .main-table td { 
             border: 1px solid black; padding: 1px 3px; 
@@ -143,10 +155,16 @@
             vertical-align: middle;
         }
 
-        .sect-row { background-color: #e2e8f0; font-weight: 800; font-size: 8pt; padding: 2px; text-transform: uppercase; }
+        /* Judul Section */
+        .sect-row { 
+            background-color: #e2e8f0; 
+            font-weight: 700; /* Dikurangi dari 800 */
+            font-size: 8pt; 
+            padding: 2px; text-transform: uppercase; 
+        }
 
-        .st-ok { color: green; font-weight: bold; text-align: center; }
-        .st-ng { background: #fee2e2; color: red; font-weight: bold; text-align: center; }
+        .st-ok { color: green; font-weight: 600; text-align: center; } /* Dikurangi */
+        .st-ng { background: #fee2e2; color: red; font-weight: 600; text-align: center; }
         .st-na { color: #888; font-style: italic; text-align: center; }
 
         /* Footer TTD */
@@ -156,10 +174,20 @@
             padding: 0 20px; page-break-inside: avoid;
         }
         .ttd-box { width: 160px; border: 1px solid black; text-align: center; }
-        .ttd-head { background: #eee; font-size: 8pt; font-weight: bold; border-bottom: 1px solid black; padding: 2px; }
+        .ttd-head { 
+            background: #eee; 
+            font-size: 8pt; 
+            font-weight: 600; /* Dikurangi */
+            border-bottom: 1px solid black; padding: 2px; 
+        }
         .ttd-sign { height: 45px; display: flex; align-items: center; justify-content: center; }
         .ttd-sign img { height: 40px; }
-        .ttd-name { border-top: 1px solid black; font-size: 8pt; font-weight: bold; padding: 2px; text-transform: uppercase; }
+        .ttd-name { 
+            border-top: 1px solid black; 
+            font-size: 8pt; 
+            font-weight: 600; /* Dikurangi */
+            padding: 2px; text-transform: uppercase; 
+        }
 
     </style>
 </head>
@@ -201,10 +229,10 @@
                 <td class="main-title">LAPORAN VERIFIKASI TRIAL MOLD</td>
                 <td style="width: 180px; padding:0;">
                     <table class="meta-table">
-                        <tr><td>NO DOKUMEN</td><td>: FRM-ENG-002</td></tr>
-                        <tr><td>REVISI</td><td>: 00</td></tr>
-                        <tr><td>TGL EFEKTIF</td><td>: 01-01-2026</td></tr>
-                        <tr><td>HALAMAN</td><td>: 1 DARI 1</td></tr>
+                        <tr><td class="meta-label">NO DOKUMEN</td><td>: FRM-ENG-002</td></tr>
+                        <tr><td class="meta-label">REVISI</td><td>: 00</td></tr>
+                        <tr><td class="meta-label">TGL EFEKTIF</td><td>: 01-01-2026</td></tr>
+                        <tr><td class="meta-label">HALAMAN</td><td>: 1 DARI 1</td></tr>
                     </table>
                 </td>
             </tr>
