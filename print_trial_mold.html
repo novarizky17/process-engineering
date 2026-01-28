@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REPORT TRIAL MOLD - FIXED 1 PAGE</title>
+    <title>REPORT TRIAL MOLD - PERFECT FIT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* === 1. SETTING KERTAS UTAMA === */
         @page { 
             size: A4 landscape; 
-            margin: 0mm; /* SANGAT PENTING: NOL MARGIN */
+            margin: 0; /* Margin NOL agar browser tidak menambah jarak putih */
         }
 
         /* === 2. RESET CSS === */
@@ -19,105 +19,114 @@
             print-color-adjust: exact !important;
         }
 
-        html, body {
-            margin: 0; padding: 0;
-            width: 100%; height: 100%; 
-            font-family: Arial, sans-serif;
-        }
-
         body { 
+            font-family: Arial, sans-serif;
             background-color: #ccc; 
-            padding: 20px; /* Padding layar saja */
+            margin: 0; padding: 20px;
             display: flex; justify-content: center;
         }
 
         /* === 3. TAMPILAN KERTAS === */
         .sheet {
             background: white;
-            width: 297mm;  /* Lebar A4 */
-            height: 209mm; /* Tinggi A4 dikurangi 1mm biar ga loncat */
-            padding: 10mm;
+            width: 297mm;  /* Lebar A4 Landscape */
+            height: 210mm; /* Tinggi A4 Landscape */
+            padding: 10mm; /* Padding margin dalam */
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            position: relative;
             display: flex; 
-            flex-direction: column;
-            overflow: hidden; /* KUNCI: Potong jika lebih, jangan bikin hal 2 */
+            flex-direction: column; /* Susun vertikal (Header - Tabel - Footer) */
+            position: relative;
         }
 
-        /* === 4. MODE PRINT (KUNCI UTAMA) === */
+        /* === 4. MODE PRINT === */
         @media print {
             body { 
                 background: white; padding: 0; margin: 0; 
-                overflow: hidden; /* Hapus scrollbar */
+                width: 100vw; height: 100vh;
             }
             .no-print { display: none !important; }
             
             .sheet {
                 width: 100%; height: 100%;
                 box-shadow: none;
-                margin: 0; padding: 5mm; /* Margin dalam kertas */
+                margin: 0; 
+                padding: 5mm; /* Margin aman printer */
                 border: none;
-                /* Skala sedikit (98%) untuk memastikan border tidak menyentuh tepi printer */
-                transform: scale(0.98); 
-                transform-origin: center;
             }
         }
 
-        /* === GAYA ELEMENT (RAPAT) === */
+        /* === GAYA ELEMENT === */
         
-        /* Header */
+        /* Header Box */
         .header-table { width: 100%; border-collapse: collapse; border: 2px solid black; margin-bottom: 5px; flex-shrink: 0; }
         .header-table td { border: 1px solid black; padding: 2px 5px; vertical-align: middle; }
-        .logo-img { height: 45px; display: block; margin: 0 auto; }
-        .main-title { font-size: 20pt; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .logo-img { height: 50px; display: block; margin: 0 auto; }
+        .main-title { 
+            font-size: 20pt; font-weight: 900; text-align: center; 
+            text-transform: uppercase; letter-spacing: 1px; 
+        }
+        
         .meta-table { width: 100%; font-size: 9pt; font-weight: bold; border: none; }
         .meta-table td { border: none; padding: 0; text-align: left; }
 
         /* Info Bar */
         .info-bar {
-            border: 1px solid black; padding: 4px 8px; margin-bottom: 5px; width: 100%;
+            border: 1px solid black; padding: 5px 10px; margin-bottom: 5px; width: 100%;
             display: flex; justify-content: space-between;
             font-size: 10pt; font-weight: bold; background: #fff; flex-shrink: 0;
         }
         .info-group span { font-weight: normal; margin-left: 5px; text-transform: uppercase; }
 
-        /* Tabel Data (Isi) */
-        .table-wrapper {
-            flex-grow: 1; /* Isi sisa ruang kosong */
-            display: flex;
-            flex-direction: column;
+        /* Container Tabel (Isi Sisa Ruang) */
+        .table-container {
+            flex-grow: 1; /* Isi ruang kosong agar footer terdorong ke bawah */
+            display: flex; flex-direction: column;
         }
+
+        /* Tabel Data */
         .main-table { 
             width: 100%; border-collapse: collapse; border: 2px solid black; 
-            font-size: 10pt; 
+            font-size: 9pt; /* Font isi tabel */
         }
         .main-table th { 
-            background-color: #334155; color: white; padding: 4px; 
-            border: 1px solid black; text-transform: uppercase; font-size: 9pt;
+            background-color: #334155; color: white; border: 1px solid black; 
+            padding: 4px; text-transform: uppercase; font-size: 9pt;
         }
         .main-table td { 
-            border: 1px solid black; padding: 2px 4px; /* Rapat */
-            vertical-align: middle; height: 18px; /* Tinggi baris dipaksa */
+            border: 1px solid black; 
+            padding: 2px 4px; 
+            height: 18px; /* Tinggi baris minimal */
+            vertical-align: middle; 
         }
 
-        .sect-row { background-color: #e2e8f0; font-weight: 800; font-size: 9pt; padding: 3px; text-transform: uppercase; }
-
-        /* Footer Tanda Tangan */
-        .footer-container {
-            margin-top: 10px; flex-shrink: 0; /* Jangan mengecil */
-            display: flex; justify-content: space-between; padding: 0 40px;
+        .sect-row { 
+            background-color: #e2e8f0; font-weight: 800; font-size: 9pt; 
+            padding: 3px; text-transform: uppercase; 
         }
-        .ttd-box { width: 200px; border: 1px solid black; text-align: center; }
-        .ttd-head { background: #eee; font-size: 9pt; font-weight: bold; border-bottom: 1px solid black; padding: 2px; }
-        .ttd-sign { height: 50px; display: flex; align-items: center; justify-content: center; }
-        .ttd-sign img { height: 45px; }
-        .ttd-name { border-top: 1px solid black; font-size: 10pt; font-weight: bold; padding: 2px; text-transform: uppercase; }
 
         .st-ok { color: green; font-weight: bold; text-align: center; }
         .st-ng { background: #fee2e2; color: red; font-weight: bold; text-align: center; }
+        .st-na { color: #aaa; font-style: italic; text-align: center; }
+
+        /* Footer TTD */
+        .footer-container {
+            margin-top: 10px; flex-shrink: 0; /* Jangan mengecil */
+            display: flex; justify-content: space-between; 
+            padding: 0 40px; /* Jarak kiri kanan footer */
+        }
+        .ttd-box { width: 200px; border: 1px solid black; text-align: center; }
+        .ttd-head { background: #eee; font-size: 9pt; font-weight: bold; border-bottom: 1px solid black; padding: 3px; }
+        .ttd-sign { height: 60px; display: flex; align-items: center; justify-content: center; }
+        .ttd-sign img { height: 50px; }
+        .ttd-name { border-top: 1px solid black; font-size: 10pt; font-weight: bold; padding: 3px; text-transform: uppercase; }
 
         /* Panel Kontrol */
-        .no-print { position: fixed; top: 10px; left: 10px; width: 220px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 9999; }
+        .no-print { 
+            position: fixed; top: 10px; left: 10px; width: 220px; 
+            background: white; padding: 15px; border-radius: 8px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 9999; 
+        }
         .inp { width: 100%; border: 1px solid #ccc; padding: 5px; margin-bottom: 5px; }
         .btn { width: 100%; padding: 8px; margin-top: 5px; color: white; border-radius: 4px; cursor: pointer; border: none; font-weight: bold; }
     </style>
@@ -126,7 +135,7 @@
 
     <div class="no-print">
         <div style="text-align:center; font-weight:bold; margin-bottom:5px;">PANEL KONTROL</div>
-        <div style="font-size:11px; color:red; margin-bottom:10px;">*Pilih Margin: NONE saat print</div>
+        <div style="font-size:11px; color:red; margin-bottom:10px;">*Pilih Margin: NONE / MINIMUM saat print</div>
         <input type="text" id="filter-mold" class="inp" placeholder="Kode Mold...">
         <input type="date" id="filter-date" class="inp">
         <button onclick="fetchData()" class="btn" style="background:#2563eb;">🔍 CARI DATA</button>
@@ -161,7 +170,7 @@
             <div class="info-group">PIC: <span id="d-pic">-</span></div>
         </div>
 
-        <div class="table-wrapper">
+        <div class="table-container">
             <table class="main-table">
                 <thead>
                     <tr>
