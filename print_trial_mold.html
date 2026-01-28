@@ -3,194 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REPORT TRIAL MOLD - FULL PAGE</title>
+    <title>REPORT TRIAL MOLD - ONE PAGE PRESS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* === RESET === */
-        * { box-sizing: border-box; }
-        
+        /* === SETTING KERTAS UTAMA === */
+        @page { 
+            size: A4 landscape; 
+            margin: 0; /* Margin NOL agar browser tidak menambah jarak putih */
+        }
+
         body { 
-            font-family: Arial, Helvetica, sans-serif; /* Font standar agar jelas */
             background-color: #ccc; 
+            font-family: 'Arial Narrow', Arial, sans-serif; /* Font ramping */
             margin: 0; padding: 20px;
             display: flex; justify-content: center;
         }
 
-        /* === SETTING KERTAS === */
-        @page { 
-            size: A4 landscape; 
-            margin: 10mm; /* Margin standar printer agar tidak terpotong */
-        }
-
-        /* === TAMPILAN LAYAR === */
+        /* === TAMPILAN DI LAYAR === */
         .sheet {
             background: white;
-            width: 297mm; 
-            min-height: 210mm;
-            padding: 10mm;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 297mm;
+            height: 210mm;
+            padding: 5mm; /* Padding tipis */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-sizing: border-box;
             position: relative;
         }
 
-        /* === TAMPILAN PRINT (FIXED) === */
+        /* === MODE PRINT (RAHASIA FIT 1 HALAMAN) === */
         @media print {
             body { 
-                background: white; margin: 0; padding: 0; 
-                width: 100%; display: block;
+                background: white; margin: 0; padding: 0;
+                width: 100vw; height: 100vh;
+                overflow: hidden; /* Hilangkan scrollbar */
             }
             .no-print { display: none !important; }
             
             .sheet {
-                width: 100%; height: auto;
-                box-shadow: none; 
-                margin: 0; padding: 0; /* Ikut margin @page */
+                width: 100%;
+                height: 100%; 
+                box-shadow: none;
+                padding: 5mm; 
+                margin: 0;
                 border: none;
-                /* HAPUS SCALE AGAR TIDAK KEKECILAN */
-                transform: none !important; 
+                
+                /* TEKNIK PRESS: SKALA 85% - PASTI MUAT 1 HALAMAN */
+                transform: scale(0.85); 
+                transform-origin: top left; 
+                width: 117%; /* Kompensasi lebar (100 / 0.85) */
             }
-
-            /* Paksa background warna muncul (Chrome/Edge) */
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
 
-        /* === ELEMENT STYLE === */
+        /* === GAYA ELEMENT (SUPER COMPACT) === */
         
-        /* 1. Header */
-        .header-table { width: 100%; border-collapse: collapse; border: 2px solid #000; margin-bottom: 10px; }
-        .header-table td { border: 1px solid #000; vertical-align: middle; padding: 5px; }
+        /* Header Box */
+        .header-box { 
+            display: flex; border: 2px solid black; height: 60px; margin-bottom: 5px; 
+        }
+        .logo-area { width: 90px; display: flex; align-items: center; justify-content: center; border-right: 2px solid black; }
+        .logo-area img { height: 40px; }
         
-        .main-title { 
-            font-size: 22pt; font-weight: 900; text-align: center; 
-            text-transform: uppercase; letter-spacing: 1px; 
+        .title-area { 
+            flex: 1; display: flex; align-items: center; justify-content: center; 
+            font-size: 22px; font-weight: 900; text-transform: uppercase; 
+            border-right: 2px solid black; background-color: #f8fafc; letter-spacing: 1px;
         }
         
-        /* 2. Info Bar */
-        .info-table { 
-            width: 100%; border-collapse: collapse; border: 2px solid #000; 
-            margin-bottom: 10px; font-size: 11pt; /* Font diperbesar dikit */
-        }
-        .info-table td { 
-            border: 1px solid #000; padding: 6px 8px; /* Padding diperlega */
-            font-weight: bold; background: #fff; width: 20%; 
-        }
-        .info-val { font-weight: normal; margin-left: 5px; text-transform: uppercase; }
+        .meta-area { width: 180px; font-size: 9px; padding: 2px; }
+        .meta-table { width: 100%; border: none; }
+        .meta-table td { padding: 0 2px; font-weight: 600; border: none; line-height: 1.2; }
 
-        /* 3. Tabel Data */
-        .data-table { 
-            width: 100%; border-collapse: collapse; border: 2px solid #000; 
-            font-size: 10pt; /* Font isi tabel diperjelas */
+        /* Info Bar Compact */
+        .info-bar {
+            border: 1px solid black; padding: 3px; margin-bottom: 5px;
+            display: flex; justify-content: space-between;
+            font-size: 10px; font-weight: bold; background: #fff;
         }
-        .data-table th { 
-            background-color: #334155; color: white; border: 1px solid #000; 
-            padding: 8px; text-transform: uppercase; 
-        }
-        .data-table td { 
-            border: 1px solid #000; padding: 5px 8px; /* Padding diperlega agar tidak gepeng */
-            vertical-align: middle; 
-        }
+        .info-group span { font-weight: normal; margin-left: 5px; text-transform: uppercase; }
 
-        .sect-row { 
-            background-color: #e2e8f0; font-weight: 800; font-size: 10pt; 
-            padding: 5px; text-transform: uppercase; 
+        /* Tabel Utama */
+        .main-table { 
+            width: 100%; border-collapse: collapse; border: 1px solid black; 
+            font-size: 9px; /* Font kecil agar muat */
+        }
+        .main-table th { 
+            background-color: #334155; color: white; padding: 3px; 
+            border: 1px solid black; text-transform: uppercase; 
+            -webkit-print-color-adjust: exact; 
+        }
+        .main-table td { 
+            border: 1px solid black; padding: 1px 4px; 
+            height: 16px; /* Tinggi baris dipaksa kecil */
+            vertical-align: middle;
         }
 
-        .st-ok { color: #006400; font-weight: 800; text-align: center; }
-        .st-ng { background: #ffe4e6; color: #b91c1c; font-weight: 800; text-align: center; }
-        .st-na { color: #666; font-style: italic; text-align: center; }
-
-        /* 4. Footer TTD */
-        .footer-table { 
-            width: 100%; margin-top: 20px; border-collapse: collapse; 
-            page-break-inside: avoid; /* Jangan terpotong */
+        /* Judul Section */
+        .sect-title td { 
+            background-color: #e2e8f0; font-weight: 800; font-size: 9px; 
+            padding: 2px 5px; -webkit-print-color-adjust: exact; 
         }
-        .ttd-box { border: 1px solid #000; width: 200px; text-align: center; }
-        .ttd-head { background: #f3f4f6; font-size: 9pt; font-weight: bold; border-bottom: 1px solid #000; padding: 5px; }
-        .ttd-sign { height: 70px; display: flex; align-items: center; justify-content: center; } /* Area TTD dipertinggi */
-        .ttd-sign img { height: 55px; }
-        .ttd-name { border-top: 1px solid #000; font-size: 10pt; font-weight: bold; padding: 5px; text-transform: uppercase; }
 
-        /* Panel Kontrol */
-        .no-print { 
-            background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 800px;
-            display: flex; gap: 10px; align-items: center; justify-content: center;
+        /* Mencegah Page Break di tengah baris/tabel */
+        tr { page-break-inside: avoid; }
+        .main-table { page-break-inside: auto; }
+
+        /* Status & Warna */
+        .st-ok { color: green; font-weight: 800; text-align: center; }
+        .st-ng { background: #fee2e2; color: red; font-weight: 800; text-align: center; -webkit-print-color-adjust: exact; }
+        .st-na { color: #aaa; font-style: italic; text-align: center; }
+
+        /* Footer Tanda Tangan */
+        .footer-container {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 30px;
+            page-break-inside: avoid; /* Jangan sampai terpotong */
         }
-        .btn { padding: 10px 20px; color: white; border-radius: 4px; cursor: pointer; border: none; font-weight: bold; font-size: 14px; }
-        .inp { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .ttd-box {
+            width: 180px; border: 1px solid black; text-align: center;
+        }
+        .ttd-header {
+            background: #eee; font-size: 8px; font-weight: bold; 
+            border-bottom: 1px solid black; padding: 2px; 
+            -webkit-print-color-adjust: exact;
+        }
+        .ttd-area {
+            height: 45px; display: flex; align-items: center; justify-content: center;
+        }
+        .ttd-area img { height: 35px; }
+        .ttd-name {
+            border-top: 1px solid black; font-size: 9px; font-weight: bold; 
+            padding: 2px; text-transform: uppercase;
+        }
+
+        /* Panel Kontrol (Tidak ikut diprint) */
+        .no-print {
+            position: fixed; top: 20px; left: 20px; width: 220px;
+            background: white; padding: 15px; border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 9999;
+        }
+        .inp { width: 100%; border: 1px solid #ccc; padding: 5px; margin-bottom: 5px; border-radius: 4px; font-size: 12px; }
+        .btn { width: 100%; padding: 8px; margin-top: 5px; color: white; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; border:none; }
+        .btn-blue { background: #2563eb; } .btn-green { background: #16a34a; } .btn-gray { background: #64748b; }
     </style>
 </head>
 <body>
 
     <div class="no-print">
-        <span style="font-weight:bold; color:red;">PRINT SETTING:</span>
-        <span>Layout: <b>Landscape</b> | Scale: <b>Default (100)</b></span>
+        <h3 class="font-bold text-center mb-3 text-sm">PANEL KONTROL</h3>
         <input type="text" id="filter-mold" class="inp" placeholder="Kode Mold...">
         <input type="date" id="filter-date" class="inp">
-        <button onclick="fetchData()" class="btn" style="background:#2563eb;">🔍 Cari</button>
-        <button onclick="window.print()" class="btn" style="background:#16a34a;">🖨️ Print PDF</button>
-        <button onclick="window.location.href='dashboard.html'" class="btn" style="background:#4b5563;">Kembali</button>
+        <button onclick="fetchData()" class="btn btn-blue">🔍 CARI DATA</button>
+        <button onclick="window.print()" class="btn btn-green">🖨️ PRINT (FIT PAGE)</button>
+        <button onclick="window.location.href='dashboard.html'" class="btn btn-gray">KEMBALI</button>
     </div>
 
     <div class="sheet">
-        
-        <table class="header-table">
-            <tr>
-                <td style="width: 120px; text-align: center; border-right:2px solid black;">
-                    <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" style="height: 60px;">
-                </td>
-                <td class="main-title">LAPORAN VERIFIKASI TRIAL MOLD</td>
-                <td style="width: 250px; padding:0;">
-                    <table style="width:100%; border:none; font-size:9pt; font-weight:bold;">
-                        <tr><td style="border:none;">NO DOKUMEN</td><td style="border:none;">: FRM-ENG-002</td></tr>
-                        <tr><td style="border:none;">REVISI</td><td style="border:none;">: 00</td></tr>
-                        <tr><td style="border:none;">TGL EFEKTIF</td><td style="border:none;">: 01-01-2026</td></tr>
-                        <tr><td style="border:none;">HALAMAN</td><td style="border:none;">: 1 DARI 1</td></tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
+        <div class="header-box">
+            <div class="logo-area">
+                <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo">
+            </div>
+            <div class="title-area">
+                LAPORAN VERIFIKASI TRIAL MOLD
+            </div>
+            <div class="meta-area">
+                <table class="meta-table">
+                    <tr><td width="60">NO DOK</td><td>: FRM-ENG-002</td></tr>
+                    <tr><td>REVISI</td><td>: 00</td></tr>
+                    <tr><td>TGL EFF</td><td>: 01-01-2026</td></tr>
+                    <tr><td>HALAMAN</td><td>: 1 DARI 1</td></tr>
+                </table>
+            </div>
+        </div>
 
-        <table class="info-table">
-            <tr>
-                <td>PROJECT:<span class="info-val" id="d-project">-</span></td>
-                <td>MOLD:<span class="info-val" id="d-mold">-</span></td>
-                <td>MESIN:<span class="info-val" id="d-mesin">-</span></td>
-                <td>TGL:<span class="info-val" id="d-date">-</span></td>
-                <td>PIC:<span class="info-val" id="d-pic">-</span></td>
-            </tr>
-        </table>
+        <div class="info-bar">
+            <div class="info-group">PROJECT: <span id="d-project">-</span></div>
+            <div class="info-group">MOLD: <span id="d-mold">-</span></div>
+            <div class="info-group">MESIN: <span id="d-mesin">-</span></div>
+            <div class="info-group">TGL: <span id="d-date">-</span></div>
+            <div class="info-group">PIC: <span id="d-pic">-</span></div>
+        </div>
 
-        <table class="data-table">
+        <table class="main-table">
             <thead>
                 <tr>
-                    <th width="5%">NO</th>
+                    <th width="3%">NO</th>
                     <th width="30%">ITEM CEK</th>
                     <th width="25%">STANDAR</th>
-                    <th width="10%">KONDISI</th>
-                    <th width="30%">KETERANGAN / NOTE</th>
+                    <th width="7%">KONDISI</th>
+                    <th width="35%">KETERANGAN / NOTE</th>
                 </tr>
             </thead>
             <tbody id="table-body">
-                <tr><td colspan="5" style="text-align:center; padding:50px; color:#aaa;">DATA BELUM DIMUAT...</td></tr>
+                <tr><td colspan="5" style="text-align:center; padding:50px; color:#aaa; font-style:italic;">Silakan cari data di panel kiri...</td></tr>
             </tbody>
         </table>
 
-        <table class="footer-table">
-            <tr>
-                <td style="border:none;"></td> <td class="ttd-box">
-                    <div class="ttd-head">DIBUAT OLEH (PIC)</div>
-                    <div class="ttd-sign" id="sig-pic"></div>
-                    <div class="ttd-name" id="name-pic">( ................... )</div>
-                </td>
-                
-                <td style="width: 30px; border:none;"></td> <td class="ttd-box">
-                    <div class="ttd-head">DIKETAHUI OLEH (SUPER)</div>
-                    <div class="ttd-sign" id="sig-super"></div>
-                    <div class="ttd-name" id="name-super">( ................... )</div>
-                </td>
-            </tr>
-        </table>
+        <div class="footer-container">
+            <div class="ttd-box">
+                <div class="ttd-header">DIBUAT OLEH (PIC)</div>
+                <div class="ttd-area" id="sig-pic"></div>
+                <div class="ttd-name" id="name-pic">( ................... )</div>
+            </div>
 
+            <div class="ttd-box">
+                <div class="ttd-header">DIKETAHUI OLEH (SUPER)</div>
+                <div class="ttd-area" id="sig-super"></div>
+                <div class="ttd-name" id="name-super">( ................... )</div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -199,7 +222,7 @@
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
         const standards = {
-            "m1": "Sesuai clamping force", "m2": "20% - 80% kapasitas barrel", "m3": "Radius & centering OK", "m4": "Koneksi & stroke aman", "m5": "Suhu & tekanan normal",
+            "m1": "Sesuai clamping force", "m2": "20% - 80% kapasitas", "m3": "Radius & centering OK", "m4": "Koneksi & stroke aman", "m5": "Suhu & tekanan normal",
             "md1": "Bersih dari karat", "md2": "Baut terikat kuat", "md3": "Leader pin digrease", "md4": "Tidak bocor", "md5": "Koneksi kabel aman",
             "ax1": "Level media cukup", "ax2": "Suhu air stabil", "ax3": "Suhu/waktu tercapai", "ax4": "Gripper berfungsi", "ax5": "Siap recycle",
             "mat1": "Stok cukup", "mat2": "Rasio mixing benar", "mat3": "Tersedia", "mat4": "Tersedia",
@@ -228,17 +251,23 @@
             if(error || !data.length) return alert("Data tidak ditemukan!");
             
             const r = data[0];
+            
+            // ISI INFO UTAMA
             document.getElementById('d-project').innerText = r.project_name || '-';
             document.getElementById('d-mold').innerText = r.mold_code;
             document.getElementById('d-mesin').innerText = r.machine_name;
             document.getElementById('d-date').innerText = r.trial_date;
             document.getElementById('d-pic').innerText = r.pic_trial;
 
+            // ISI TANDA TANGAN PIC (KIRI)
             document.getElementById('name-pic').innerText = `( ${r.pic_trial} )`;
-            document.getElementById('sig-pic').innerHTML = r.signature_data ? `<img src="${r.signature_data}">` : '';
+            document.getElementById('sig-pic').innerHTML = r.signature_data ? `<img src="${r.signature_data}">` : '<span style="font-size:8px;color:red;">BELUM TTD</span>';
+
+            // ISI TANDA TANGAN SUPERINTENDENT (KANAN) - Jika sudah di-approve
             document.getElementById('name-super').innerText = r.nama_superintendent ? `( ${r.nama_superintendent} )` : '( ................... )';
             document.getElementById('sig-super').innerHTML = r.signature_superintendent ? `<img src="${r.signature_superintendent}">` : '';
 
+            // RENDER TABEL
             const sections = [
                 {k:'check_machine', t:'1. MESIN INJEKSI'}, {k:'check_mold', t:'2. MOLD & CETAKAN'}, 
                 {k:'check_aux', t:'3. AUXILIARY'}, {k:'check_material', t:'4. MATERIAL'},
@@ -248,7 +277,7 @@
             let html = '';
             let no = 1;
             sections.forEach(s => {
-                html += `<tr><td colspan="5" class="sect-row">${s.t}</td></tr>`;
+                html += `<tr class="sect-title"><td colspan="5">${s.t}</td></tr>`;
                 if(r[s.k]) {
                     Object.entries(r[s.k]).forEach(([k, v]) => {
                         let cls = v.status === 'NG' ? 'st-ng' : (v.status === 'OK' ? 'st-ok' : 'st-na');
