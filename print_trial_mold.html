@@ -7,24 +7,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* === PENGATURAN PRINT === */
-        @page { 
-            size: A4 landscape; 
-            margin: 5mm; 
-        }
+        @page { size: A4 landscape; margin: 5mm; }
 
         @media print {
-            body { 
-                padding: 0; margin: 0; background: white !important; 
-                -webkit-print-color-adjust: exact; 
-                width: 100%;
-            }
+            body { padding: 0; margin: 0; background: white !important; -webkit-print-color-adjust: exact; width: 100%; }
             .no-print { display: none !important; }
-            .document-page { 
-                border: none !important; width: 100% !important; 
-                margin: 0 !important; padding: 0 !important; 
-                box-shadow: none !important;
-            }
+            .document-page { border: none !important; width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
             table { width: 100% !important; }
             .table-official, .table-official th, .table-official td { border: 1pt solid black !important; }
             .header-box, .header-cell { border: 1.5pt solid black !important; }
@@ -32,67 +20,47 @@
 
         body { font-family: 'Arial', sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
         
-        /* LAYOUT KERTAS */
         .document-page { 
-            background: white; width: 290mm; min-height: 200mm; 
-            margin: 0 auto; padding: 10mm; 
+            background: white; width: 290mm; min-height: 200mm; margin: 0 auto; padding: 10mm; 
             border: 1px solid #ccc; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
         }
         
-        /* === HEADER === */
+        /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 15px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; padding: 5px; }
         .header-cell:last-child { border-right: none; }
-        
         .logo-area { width: 10%; text-align: center; }
         .logo-area img { width: 80px; height: auto; display: block; margin: 0 auto; }
-        
-        .title-area { 
-            text-align: center; font-size: 18pt; font-weight: 700; /* Tidak terlalu tebal */
-            text-transform: uppercase; letter-spacing: 0.5px; width: 60%;
-        }
-        
-        .meta-area { width: 30%; font-size: 9pt; font-weight: normal; }
+        .title-area { text-align: center; font-size: 18pt; font-weight: 700; text-transform: uppercase; width: 60%; }
+        .meta-area { width: 30%; font-size: 9pt; }
         .meta-table { width: 100%; border-collapse: collapse; }
-        .meta-table td { padding: 2px; border: none !important; font-weight: 600; }
+        .meta-table td { padding: 2px; font-weight: 600; }
 
-        /* === INFO GRID === */
-        .info-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 40px; 
-            margin-bottom: 20px; border-bottom: 2px solid black; padding-bottom: 10px; 
-        }
+        /* INFO GRID */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 20px; border-bottom: 2px solid black; padding-bottom: 10px; }
         .info-item { display: flex; font-size: 11pt; align-items: center; margin-bottom: 6px; }
-        .info-label { width: 180px; font-weight: 600; } /* Label Semi-Bold */
-        .info-val { border-bottom: 1px solid #999; flex: 1; padding-left: 10px; text-transform: uppercase; font-weight: normal; }
+        .info-label { width: 180px; font-weight: 600; } 
+        .info-val { border-bottom: 1px solid #999; flex: 1; padding-left: 10px; text-transform: uppercase; }
 
-        /* === TABEL DATA === */
-        .table-official { width: 100%; border-collapse: collapse; border: 2px solid black; color: #000; margin-bottom: 20px; }
-        .table-official th { 
-            background-color: #eee; font-weight: 700; text-align: center; 
-            padding: 6px; font-size: 10pt; border: 1px solid black; 
-        }
-        .table-official td { 
-            border: 1px solid black; padding: 5px 8px; font-size: 10pt; 
-            vertical-align: middle; font-weight: normal; /* Isi tabel normal */
-        }
+        /* TABLE STYLE */
+        .table-official { width: 100%; border-collapse: collapse; border: 2px solid black; color: #000; margin-bottom: 20px; table-layout: fixed; }
+        .table-official th { background-color: #eee; font-weight: 700; text-align: center; padding: 6px; font-size: 10pt; border: 1px solid black; }
+        .table-official td { border: 1px solid black; padding: 5px 8px; font-size: 10pt; vertical-align: middle; }
         
+        /* Lebar Kolom Diatur Ulang */
         .col-no { width: 5%; text-align: center; }
-        .col-item { width: 40%; } 
+        .col-item { width: 30%; } 
+        .col-standar { width: 30%; } /* Kolom Standar Baru */
         .col-status { width: 10%; text-align: center; font-weight: 600; }
-        .col-note { width: 45%; font-style: italic; }
+        .col-note { width: 25%; font-style: italic; }
 
         .status-ok { color: black; }
-        .status-ng { background-color: #ef4444; color: white !important; font-weight: bold; -webkit-print-color-adjust: exact; }
+        .status-ng { background-color: #ef4444; color: white !important; -webkit-print-color-adjust: exact; }
         .status-na { background-color: #f3f4f6; color: #6b7280; -webkit-print-color-adjust: exact; }
 
-        .section-row { 
-            background-color: #334155; color: white !important; 
-            font-weight: 700; padding: 6px 15px; font-size: 11pt; 
-            text-transform: uppercase; letter-spacing: 0.5px;
-            -webkit-print-color-adjust: exact; 
-        }
+        .section-row { background-color: #334155; color: white !important; font-weight: 700; padding: 6px 15px; font-size: 11pt; text-transform: uppercase; -webkit-print-color-adjust: exact; }
 
-        /* === FOOTER TTD === */
+        /* FOOTER */
         .footer-box { margin-top: 15px; display: flex; justify-content: flex-end; padding-right: 20px; }
         .ttd-container { border: 1px solid black; width: 220px; text-align: center; }
         .ttd-title { font-weight: 600; font-size: 9pt; border-bottom: 1px solid black; padding: 4px; background: #f9f9f9; }
@@ -100,20 +68,19 @@
         .ttd-img img { max-height: 80px; max-width: 100%; }
         .ttd-name { font-weight: 600; font-size: 10pt; text-decoration: underline; padding: 4px; border-top: 1px solid black; }
 
-        /* CONTROLS (NO PRINT) */
+        /* CONTROLS */
         .no-print { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; padding: 15px; background: #fff; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 50; }
-        .no-print input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn { padding: 8px 20px; border-radius: 4px; font-weight: 600; color: white; cursor: pointer; text-transform: uppercase; font-size: 12px; }
+        .btn { padding: 8px 20px; border-radius: 4px; font-weight: 600; color: white; cursor: pointer; font-size: 12px; }
         .btn-blue { background: #2563eb; } .btn-black { background: #1e293b; } .btn-gray { background: #64748b; }
     </style>
 </head>
 <body>
 
     <div class="no-print">
-        <input type="text" id="filter-mold" placeholder="CARI KODE MOLD...">
-        <input type="date" id="filter-date">
+        <input type="text" id="filter-mold" placeholder="CARI KODE MOLD..." class="p-2 border rounded">
+        <input type="date" id="filter-date" class="p-2 border rounded">
         <button onclick="fetchData()" class="btn btn-blue">CARI DATA</button>
-        <button onclick="window.print()" class="btn btn-black">🖨️ CETAK FULLSCREEN</button>
+        <button onclick="window.print()" class="btn btn-black">🖨️ CETAK</button>
         <button onclick="window.location.href='dashboard.html'" class="btn btn-gray">KEMBALI</button>
     </div>
 
@@ -147,13 +114,11 @@
             <thead>
                 <tr>
                     <th class="col-no">NO</th>
-                    <th class="col-item">ITEM PENGECEKAN</th>
-                    <th class="col-status">STATUS</th>
-                    <th class="col-note">KETERANGAN / CATATAN MASALAH</th>
+                    <th class="col-item">KESIAPAN MOLD</th> <th class="col-standar">STANDAR</th> <th class="col-status">KONDISI</th> <th class="col-note">KETERANGAN</th>
                 </tr>
             </thead>
             <tbody id="table-body">
-                <tr><td colspan="4" style="text-align:center; padding:30px; font-style:italic;">Silakan Cari Data Terlebih Dahulu...</td></tr>
+                <tr><td colspan="5" style="text-align:center; padding:30px; font-style:italic;">Silakan Cari Data...</td></tr>
             </tbody>
         </table>
 
@@ -172,30 +137,70 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
+        // DATA STANDAR STATIS (Mapping ID ke Text Standar)
+        const standards = {
+            // Mesin
+            "m1": "Sesuai clamping force mold",
+            "m2": "20% - 80% kapasitas barrel",
+            "m3": "Radius & centering OK",
+            "m4": "Koneksi & stroke aman",
+            "m5": "Suhu & tekanan normal",
+            // Mold
+            "md1": "Bersih dari karat/kotoran",
+            "md2": "Baut terikat kuat",
+            "md3": "Leader pin digrease",
+            "md4": "Tidak ada kebocoran",
+            "md5": "Koneksi kabel aman",
+            // Aux
+            "ax1": "Level media cukup",
+            "ax2": "Suhu air stabil",
+            "ax3": "Suhu & waktu tercapai",
+            "ax4": "Gripper berfungsi",
+            "ax5": "Siap recycle",
+            // Material
+            "mat1": "Stok cukup",
+            "mat2": "Rasio mixing benar",
+            "mat3": "Tersedia",
+            "mat4": "Tersedia",
+            // QC
+            "qc1": "Tersedia & terkalibrasi",
+            "qc2": "Berfungsi",
+            "qc3": "Tersedia",
+            "qc4": "Tersedia",
+            // Safety
+            "sf1": "Lengkap",
+            "sf2": "Sensor berfungsi",
+            "sf3": "Berfungsi normal"
+        };
+
+        // Mapping Nama Item ke Kode ID (Manual Mapping agar Standar Muncul)
+        const itemCodeMap = {
+            "Kapasitas Tonase": "m1", "Kapasitas Injeksi": "m2", "Kondisi Nozzle": "m3", "Fungsi Ejektor": "m4", "Kalibrasi": "m5",
+            "Kebersihan Mold": "md1", "Clamping Plate": "md2", "Moving Parts": "md3", "Cooling System": "md4", "Hot Runner": "md5",
+            "MTC / Mold Temp": "ax1", "Chiller": "ax2", "Dryer Material": "ax3", "Robot": "ax4", "Granulator": "ax5",
+            "Resin Material": "mat1", "Masterbatch": "mat2", "Purging Compound": "mat3", "Mold Release": "mat4",
+            "Alat Ukur Dimensi": "qc1", "Termometer Laser": "qc2", "Form Trial Report": "qc3", "Drawing Produk": "qc4",
+            "APD Lengkap": "sf1", "Safety Gate": "sf2", "Emergency Stop": "sf3"
+        };
+
         async function fetchData() {
             const moldCode = document.getElementById('filter-mold').value.trim();
             const dateVal = document.getElementById('filter-date').value;
 
-            if(!moldCode && !dateVal) {
-                alert("Masukkan minimal Kode Mold atau Tanggal!");
-                return;
-            }
+            if(!moldCode && !dateVal) return alert("Masukkan Kode Mold atau Tanggal!");
 
             let query = _sb.from('checklist_trial').select('*').order('created_at', { ascending: false }).limit(1);
-
             if (moldCode) query = query.ilike('mold_code', `%${moldCode}%`);
             if (dateVal) query = query.eq('trial_date', dateVal);
 
             const { data, error } = await query;
-
-            if (error) return alert("Gagal mengambil data.");
+            if (error) return alert("Error ambil data");
             
             if (data.length === 0) {
-                document.getElementById('table-body').innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px; font-weight:bold; color:red;">DATA TIDAK DITEMUKAN</td></tr>`;
+                document.getElementById('table-body').innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; font-weight:bold; color:red;">DATA TIDAK DITEMUKAN</td></tr>`;
                 clearInfo();
                 return;
             }
-
             renderReport(data[0]);
         }
 
@@ -212,11 +217,7 @@
             document.getElementById('disp-date').innerText = record.trial_date;
 
             const sigBox = document.getElementById('signature-box');
-            if (record.signature_data) {
-                sigBox.innerHTML = `<img src="${record.signature_data}" alt="Tanda Tangan">`;
-            } else {
-                sigBox.innerHTML = "<span style='color:red; font-size:10px;'>BELUM TTD</span>";
-            }
+            sigBox.innerHTML = record.signature_data ? `<img src="${record.signature_data}" alt="TTD">` : "<span style='color:red; font-size:10px;'>BELUM TTD</span>";
             document.getElementById('signer-name').innerText = `( ${record.pic_trial.toUpperCase()} )`;
 
             const tbody = document.getElementById('table-body');
@@ -234,7 +235,7 @@
             let globalNo = 1;
 
             sections.forEach(sec => {
-                tbody.innerHTML += `<tr><td colspan="4" class="section-row">${sec.title}</td></tr>`;
+                tbody.innerHTML += `<tr><td colspan="5" class="section-row">${sec.title}</td></tr>`;
                 
                 const items = record[sec.key];
                 
@@ -244,10 +245,14 @@
                         if (val.status === 'NG') statusClass = "status-ng";
                         if (val.status === 'NA') statusClass = "status-na";
 
+                        // Ambil Standar dari Mapping
+                        const stdText = standards[itemCodeMap[itemName]] || "-";
+
                         const rowHtml = `
                             <tr>
                                 <td class="col-no">${globalNo++}</td>
                                 <td class="col-item">${itemName}</td>
+                                <td class="col-standar">${stdText}</td>
                                 <td class="col-status ${statusClass}">${val.status || '-'}</td>
                                 <td class="col-note">${val.note || ''}</td>
                             </tr>
