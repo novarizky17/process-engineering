@@ -9,7 +9,7 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
         header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5 rgba(0,0,0,0.1); }
-        .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .container { padding: 20px; max-width: 1300px; margin: 0 auto; } /* Lebar container ditambah */
         
         .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: #e0e0e0; color: #666; transition: 0.3s; }
@@ -18,8 +18,8 @@
         .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex-wrap: wrap; }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
 
-        .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; }
+        .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
         th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
         td { padding: 15px; border-top: 1px solid #eee; font-size: 14px; }
         
@@ -27,7 +27,7 @@
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
-        .status-completed { background: #d1ecf1; color: #0c5460; } /* Warna status completed (baru masuk) */
+        .status-completed { background: #d1ecf1; color: #0c5460; }
 
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
         .btn-primary { background: #007bff; color: white; }
@@ -188,8 +188,8 @@
         if (currentTab === 'rutin') {
             header.innerHTML = `<th>Pelaksana</th><th>Superintendent</th><th>Equipment</th><th>Tanggal</th><th>Week</th><th>Keterangan</th><th>Status</th><th>Aksi</th>`;
         } else {
-            // Header Baru Sesuai Tabel checklist_trial (project_name & pic_trial)
-            header.innerHTML = `<th>PIC Trial</th><th>Superintendent</th><th>Mesin</th><th>Project</th><th>Tanggal</th><th>Status</th><th>Aksi</th>`;
+            // Header Baru Sesuai Tabel checklist_trial (project_name & pic_trial) + KETERANGAN
+            header.innerHTML = `<th>PIC Trial</th><th>Superintendent</th><th>Mesin</th><th>Project</th><th>Tanggal</th><th>Keterangan</th><th>Status</th><th>Aksi</th>`;
         }
 
         if (dataList.length === 0) {
@@ -216,7 +216,7 @@
                     <td>${row.machine_name || '-'}</td>
                     <td>${row.project_name || '-'}</td>
                     <td>${row.trial_date || '-'}</td> 
-                    <td><span class="badge status-${(row.status || 'pending').toLowerCase()}">${row.status || 'Pending'}</span></td>
+                    <td>${row.keterangan || '-'}</td> <td><span class="badge status-${(row.status || 'pending').toLowerCase()}">${row.status || 'Pending'}</span></td>
                     <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
                 </tr>`;
             }
@@ -298,7 +298,7 @@
                 <div><strong>Mesin:</strong> ${row.machine_name}</div>
                 <div><strong>Project:</strong> ${row.project_name}</div>
                 <div><strong>Mold Code:</strong> ${row.mold_code}</div>
-            </div>`;
+                <div><strong>Keterangan PIC:</strong> ${row.keterangan || '-'}</div> </div>`;
             
             content += renderJsonCheck("1. MESIN INJEKSI", row.check_machine);
             content += renderJsonCheck("2. PERSIAPAN MOLD", row.check_mold);
