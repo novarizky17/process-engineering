@@ -3,176 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REPORT TRIAL MOLD - OFFICIAL PRINT</title>
+    <title>REPORT TRIAL MOLD - LANDSCAPE</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* === PENGATURAN PRINT UTAMA === */
+        /* === SETTING KERTAS AGAR TIDURAN (LANDSCAPE) === */
         @page { 
-            size: A4 landscape;  /* Wajib Landscape */
+            size: A4 landscape; 
             margin: 5mm; 
         }
 
+        body { 
+            background-color: #e2e8f0; 
+            padding: 20px; 
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center; /* Biar kertas ada di tengah */
+        }
+
+        /* TAMPILAN KERTAS DI LAYAR (DIPAKSA MELEBAR) */
+        .sheet {
+            background: white;
+            width: 297mm;  /* LEBAR A4 LANDSCAPE */
+            min-height: 210mm; /* TINGGI A4 LANDSCAPE */
+            padding: 10mm;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* SETTING SAAT DIPRINT */
         @media print {
             body { 
-                padding: 0; margin: 0; background: white !important; 
-                -webkit-print-color-adjust: exact; 
+                background: white; 
+                padding: 0; 
+                margin: 0; 
                 width: 100%;
                 height: 100%;
-                transform: scale(1); /* Pastikan skala 100% */
+            }
+            .sheet {
+                width: 100%; /* Full kertas printer */
+                height: 100%;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
             }
             .no-print { display: none !important; }
-            .document-page { 
-                border: none !important; width: 100% !important; 
-                margin: 0 !important; padding: 0 !important; 
-                box-shadow: none !important;
-                /* Trik CSS untuk memaksa orientasi jika @page gagal */
-                min-height: auto !important; 
-            }
-            table { width: 100% !important; }
-            .table-official, .table-official th, .table-official td { border: 1pt solid black !important; }
-            .header-box, .header-cell { border: 1.5pt solid black !important; }
         }
 
-        body { font-family: 'Arial', sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
+        /* === STYLE TABLE & GARIS === */
+        table { width: 100%; border-collapse: collapse; border: 2px solid black; }
+        th, td { border: 1px solid black; padding: 4px 8px; font-size: 11px; }
+        th { background-color: #f1f5f9; font-weight: 800; text-align: center; text-transform: uppercase; }
         
-        /* LAYOUT KERTAS LANDSCAPE (297mm x 210mm) */
-        .document-page { 
-            background: white; 
-            width: 297mm;  /* Lebar A4 Landscape */
-            min-height: 210mm; /* Tinggi A4 Landscape */
-            margin: 0 auto; 
-            padding: 10mm; 
-            border: 1px solid #ccc; 
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
+        .header-section { display: flex; border: 2px solid black; margin-bottom: 10px; }
+        .logo-box { width: 100px; padding: 5px; border-right: 2px solid black; display: flex; align-items: center; justify-content: center; }
+        .logo-box img { width: 80px; }
+        .title-box { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; border-right: 2px solid black; }
+        .doc-info { width: 250px; font-size: 10px; padding: 5px; }
+        .doc-info table { border: none; }
+        .doc-info td { border: none; padding: 1px; }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; border: 1px solid black; padding: 8px; font-size: 12px; font-weight: bold; }
         
-        /* === HEADER === */
-        .header-box { border: 2px solid black; margin-bottom: 15px; display: table; width: 100%; border-collapse: collapse; }
-        .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; padding: 5px; }
-        .header-cell:last-child { border-right: none; }
-        
-        .logo-area { width: 10%; text-align: center; }
-        .logo-area img { width: 80px; height: auto; display: block; margin: 0 auto; }
-        
-        .title-area { 
-            text-align: center; font-size: 18pt; font-weight: 700; 
-            text-transform: uppercase; letter-spacing: 0.5px; width: 60%;
-        }
-        
-        .meta-area { width: 30%; font-size: 9pt; font-weight: normal; }
-        .meta-table { width: 100%; border-collapse: collapse; }
-        .meta-table td { padding: 2px; border: none !important; font-weight: 600; }
+        /* WARNA STATUS */
+        .st-ok { color: green; font-weight: bold; text-align: center; }
+        .st-ng { background: #fee2e2; color: red; font-weight: bold; text-align: center; }
+        .st-na { color: #94a3b8; font-style: italic; text-align: center; }
 
-        /* === INFO GRID === */
-        .info-grid { 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 40px; 
-            margin-bottom: 20px; border-bottom: 2px solid black; padding-bottom: 10px; 
-        }
-        .info-item { display: flex; font-size: 11pt; align-items: center; margin-bottom: 6px; }
-        .info-label { width: 180px; font-weight: 600; } 
-        .info-val { border-bottom: 1px solid #999; flex: 1; padding-left: 10px; text-transform: uppercase; font-weight: normal; }
+        .sect-title { background: #334155; color: white; font-weight: bold; padding: 5px 10px; text-transform: uppercase; -webkit-print-color-adjust: exact; }
 
-        /* === TABEL DATA === */
-        .table-official { width: 100%; border-collapse: collapse; border: 2px solid black; color: #000; margin-bottom: 20px; }
-        .table-official th { 
-            background-color: #eee; font-weight: 700; text-align: center; 
-            padding: 6px; font-size: 10pt; border: 1px solid black; 
-        }
-        .table-official td { 
-            border: 1px solid black; padding: 5px 8px; font-size: 10pt; 
-            vertical-align: middle; font-weight: normal; 
-        }
-        
-        .col-no { width: 5%; text-align: center; }
-        .col-item { width: 30%; } 
-        .col-standar { width: 30%; } 
-        .col-status { width: 10%; text-align: center; font-weight: 600; }
-        .col-note { width: 25%; font-style: italic; }
-
-        .status-ok { color: black; }
-        .status-ng { background-color: #ef4444; color: white !important; font-weight: bold; -webkit-print-color-adjust: exact; }
-        .status-na { background-color: #f3f4f6; color: #6b7280; -webkit-print-color-adjust: exact; }
-
-        .section-row { 
-            background-color: #334155; color: white !important; 
-            font-weight: 700; padding: 6px 15px; font-size: 11pt; 
-            text-transform: uppercase; letter-spacing: 0.5px;
-            -webkit-print-color-adjust: exact; 
-        }
-
-        /* === FOOTER TTD === */
-        .footer-box { margin-top: 15px; display: flex; justify-content: flex-end; padding-right: 20px; }
-        .ttd-container { border: 1px solid black; width: 220px; text-align: center; }
-        .ttd-title { font-weight: 600; font-size: 9pt; border-bottom: 1px solid black; padding: 4px; background: #f9f9f9; }
-        .ttd-img { height: 90px; display: flex; align-items: center; justify-content: center; }
-        .ttd-img img { max-height: 80px; max-width: 100%; }
-        .ttd-name { font-weight: 600; font-size: 10pt; text-decoration: underline; padding: 4px; border-top: 1px solid black; }
-
-        /* CONTROLS */
-        .no-print { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; padding: 15px; background: #fff; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 50; }
-        .no-print input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn { padding: 8px 20px; border-radius: 4px; font-weight: 600; color: white; cursor: pointer; text-transform: uppercase; font-size: 12px; }
-        .btn-blue { background: #2563eb; } .btn-black { background: #1e293b; } .btn-gray { background: #64748b; }
+        /* NAVIGASI */
+        .no-print { position: fixed; top: 20px; left: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 10px; width: 200px; z-index: 999; }
+        .btn { background: #0f172a; color: white; padding: 8px; text-align: center; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        .btn:hover { background: #334155; }
     </style>
 </head>
 <body>
 
     <div class="no-print">
-        <input type="text" id="filter-mold" placeholder="CARI KODE MOLD...">
-        <input type="date" id="filter-date">
-        <button onclick="fetchData()" class="btn btn-blue">CARI DATA</button>
-        <button onclick="window.print()" class="btn btn-black">🖨️ CETAK</button>
-        <button onclick="window.location.href='dashboard.html'" class="btn btn-gray">KEMBALI</button>
+        <div class="text-center font-bold mb-2">MENU PRINT</div>
+        <input type="text" id="filter-mold" placeholder="Kode Mold..." class="border p-1 text-sm rounded">
+        <input type="date" id="filter-date" class="border p-1 text-sm rounded">
+        <button onclick="fetchData()" class="btn bg-blue-600">🔍 CARI DATA</button>
+        <button onclick="window.print()" class="btn">🖨️ PRINT SEKARANG</button>
+        <a href="dashboard.html" class="btn bg-gray-500">KEMBALI</a>
     </div>
 
-    <div class="document-page" id="report-container">
+    <div class="sheet">
         
-        <div class="header-box">
-            <div class="header-cell logo-area"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO"></div>
-            <div class="header-cell title-area">LAPORAN VERIFIKASI TRIAL MOLD (PRE-PRODUCTION)</div>
-            <div class="header-cell meta-area">
-                <table class="meta-table">
-                    <tr><td>NO DOKUMEN</td><td>: FRM-ENG-002</td></tr>
+        <div class="header-section">
+            <div class="logo-box">
+                <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo">
+            </div>
+            <div class="title-box">
+                LAPORAN VERIFIKASI TRIAL MOLD
+            </div>
+            <div class="doc-info">
+                <table>
+                    <tr><td width="80">NO DOK</td><td>: FRM-ENG-002</td></tr>
                     <tr><td>REVISI</td><td>: 00</td></tr>
-                    <tr><td>TANGGAL</td><td>: 01-01-2026</td></tr>
+                    <tr><td>TGL EFEKTIF</td><td>: 01-01-2026</td></tr>
                     <tr><td>HALAMAN</td><td>: 1 DARI 1</td></tr>
                 </table>
             </div>
         </div>
 
         <div class="info-grid">
-            <div>
-                <div class="info-item"><span class="info-label">PROJECT / PRODUK</span>: <span class="info-val" id="disp-project">-</span></div>
-                <div class="info-item"><span class="info-label">KODE MOLD</span>: <span class="info-val" id="disp-mold">-</span></div>
-            </div>
-            <div>
-                <div class="info-item"><span class="info-label">MESIN INJEKSI</span>: <span class="info-val" id="disp-machine">-</span></div>
-                <div class="info-item"><span class="info-label">TANGGAL TRIAL</span>: <span class="info-val" id="disp-date">-</span></div>
-            </div>
+            <div>PROJECT: <span id="d-project" class="font-normal uppercase ml-2">-</span></div>
+            <div>KODE MOLD: <span id="d-mold" class="font-normal uppercase ml-2">-</span></div>
+            <div>MESIN: <span id="d-mesin" class="font-normal uppercase ml-2">-</span></div>
+            <div>TANGGAL: <span id="d-date" class="font-normal uppercase ml-2">-</span></div>
+            <div>PIC TRIAL: <span id="d-pic" class="font-normal uppercase ml-2">-</span></div>
         </div>
 
-        <table class="table-official">
+        <table>
             <thead>
                 <tr>
-                    <th class="col-no">NO</th>
-                    <th class="col-item">KESIAPAN MOLD</th> 
-                    <th class="col-standar">STANDAR</th> 
-                    <th class="col-status">KONDISI</th> 
-                    <th class="col-note">KETERANGAN</th>
+                    <th style="width: 5%;">NO</th>
+                    <th style="width: 30%;">ITEM CEK</th>
+                    <th style="width: 30%;">STANDAR</th>
+                    <th style="width: 10%;">STATUS</th>
+                    <th style="width: 25%;">KETERANGAN / NOTE</th>
                 </tr>
             </thead>
             <tbody id="table-body">
-                <tr><td colspan="5" style="text-align:center; padding:30px; font-style:italic;">Silakan Cari Data...</td></tr>
+                <tr><td colspan="5" class="text-center p-10 text-gray-400 italic">Silakan cari data terlebih dahulu...</td></tr>
             </tbody>
         </table>
 
-        <div class="footer-box">
-            <div class="ttd-container">
-                <div class="ttd-title">DIBUAT & DIKETAHUI OLEH</div>
-                <div class="ttd-img" id="signature-box"></div>
-                <div class="ttd-name" id="signer-name">( ........................ )</div>
+        <div class="flex justify-end mt-8 border border-black w-64 ml-auto text-center break-inside-avoid">
+            <div class="w-full">
+                <div class="bg-gray-100 border-b border-black font-bold text-xs p-1">DIBUAT OLEH</div>
+                <div class="h-16 flex items-center justify-center" id="signature-box"></div>
+                <div class="border-t border-black font-bold text-xs p-1 uppercase" id="d-signer">( NAMA JELAS )</div>
             </div>
         </div>
 
@@ -183,17 +147,16 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        // DATA STANDAR
         const standards = {
-            "m1": "Sesuai clamping force mold", "m2": "20% - 80% kapasitas barrel", "m3": "Radius & centering OK", "m4": "Koneksi & stroke aman", "m5": "Suhu & tekanan normal",
-            "md1": "Bersih dari karat/kotoran", "md2": "Baut terikat kuat", "md3": "Leader pin digrease", "md4": "Tidak ada kebocoran", "md5": "Koneksi kabel aman",
+            "m1": "Sesuai clamping force", "m2": "20% - 80% kapasitas barrel", "m3": "Radius & centering OK", "m4": "Koneksi & stroke aman", "m5": "Suhu & tekanan normal",
+            "md1": "Bersih dari karat/kotoran", "md2": "Baut terikat kuat", "md3": "Leader pin digrease", "md4": "Tidak bocor", "md5": "Koneksi kabel aman",
             "ax1": "Level media cukup", "ax2": "Suhu air stabil", "ax3": "Suhu & waktu tercapai", "ax4": "Gripper berfungsi", "ax5": "Siap recycle",
             "mat1": "Stok cukup", "mat2": "Rasio mixing benar", "mat3": "Tersedia", "mat4": "Tersedia",
             "qc1": "Tersedia & terkalibrasi", "qc2": "Berfungsi", "qc3": "Tersedia", "qc4": "Tersedia",
             "sf1": "Lengkap", "sf2": "Sensor berfungsi", "sf3": "Berfungsi normal"
         };
 
-        const itemCodeMap = {
+        const codeMap = {
             "Kapasitas Tonase": "m1", "Kapasitas Injeksi": "m2", "Kondisi Nozzle": "m3", "Fungsi Ejektor": "m4", "Kalibrasi": "m5",
             "Kebersihan Mold": "md1", "Clamping Plate": "md2", "Moving Parts": "md3", "Cooling System": "md4", "Hot Runner": "md5",
             "MTC / Mold Temp": "ax1", "Chiller": "ax2", "Dryer Material": "ax3", "Robot": "ax4", "Granulator": "ax5",
@@ -203,82 +166,49 @@
         };
 
         async function fetchData() {
-            const moldCode = document.getElementById('filter-mold').value.trim();
-            const dateVal = document.getElementById('filter-date').value;
-
-            if(!moldCode && !dateVal) return alert("Masukkan Kode Mold atau Tanggal!");
-
-            let query = _sb.from('checklist_trial').select('*').order('created_at', { ascending: false }).limit(1);
-            if (moldCode) query = query.ilike('mold_code', `%${moldCode}%`);
-            if (dateVal) query = query.eq('trial_date', dateVal);
-
-            const { data, error } = await query;
-            if (error) return alert("Error ambil data");
+            const mold = document.getElementById('filter-mold').value;
+            const date = document.getElementById('filter-date').value;
             
-            if (data.length === 0) {
-                document.getElementById('table-body').innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; font-weight:bold; color:red;">DATA TIDAK DITEMUKAN</td></tr>`;
-                clearInfo();
-                return;
-            }
-            renderReport(data[0]);
-        }
+            let q = _sb.from('checklist_trial').select('*').order('created_at', {ascending:false}).limit(1);
+            if(mold) q = q.ilike('mold_code', `%${mold}%`);
+            if(date) q = q.eq('trial_date', date);
 
-        function clearInfo() {
-            ['disp-date','disp-machine','disp-project','disp-mold'].forEach(id => document.getElementById(id).innerText = "-");
-            document.getElementById('signature-box').innerHTML = "";
-            document.getElementById('signer-name').innerText = "( ........................ )";
-        }
-
-        function renderReport(record) {
-            document.getElementById('disp-project').innerText = record.project_name || '-'; 
-            document.getElementById('disp-mold').innerText = record.mold_code;
-            document.getElementById('disp-machine').innerText = record.machine_name;
-            document.getElementById('disp-date').innerText = record.trial_date;
-
-            const sigBox = document.getElementById('signature-box');
-            sigBox.innerHTML = record.signature_data ? `<img src="${record.signature_data}" alt="TTD">` : "<span style='color:red; font-size:10px;'>BELUM TTD</span>";
-            document.getElementById('signer-name').innerText = `( ${record.pic_trial.toUpperCase()} )`;
-
-            const tbody = document.getElementById('table-body');
-            tbody.innerHTML = "";
+            const { data, error } = await q;
+            if(error || !data.length) return alert("Data tidak ditemukan!");
+            
+            const r = data[0];
+            document.getElementById('d-project').innerText = r.project_name || '-';
+            document.getElementById('d-mold').innerText = r.mold_code;
+            document.getElementById('d-mesin').innerText = r.machine_name;
+            document.getElementById('d-date').innerText = r.trial_date;
+            document.getElementById('d-pic').innerText = r.pic_trial;
+            document.getElementById('d-signer').innerText = `( ${r.pic_trial} )`;
+            document.getElementById('signature-box').innerHTML = r.signature_data ? `<img src="${r.signature_data}" style="height:50px;">` : '';
 
             const sections = [
-                { key: 'check_machine', title: '1. VERIFIKASI MESIN INJEKSI' },
-                { key: 'check_mold', title: '2. PERSIAPAN MOLD (CETAKAN)' },
-                { key: 'check_aux', title: '3. PERALATAN PENDUKUNG' },
-                { key: 'check_material', title: '4. MATERIAL & KIMIA' },
-                { key: 'check_qc', title: '5. ALAT UKUR & DOKUMEN' },
-                { key: 'check_safety', title: '6. SAFETY (K3)' }
+                {k:'check_machine', t:'1. MESIN INJEKSI'}, {k:'check_mold', t:'2. MOLD'}, 
+                {k:'check_aux', t:'3. AUXILIARY'}, {k:'check_material', t:'4. MATERIAL'},
+                {k:'check_qc', t:'5. QC TOOLS'}, {k:'check_safety', t:'6. SAFETY'}
             ];
 
-            let globalNo = 1;
-
-            sections.forEach(sec => {
-                tbody.innerHTML += `<tr><td colspan="5" class="section-row">${sec.title}</td></tr>`;
-                
-                const items = record[sec.key];
-                
-                if (items) {
-                    Object.entries(items).forEach(([itemName, val]) => {
-                        let statusClass = "status-ok";
-                        if (val.status === 'NG') statusClass = "status-ng";
-                        if (val.status === 'NA') statusClass = "status-na";
-
-                        const stdText = standards[itemCodeMap[itemName]] || "-";
-
-                        const rowHtml = `
-                            <tr>
-                                <td class="col-no">${globalNo++}</td>
-                                <td class="col-item">${itemName}</td>
-                                <td class="col-standar">${stdText}</td>
-                                <td class="col-status ${statusClass}">${val.status || '-'}</td>
-                                <td class="col-note">${val.note || ''}</td>
-                            </tr>
-                        `;
-                        tbody.innerHTML += rowHtml;
+            let html = '';
+            let no = 1;
+            sections.forEach(s => {
+                html += `<tr><td colspan="5" class="sect-title">${s.t}</td></tr>`;
+                if(r[s.k]) {
+                    Object.entries(r[s.k]).forEach(([k, v]) => {
+                        let cls = v.status === 'NG' ? 'st-ng' : (v.status === 'OK' ? 'st-ok' : 'st-na');
+                        html += `<tr>
+                            <td class="text-center">${no++}</td>
+                            <td>${k}</td>
+                            <td>${standards[codeMap[k]] || '-'}</td>
+                            <td class="${cls}">${v.status}</td>
+                            <td>${v.note || ''}</td>
+                        </tr>`;
                     });
                 }
             });
+            document.getElementById('table-body').innerHTML = html;
         }
     </script>
 </body>
