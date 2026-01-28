@@ -15,7 +15,7 @@
         .tab-btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: #e0e0e0; color: #666; transition: 0.3s; }
         .tab-btn.active { background: #003366; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
-        .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex-wrap: wrap; }
+        .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
 
         .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; overflow-x: auto; }
@@ -41,6 +41,8 @@
         .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
         
         .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .pic-note-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 6px; margin-bottom: 15px; color: #856404; font-style: italic; }
+
         .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
         canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
         textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
@@ -49,9 +51,9 @@
         .json-table th { background: #eee; text-align: left; padding: 8px; border-bottom: 2px solid #ddd; }
         .json-table td { padding: 8px; border-bottom: 1px solid #eee; }
         .status-ng { color: red; font-weight: bold; }
-        .status-na { color: #666; font-style: italic; font-weight: bold; } /* Style untuk NA */
+        .status-ok { color: green; font-weight: bold; }
+        .status-na { color: #666; font-style: italic; font-weight: bold; }
         
-        /* Pesan jika semua OK */
         .all-ok-msg { padding: 15px; background: #d4edda; color: #155724; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px; }
     </style>
 </head>
@@ -79,12 +81,8 @@
 
     <div class="card">
         <table>
-            <thead>
-                <tr id="tableHeader"></tr>
-            </thead>
-            <tbody id="mainTable">
-                <tr><td colspan="8" style="text-align:center;">Memuat data...</td></tr>
-            </tbody>
+            <thead><tr id="tableHeader"></tr></thead>
+            <tbody id="mainTable"><tr><td colspan="8" style="text-align:center;">Memuat data...</td></tr></tbody>
         </table>
     </div>
 </div>
@@ -97,7 +95,6 @@
         <hr>
         
         <div id="superNoteArea"></div>
-        
         <div id="modalBody"></div>
 
         <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
@@ -190,8 +187,8 @@
         if (currentTab === 'rutin') {
             header.innerHTML = `<th>Pelaksana</th><th>Super</th><th>Equip</th><th>Tanggal</th><th>Week</th><th>Ket</th><th>Status</th><th>Aksi</th>`;
         } else {
-            // Header Trial (Ada Kolom Keterangan)
-            header.innerHTML = `<th>PIC Trial</th><th>Super</th><th>Mesin</th><th>Project</th><th>Tanggal</th><th>Keterangan</th><th>Status</th><th>Aksi</th>`;
+            // HEADER TRIAL MOLD (Kolom "Ket. Super" menampilkan 'keterangan_superintendent')
+            header.innerHTML = `<th>PIC Trial</th><th>Super</th><th>Mesin</th><th>Project</th><th>Tanggal</th><th>Ket. Super</th><th>Status</th><th>Aksi</th>`;
         }
 
         if (dataList.length === 0) {
@@ -214,12 +211,11 @@
             } else {
                 return `<tr>
                     <td><strong>${row.pic_trial || '-'}</strong></td>
-                    <td>${row.nama_superintendent || '-'}</td>
+                    <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
                     <td>${row.machine_name || '-'}</td>
                     <td>${row.project_name || '-'}</td>
                     <td>${row.trial_date || '-'}</td> 
-                    <td>${row.keterangan || '-'}</td> 
-                    <td><span class="badge status-${(row.status || 'pending').toLowerCase()}">${row.status || 'Pending'}</span></td>
+                    <td>${row.keterangan_superintendent || '-'}</td> <td><span class="badge status-${(row.status || 'pending').toLowerCase()}">${row.status || 'Pending'}</span></td>
                     <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
                 </tr>`;
             }
@@ -228,9 +224,8 @@
 
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
-        if (!selectedDate) {
-            loadData(); 
-        } else {
+        if (!selectedDate) { loadData(); } 
+        else {
             filteredData = rawData.filter(row => {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
@@ -238,42 +233,24 @@
             renderTable(filteredData);
         }
     }
+    function resetFilter() { document.getElementById('searchDate').value = ''; refreshData(); }
 
-    function resetFilter() {
-        document.getElementById('searchDate').value = '';
-        refreshData();
-    }
-
-    // --- LOGIC BARU: HANYA TAMPILKAN NG / NA ---
     function renderJsonCheck(title, jsonData) {
         if (!jsonData || Object.keys(jsonData).length === 0) return '';
         let rows = '';
-        let hasIssues = false; // Flag cek ada NG/NA atau tidak
+        let hasIssues = false;
         
         for (const [key, val] of Object.entries(jsonData)) {
             let status = val.status || '-';
             let note = val.note || '-';
-            
-            // FILTER: HANYA PROSES JIKA STATUS 'NG' ATAU 'NA'
             if (status === 'NG' || status === 'NA') {
                 hasIssues = true;
                 let colorClass = status === 'NG' ? 'status-ng' : 'status-na';
-                rows += `<tr>
-                    <td>${key}</td>
-                    <td class="${colorClass}">${status}</td>
-                    <td>${note}</td>
-                </tr>`;
+                rows += `<tr><td>${key}</td><td class="${colorClass}">${status}</td><td>${note}</td></tr>`;
             }
         }
-       
-        // JIKA KOSONG (SEMUA OK), TIDAK USAH TAMPILKAN KATEGORI INI
-        if (!hasIssues) return '';
-
-        return `<div class="section-header">${title}</div>
-                <table class="json-table">
-                    <tr><th>Item</th><th>Status</th><th>Note</th></tr>
-                    ${rows}
-                </table>`;
+        if (!hasIssues) return ''; 
+        return `<div class="section-header">${title}</div><table class="json-table"><tr><th>Item</th><th>Status</th><th>Note</th></tr>${rows}</table>`;
     }
 
     function openModal(row) {
@@ -297,17 +274,20 @@
         body.innerHTML = '';
 
         if (currentTab === 'rutin') {
-            body.innerHTML = "<p>Detail item checklist rutin...</p>"; 
+            body.innerHTML = `<p><strong>Catatan Pelaksana:</strong> ${row.keterangan || '-'}</p>`; 
         } else {
-            // -- LOGIC RENDER MODAL TRIAL MOLD --
+            // Tampilan Modal Trial Mold
             let content = `<div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px; background:#f9f9f9; padding:10px; border-radius:5px;">
                 <div><strong>Mesin:</strong> ${row.machine_name}</div>
                 <div><strong>Project:</strong> ${row.project_name}</div>
                 <div><strong>Mold Code:</strong> ${row.mold_code}</div>
-                <div><strong>Keterangan PIC:</strong> ${row.keterangan || '-'}</div>
             </div>`;
             
-            // Render per Section (Hanya NG/NA)
+            // Tampilkan Keterangan PIC di dalam modal agar Superintendent bisa baca
+            if(row.keterangan) {
+                content += `<div class="pic-note-box"><strong>Keterangan dari PIC:</strong> ${row.keterangan}</div>`;
+            }
+
             let checksHtml = "";
             checksHtml += renderJsonCheck("1. MESIN INJEKSI", row.check_machine);
             checksHtml += renderJsonCheck("2. PERSIAPAN MOLD", row.check_mold);
@@ -316,11 +296,9 @@
             checksHtml += renderJsonCheck("5. QC TOOLS", row.check_qc);
             checksHtml += renderJsonCheck("6. SAFETY", row.check_safety);
 
-            // Jika checksHtml KOSONG (berarti semua OK), tampilkan pesan
             if (checksHtml === "") {
                 checksHtml = `<div class="all-ok-msg">✨ Semua Item Check Berstatus OK (Tidak ada temuan NG/NA)</div>`;
             }
-
             body.innerHTML = content + checksHtml;
         }
 
@@ -334,7 +312,6 @@
             const sigUrl = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
             document.getElementById('historySigImg').src = sigUrl || '';
         }
-
         document.getElementById('modal').style.display = 'block';
         clearSig();
     }
@@ -342,7 +319,6 @@
     async function processStatus(st) {
         const namaSuper = document.getElementById('namaSuperintendent').value;
         const ketInput = document.getElementById('keteranganSuper').value; 
-        
         if(!namaSuper) return alert("Isi nama superintendent!");
 
         let update = { 
@@ -354,6 +330,7 @@
         if (currentTab === 'rutin') {
             update.keterangan = ketInput; 
         } else {
+            // SIMPAN KETERANGAN SUPERINTENDENT KE KOLOM KHUSUS
             update.keterangan_superintendent = ketInput; 
         }
 
@@ -369,13 +346,8 @@
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const { error } = await _supabase.from(tableName).update(update).eq('id', activeId);
         
-        if(!error) { 
-            alert("Berhasil disimpan!"); 
-            closeModal(); 
-            loadData(); 
-        } else { 
-            alert("Error: " + error.message); 
-        }
+        if(!error) { alert("Berhasil disimpan!"); closeModal(); loadData(); } 
+        else { alert("Error: " + error.message); }
     }
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
