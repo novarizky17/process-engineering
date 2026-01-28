@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REPORT TRIAL MOLD - ONE PAGE PRESS</title>
+    <title>REPORT TRIAL MOLD - ONE PAGE (FULL)</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* === SETTING KERTAS UTAMA === */
         @page { 
             size: A4 landscape; 
-            margin: 0mm; /* Hapus margin browser biar maksimal */
+            margin: 0mm; 
         }
 
         body { 
@@ -23,21 +23,20 @@
         /* === TAMPILAN LEMBAR KERTAS === */
         .sheet {
             background: white;
-            width: 297mm;  /* Lebar A4 Landscape */
-            height: 210mm; /* Tinggi A4 Landscape Fix */
-            padding: 10mm; /* Padding kertas */
+            width: 297mm;
+            height: 210mm;
+            padding: 10mm;
             box-sizing: border-box;
             position: relative;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            overflow: hidden; /* Potong jika ada yang bandel keluar */
+            overflow: hidden;
         }
 
-        /* === MODE PRINT (RAHASIA AGAR FIT 1 HALAMAN) === */
+        /* === MODE PRINT (PRESISI 1 HALAMAN) === */
         @media print {
             body { 
                 background: white; padding: 0; margin: 0; 
                 width: 100vw; height: 100vh;
-                display: block;
             }
             .no-print { display: none !important; }
             
@@ -45,79 +44,63 @@
                 width: 100%; height: 100%;
                 box-shadow: none; padding: 5mm;
                 margin: 0; border: none;
-                
-                /* TEKNIK PRESS: SKALA DIPERKECIL AGAR MUAT */
-                transform: scale(0.92); /* Kecilkan ke 92% */
-                transform-origin: top left;
-                width: 108%; /* Kompensasi lebar karena di-scale down */
+                transform: scale(0.95); /* Skala 95% agar footer aman */
+                transform-origin: top center;
+                width: 105%; 
             }
         }
 
-        /* === GAYA ELEMENT === */
-        
-        /* 1. Header yang lebih tipis */
-        .header-section { display: flex; border: 2px solid black; margin-bottom: 5px; height: 60px; } /* Tinggi dikurangi */
-        
-        .logo-box { width: 100px; border-right: 2px solid black; display: flex; align-items: center; justify-content: center; }
-        .logo-box img { width: 70px; }
-        
-        .title-box { 
-            flex: 1; display: flex; align-items: center; justify-content: center; 
-            font-size: 20px; font-weight: 900; text-transform: uppercase; 
-            border-right: 2px solid black; background: #f8fafc;
-        }
-        
+        /* === STYLE ELEMENT === */
+        .header-section { display: flex; border: 2px solid black; margin-bottom: 5px; height: 60px; }
+        .logo-box { width: 90px; border-right: 2px solid black; display: flex; align-items: center; justify-content: center; }
+        .logo-box img { width: 60px; }
+        .title-box { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; text-transform: uppercase; border-right: 2px solid black; background: #f8fafc; }
         .doc-info { width: 180px; font-size: 8px; padding: 2px; }
         .doc-info table { border: none; width: 100%; }
         .doc-info td { border: none; padding: 0; text-align: left; }
 
-        /* 2. Info Bar (Satu Baris Memanjang) */
+        /* Info Bar */
         .info-bar {
-            border: 1px solid black;
-            background: #fff;
-            padding: 4px 8px;
-            margin-bottom: 5px;
-            font-size: 10px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            text-transform: uppercase;
+            border: 1px solid black; background: #fff; padding: 4px 8px;
+            margin-bottom: 5px; font-size: 10px; font-weight: bold;
+            display: flex; justify-content: space-between; text-transform: uppercase;
         }
         .info-group span { font-weight: normal; margin-left: 3px; }
 
-        /* 3. Tabel yang Rapat */
+        /* Tabel Presisi */
         .main-table { width: 100%; border-collapse: collapse; border: 1px solid black; }
         .main-table th { 
-            background-color: #334155; color: white; 
-            font-size: 10px; padding: 3px; 
-            border: 1px solid black; text-transform: uppercase;
+            background-color: #334155; color: white; font-size: 9px; 
+            padding: 3px; border: 1px solid black; text-transform: uppercase;
             -webkit-print-color-adjust: exact; 
         }
         .main-table td { 
-            border: 1px solid black; 
-            padding: 2px 4px; /* Padding sangat tipis */
-            font-size: 10px; /* Font diperkecil */
-            vertical-align: middle;
-            height: 18px; /* Paksa tinggi baris */
+            border: 1px solid black; padding: 2px 4px; font-size: 9px; 
+            vertical-align: middle; height: 16px;
         }
 
-        /* Judul Section di dalam tabel */
         .sect-row td { 
             background-color: #e2e8f0; font-weight: 800; font-size: 9px; 
             padding: 2px 5px; text-transform: uppercase;
             -webkit-print-color-adjust: exact;
         }
 
-        /* Status Colors */
         .st-ok { color: green; font-weight: bold; text-align: center; }
         .st-ng { background: #fee2e2; color: red; font-weight: bold; text-align: center; -webkit-print-color-adjust: exact; }
-        .st-na { color: #aaa; text-align: center; font-style: italic; }
-
-        /* 4. Footer TTD (Compact) */
-        .footer-area { margin-top: 5px; display: flex; justify-content: flex-end; page-break-inside: avoid; }
+        
+        /* FOOTER 2 TANDA TANGAN (NEW) */
+        .footer-area { 
+            margin-top: 10px; 
+            display: flex; 
+            justify-content: space-between; /* Kiri & Kanan */
+            padding: 0 50px; /* Jarak dari pinggir */
+            page-break-inside: avoid;
+        }
+        
         .ttd-box { width: 180px; border: 1px solid black; text-align: center; }
         .ttd-head { background: #eee; font-size: 8px; font-weight: bold; border-bottom: 1px solid black; padding: 2px; -webkit-print-color-adjust: exact; }
-        .ttd-space { height: 40px; display: flex; align-items: center; justify-content: center; } /* Area TTD diperpendek */
+        .ttd-space { height: 45px; display: flex; align-items: center; justify-content: center; }
+        .ttd-space img { height: 40px; max-width: 100%; }
         .ttd-name { border-top: 1px solid black; font-size: 9px; font-weight: bold; padding: 2px; text-transform: uppercase; }
 
         /* Controls */
@@ -128,7 +111,7 @@
 <body>
 
     <div class="no-print">
-        <h3 class="font-bold text-center mb-2">PANEL KONTROL</h3>
+        <h3 class="font-bold text-center mb-2">MENU PRINT</h3>
         <input type="text" id="filter-mold" placeholder="Kode Mold..." class="w-full border p-1 text-sm rounded mb-1">
         <input type="date" id="filter-date" class="w-full border p-1 text-sm rounded mb-2">
         <button onclick="fetchData()" class="btn bg-blue-600">🔍 CARI DATA</button>
@@ -137,7 +120,6 @@
     </div>
 
     <div class="sheet">
-        
         <div class="header-section">
             <div class="logo-box"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png"></div>
             <div class="title-box">LAPORAN VERIFIKASI TRIAL MOLD</div>
@@ -175,13 +157,20 @@
         </table>
 
         <div class="footer-area">
+            
             <div class="ttd-box">
-                <div class="ttd-head">DIBUAT OLEH</div>
-                <div class="ttd-space" id="signature-box"></div>
-                <div class="ttd-name" id="d-signer">( ................... )</div>
+                <div class="ttd-head">DIBUAT OLEH (PIC)</div>
+                <div class="ttd-space" id="sig-pic"></div>
+                <div class="ttd-name" id="name-pic">( ................... )</div>
             </div>
-        </div>
 
+            <div class="ttd-box">
+                <div class="ttd-head">DIKETAHUI OLEH (SUPER)</div>
+                <div class="ttd-space" id="sig-super"></div>
+                <div class="ttd-name" id="name-super">( ................... )</div>
+            </div>
+
+        </div>
     </div>
 
     <script>
@@ -219,14 +208,23 @@
             if(error || !data.length) return alert("Data tidak ditemukan!");
             
             const r = data[0];
+            
+            // ISI INFO UTAMA
             document.getElementById('d-project').innerText = r.project_name || '-';
             document.getElementById('d-mold').innerText = r.mold_code;
             document.getElementById('d-mesin').innerText = r.machine_name;
             document.getElementById('d-date').innerText = r.trial_date;
             document.getElementById('d-pic').innerText = r.pic_trial;
-            document.getElementById('d-signer').innerText = `( ${r.pic_trial} )`;
-            document.getElementById('signature-box').innerHTML = r.signature_data ? `<img src="${r.signature_data}" style="height:35px;">` : '';
 
+            // ISI TANDA TANGAN PIC (KIRI)
+            document.getElementById('name-pic').innerText = `( ${r.pic_trial} )`;
+            document.getElementById('sig-pic').innerHTML = r.signature_data ? `<img src="${r.signature_data}">` : '<span style="font-size:8px;color:red;">BELUM TTD</span>';
+
+            // ISI TANDA TANGAN SUPERINTENDENT (KANAN) - Jika sudah di-approve
+            document.getElementById('name-super').innerText = r.nama_superintendent ? `( ${r.nama_superintendent} )` : '( ................... )';
+            document.getElementById('sig-super').innerHTML = r.signature_superintendent ? `<img src="${r.signature_superintendent}">` : '';
+
+            // RENDER TABEL
             const sections = [
                 {k:'check_machine', t:'1. MESIN INJEKSI'}, {k:'check_mold', t:'2. MOLD & CETAKAN'}, 
                 {k:'check_aux', t:'3. AUXILIARY'}, {k:'check_material', t:'4. MATERIAL'},
