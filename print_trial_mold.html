@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FORM CHECKLIST TRIAL MOLD - PRINT</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* PENGATURAN PRINT AGAR TENGAH DAN GARIS TEGAS */
+        @page { 
+            size: A4 portrait; /* Trial Mold lebih cocok Portrait karena item ke bawah */
+            margin: 10mm; 
+        }
+
+        @media print {
+            body { 
+                padding: 0; margin: 0; background: white !important; 
+                -webkit-print-color-adjust: exact; 
+                display: block; /* Normal block flow untuk page break */
+            }
+            .no-print { display: none !important; }
+            .document-page { 
+                box-shadow: none !important; 
+                border: 1.5pt solid black !important; 
+                width: 100% !important; 
+                margin: 0 auto !important; 
+                padding: 10px !important;
+                page-break-after: always; /* Pastikan tiap form di halaman baru */
+            }
+            .table-official, .table-official th, .table-official td {
+                border: 1pt solid black !important;
+            }
+            .header-box, .header-cell, .info-grid, .info-val {
+                border: 1.5pt solid black !important;
+            }
+        }
+
+        body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
+        
+        /* Container Utama */
+        .document-page { 
+            background: white; 
+            width: 210mm; 
+            min-height: 297mm;
+            margin: 0 auto 20px auto; 
+            padding: 20px; 
+            border: 2px solid #000; 
+            box-sizing: border-box; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* HEADER */
+        .header-box { border: 2px solid black; margin-bottom: 10px; display: table; width: 100%; border-collapse: collapse; }
+        .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
+        .header-cell:last-child { border-right: none; }
+        .logo-area { width: 150px; padding: 5px; text-align: center; }
+        .logo-area img { width: 130px; height: auto; display: block; margin: 0 auto; }
+        .title-area { text-align: center; font-size: 16pt; font-weight: bold; padding: 10px; text-transform: uppercase; color: #000; }
+        
+        .meta-area { width: 320px; font-size: 9pt; padding: 5px; text-transform: uppercase; color: #000; font-weight: bold; }
+        .meta-table { width: 100%; border-collapse: collapse; }
+        .meta-table td { padding: 2px 5px; vertical-align: middle; border: none !important; white-space: nowrap; height: 25px; }
+
+        /* INFO GRID (Pengganti Meta Info Flex agar lebih rapi untuk data spesifik) */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px; border: 2px solid black; padding: 10px; font-size: 10pt; }
+        .info-row { display: flex; margin-bottom: 5px; align-items: center; }
+        .info-label { width: 140px; font-weight: bold; }
+        .info-value { border-bottom: 1px dotted black; flex: 1; font-weight: bold; text-transform: uppercase; padding-left: 5px; }
+
+        /* TABLE STYLING */
+        .table-official { width: 100%; border-collapse: collapse; border: 2px solid black; text-transform: uppercase; color: #000; margin-top: 10px; }
+        .table-official th, .table-official td { border: 1.5px solid black; padding: 4px; font-size: 9pt; text-align: center; vertical-align: middle; color: #000; }
+        .table-official th { background-color: #e5e5e5; font-weight: bold; }
+
+        .col-no { width: 40px; }
+        .col-item { text-align: left !important; padding-left: 10px !important; font-weight: bold; }
+        .col-status { width: 80px; font-weight: bold; }
+        .col-ket { width: 200px; text-align: left !important; padding-left: 5px !important; }
+        
+        .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 10px !important; font-weight: bold; height: 30px; border-top: 2px solid black; }
+        
+        .status-ok { color: green; }
+        .status-ng { color: red; }
+
+        /* FOOTER SIGNATURE */
+        .footer-flex { display: flex; justify-content: space-around; margin-top: 30px; text-transform: uppercase; }
+        .sig-box { width: 30%; text-align: center; }
+        .sig-frame { border: 1.5px solid black; width: 100%; height: 90px; margin: 5px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
+        .sig-frame img { max-height: 80px; width: auto; filter: grayscale(1) contrast(2); }
+        .name-line { border-top: 1.5px solid black; margin-top: 5px; padding-top: 3px; font-weight: bold; }
+
+        /* NO PRINT CONTROLS */
+        .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .no-print input, .no-print select, .no-print button { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <select id="filter-bulan">
+            <option value="">-- PILIH BULAN --</option>
+            <option value="01">JANUARI</option><option value="02">FEBRUARI</option><option value="03">MARET</option>
+            <option value="04">APRIL</option><option value="05">MEI</option><option value="06">JUNI</option>
+            <option value="07">JULI</option><option value="08">AGUSTUS</option><option value="09">SEPTEMBER</option>
+            <option value="10">OKTOBER</option><option value="11">NOVEMBER</option><option value="12">DESEMBER</option>
+        </select>
+        <input type="text" id="filter-mold" placeholder="CARI MOLD / MESIN...">
+        <button onclick="renderReport()" style="background: #003366; color: white;">CARI DATA</button>
+        <button onclick="window.print()" style="background: #222; color: white;">PRINT FORM</button>
+        <button onclick="window.location.href='dashboard.html'" style="background: #555; color: white;">KEMBALI</button>
+    </div>
+
+    <div id="report-container">
+        <div class="document-page" style="display:flex; align-items:center; justify-content:center; height:297mm;">
+            <h3 style="color:#ccc;">PILIH BULAN & KLIK CARI DATA</h3>
+        </div>
+    </div>
+
+    <script>
+        const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
+        const _sb = supabase.createClient(SB_URL, SB_KEY);
+
+        async function renderReport() {
+            const bln = document.getElementById('filter-bulan').value;
+            const kw = document.getElementById('filter-mold').value.trim().toLowerCase();
+
+            if (!bln) return alert("Pilih Bulan Terlebih Dahulu!");
+
+            // Ambil data yang statusnya Approved
+            const { data, error } = await _sb
+                .from('checklist_trial')
+                .select('*')
+                .eq('status', 'Approved')
+                .order('created_at', { ascending: false });
+
+            if (error) return alert("Gagal mengambil data: " + error.message);
+
+            // Filter Client Side (Bulan & Keyword)
+            const filtered = data.filter(row => {
+                const rowMonth = row.trial_date ? row.trial_date.split('-')[1] : '';
+                const matchMonth = rowMonth === bln;
+                const matchKw = kw ? (
+                    (row.mold_code && row.mold_code.toLowerCase().includes(kw)) || 
+                    (row.machine_name && row.machine_name.toLowerCase().includes(kw))
+                ) : true;
+                return matchMonth && matchKw;
+            });
+
+            if (filtered.length === 0) return alert("Data tidak ditemukan.");
+
+            const container = document.getElementById('report-container');
+            container.innerHTML = ""; // Bersihkan kontainer
+
+            // Loop untuk membuat halaman per data
+            filtered.forEach(row => {
+                const pageHtml = `
+                <div class="document-page">
+                    <div class="header-box">
+                        <div class="header-cell logo-area"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO AKG"></div>
+                        <div class="header-cell title-area">FORMULIR CHECKLIST TRIAL MOLD</div>
+                        <div class="header-cell meta-area">
+                            <table class="meta-table">
+                                <tr><td>NO DOKUMEN</td><td>: FM-MTC-TR-01</td></tr>
+                                <tr><td>TANGGAL</td><td>: ${row.trial_date || '-'}</td></tr>
+                                <tr><td>HALAMAN</td><td>: 1 DARI 1</td></tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-col">
+                            <div class="info-row"><div class="info-label">MESIN INJECTION</div>: <div class="info-value">${row.machine_name || '-'}</div></div>
+                            <div class="info-row"><div class="info-label">KODE MOLD</div>: <div class="info-value">${row.mold_code || '-'}</div></div>
+                            <div class="info-row"><div class="info-label">MATERIAL RESIN</div>: <div class="info-value">${row.material_resin || '-'}</div></div>
+                        </div>
+                        <div class="info-col">
+                            <div class="info-row"><div class="info-label">PIC TRIAL</div>: <div class="info-value">${row.pic_trial || '-'}</div></div>
+                            <div class="info-row"><div class="info-label">TANGGAL TRIAL</div>: <div class="info-value">${row.trial_date || '-'}</div></div>
+                            <div class="info-row"><div class="info-label">STATUS FORM</div>: <div class="info-value" style="color:green">APPROVED</div></div>
+                        </div>
+                    </div>
+
+                    <table class="table-official">
+                        <thead>
+                            <tr>
+                                <th class="col-no">NO</th>
+                                <th class="col-item">ITEM PENGECEKAN</th>
+                                <th class="col-status">STATUS</th>
+                                <th class="col-ket">KETERANGAN / HASIL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${generateTableContent(row)}
+                        </tbody>
+                    </table>
+
+                    <div style="border: 2px solid black; padding: 10px; margin-top: 10px; font-size: 10pt;">
+                        <strong>CATATAN SUPERINTENDENT:</strong><br>
+                        ${row.keterangan_superintendent || '-'}
+                    </div>
+
+                    <div class="footer-flex">
+                        <div class="sig-box">
+                            <p style="font-weight:bold;">DIBUAT OLEH</p>
+                            <div class="sig-frame">
+                                ${row.signature_data ? `<img src="${row.signature_data}">` : ''}
+                            </div>
+                            <div class="name-line">${row.pic_trial || '.............'}</div>
+                            <p style="font-size:8pt;">TECHNICIAN</p>
+                        </div>
+                        <div class="sig-box">
+                            <p style="font-weight:bold;">DIKETAHUI OLEH</p>
+                            <div class="sig-frame">
+                                ${row.signature_superintendent ? `<img src="${row.signature_superintendent}">` : ''}
+                            </div>
+                            <div class="name-line">${row.nama_superintendent || '.............'}</div>
+                            <p style="font-size:8pt;">SUPERINTENDENT</p>
+                        </div>
+                    </div>
+                </div>
+                `;
+                container.innerHTML += pageHtml;
+            });
+        }
+
+        function generateTableContent(row) {
+            let html = "";
+            
+            // Helper untuk render section
+            const renderSection = (title, data) => {
+                if (!data) return "";
+                let sectionHtml = `<tr><td colspan="4" class="section-header">${title}</td></tr>`;
+                let no = 1;
+                // Handle JSON object keys
+                for (const [key, val] of Object.entries(data)) {
+                    let status = typeof val === 'object' ? val.status : val;
+                    let note = typeof val === 'object' ? (val.note || '') : '';
+                    let colorClass = status === 'NG' ? 'status-ng' : 'status-ok';
+                    
+                    sectionHtml += `
+                    <tr>
+                        <td class="col-no">${no++}</td>
+                        <td class="col-item">${key.replace(/_/g, " ").toUpperCase()}</td>
+                        <td class="col-status ${colorClass}">${status}</td>
+                        <td class="col-ket">${note}</td>
+                    </tr>`;
+                }
+                return sectionHtml;
+            };
+
+            html += renderSection("I. KONDISI MESIN INJEKSI", row.check_machine);
+            html += renderSection("II. PERSIAPAN MOLD", row.check_mold);
+            html += renderSection("III. AUXILIARY EQUIPMENT", row.check_aux);
+            html += renderSection("IV. MATERIAL", row.check_material);
+            html += renderSection("V. QC TOOLS", row.check_qc);
+            html += renderSection("VI. SAFETY", row.check_safety);
+
+            return html;
+        }
+    </script>
+</body>
+</html>
