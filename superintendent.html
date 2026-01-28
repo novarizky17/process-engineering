@@ -37,8 +37,12 @@
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
         .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 900px; }
         
-        .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; font-size: 16px; }
-        .sub-header { background: #e9ecef; padding: 8px 12px; font-weight: bold; color: #495057; font-size: 14px; border-bottom: 1px solid #dee2e6; margin-top: 10px; }
+        .section-header { 
+            background: #f1f4f8; padding: 10px 15px; margin: 20px 0 0 0; 
+            font-weight: bold; color: #003366; border-left: 5px solid #003366; 
+            font-size: 15px; border-top-left-radius: 4px; border-top-right-radius: 4px;
+        }
+        .sub-header { background: #e9ecef; padding: 8px 15px; font-weight: bold; color: #495057; font-size: 13px; border-bottom: 1px solid #dee2e6; }
 
         .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .pic-note-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 6px; margin-bottom: 15px; color: #856404; font-style: italic; }
@@ -47,9 +51,35 @@
         canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
         textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
         
-        .json-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 14px; }
-        .json-table th { background: #eee; text-align: left; padding: 8px; border-bottom: 2px solid #ddd; }
-        .json-table td { padding: 8px; border-bottom: 1px solid #eee; }
+        /* TABLE STYLE YANG DIPERBAIKI */
+        .json-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 15px; 
+            font-size: 14px; 
+            table-layout: fixed; /* Kunci lebar tabel agar tidak overflow */
+        }
+        .json-table th { 
+            background: #eee; 
+            text-align: left; 
+            padding: 10px 15px; 
+            border-bottom: 2px solid #ddd; 
+            border-top: 1px solid #ddd;
+        }
+        .json-table td { 
+            padding: 10px 15px; 
+            border-bottom: 1px solid #eee; 
+            border-left: 1px solid #eee;
+            border-right: 1px solid #eee;
+            vertical-align: top;
+            word-wrap: break-word; /* Agar teks panjang turun ke bawah */
+        }
+        
+        /* Lebar Kolom Diatur */
+        .col-item { width: 40%; }
+        .col-status { width: 15%; text-align: center; }
+        .col-ket { width: 45%; }
+
         .status-ng { color: red; font-weight: bold; }
         .status-ok { color: green; font-weight: bold; }
         .status-na { color: #666; font-style: italic; font-weight: bold; }
@@ -132,7 +162,7 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // KONFIGURASI MAPPING ITEM UNTUK CHECKLIST RUTIN (Sesuai Form)
+    // KONFIGURASI MAPPING ITEM UNTUK CHECKLIST RUTIN
     const rutinGroups = [
         { 
             title: "1. STAND LABEL", 
@@ -261,14 +291,21 @@
             if (status === 'NG' || status === 'NA') {
                 hasIssues = true;
                 let colorClass = status === 'NG' ? 'status-ng' : 'status-na';
-                rows += `<tr><td>${key}</td><td class="${colorClass}">${status}</td><td>${note}</td></tr>`;
+                rows += `<tr>
+                            <td class="col-item">${key}</td>
+                            <td class="col-status ${colorClass}">${status}</td>
+                            <td class="col-ket">${note}</td>
+                        </tr>`;
             }
         }
         if (!hasIssues) return ''; 
-        return `<div class="section-header">${title}</div><table class="json-table"><tr><th>Item</th><th>Status</th><th>Note</th></tr>${rows}</table>`;
+        return `<div class="section-header">${title}</div>
+                <table class="json-table">
+                    <tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Note</th></tr>
+                    ${rows}
+                </table>`;
     }
 
-    // FUNGSI RENDER RUTIN (Dengan Struktur Judul & Sub-Header, HANYA NG/NA)
     function renderRutinChecklist(row) {
         let htmlContent = '';
         let totalIssues = 0;
@@ -280,14 +317,14 @@
                 let subRows = '';
                 sub.items.forEach(item => {
                     const status = row[item];
-                    if (status === 'NG' || status === 'NA') { // Tampilkan hanya NG/NA
+                    if (status === 'NG' || status === 'NA') { 
                         totalIssues++;
                         const note = row[item + '_keterangan'] || '-';
                         const colorClass = status === 'NG' ? 'status-ng' : 'status-na';
                         subRows += `<tr>
-                            <td>${item.replace(/stacking_|conveyor_|dosing_|dummy_|_/g, ' ').toUpperCase()}</td>
-                            <td class="${colorClass}">${status}</td>
-                            <td>${note}</td>
+                            <td class="col-item">${item.replace(/stacking_|conveyor_|dosing_|dummy_|_/g, ' ').toUpperCase()}</td>
+                            <td class="col-status ${colorClass}">${status}</td>
+                            <td class="col-ket">${note}</td>
                         </tr>`;
                     }
                 });
@@ -301,7 +338,7 @@
             if (groupRows) {
                 htmlContent += `<div class="section-header">${group.title}</div>
                                 <table class="json-table">
-                                    <tr><th>Item</th><th>Status</th><th>Keterangan</th></tr>
+                                    <tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>
                                     ${groupRows}
                                 </table>`;
             }
