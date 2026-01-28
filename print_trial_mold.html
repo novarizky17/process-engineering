@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REPORT TRIAL MOLD - FULL PAGE FIX</title>
+    <title>REPORT TRIAL MOLD - CENTER FULL PAGE</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* === SETTING KERTAS UTAMA === */
         @page { 
             size: A4 landscape; 
-            margin: 5mm; /* Margin 5mm: Pas di tengah, maksimal, aman dari potongan printer */
+            margin: 5mm; /* Margin 5mm keliling */
         }
 
         /* === RESET CSS === */
@@ -24,7 +24,8 @@
             background-color: #ccc; 
             font-family: Arial, sans-serif; 
             margin: 0; padding: 20px;
-            display: flex; justify-content: center;
+            /* Layout Layar: Flex Center */
+            display: flex; justify-content: center; 
         }
 
         /* === TAMPILAN DI LAYAR === */
@@ -38,29 +39,28 @@
             display: flex; flex-direction: column;
         }
 
-        /* === MODE PRINT (FULL PAGE 100%) === */
+        /* === MODE PRINT (FIXED WIDTH FULL CENTER) === */
         @media print {
             body { 
-                background: white; margin: 0; padding: 0;
-                width: 100vw; height: 100vh;
+                background: white; 
+                margin: 0; padding: 0;
+                width: 100%; 
+                display: block; /* Hapus Flex saat print agar margin auto bekerja */
             }
             .no-print { display: none !important; }
             
             .sheet {
-                width: 100%;
-                height: 100%; /* Paksa tinggi seukuran kertas */
+                width: 100% !important; /* Paksa lebar penuh */
+                height: 100%; 
                 box-shadow: none;
-                margin: 0;
-                padding: 0; /* Ikut margin @page */
+                margin: 0 auto; /* Tengah horizontal */
+                padding: 0; 
                 border: none;
-                
-                /* HAPUS SCALE AGAR TIDAK KEKECILAN/ADA SPACE KOSONG */
                 transform: none !important; 
-                width: 100% !important;
             }
         }
 
-        /* === GAYA ELEMENT (OPTIMAL) === */
+        /* === GAYA ELEMENT === */
         
         /* Header Box */
         .header-box { 
@@ -87,10 +87,11 @@
         }
         .info-group span { font-weight: normal; margin-left: 5px; text-transform: uppercase; }
 
-        /* Tabel Utama */
+        /* Tabel Utama (Auto Width) */
         .main-table { 
-            width: 100%; border-collapse: collapse; border: 2px solid black; 
-            font-size: 10px; /* Ukuran font pas (tidak kekecilan) */
+            width: 100%; /* Lebar Penuh */
+            border-collapse: collapse; border: 2px solid black; 
+            font-size: 10px; 
             flex-grow: 1;
         }
         .main-table th { 
@@ -98,7 +99,7 @@
             border: 1px solid black; text-transform: uppercase; 
         }
         .main-table td { 
-            border: 1px solid black; padding: 4px 6px; /* Padding enak dilihat */
+            border: 1px solid black; padding: 4px 6px; 
             vertical-align: middle;
         }
 
@@ -118,7 +119,7 @@
 
         /* Footer Tanda Tangan */
         .footer-container {
-            margin-top: 20px; /* Jarak dari tabel */
+            margin-top: 20px;
             display: flex;
             justify-content: space-between;
             padding: 0 50px;
@@ -254,23 +255,17 @@
             if(error || !data.length) return alert("Data tidak ditemukan!");
             
             const r = data[0];
-            
-            // ISI INFO UTAMA
             document.getElementById('d-project').innerText = r.project_name || '-';
             document.getElementById('d-mold').innerText = r.mold_code;
             document.getElementById('d-mesin').innerText = r.machine_name;
             document.getElementById('d-date').innerText = r.trial_date;
             document.getElementById('d-pic').innerText = r.pic_trial;
 
-            // ISI TANDA TANGAN PIC (KIRI)
             document.getElementById('name-pic').innerText = `( ${r.pic_trial} )`;
-            document.getElementById('sig-pic').innerHTML = r.signature_data ? `<img src="${r.signature_data}">` : '<span style="font-size:8px;color:red;">BELUM TTD</span>';
-
-            // ISI TANDA TANGAN SUPERINTENDENT (KANAN) - Jika sudah di-approve
+            document.getElementById('sig-pic').innerHTML = r.signature_data ? `<img src="${r.signature_data}">` : '';
             document.getElementById('name-super').innerText = r.nama_superintendent ? `( ${r.nama_superintendent} )` : '( ................... )';
             document.getElementById('sig-super').innerHTML = r.signature_superintendent ? `<img src="${r.signature_superintendent}">` : '';
 
-            // RENDER TABEL
             const sections = [
                 {k:'check_machine', t:'1. MESIN INJEKSI'}, {k:'check_mold', t:'2. MOLD & CETAKAN'}, 
                 {k:'check_aux', t:'3. AUXILIARY'}, {k:'check_material', t:'4. MATERIAL'},
