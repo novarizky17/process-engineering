@@ -59,12 +59,18 @@
         .meta-table { width: 100%; border-collapse: collapse; }
         .meta-table td { padding: 2px 4px; vertical-align: middle; border: none !important; white-space: nowrap; }
 
-        /* INFO HEADER DATA */
-        .info-grid { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 20px; border-bottom: 2px solid black; padding-bottom: 15px; }
-        .info-col { flex: 1; }
-        .info-item { display: flex; font-size: 10pt; font-weight: bold; align-items: center; margin-bottom: 5px; }
-        .info-label { width: 110px; }
-        .info-val { border-bottom: 1px dotted black; flex: 1; padding-left: 5px; text-transform: uppercase; }
+        /* INFO HEADER DATA (SESUAI REQUEST) */
+        .info-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; /* 2 Kolom */
+            gap: 20px; 
+            margin-bottom: 20px; 
+            border-bottom: 2px solid black; 
+            padding-bottom: 15px; 
+        }
+        .info-item { display: flex; font-size: 11pt; font-weight: bold; align-items: center; margin-bottom: 8px; }
+        .info-label { width: 180px; } /* Label lebih lebar */
+        .info-val { border-bottom: 1px dotted black; flex: 1; padding-left: 5px; text-transform: uppercase; font-weight: normal; }
 
         /* TABLE STYLE */
         .table-official { width: 100%; border-collapse: collapse; border: 2px solid black; text-transform: uppercase; color: #000; margin-bottom: 20px; table-layout: fixed; }
@@ -125,14 +131,13 @@
         </div>
 
         <div class="info-grid">
-            <div class="info-col">
-                <div class="info-item"><span class="info-label">TANGGAL TRIAL</span>: <span class="info-val" id="disp-date">-</span></div>
-                <div class="info-item"><span class="info-label">MESIN INJEKSI</span>: <span class="info-val" id="disp-machine">-</span></div>
-                <div class="info-item"><span class="info-label">MATERIAL RESIN</span>: <span class="info-val" id="disp-material">-</span></div>
-            </div>
-            <div class="info-col">
+            <div>
+                <div class="info-item"><span class="info-label">NAMA PROJECT / PRODUK</span>: <span class="info-val" id="disp-project">-</span></div>
                 <div class="info-item"><span class="info-label">KODE MOLD</span>: <span class="info-val" id="disp-mold">-</span></div>
-                <div class="info-item"><span class="info-label">PIC TRIAL</span>: <span class="info-val" id="disp-pic">-</span></div>
+            </div>
+            <div>
+                <div class="info-item"><span class="info-label">MESIN INJEKSI</span>: <span class="info-val" id="disp-machine">-</span></div>
+                <div class="info-item"><span class="info-label">TANGGAL TRIAL</span>: <span class="info-val" id="disp-date">-</span></div>
             </div>
         </div>
 
@@ -199,18 +204,18 @@
         }
 
         function clearInfo() {
-            ['disp-date','disp-machine','disp-material','disp-mold','disp-pic'].forEach(id => document.getElementById(id).innerText = "-");
+            ['disp-date','disp-machine','disp-project','disp-mold'].forEach(id => document.getElementById(id).innerText = "-");
             document.getElementById('signature-box').innerHTML = "";
             document.getElementById('signer-name').innerText = "( ........................ )";
         }
 
         function renderReport(record) {
             // 1. Render Header Info
-            document.getElementById('disp-date').innerText = record.trial_date;
-            document.getElementById('disp-machine').innerText = record.machine_name;
-            document.getElementById('disp-material').innerText = record.material_resin;
+            // Mapping: Project diambil dari material_resin (sesuai request untuk isi field Project/Produk)
+            document.getElementById('disp-project').innerText = record.material_resin || '-'; 
             document.getElementById('disp-mold').innerText = record.mold_code;
-            document.getElementById('disp-pic').innerText = record.pic_trial;
+            document.getElementById('disp-machine').innerText = record.machine_name;
+            document.getElementById('disp-date').innerText = record.trial_date;
 
             // 2. Render Signature
             const sigBox = document.getElementById('signature-box');
