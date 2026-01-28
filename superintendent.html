@@ -51,13 +51,13 @@
         canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
         textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
         
-        /* TABLE STYLE YANG DIPERBAIKI */
+        /* === PERBAIKAN CSS TABEL MODAL === */
         .json-table { 
             width: 100%; 
             border-collapse: collapse; 
             margin-bottom: 15px; 
             font-size: 14px; 
-            table-layout: fixed; /* Kunci lebar tabel agar tidak overflow */
+            table-layout: fixed; /* Kunci layout agar lebar kolom konsisten */
         }
         .json-table th { 
             background: #eee; 
@@ -72,7 +72,10 @@
             border-left: 1px solid #eee;
             border-right: 1px solid #eee;
             vertical-align: top;
-            word-wrap: break-word; /* Agar teks panjang turun ke bawah */
+            /* Trik agar teks panjang turun ke bawah dan tidak menabrak batas */
+            word-break: break-word; 
+            overflow-wrap: break-word;
+            max-width: 0; /* Memaksa sel mengikuti lebar persentase kolom */
         }
         
         /* Lebar Kolom Diatur */
