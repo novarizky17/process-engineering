@@ -400,7 +400,10 @@
                         trial_date: document.getElementById('trialDate').value,
                         machine_name: document.getElementById('machineSelect').value,
                         mold_code: document.getElementById('moldCode').value,
-                        material_resin: document.getElementById('projectName').value, // Simpan Nama Project ke kolom material_resin
+                        
+                        // KIRIM NAMA PROJECT KE KOLOM DATABASE 'project_name'
+                        project_name: document.getElementById('projectName').value,
+                        
                         pic_trial: document.getElementById('picNameInput').value,
                         check_machine: getSectionData('section-1-content'),
                         check_mold: getSectionData('section-2-content'),
