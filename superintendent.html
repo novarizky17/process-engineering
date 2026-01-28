@@ -37,8 +37,9 @@
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
         .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 900px; }
         
-        .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
-        
+        .section-header { background: #f1f4f8; padding: 12px; margin: 20px 0 10px; font-weight: bold; color: #003366; border-left: 5px solid #003366; font-size: 16px; }
+        .sub-header { background: #e9ecef; padding: 8px 12px; font-weight: bold; color: #495057; font-size: 14px; border-bottom: 1px solid #dee2e6; margin-top: 10px; }
+
         .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .pic-note-box { background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 6px; margin-bottom: 15px; color: #856404; font-style: italic; }
 
@@ -49,8 +50,7 @@
         .json-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 14px; }
         .json-table th { background: #eee; text-align: left; padding: 8px; border-bottom: 2px solid #ddd; }
         .json-table td { padding: 8px; border-bottom: 1px solid #eee; }
-        
-        .status-ng { color: red; font-weight: bold; background-color: #fff5f5; }
+        .status-ng { color: red; font-weight: bold; }
         .status-ok { color: green; font-weight: bold; }
         .status-na { color: #666; font-style: italic; font-weight: bold; }
         
@@ -132,21 +132,31 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // DAFTAR KOLOM CHECKLIST RUTIN (Untuk Mendeteksi NG)
-    const rutinColumns = [
-        "wiring", "komponen", "kerapihan", "sensor", "timing_belt", "pully", "servo_motor", "linear_bearing", 
-        "rotary_actuator", "selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad", 
-        "flange", "vacuum_pad_takeout", "stacking_wiring", "stacking_sensor", "stacking_linier", "stacking_mechanical_part", 
-        "stacking_cylinder", "stacking_pneumatic", "conveyor_belt", "conveyor_motor", "conveyor_rantai", 
-        "conveyor_frame", "conveyor_inverter", "dosing_alarm", "dosing_setting", "dummy_vacuum", "dummy_condition", 
-        "dummy_flange", "dummy_instalasi", "dummy_tubbing"
+    // KONFIGURASI MAPPING ITEM UNTUK CHECKLIST RUTIN (Sesuai Form)
+    const rutinGroups = [
+        { 
+            title: "1. STAND LABEL", 
+            subs: [
+                { sub: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] },
+                { sub: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] },
+                { sub: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] },
+                { sub: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] }
+            ]
+        },
+        { 
+            title: "2. STACKING", 
+            subs: [
+                { sub: "ELECTRICAL", items: ["stacking_wiring", "stacking_sensor"] },
+                { sub: "MOTION", items: ["stacking_linier", "stacking_mechanical_part"] },
+                { sub: "PNEUMATIC", items: ["stacking_cylinder", "stacking_pneumatic"] }
+            ]
+        },
+        { title: "3. CONVEYOR", subs: [{ sub: "", items: ["conveyor_belt", "conveyor_motor", "conveyor_rantai", "conveyor_frame", "conveyor_inverter"] }] },
+        { title: "4. DOSING", subs: [{ sub: "", items: ["dosing_alarm", "dosing_setting"] }] },
+        { title: "5. DUMMY", subs: [{ sub: "", items: ["dummy_vacuum", "dummy_condition", "dummy_flange", "dummy_instalasi", "dummy_tubbing"] }] }
     ];
 
-    let activeId = null;
-    let rawData = []; 
-    let filteredData = []; 
-    let currentTab = 'rutin'; 
-
+    let activeId = null, rawData = [], filteredData = [], currentTab = 'rutin'; 
     const canvas = document.getElementById('sig-canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
@@ -169,14 +179,12 @@
     window.onmouseup = () => drawing=false;
     canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
     canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
-
     function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
     function refreshData() { loadData(); }
 
     async function loadData() {
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
-
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
         if(error) return console.error(error);
         
@@ -232,7 +240,7 @@
 
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
-        if (!selectedDate) { loadData(); } 
+        if (!selectedDate) loadData(); 
         else {
             filteredData = rawData.filter(row => {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
@@ -247,7 +255,6 @@
         if (!jsonData || Object.keys(jsonData).length === 0) return '';
         let rows = '';
         let hasIssues = false;
-        
         for (const [key, val] of Object.entries(jsonData)) {
             let status = val.status || '-';
             let note = val.note || '-';
@@ -261,38 +268,55 @@
         return `<div class="section-header">${title}</div><table class="json-table"><tr><th>Item</th><th>Status</th><th>Note</th></tr>${rows}</table>`;
     }
 
-    // FUNGSI RENDER KHUSUS CHECKLIST RUTIN (AGAR NG MUNCUL)
+    // FUNGSI RENDER RUTIN (Dengan Struktur Judul & Sub-Header, HANYA NG/NA)
     function renderRutinChecklist(row) {
-        let rows = '';
-        let hasIssues = false;
+        let htmlContent = '';
+        let totalIssues = 0;
 
-        rutinColumns.forEach(col => {
-            if (row[col] === 'NG') {
-                hasIssues = true;
-                const note = row[col + '_keterangan'] || '-';
-                rows += `<tr>
-                    <td>${col.replace(/_/g, ' ').toUpperCase()}</td>
-                    <td class="status-ng">NG</td>
-                    <td>${note}</td>
-                </tr>`;
+        rutinGroups.forEach(group => {
+            let groupRows = '';
+            
+            group.subs.forEach(sub => {
+                let subRows = '';
+                sub.items.forEach(item => {
+                    const status = row[item];
+                    if (status === 'NG' || status === 'NA') { // Tampilkan hanya NG/NA
+                        totalIssues++;
+                        const note = row[item + '_keterangan'] || '-';
+                        const colorClass = status === 'NG' ? 'status-ng' : 'status-na';
+                        subRows += `<tr>
+                            <td>${item.replace(/stacking_|conveyor_|dosing_|dummy_|_/g, ' ').toUpperCase()}</td>
+                            <td class="${colorClass}">${status}</td>
+                            <td>${note}</td>
+                        </tr>`;
+                    }
+                });
+
+                if (subRows) {
+                    if (sub.sub) groupRows += `<tr><td colspan="3" class="sub-header">${sub.sub}</td></tr>`;
+                    groupRows += subRows;
+                }
+            });
+
+            if (groupRows) {
+                htmlContent += `<div class="section-header">${group.title}</div>
+                                <table class="json-table">
+                                    <tr><th>Item</th><th>Status</th><th>Keterangan</th></tr>
+                                    ${groupRows}
+                                </table>`;
             }
         });
 
-        if (!hasIssues) {
+        if (totalIssues === 0) {
             return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>
                     <div style="background:#f9f9f9; padding:10px; margin-top:10px;">
                         <strong>Catatan Pelaksana:</strong> ${row.keterangan || '-'}
                     </div>`;
         }
 
-        return `<div class="section-header">TEMUAN MASALAH (NG) - CHECKLIST RUTIN</div>
-                <table class="json-table">
-                    <tr><th>Item</th><th>Status</th><th>Keterangan Kerusakan</th></tr>
-                    ${rows}
-                </table>
-                <div style="background:#f9f9f9; padding:10px; margin-top:10px;">
-                    <strong>Catatan Tambahan:</strong> ${row.keterangan || '-'}
-                </div>`;
+        return htmlContent + `<div style="background:#f9f9f9; padding:10px; margin-top:10px;">
+                                <strong>Catatan Tambahan Pelaksana:</strong> ${row.keterangan || '-'}
+                              </div>`;
     }
 
     function openModal(row) {
@@ -316,10 +340,8 @@
         body.innerHTML = '';
 
         if (currentTab === 'rutin') {
-            // == LOGIC RUTIN DIKEMBALIKAN (Menampilkan NG) ==
             body.innerHTML = renderRutinChecklist(row); 
         } else {
-            // == LOGIC TRIAL MOLD ==
             let content = `<div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px; background:#f9f9f9; padding:10px; border-radius:5px;">
                 <div><strong>Mesin:</strong> ${row.machine_name}</div>
                 <div><strong>Project:</strong> ${row.project_name}</div>
@@ -360,25 +382,14 @@
         const ketInput = document.getElementById('keteranganSuper').value; 
         if(!namaSuper) return alert("Isi nama superintendent!");
 
-        let update = { 
-            status: st, 
-            approved_at: new Date().toISOString(), 
-            nama_superintendent: namaSuper
-        };
-
-        if (currentTab === 'rutin') {
-            update.keterangan = ketInput; 
-        } else {
-            update.keterangan_superintendent = ketInput; 
-        }
+        let update = { status: st, approved_at: new Date().toISOString(), nama_superintendent: namaSuper };
+        if (currentTab === 'rutin') update.keterangan = ketInput; 
+        else update.keterangan_superintendent = ketInput; 
 
         if(st === 'Approved') {
             const dataURL = canvas.toDataURL();
-            if (currentTab === 'rutin') {
-                update.signature = dataURL;
-            } else {
-                update.signature_superintendent = dataURL; 
-            }
+            if (currentTab === 'rutin') update.signature = dataURL;
+            else update.signature_superintendent = dataURL; 
         }
 
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
