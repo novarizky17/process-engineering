@@ -9,7 +9,7 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
         header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5 rgba(0,0,0,0.1); }
-        .container { padding: 20px; max-width: 1300px; margin: 0 auto; } /* Lebar container ditambah */
+        .container { padding: 20px; max-width: 1300px; margin: 0 auto; }
         
         .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: #e0e0e0; color: #666; transition: 0.3s; }
@@ -49,7 +49,10 @@
         .json-table th { background: #eee; text-align: left; padding: 8px; border-bottom: 2px solid #ddd; }
         .json-table td { padding: 8px; border-bottom: 1px solid #eee; }
         .status-ng { color: red; font-weight: bold; }
-        .status-ok { color: green; font-weight: bold; }
+        .status-na { color: #666; font-style: italic; font-weight: bold; } /* Style untuk NA */
+        
+        /* Pesan jika semua OK */
+        .all-ok-msg { padding: 15px; background: #d4edda; color: #155724; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -173,7 +176,6 @@
         if(error) return console.error(error);
         
         rawData = data;
-        // Tampilkan Pending dan Completed (Completed = Status awal trial dari form operator)
         filteredData = rawData.filter(row => {
             if(currentTab === 'rutin') return row.status === 'Pending';
             return row.status === 'Completed' || row.status === 'Pending' || row.status === null; 
@@ -186,10 +188,10 @@
         const tableBody = document.getElementById('mainTable');
 
         if (currentTab === 'rutin') {
-            header.innerHTML = `<th>Pelaksana</th><th>Superintendent</th><th>Equipment</th><th>Tanggal</th><th>Week</th><th>Keterangan</th><th>Status</th><th>Aksi</th>`;
+            header.innerHTML = `<th>Pelaksana</th><th>Super</th><th>Equip</th><th>Tanggal</th><th>Week</th><th>Ket</th><th>Status</th><th>Aksi</th>`;
         } else {
-            // Header Baru Sesuai Tabel checklist_trial (project_name & pic_trial) + KETERANGAN
-            header.innerHTML = `<th>PIC Trial</th><th>Superintendent</th><th>Mesin</th><th>Project</th><th>Tanggal</th><th>Keterangan</th><th>Status</th><th>Aksi</th>`;
+            // Header Trial (Ada Kolom Keterangan)
+            header.innerHTML = `<th>PIC Trial</th><th>Super</th><th>Mesin</th><th>Project</th><th>Tanggal</th><th>Keterangan</th><th>Status</th><th>Aksi</th>`;
         }
 
         if (dataList.length === 0) {
@@ -212,11 +214,12 @@
             } else {
                 return `<tr>
                     <td><strong>${row.pic_trial || '-'}</strong></td>
-                    <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
+                    <td>${row.nama_superintendent || '-'}</td>
                     <td>${row.machine_name || '-'}</td>
                     <td>${row.project_name || '-'}</td>
                     <td>${row.trial_date || '-'}</td> 
-                    <td>${row.keterangan || '-'}</td> <td><span class="badge status-${(row.status || 'pending').toLowerCase()}">${row.status || 'Pending'}</span></td>
+                    <td>${row.keterangan || '-'}</td> 
+                    <td><span class="badge status-${(row.status || 'pending').toLowerCase()}">${row.status || 'Pending'}</span></td>
                     <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
                 </tr>`;
             }
@@ -226,7 +229,7 @@
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
         if (!selectedDate) {
-            loadData(); // Reload all pending
+            loadData(); 
         } else {
             filteredData = rawData.filter(row => {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
@@ -241,24 +244,31 @@
         refreshData();
     }
 
-    // Fungsi Render JSON untuk Trial Mold (MAPPING DATA DARI DATABASE)
+    // --- LOGIC BARU: HANYA TAMPILKAN NG / NA ---
     function renderJsonCheck(title, jsonData) {
         if (!jsonData || Object.keys(jsonData).length === 0) return '';
         let rows = '';
+        let hasIssues = false; // Flag cek ada NG/NA atau tidak
         
-        // Loop object JSONB dari database
         for (const [key, val] of Object.entries(jsonData)) {
             let status = val.status || '-';
             let note = val.note || '-';
-            let colorClass = status === 'NG' ? 'status-ng' : 'status-ok';
             
-            rows += `<tr>
-                <td>${key}</td>
-                <td class="${colorClass}">${status}</td>
-                <td>${note}</td>
-            </tr>`;
+            // FILTER: HANYA PROSES JIKA STATUS 'NG' ATAU 'NA'
+            if (status === 'NG' || status === 'NA') {
+                hasIssues = true;
+                let colorClass = status === 'NG' ? 'status-ng' : 'status-na';
+                rows += `<tr>
+                    <td>${key}</td>
+                    <td class="${colorClass}">${status}</td>
+                    <td>${note}</td>
+                </tr>`;
+            }
         }
        
+        // JIKA KOSONG (SEMUA OK), TIDAK USAH TAMPILKAN KATEGORI INI
+        if (!hasIssues) return '';
+
         return `<div class="section-header">${title}</div>
                 <table class="json-table">
                     <tr><th>Item</th><th>Status</th><th>Note</th></tr>
@@ -274,11 +284,8 @@
         
         document.getElementById('infoPelaksana').innerText = info;
         document.getElementById('modalTitle').innerText = currentTab === 'rutin' ? "Review Checklist Rutin" : "Review Checklist Trial Mold";
-
-        // Reset Input Keterangan Superintendent saat buka modal baru
         document.getElementById('keteranganSuper').value = '';
 
-        // Note Superintendent (History)
         if (row.status === 'Approved' || row.status === 'Rejected') {
             const noteText = currentTab === 'rutin' ? row.keterangan : (row.keterangan_superintendent || '-');
             document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan Superintendent Sebelumnya:</strong> ${noteText}</div>`;
@@ -290,23 +297,31 @@
         body.innerHTML = '';
 
         if (currentTab === 'rutin') {
-            // Logic Rutin Lama (Simplified for brevity)
             body.innerHTML = "<p>Detail item checklist rutin...</p>"; 
         } else {
-            // Logic Trial Mold Baru (Parse JSONB)
+            // -- LOGIC RENDER MODAL TRIAL MOLD --
             let content = `<div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px; background:#f9f9f9; padding:10px; border-radius:5px;">
                 <div><strong>Mesin:</strong> ${row.machine_name}</div>
                 <div><strong>Project:</strong> ${row.project_name}</div>
                 <div><strong>Mold Code:</strong> ${row.mold_code}</div>
-                <div><strong>Keterangan PIC:</strong> ${row.keterangan || '-'}</div> </div>`;
+                <div><strong>Keterangan PIC:</strong> ${row.keterangan || '-'}</div>
+            </div>`;
             
-            content += renderJsonCheck("1. MESIN INJEKSI", row.check_machine);
-            content += renderJsonCheck("2. PERSIAPAN MOLD", row.check_mold);
-            content += renderJsonCheck("3. AUXILIARY", row.check_aux);
-            content += renderJsonCheck("4. MATERIAL", row.check_material);
-            content += renderJsonCheck("5. QC TOOLS", row.check_qc);
-            content += renderJsonCheck("6. SAFETY", row.check_safety);
-            body.innerHTML = content;
+            // Render per Section (Hanya NG/NA)
+            let checksHtml = "";
+            checksHtml += renderJsonCheck("1. MESIN INJEKSI", row.check_machine);
+            checksHtml += renderJsonCheck("2. PERSIAPAN MOLD", row.check_mold);
+            checksHtml += renderJsonCheck("3. AUXILIARY", row.check_aux);
+            checksHtml += renderJsonCheck("4. MATERIAL", row.check_material);
+            checksHtml += renderJsonCheck("5. QC TOOLS", row.check_qc);
+            checksHtml += renderJsonCheck("6. SAFETY", row.check_safety);
+
+            // Jika checksHtml KOSONG (berarti semua OK), tampilkan pesan
+            if (checksHtml === "") {
+                checksHtml = `<div class="all-ok-msg">✨ Semua Item Check Berstatus OK (Tidak ada temuan NG/NA)</div>`;
+            }
+
+            body.innerHTML = content + checksHtml;
         }
 
         const isReviewable = row.status !== 'Approved' && row.status !== 'Rejected';
@@ -336,11 +351,9 @@
             nama_superintendent: namaSuper
         };
 
-        // LOGIKA PENYIMPANAN KETERANGAN SUPERINTENDENT
         if (currentTab === 'rutin') {
             update.keterangan = ketInput; 
         } else {
-            // Simpan ke kolom khusus di tabel checklist_trial
             update.keterangan_superintendent = ketInput; 
         }
 
@@ -349,7 +362,7 @@
             if (currentTab === 'rutin') {
                 update.signature = dataURL;
             } else {
-                update.signature_superintendent = dataURL; // Simpan TTD ke kolom khusus
+                update.signature_superintendent = dataURL; 
             }
         }
 
