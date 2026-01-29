@@ -378,33 +378,33 @@
                     
                     return `
                     <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white transition-colors">
-                        <td class="px-6 py-3 text-right align-middle">
-                            <div class="flex items-center justify-end gap-2">
+                        <td class="px-6 py-4 text-right align-middle">
+                            <div class="flex items-center justify-end gap-3">
                                 <div class="tree-line"></div>
-                                <span class="text-[9px] font-extrabold text-slate-300 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded">SUBTASK</span>
+                                <span class="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest bg-slate-100 px-3 py-1 rounded">SUBTASK</span>
                             </div>
                         </td>
-                        <td class="px-6 py-3 align-middle font-bold text-slate-700 flex justify-between items-center gap-3">
+                        <td class="px-6 py-4 align-middle font-bold text-slate-700 flex justify-between items-center gap-3">
                             <span class="text-sm">${sub.subtask_desc}</span>
                             <div class="hidden group-hover:flex gap-2">
-                                <button onclick="editSubtask('${sub.id}', '${row.id}')" class="w-7 h-7 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-500 hover:text-white transition-all flex items-center justify-center text-xs" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="deleteSubTask('${sub.id}')" class="w-7 h-7 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-xs" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="editSubtask('${sub.id}', '${row.id}')" class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-500 hover:text-white transition-all flex items-center justify-center text-xs" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteSubTask('${sub.id}')" class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-xs" title="Hapus"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </td>
-                        <td class="px-4 py-3 text-center align-middle"><span class="badge ${badgeClass}">${sub.priority}</span></td>
-                        <td class="px-4 py-3 text-center align-middle">
+                        <td class="px-4 py-4 text-center align-middle"><span class="badge ${badgeClass}">${sub.priority}</span></td>
+                        <td class="px-4 py-4 text-center align-middle">
                             <div class="flex items-center gap-2 justify-center">
                                 <span class="text-slate-600 font-bold text-xs">${sub.progress_percent}%</span>
-                                <div class="w-10 bg-slate-200 h-1.5 rounded-full overflow-hidden"><div class="bg-slate-500 h-full" style="width:${sub.progress_percent}%"></div></div>
+                                <div class="w-12 bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-slate-500 h-full" style="width:${sub.progress_percent}%"></div></div>
                             </div>
                         </td>
-                        <td class="px-4 py-3 text-center align-middle text-[10px] font-mono text-slate-500">${formatTime(sub.start_date)}</td>
-                        <td class="px-4 py-3 text-center align-middle text-[10px] font-mono text-slate-500">${formatTime(sub.end_date)}</td>
-                        <td class="px-4 py-3 text-center align-middle">
-                            ${sub.job_type && sub.job_type !== '-' ? `<span class="badge-select py-1 px-3 text-[10px] ${jobBadge} border-none pointer-events-none">${sub.job_type}</span>` : '-'}
+                        <td class="px-4 py-4 text-center align-middle text-[13px] font-mono text-slate-600 font-bold">${formatTime(sub.start_date)}</td>
+                        <td class="px-4 py-4 text-center align-middle text-[13px] font-mono text-slate-600 font-bold">${formatTime(sub.end_date)}</td>
+                        <td class="px-4 py-4 text-center align-middle">
+                            ${sub.job_type && sub.job_type !== '-' ? `<span class="badge-select py-1.5 px-3 text-[12px] ${jobBadge} border-none pointer-events-none">${sub.job_type}</span>` : '-'}
                         </td>
-                        <td class="px-4 py-3 align-middle text-[11px] italic text-slate-500 truncate max-w-[200px]" title="${sub.worker_notes}">${sub.worker_notes || '-'}</td>
-                        <td class="px-4 py-3 text-center align-middle"><span class="badge-select py-1 px-3 text-[10px] ${statusBadge} border-none pointer-events-none">${sub.status}</span></td>
+                        <td class="px-4 py-4 align-middle text-[11px] italic text-slate-500 truncate max-w-[200px]" title="${sub.worker_notes}">${sub.worker_notes || '-'}</td>
+                        <td class="px-4 py-4 text-center align-middle"><span class="badge-select py-1.5 px-3 text-[10px] ${statusBadge} border-none pointer-events-none">${sub.status}</span></td>
                         <td></td>
                     </tr>
                     `;
@@ -414,7 +414,6 @@
             }).join('');
         }
 
-        // --- VALIDATION & SAVE LOGIC ---
         async function saveMain(id) {
             const sVal = document.getElementById(`start-${id}`).value;
             const eVal = document.getElementById(`end-${id}`).value;
