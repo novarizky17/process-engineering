@@ -19,7 +19,7 @@
         .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
 
-        /* TAMPILAN TABEL KEMBALI KE ASAL (NORMAL) */
+        /* TAMPILAN TABEL NORMAL */
         .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; }
         th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
@@ -36,7 +36,7 @@
         .btn-success { background: #28a745; color: white; }
         .btn-back { background: #6c757d; color: white; text-decoration: none; font-size: 14px; }
         .btn-danger { background: #dc3545; color: white; }
-        .btn-excel { background: #198754; color: white; margin-left: auto; } /* Hijau Excel */
+        .btn-excel { background: #198754; color: white; margin-left: auto; }
 
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
         .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 1200px; }
@@ -208,12 +208,11 @@
         renderTable(filteredData);
     }
 
-    // === FORMAT TANGGAL HELPER (YYYY-MM-DD -> DD-MM-YYYY) ===
     function formatDate(dateString) {
         if (!dateString) return '-';
         const parts = dateString.split('-');
         if (parts.length === 3) {
-            return `${parts[2]}-${parts[1]}-${parts[0]}`; // DD-MM-YYYY
+            return `${parts[2]}-${parts[1]}-${parts[0]}`; 
         }
         return dateString;
     }
@@ -240,7 +239,6 @@
             if (statusText === 'Approved') statusClass = 'status-approved';
             else if (statusText === 'Rejected') statusClass = 'status-rejected';
 
-            // PAKAI formatDate() UNTUK TAMPILAN TABEL WEB
             if (currentTab === 'rutin') {
                 return `<tr>
                     <td><strong>${row.pelaksana?.nama_pelaksana || '-'}</strong></td>
@@ -269,7 +267,6 @@
 
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
-    // === FUNGSI DOWNLOAD EXCEL SESUAI REQUEST ===
     function downloadExcel() {
         if (!filteredData || filteredData.length === 0) {
             alert("Tidak ada data untuk diunduh!");
@@ -284,8 +281,8 @@
                 "Equipment": row.pelaksana?.nama_tools || '-',
                 "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
                 "Week": row.pelaksana?.week || '-',
-                "Keterangan": row.keterangan || '-', // Header diubah jadi 'Keterangan'
-                // Catatan Super DIHAPUS dari sini
+                "Keterangan": row.keterangan || '-', 
+                // Catatan Super Dihapus Sesuai Request
                 "Status": row.status || 'Pending'
             }));
         } else {
@@ -297,19 +294,18 @@
                 "Kode Mold": row.mold_code || '-',
                 "Nama Mold": row.mold_name || '-',
                 "Tanggal Trial": formatDate(row.trial_date),
-                // Catatan Super DIHAPUS dari sini
-                "Status": row.status || 'Pending'
+                // Catatan Super Dihapus Sesuai Request
+                // KHUSUS TRIAL: Jika status 'Completed' atau apapun, paksa jadi 'Pending' di Excel
+                "Status": (row.status === 'Completed' || !row.status) ? 'Pending' : row.status
             }));
         }
         
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         
-        // SETTING LEBAR KOLOM EXCEL (Equipment/Mesin = 40)
+        // SETTING LEBAR KOLOM EXCEL
         if (currentTab === 'rutin') {
-            // Kolom dikurangi 1 (Catatan Super hilang)
             ws['!cols'] = [{wch:25}, {wch:25}, {wch:40}, {wch:15}, {wch:8}, {wch:50}, {wch:15}];
         } else {
-            // Kolom dikurangi 1 (Catatan Super hilang)
             ws['!cols'] = [{wch:25}, {wch:25}, {wch:40}, {wch:25}, {wch:20}, {wch:25}, {wch:15}, {wch:15}];
         }
 
