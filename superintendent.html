@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Superintendent - Approval System</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
         header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5 rgba(0,0,0,0.1); }
@@ -37,38 +39,18 @@
         .btn-success { background: #28a745; color: white; }
         .btn-back { background: #6c757d; color: white; text-decoration: none; font-size: 14px; }
         .btn-danger { background: #dc3545; color: white; }
+        .btn-excel { background: #198754; color: white; margin-left: auto; } /* Tombol Excel Hijau */
 
         /* MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
-        .modal-content { 
-            background: white; 
-            margin: 2% auto; 
-            padding: 25px; 
-            border-radius: 12px; 
-            width: 95%; 
-            max-width: 1200px; 
-        }
+        .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 1200px; }
         
         /* INFO GRID */
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #003366;
-        }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #003366; }
         .info-item label { font-size: 11px; color: #666; display: block; margin-bottom: 3px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
         .info-item span { font-size: 14px; font-weight: bold; color: #333; }
 
-        /* SECTION HEADERS */
-        .section-header { 
-            background: #f1f4f8; padding: 10px 15px; margin: 20px 0 0 0; 
-            font-weight: bold; color: #003366; border-left: 5px solid #003366; 
-            font-size: 15px; border-top-left-radius: 4px; border-top-right-radius: 4px;
-        }
+        .section-header { background: #f1f4f8; padding: 10px 15px; margin: 20px 0 0 0; font-weight: bold; color: #003366; border-left: 5px solid #003366; font-size: 15px; border-top-left-radius: 4px; border-top-right-radius: 4px; }
         .sub-header { background: #e9ecef; padding: 8px 15px; font-weight: bold; color: #495057; font-size: 13px; border-bottom: 1px solid #dee2e6; }
 
         .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
@@ -113,6 +95,8 @@
         <strong id="filterLabel">Cari Tanggal:</strong>
         <input type="date" id="searchDate" class="input-search" onchange="filterDataByDate()">
         <button class="btn btn-back" onclick="resetFilter()">Reset</button>
+        
+        <button class="btn btn-excel" onclick="downloadExcel()">📥 Download Excel</button>
     </div>
 
     <div class="card">
@@ -218,33 +202,31 @@
     function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
     function refreshData() { loadData(); }
 
-    // === LOGIC LOAD DATA YANG DIPERBAIKI ===
     async function loadData() {
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
         
-        // 1. AMBIL SEMUA DATA (Agar history bisa dicari)
+        // 1. AMBIL SEMUA DATA
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
         if(error) return console.error(error);
         
         rawData = data;
         
-        // 2. JALANKAN FILTER (Ini akan menentukan apakah yang tampil Pending saja atau Semua)
+        // 2. JALANKAN FILTER (Menentukan Pending atau Semua)
         filterDataByDate();
     }
 
-    // === LOGIC FILTER YANG BOS MINTA ===
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
         
         if (selectedDate) {
-            // KALO ADA TANGGAL -> TAMPILKAN SEMUA STATUS (Termasuk Approved/Rejected) untuk tanggal itu
+            // KALO ADA TANGGAL -> TAMPILKAN SEMUA STATUS
             filteredData = rawData.filter(row => {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
             });
         } else {
-            // KALO GAK ADA TANGGAL (DEFAULT) -> HANYA TAMPILKAN PENDING (Approved/Rejected Hilang)
+            // KALO GAK ADA TANGGAL -> HANYA TAMPILKAN PENDING
             filteredData = rawData.filter(row => {
                 const status = (row.status || 'Pending').toLowerCase();
                 return status === 'pending';
@@ -304,6 +286,51 @@
 
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
+    // === FUNGSI DOWNLOAD EXCEL ===
+    function downloadExcel() {
+        if (!filteredData || filteredData.length === 0) {
+            alert("Tidak ada data untuk diunduh!");
+            return;
+        }
+
+        let dataToExport = [];
+
+        if (currentTab === 'rutin') {
+            // Mapping Data Checklist Rutin
+            dataToExport = filteredData.map(row => ({
+                "Pelaksana": row.pelaksana?.nama_pelaksana || '-',
+                "Superintendent": row.nama_superintendent || '-',
+                "Equipment": row.pelaksana?.nama_tools || '-',
+                "Tanggal": row.pelaksana?.tanggal_checklist || '-',
+                "Week": row.pelaksana?.week || '-',
+                "Keterangan Pelaksana": row.keterangan || '-',
+                "Catatan Superintendent": row.keterangan_superintendent || '-',
+                "Status": row.status || 'Pending'
+            }));
+        } else {
+            // Mapping Data Checklist Trial
+            dataToExport = filteredData.map(row => ({
+                "PIC Trial": row.pic_trial || '-',
+                "Superintendent": row.nama_superintendent || '-',
+                "Mesin": row.machine_name || '-',
+                "Project": row.project_name || '-',
+                "Kode Mold": row.mold_code || '-',
+                "Nama Mold": row.mold_name || '-',
+                "Tanggal Trial": row.trial_date || '-',
+                "Keterangan Super": row.keterangan_superintendent || '-',
+                "Status": row.status || 'Pending'
+            }));
+        }
+
+        const ws = XLSX.utils.json_to_sheet(dataToExport);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Data");
+        
+        // Nama file dinamis
+        const fileName = `Report_${currentTab}_${new Date().toISOString().slice(0,10)}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+    }
+
     function renderJsonCheck(title, jsonData) {
         if (!jsonData || Object.keys(jsonData).length === 0) return '';
         let rows = '';
@@ -337,7 +364,6 @@
 
         rutinGroups.forEach(group => {
             let groupRows = '';
-            
             group.subs.forEach(sub => {
                 let subRows = '';
                 sub.items.forEach(item => {
@@ -353,13 +379,11 @@
                         </tr>`;
                     }
                 });
-
                 if (subRows) {
                     if (sub.sub) groupRows += `<tr><td colspan="3" class="sub-header">${sub.sub}</td></tr>`;
                     groupRows += subRows;
                 }
             });
-
             if (groupRows) {
                 htmlContent += `<div class="section-header">${group.title}</div>
                                 <div class="table-wrapper">
@@ -374,7 +398,6 @@
         if (totalIssues === 0) {
             return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>`;
         }
-
         return htmlContent;
     }
 
@@ -393,7 +416,6 @@
                 <div class="info-item"><label>Capacity</label><span>${row.pelaksana?.capacity || '-'}</span></div>
             `;
         } else {
-            // MENAMBAHKAN NAMA MOLD
             infoBox.innerHTML = `
                 <div class="info-item"><label>PIC Trial</label><span>${row.pic_trial || '-'}</span></div>
                 <div class="info-item"><label>Nama Mesin</label><span>${row.machine_name || '-'}</span></div>
@@ -438,7 +460,6 @@
         if(!isReviewable) {
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
-            // Gunakan signature_superintendent untuk history trial, rutin mungkin pakai signature
             const sigUrl = currentTab === 'rutin' ? (row.signature_superintendent || row.signature) : row.signature_superintendent;
             document.getElementById('historySigImg').src = sigUrl || '';
         }
@@ -454,12 +475,13 @@
         let update = { status: st, approved_at: new Date().toISOString(), nama_superintendent: namaSuper };
         
         // Simpan Catatan Super
-        if (currentTab === 'rutin') update.keterangan = ketInput; // Asumsi tabel lama pakai kolom keterangan
+        if (currentTab === 'rutin') update.keterangan = ketInput; 
         else update.keterangan_superintendent = ketInput; 
 
         if(st === 'Approved') {
             const dataURL = canvas.toDataURL();
-            update.signature_superintendent = dataURL; // Simpan TTD Super
+            if (currentTab === 'rutin') update.signature_superintendent = dataURL; 
+            else update.signature_superintendent = dataURL; 
         }
 
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
