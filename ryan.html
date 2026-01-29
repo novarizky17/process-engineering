@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Ryan</title>
+    <title>Work Panel - Ryan (Ultimate)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,7 +19,6 @@
             overflow-x: hidden;
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -37,22 +36,25 @@
         }
         .table-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
 
-        /* Status Select */
-        .status-badge-select {
+        /* Status & Job Badge Select */
+        .badge-select {
             appearance: none;
             padding: 4px 24px 4px 10px;
             border-radius: 6px;
             font-size: 11px;
             font-weight: 700;
             cursor: pointer;
-            border: 1px solid #e2e8f0;
-            background-color: white;
+            border: 1px solid transparent;
             text-align: center;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.5rem center;
             background-size: 1em;
+            text-transform: capitalize;
+            width: 100%;
+            transition: transform 0.2s;
         }
+        .badge-select:hover { transform: scale(1.02); }
 
         /* Floating Button */
         .fab {
@@ -87,7 +89,7 @@
         }
         .modal-input:focus { border-color: #3b82f6; background-color: #eff6ff; }
 
-        /* Subtask Badge */
+        /* Badges */
         .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-mid { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
@@ -95,7 +97,7 @@
         .badge-status { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
         .badge-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
 
-        /* Tree Line for Subtask */
+        /* Tree Line */
         .tree-line {
             border-left: 2px dashed #cbd5e1;
             border-bottom: 2px dashed #cbd5e1;
@@ -109,9 +111,7 @@
     <div class="bg-[#111827] border-b border-slate-900 pt-8 pb-36 px-8 shadow-xl w-full relative">
         <div class="flex justify-between items-center w-full max-w-[100%] mx-auto">
             <div class="flex items-center gap-5">
-                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-blue-900/50">
-                    R
-                </div>
+                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-blue-900/50">R</div>
                 <div>
                     <h1 class="text-2xl font-extrabold text-white tracking-tight">Panel Kerja Ryan</h1>
                     <div class="flex items-center gap-2 mt-1">
@@ -130,31 +130,19 @@
         
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 w-full">
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-blue-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
-                <div>
-                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p>
-                    <h3 id="stat-active" class="text-4xl font-black text-slate-800">0</h3>
-                </div>
+                <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p><h3 id="stat-active" class="text-4xl font-black text-slate-800">0</h3></div>
                 <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 text-xl"><i class="fa-solid fa-spinner fa-spin"></i></div>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-amber-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
-                <div>
-                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p>
-                    <h3 id="stat-pending" class="text-4xl font-black text-slate-800">0</h3>
-                </div>
+                <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p><h3 id="stat-pending" class="text-4xl font-black text-slate-800">0</h3></div>
                 <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 text-xl"><i class="fa-regular fa-clock"></i></div>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-rose-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
-                <div>
-                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p>
-                    <h3 id="stat-hold" class="text-4xl font-black text-slate-800">0</h3>
-                </div>
+                <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p><h3 id="stat-hold" class="text-4xl font-black text-slate-800">0</h3></div>
                 <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 text-xl"><i class="fa-solid fa-pause"></i></div>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-emerald-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
-                <div>
-                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Selesai</p>
-                    <h3 id="stat-finished" class="text-4xl font-black text-slate-800">0</h3>
-                </div>
+                <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Selesai</p><h3 id="stat-finished" class="text-4xl font-black text-slate-800">0</h3></div>
                 <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 text-xl"><i class="fa-solid fa-check-double"></i></div>
             </div>
         </div>
@@ -203,55 +191,29 @@
         </div>
     </div>
 
-    <button onclick="openSubtaskModal()" class="fab" title="Tambah Sub-Task">
-        <i class="fa-solid fa-plus"></i>
-    </button>
+    <button onclick="openSubtaskModal()" class="fab" title="Tambah Sub-Task"><i class="fa-solid fa-plus"></i></button>
 
     <div id="subtaskModal" class="modal-overlay">
         <div class="modal-box">
             <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50 rounded-t-2xl">
-                <div>
-                    <h3 id="modal-title" class="text-lg font-extrabold text-slate-800">TAMBAH RINCIAN</h3>
-                    <p class="text-xs text-slate-500 mt-1">Input sub-task pekerjaan baru</p>
-                </div>
+                <div><h3 id="modal-title" class="text-lg font-extrabold text-slate-800">TAMBAH RINCIAN</h3><p class="text-xs text-slate-500 mt-1">Input sub-task pekerjaan baru</p></div>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 text-xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
             <div class="p-6 space-y-5">
                 <input type="hidden" id="modal-subtask-id">
-                
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
                     <label class="modal-label text-blue-700 uppercase tracking-wide">PILIH PROJECT UTAMA (WAJIB)</label>
-                    <select id="modal-parent-id" class="modal-input font-bold text-blue-900 border-blue-200 h-12">
-                        <option value="">-- Pilih Project --</option>
-                    </select>
+                    <select id="modal-parent-id" class="modal-input font-bold text-blue-900 border-blue-200 h-12"><option value="">-- Pilih Project --</option></select>
                 </div>
-
-                <div>
-                    <label class="modal-label">Nama Pekerjaan / Sub-Task</label>
-                    <input type="text" id="modal-desc" class="modal-input" placeholder="Contoh: Bongkar Cylinder...">
-                </div>
-                
+                <div><label class="modal-label">Nama Pekerjaan / Sub-Task</label><input type="text" id="modal-desc" class="modal-input" placeholder="Contoh: Bongkar Cylinder..."></div>
                 <div class="grid grid-cols-2 gap-5">
-                    <div>
-                        <label class="modal-label">Priority</label>
-                        <select id="modal-prio" class="modal-input">
-                            <option value="Low">Low</option>
-                            <option value="Mid">Mid</option>
-                            <option value="High">High</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="modal-label">Progress (%)</label>
-                        <input type="number" id="modal-prog" class="modal-input" value="0" min="0" max="100">
-                    </div>
+                    <div><label class="modal-label">Priority</label><select id="modal-prio" class="modal-input"><option value="Low">Low</option><option value="Mid">Mid</option><option value="High">High</option></select></div>
+                    <div><label class="modal-label">Progress (%)</label><input type="number" id="modal-prog" class="modal-input" value="0" min="0" max="100"></div>
                 </div>
-
                 <div class="grid grid-cols-2 gap-5">
                     <div><label class="modal-label">Start Date</label><input type="datetime-local" id="modal-start" class="modal-input"></div>
                     <div><label class="modal-label">Finish Date</label><input type="datetime-local" id="modal-finish" class="modal-input"></div>
                 </div>
-
                 <div class="grid grid-cols-2 gap-5">
                     <div>
                         <label class="modal-label">Kategori</label>
@@ -260,6 +222,8 @@
                             <option value="Improvement">Improvement</option>
                             <option value="Overhaul">Overhaul</option>
                             <option value="Perawatan">Perawatan</option>
+                            <option value="New Project">New Project</option>
+                            <option value="Trial">Trial</option>
                         </select>
                     </div>
                     <div>
@@ -271,17 +235,10 @@
                         </select>
                     </div>
                 </div>
-
-                <div>
-                    <label class="modal-label">Catatan Tambahan</label>
-                    <textarea id="modal-note" class="modal-input h-20 resize-none" placeholder="Tulis catatan..."></textarea>
-                </div>
+                <div><label class="modal-label">Catatan Tambahan</label><textarea id="modal-note" class="modal-input h-20 resize-none" placeholder="Tulis catatan..."></textarea></div>
             </div>
-
             <div class="p-6 border-t border-slate-100 bg-slate-50">
-                <button onclick="saveSubtask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg transition-all text-sm tracking-wide">
-                    Simpan Data
-                </button>
+                <button onclick="saveSubtask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg transition-all text-sm tracking-wide">Simpan Data</button>
             </div>
         </div>
     </div>
@@ -298,6 +255,20 @@
             const date = new Date(dateStr);
             return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear().toString().substr(-2)} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
         }
+
+        // --- HELPER UNTUK WARNA JOB TYPE ---
+        function getJobClass(job) {
+            switch(job) {
+                case 'Improvement': return 'bg-blue-100 text-blue-700 border-blue-200';
+                case 'Overhaul': return 'bg-purple-100 text-purple-700 border-purple-200';
+                case 'Perawatan': return 'bg-amber-100 text-amber-700 border-amber-200';
+                case 'New Project': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                case 'Trial': return 'bg-pink-100 text-pink-700 border-pink-200';
+                default: return 'bg-slate-50 text-slate-500 border-slate-200';
+            }
+        }
+
+        function updateJobColor(el) { el.className = `badge-select ${getJobClass(el.value)}`; }
 
         async function fetchRyanTasks() {
             const { data: mainData, error } = await _sb.from('management_tracker').select('*').ilike('assigned_to', 'ryan').order('created_at', { ascending: false });
@@ -323,9 +294,7 @@
             const select = document.getElementById('modal-parent-id');
             const currentVal = select.value; 
             select.innerHTML = '<option value="">-- Pilih Project --</option>';
-            tasks.forEach(task => {
-                if(task.status !== 'Done') select.innerHTML += `<option value="${task.id}">${task.project_name} (${task.machine_name})</option>`;
-            });
+            tasks.forEach(task => { if(task.status !== 'Done') select.innerHTML += `<option value="${task.id}">${task.project_name} (${task.machine_name})</option>`; });
             if(currentVal) select.value = currentVal;
         }
 
@@ -334,6 +303,7 @@
             tbody.innerHTML = dataList.map(row => {
                 const progress = row.progress_percent || 0; 
                 const mySubtasks = subTasksMap[row.id] || [];
+                const jobClass = getJobClass(row.job_type); // Get initial color
                 
                 let mainRow = `
                     <tr class="bg-white border-b border-slate-100 hover:bg-blue-50/30 transition-colors">
@@ -358,12 +328,13 @@
                         <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-center"></td>
                         <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-center"></td>
                         <td class="px-4 py-5 align-top text-center">
-                            <select id="job-${row.id}" class="table-input text-center">
+                            <select id="job-${row.id}" onchange="updateJobColor(this)" class="badge-select ${jobClass}">
                                 <option value="-" ${row.job_type=='-'?'selected':''}>-</option>
-                                <option value="Improvement" ${row.job_type=='Improvement'?'selected':''}>Imp</option>
-                                <option value="Overhaul" ${row.job_type=='Overhaul'?'selected':''}>Ovhl</option>
-                                <option value="Perawatan" ${row.job_type=='Perawatan'?'selected':''}>Mtc</option>
-                                <option value="New Project" ${row.job_type=='New Project'?'selected':''}>New</option>
+                                <option value="Improvement" ${row.job_type=='Improvement'?'selected':''}>Improvement</option>
+                                <option value="Overhaul" ${row.job_type=='Overhaul'?'selected':''}>Overhaul</option>
+                                <option value="Perawatan" ${row.job_type=='Perawatan'?'selected':''}>Perawatan</option>
+                                <option value="New Project" ${row.job_type=='New Project'?'selected':''}>New Project</option>
+                                <option value="Trial" ${row.job_type=='Trial'?'selected':''}>Trial</option>
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top">
@@ -378,7 +349,7 @@
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
-                             <button class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto" onclick="saveMain('${row.id}')" title="Simpan">
+                             <button class="w-10 h-10 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md flex items-center justify-center mx-auto" onclick="saveMain('${row.id}')" title="Simpan">
                                 <i class="fa-solid fa-floppy-disk text-lg"></i>
                              </button>
                         </td>
@@ -388,6 +359,7 @@
                 let subRows = mySubtasks.map(sub => {
                     let badgeClass = sub.priority === 'High' ? 'badge-high' : (sub.priority === 'Mid' ? 'badge-mid' : 'badge-low');
                     let statusBadge = sub.status === 'Done' ? 'badge-done' : 'badge-status';
+                    let jobBadge = getJobClass(sub.job_type); 
                     
                     return `
                     <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white">
@@ -414,7 +386,7 @@
                         <td class="px-4 py-3 text-center align-middle text-[10px] font-mono text-slate-500">${formatTime(sub.start_date)}</td>
                         <td class="px-4 py-3 text-center align-middle text-[10px] font-mono text-slate-500">${formatTime(sub.end_date)}</td>
                         <td class="px-4 py-3 text-center align-middle">
-                            ${sub.job_type && sub.job_type !== '-' ? `<span class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-md text-[10px] font-bold border border-indigo-100 uppercase tracking-wide">${sub.job_type}</span>` : '-'}
+                            ${sub.job_type && sub.job_type !== '-' ? `<span class="px-3 py-1 rounded-md text-[10px] font-bold border uppercase tracking-wide ${jobBadge}">${sub.job_type}</span>` : '-'}
                         </td>
                         <td class="px-4 py-3 align-middle text-[11px] italic text-slate-500 truncate max-w-[200px]" title="${sub.worker_notes}">${sub.worker_notes || '-'}</td>
                         <td class="px-4 py-3 text-center align-middle"><span class="badge ${statusBadge}">${sub.status}</span></td>
