@@ -48,7 +48,7 @@
         .no-print { 
             position: fixed; 
             top: 20px; left: 20px; 
-            width: 260px; 
+            width: 280px; /* Sedikit diperlebar */
             background: #ffffff; 
             padding: 20px; 
             border-radius: 12px; 
@@ -134,7 +134,7 @@
         .info-bar {
             border: 1px solid black; padding: 3px 5px; margin-bottom: 3px; width: 100%;
             display: flex; justify-content: space-between;
-            font-size: 8pt; /* Sedikit dikecilkan biar muat Nama Mold */
+            font-size: 8pt; 
             font-weight: 600; 
             background: #fff;
         }
@@ -197,8 +197,8 @@
         <div class="panel-header">🎛️ PANEL KONTROL</div>
         
         <div class="input-group">
-            <span class="input-label">Cari Kode Mold</span>
-            <input type="text" id="filter-mold" class="inp" placeholder="Contoh: M-123...">
+            <span class="input-label">Cari (Mold / Mesin / Project)</span>
+            <input type="text" id="filter-text" class="inp" placeholder="Ketik Mold / Mesin / Project...">
         </div>
 
         <div class="input-group">
@@ -241,7 +241,8 @@
         <div class="info-bar">
             <div class="info-group">PROJECT: <span id="d-project">-</span></div>
             <div class="info-group">KODE MOLD: <span id="d-mold">-</span></div>
-            <div class="info-group">NAMA MOLD: <span id="d-mold-name">-</span></div> <div class="info-group">MESIN: <span id="d-mesin">-</span></div>
+            <div class="info-group">NAMA MOLD: <span id="d-mold-name">-</span></div>
+            <div class="info-group">MESIN: <span id="d-mesin">-</span></div>
             <div class="info-group">TGL: <span id="d-date">-</span></div>
             <div class="info-group">PIC: <span id="d-pic">-</span></div>
         </div>
@@ -302,20 +303,26 @@
         };
 
         async function fetchData() {
-            const mold = document.getElementById('filter-mold').value;
+            const filterText = document.getElementById('filter-text').value; // Ambil Input Teks
             const date = document.getElementById('filter-date').value;
             
-            let q = _sb.from('checklist_trial').select('*').order('created_at', {ascending:false}).limit(1);
-            if(mold) q = q.ilike('mold_code', `%${mold}%`);
+            let q = _sb.from('checklist_trial').select('*').order('created_at', {ascending:false});
+
+            // LOGIKA PENCARIAN GABUNGAN (OR)
+            if(filterText) {
+                // Mencari di Nama Mold, Nama Mesin, atau Nama Project
+                q = q.or(`mold_name.ilike.%${filterText}%,machine_name.ilike.%${filterText}%,project_name.ilike.%${filterText}%,mold_code.ilike.%${filterText}%`);
+            }
+
             if(date) q = q.eq('trial_date', date);
 
-            const { data, error } = await q;
+            const { data, error } = await q.limit(1); // Ambil 1 data teratas sesuai filter
             if(error || !data.length) return alert("Data tidak ditemukan!");
             
             const r = data[0];
             document.getElementById('d-project').innerText = r.project_name || '-';
             document.getElementById('d-mold').innerText = r.mold_code;
-            document.getElementById('d-mold-name').innerText = r.mold_name || '-'; // ISI NAMA MOLD
+            document.getElementById('d-mold-name').innerText = r.mold_name || '-'; 
             document.getElementById('d-mesin').innerText = r.machine_name;
             document.getElementById('d-date').innerText = r.trial_date;
             document.getElementById('d-pic').innerText = r.pic_trial;
