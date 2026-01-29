@@ -12,12 +12,10 @@
         header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5 rgba(0,0,0,0.1); }
         .container { padding: 20px; max-width: 1300px; margin: 0 auto; }
         
-        /* TAB MENU */
         .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: #e0e0e0; color: #666; transition: 0.3s; font-size: 14px; }
         .tab-btn.active { background: #003366; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
-        /* SEARCH SECTION */
         .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
 
@@ -33,7 +31,6 @@
         .status-rejected { background: #f8d7da; color: #721c24; }
         .status-completed { background: #d1ecf1; color: #0c5460; }
 
-        /* BUTTONS */
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
         .btn-primary { background: #007bff; color: white; }
         .btn-success { background: #28a745; color: white; }
@@ -41,7 +38,6 @@
         .btn-danger { background: #dc3545; color: white; }
         .btn-excel { background: #198754; color: white; margin-left: auto; }
 
-        /* MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
         .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 1200px; }
         
@@ -204,7 +200,7 @@
                 return rowDate === selectedDate;
             });
         } else {
-            // FILTER DEFAULT: HANYA TAMPILKAN YANG BELUM APPROVED/REJECTED
+            // LOGIKA FILTER: YANG BELUM APPROVE/REJECT MUNCUL
             filteredData = rawData.filter(row => {
                 const status = (row.status || '').toLowerCase();
                 return status !== 'approved' && status !== 'rejected';
@@ -213,7 +209,6 @@
         renderTable(filteredData);
     }
 
-    // === FORMAT TANGGAL (DD-MM-YYYY) ===
     function formatDate(dateString) {
         if (!dateString) return '-';
         const parts = dateString.split('-');
@@ -223,20 +218,18 @@
         return dateString;
     }
 
-    // === FUNGSI HAPUS DATA (BARU) ===
+    // FUNGSI HAPUS
     async function deleteItem(id) {
         if (!confirm("Apakah Anda yakin ingin menghapus data ini? Data yang dihapus tidak dapat dikembalikan.")) {
             return;
         }
-
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const { error } = await _supabase.from(tableName).delete().eq('id', id);
-
         if (error) {
             alert("Gagal menghapus data: " + error.message);
         } else {
             alert("Data berhasil dihapus.");
-            loadData(); // Refresh data setelah hapus
+            loadData(); 
         }
     }
 
@@ -258,7 +251,7 @@
         tableBody.innerHTML = dataList.map(row => {
             let statusText = row.status || 'Pending';
             
-            // PAKSA PENDING JIKA BELUM APPROVE/REJECT (WEB VIEW)
+            // PAKSA PENDING DI TAMPILAN WEB JIKA BELUM FINAL
             if (statusText !== 'Approved' && statusText !== 'Rejected') {
                 statusText = 'Pending';
             }
@@ -267,7 +260,6 @@
             if (statusText === 'Approved') statusClass = 'status-approved';
             else if (statusText === 'Rejected') statusClass = 'status-rejected';
 
-            // TOMBOL AKSI: ADA REVIEW DAN HAPUS
             const actionButtons = `
                 <div style="display:flex; gap:5px; justify-content:center;">
                     <button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button>
@@ -302,6 +294,7 @@
 
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
+    // === DOWNLOAD EXCEL DENGAN AUTO-FIT WIDTH ===
     function downloadExcel() {
         if (!filteredData || filteredData.length === 0) {
             alert("Tidak ada data untuk diunduh!");
@@ -334,11 +327,25 @@
         
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         
-        if (currentTab === 'rutin') {
-            ws['!cols'] = [{wch:25}, {wch:25}, {wch:40}, {wch:15}, {wch:8}, {wch:50}, {wch:15}];
-        } else {
-            ws['!cols'] = [{wch:25}, {wch:25}, {wch:40}, {wch:25}, {wch:20}, {wch:25}, {wch:15}, {wch:15}];
-        }
+        // --- LOGIKA AUTO-FIT LEBAR KOLOM ---
+        const columnWidths = [];
+        const keys = Object.keys(dataToExport[0]);
+
+        keys.forEach((key) => {
+            let maxLength = key.length; 
+            dataToExport.forEach(row => {
+                let cellValue = row[key] ? String(row[key]) : "";
+                if (cellValue.length > maxLength) {
+                    maxLength = cellValue.length;
+                }
+            });
+            // Batasi max width agar tidak terlalu lebar (misal 100)
+            if (maxLength > 100) maxLength = 100;
+            columnWidths.push({ wch: maxLength + 2 }); 
+        });
+
+        ws['!cols'] = columnWidths;
+        // ----------------------------------
 
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Data");
@@ -354,7 +361,6 @@
             let status = val.status || '-';
             let note = val.note || '-';
             
-            // KHUSUS TRIAL MOLD: HANYA TAMPILKAN NG
             if (status === 'NG') {
                 hasIssues = true;
                 let colorClass = 'status-ng';
