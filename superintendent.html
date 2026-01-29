@@ -201,6 +201,7 @@
         document.getElementById('tabRutin').classList.toggle('active', tab === 'rutin');
         document.getElementById('tabTrial').classList.toggle('active', tab === 'trial');
         document.getElementById('filterLabel').innerText = tab === 'rutin' ? 'Cari Tanggal Checklist:' : 'Cari Tanggal Trial:';
+        document.getElementById('searchDate').value = '';
         loadData();
     }
 
@@ -217,19 +218,39 @@
     function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
     function refreshData() { loadData(); }
 
+    // === LOGIC LOAD DATA YANG DIPERBAIKI ===
     async function loadData() {
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
+        
+        // 1. AMBIL SEMUA DATA (Agar history bisa dicari)
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
         if(error) return console.error(error);
         
         rawData = data;
-        // UPDATE: Filter hanya menampilkan yang statusnya 'Pending' atau NULL. 
-        // Data Approved/Rejected tidak akan muncul.
-        filteredData = rawData.filter(row => {
-            const status = (row.status || 'Pending').toLowerCase();
-            return status === 'pending';
-        });
+        
+        // 2. JALANKAN FILTER (Ini akan menentukan apakah yang tampil Pending saja atau Semua)
+        filterDataByDate();
+    }
+
+    // === LOGIC FILTER YANG BOS MINTA ===
+    function filterDataByDate() {
+        const selectedDate = document.getElementById('searchDate').value;
+        
+        if (selectedDate) {
+            // KALO ADA TANGGAL -> TAMPILKAN SEMUA STATUS (Termasuk Approved/Rejected) untuk tanggal itu
+            filteredData = rawData.filter(row => {
+                const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
+                return rowDate === selectedDate;
+            });
+        } else {
+            // KALO GAK ADA TANGGAL (DEFAULT) -> HANYA TAMPILKAN PENDING (Approved/Rejected Hilang)
+            filteredData = rawData.filter(row => {
+                const status = (row.status || 'Pending').toLowerCase();
+                return status === 'pending';
+            });
+        }
+        
         renderTable(filteredData);
     }
 
@@ -243,12 +264,18 @@
             header.innerHTML = `<th>PIC Trial</th><th>Super</th><th>Mesin</th><th>Project</th><th>Tanggal</th><th>Ket. Super</th><th>Status</th><th>Aksi</th>`;
         }
 
-        if (dataList.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Tidak ada data pending.</td></tr>`;
+        if (!dataList || dataList.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Tidak ada data.</td></tr>`;
             return;
         }
 
         tableBody.innerHTML = dataList.map(row => {
+            let statusClass = 'status-pending';
+            let statusText = row.status || 'Pending';
+            
+            if (statusText === 'Approved') statusClass = 'status-approved';
+            else if (statusText === 'Rejected') statusClass = 'status-rejected';
+
             if (currentTab === 'rutin') {
                 return `<tr>
                     <td><strong>${row.pelaksana?.nama_pelaksana || '-'}</strong></td>
@@ -257,7 +284,7 @@
                     <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
                     <td>${row.pelaksana?.week || '-'}</td> 
                     <td>${row.keterangan || '-'}</td>
-                    <td><span class="badge status-${row.status.toLowerCase()}">${row.status}</span></td>
+                    <td><span class="badge ${statusClass}">${statusText}</span></td>
                     <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
                 </tr>`;
             } else {
@@ -268,28 +295,14 @@
                     <td>${row.project_name || '-'}</td>
                     <td>${row.trial_date || '-'}</td> 
                     <td>${row.keterangan_superintendent || '-'}</td>
-                    <td><span class="badge status-${(row.status || 'pending').toLowerCase()}">${row.status || 'Pending'}</span></td>
+                    <td><span class="badge ${statusClass}">${statusText}</span></td>
                     <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
                 </tr>`;
             }
         }).join('');
     }
 
-    function filterDataByDate() {
-        const selectedDate = document.getElementById('searchDate').value;
-        if (!selectedDate) loadData(); 
-        else {
-            filteredData = rawData.filter(row => {
-                const status = (row.status || 'Pending').toLowerCase();
-                if (status !== 'pending') return false; // Pastikan filter tanggal juga hanya ambil pending
-
-                const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
-                return rowDate === selectedDate;
-            });
-            renderTable(filteredData);
-        }
-    }
-    function resetFilter() { document.getElementById('searchDate').value = ''; refreshData(); }
+    function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
     function renderJsonCheck(title, jsonData) {
         if (!jsonData || Object.keys(jsonData).length === 0) return '';
@@ -362,7 +375,6 @@
             return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>`;
         }
 
-        // UPDATE: Bagian Catatan Tambahan Pelaksana DIHAPUS dari sini
         return htmlContent;
     }
 
@@ -381,7 +393,7 @@
                 <div class="info-item"><label>Capacity</label><span>${row.pelaksana?.capacity || '-'}</span></div>
             `;
         } else {
-            // UPDATE: Menambahkan Nama Mold untuk checklist trial
+            // MENAMBAHKAN NAMA MOLD
             infoBox.innerHTML = `
                 <div class="info-item"><label>PIC Trial</label><span>${row.pic_trial || '-'}</span></div>
                 <div class="info-item"><label>Nama Mesin</label><span>${row.machine_name || '-'}</span></div>
@@ -426,7 +438,8 @@
         if(!isReviewable) {
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
-            const sigUrl = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
+            // Gunakan signature_superintendent untuk history trial, rutin mungkin pakai signature
+            const sigUrl = currentTab === 'rutin' ? (row.signature_superintendent || row.signature) : row.signature_superintendent;
             document.getElementById('historySigImg').src = sigUrl || '';
         }
         document.getElementById('modal').style.display = 'block';
@@ -439,13 +452,14 @@
         if(!namaSuper) return alert("Isi nama superintendent!");
 
         let update = { status: st, approved_at: new Date().toISOString(), nama_superintendent: namaSuper };
-        if (currentTab === 'rutin') update.keterangan = ketInput; 
+        
+        // Simpan Catatan Super
+        if (currentTab === 'rutin') update.keterangan = ketInput; // Asumsi tabel lama pakai kolom keterangan
         else update.keterangan_superintendent = ketInput; 
 
         if(st === 'Approved') {
             const dataURL = canvas.toDataURL();
-            if (currentTab === 'rutin') update.signature = dataURL;
-            else update.signature_superintendent = dataURL; 
+            update.signature_superintendent = dataURL; // Simpan TTD Super
         }
 
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
