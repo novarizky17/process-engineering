@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Ryan (Full Wide)</title>
+    <title>Work Panel - Ryan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,7 +16,7 @@
             background-color: #f1f5f9; 
             color: #334155;
             font-size: 13px;
-            overflow-x: hidden; /* Mencegah scroll horizontal window */
+            overflow-x: hidden;
         }
 
         /* Custom Scrollbar */
@@ -107,7 +107,7 @@
 <body class="antialiased bg-slate-50">
 
     <div class="bg-[#111827] border-b border-slate-900 pt-8 pb-36 px-8 shadow-xl w-full relative">
-        <div class="flex justify-between items-center w-full">
+        <div class="flex justify-between items-center w-full max-w-[100%] mx-auto">
             <div class="flex items-center gap-5">
                 <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-blue-900/50">
                     R
@@ -126,7 +126,7 @@
         </div>
     </div>
 
-    <div class="w-full px-6 -mt-28 pb-32 relative z-10">
+    <div class="w-full px-8 -mt-28 pb-32 relative z-10">
         
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 w-full">
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-blue-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
@@ -371,10 +371,10 @@
                         </td>
                         <td class="px-4 py-5 align-top text-center">
                             <select id="stat-${row.id}" class="status-badge-select ${row.status=='Done'?'bg-emerald-100 text-emerald-700':(row.status=='Hold'?'bg-rose-100 text-rose-700':(row.status=='In Progress'?'bg-blue-100 text-blue-700':'bg-slate-100 text-slate-600'))}" onchange="saveMain('${row.id}')" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/></svg>')">
-                                <option value="Pending" ${row.status=='Pending'?'selected':''}>PENDING</option>
-                                <option value="In Progress" ${row.status=='In Progress'?'selected':''}>ACTIVE</option>
-                                <option value="Hold" ${row.status=='Hold'?'selected':''}>HOLD</option>
-                                <option value="Done" ${row.status=='Done'?'selected':''}>DONE</option>
+                                <option value="Pending" ${row.status=='Pending'?'selected':''}>Pending</option>
+                                <option value="In Progress" ${row.status=='In Progress'?'selected':''}>In Progress</option>
+                                <option value="Hold" ${row.status=='Hold'?'selected':''}>Hold</option>
+                                <option value="Done" ${row.status=='Done'?'selected':''}>Done</option>
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
@@ -437,9 +437,16 @@
                 hold_reason: document.getElementById(`hold-${id}`).value
             };
             const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
-            if(!error) fetchRyanTasks();
+            
+            if (error) {
+                alert("Gagal menyimpan: " + error.message);
+            } else {
+                alert("Data berhasil disimpan!");
+                fetchRyanTasks();
+            }
         }
 
+        // --- MODAL FUNCTIONS (SAME) ---
         function openSubtaskModal() {
             document.getElementById('modal-title').innerText = "Tambah Rincian";
             document.getElementById('modal-subtask-id').value = ""; 
@@ -490,9 +497,23 @@
                 worker_notes: document.getElementById('modal-note').value,
                 status: document.getElementById('modal-status').value
             };
-            if(subId) await _sb.from('employee_subtasks').update(payload).eq('id', subId);
-            else await _sb.from('employee_subtasks').insert([payload]);
-            closeModal(); fetchRyanTasks();
+            
+            let error;
+            if(subId) {
+                const res = await _sb.from('employee_subtasks').update(payload).eq('id', subId);
+                error = res.error;
+            } else {
+                const res = await _sb.from('employee_subtasks').insert([payload]);
+                error = res.error;
+            }
+
+            if(error) {
+                alert("Gagal menyimpan: " + error.message);
+            } else {
+                alert("Subtask berhasil disimpan!");
+                closeModal(); 
+                fetchRyanTasks();
+            }
         }
 
         async function deleteSubTask(id) {
