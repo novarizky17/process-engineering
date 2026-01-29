@@ -224,9 +224,11 @@
         if(error) return console.error(error);
         
         rawData = data;
+        // UPDATE: Filter hanya menampilkan yang statusnya 'Pending' atau NULL. 
+        // Data Approved/Rejected tidak akan muncul.
         filteredData = rawData.filter(row => {
-            if(currentTab === 'rutin') return row.status === 'Pending';
-            return row.status === 'Completed' || row.status === 'Pending' || row.status === null; 
+            const status = (row.status || 'Pending').toLowerCase();
+            return status === 'pending';
         });
         renderTable(filteredData);
     }
@@ -278,6 +280,9 @@
         if (!selectedDate) loadData(); 
         else {
             filteredData = rawData.filter(row => {
+                const status = (row.status || 'Pending').toLowerCase();
+                if (status !== 'pending') return false; // Pastikan filter tanggal juga hanya ambil pending
+
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
             });
@@ -357,6 +362,7 @@
             return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>`;
         }
 
+        // UPDATE: Bagian Catatan Tambahan Pelaksana DIHAPUS dari sini
         return htmlContent;
     }
 
@@ -375,9 +381,11 @@
                 <div class="info-item"><label>Capacity</label><span>${row.pelaksana?.capacity || '-'}</span></div>
             `;
         } else {
+            // UPDATE: Menambahkan Nama Mold untuk checklist trial
             infoBox.innerHTML = `
                 <div class="info-item"><label>PIC Trial</label><span>${row.pic_trial || '-'}</span></div>
                 <div class="info-item"><label>Nama Mesin</label><span>${row.machine_name || '-'}</span></div>
+                <div class="info-item"><label>Nama Mold</label><span>${row.mold_name || '-'}</span></div>
                 <div class="info-item"><label>Mold Code</label><span>${row.mold_code || '-'}</span></div>
                 <div class="info-item"><label>Project</label><span>${row.project_name || '-'}</span></div>
                 <div class="info-item"><label>Tanggal Trial</label><span>${row.trial_date || '-'}</span></div>
