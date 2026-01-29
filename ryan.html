@@ -13,7 +13,7 @@
             font-family: 'Inter', sans-serif; 
             background-color: #f8fafc; 
             color: #334155;
-            font-size: 14px; /* Base font diperbesar */
+            font-size: 14px;
         }
         
         .gradient-blue { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }
@@ -78,35 +78,41 @@
         }
         .modal-input:focus { border-color: #3b82f6; background-color: #eff6ff; }
 
-        /* BADGE STYLES - UKURAN DIPERBESAR */
+        /* BADGE STYLES */
         .badge-box {
             border: 1px solid #e2e8f0;
             background-color: white;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 12px; /* Diperbesar */
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
             font-weight: 600;
             color: #64748b;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
+            white-space: nowrap; /* Mencegah turun baris */
         }
         
         .txt-mid { color: #3b82f6; font-weight: 800; } 
         .txt-high { color: #ef4444; font-weight: 800; } 
         .txt-low { color: #10b981; font-weight: 800; } 
         
-        .txt-job { color: #7c3aed; font-weight: 700; font-size: 11px; border: 1px solid #ddd6fe; background: #f5f3ff; padding: 3px 8px; rounded: 6px; } 
+        .txt-job { color: #7c3aed; font-weight: 700; font-size: 11px; border: 1px solid #ddd6fe; background: #f5f3ff; padding: 2px 6px; rounded: 4px; white-space: nowrap; } 
         
+        /* Note Box agar sejajar */
         .note-box {
-            background-color: #f8fafc;
+            background-color: #f1f5f9;
             border: 1px dashed #cbd5e1;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
             color: #475569;
-            display: inline-block;
-            margin-top: 2px;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap; /* Mencegah turun baris */
+            max-width: 200px; /* Batas panjang text */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Titik-titik jika kepanjangan */
         }
     </style>
 </head>
@@ -474,19 +480,18 @@
                     <div class="flex items-center gap-3 mb-2 pb-2 border-b border-dashed border-slate-200 last:border-0 bg-white p-3 rounded-lg shadow-sm border border-slate-100 hover:bg-slate-50 transition-colors group">
                         <div class="w-2 h-2 bg-blue-500 rounded-full shrink-0"></div>
                         <div class="flex-grow">
-                            <div class="text-[15px] font-bold text-slate-800 mb-1.5">${sub.subtask_desc}</div>
+                            <div class="text-[15px] font-bold text-slate-800 mb-1">${sub.subtask_desc}</div>
                             
-                            <div class="flex flex-wrap items-center gap-2">
+                            <div class="flex items-center gap-2 mt-1 overflow-x-auto">
                                 <span class="badge-box">Pri: <span class="${priColor}">${sub.priority || '-'}</span></span>
                                 <span class="badge-box">Prog: <span class="text-slate-700">${sub.progress_percent || 0}%</span></span>
                                 ${sub.job_type && sub.job_type !== '-' ? `<span class="txt-job">${sub.job_type}</span>` : ''}
-                                <span class="${statColor} text-xs">${sub.status || 'Pending'}</span>
+                                <span class="${statColor} text-xs font-semibold whitespace-nowrap">${sub.status || 'Pending'}</span>
+                                ${sub.worker_notes ? `
+                                <div class="note-box">
+                                    <span class="font-bold text-slate-500 mr-1">Ket:</span> ${sub.worker_notes}
+                                </div>` : ''}
                             </div>
-
-                            ${sub.worker_notes ? `
-                            <div class="note-box mt-1.5">
-                                <span class="font-bold text-slate-500">Ket:</span> ${sub.worker_notes}
-                            </div>` : ''}
                         </div>
                         
                         ${!isDone ? `
