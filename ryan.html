@@ -350,15 +350,15 @@
                         <td class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
                         <td class="px-4 py-5 align-top">
                             <div class="flex items-center gap-2 justify-center">
-                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold" onchange="saveMain('${row.id}')">
+                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
                             <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="bg-blue-600 h-full transition-all duration-500" style="width:${progress}%"></div></div>
                         </td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" onchange="saveMain('${row.id}')" class="table-input text-center"></td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" onchange="saveMain('${row.id}')" class="table-input text-center"></td>
+                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-center"></td>
+                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-center"></td>
                         <td class="px-4 py-5 align-top text-center">
-                            <select id="job-${row.id}" onchange="saveMain('${row.id}')" class="table-input text-center">
+                            <select id="job-${row.id}" class="table-input text-center">
                                 <option value="-" ${row.job_type=='-'?'selected':''}>-</option>
                                 <option value="Improvement" ${row.job_type=='Improvement'?'selected':''}>Imp</option>
                                 <option value="Overhaul" ${row.job_type=='Overhaul'?'selected':''}>Ovhl</option>
@@ -367,10 +367,10 @@
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top">
-                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold..." onchange="saveMain('${row.id}')">${row.hold_reason||''}</textarea>
+                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold...">${row.hold_reason||''}</textarea>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
-                            <select id="stat-${row.id}" class="status-badge-select ${row.status=='Done'?'bg-emerald-100 text-emerald-700':(row.status=='Hold'?'bg-rose-100 text-rose-700':(row.status=='In Progress'?'bg-blue-100 text-blue-700':'bg-slate-100 text-slate-600'))}" onchange="saveMain('${row.id}')" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/></svg>')">
+                            <select id="stat-${row.id}" class="status-badge-select ${row.status=='Done'?'bg-emerald-100 text-emerald-700':(row.status=='Hold'?'bg-rose-100 text-rose-700':(row.status=='In Progress'?'bg-blue-100 text-blue-700':'bg-slate-100 text-slate-600'))}" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/></svg>')">
                                 <option value="Pending" ${row.status=='Pending'?'selected':''}>PENDING</option>
                                 <option value="In Progress" ${row.status=='In Progress'?'selected':''}>In Progress</option>
                                 <option value="Hold" ${row.status=='Hold'?'selected':''}>HOLD</option>
