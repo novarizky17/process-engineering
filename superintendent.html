@@ -9,79 +9,151 @@
     
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
-        header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5 rgba(0,0,0,0.1); }
-        .container { padding: 20px; max-width: 1300px; margin: 0 auto; }
+        header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .container { padding: 25px; max-width: 95%; margin: 0 auto; } /* Container lebih lebar */
         
         /* TAB MENU */
         .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: #e0e0e0; color: #666; transition: 0.3s; }
+        .tab-btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: #e0e0e0; color: #666; transition: 0.3s; font-size: 14px; }
         .tab-btn.active { background: #003366; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
         /* SEARCH SECTION */
-        .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
 
-        /* TABLE STYLES */
-        .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-        th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
-        td { padding: 15px; border-top: 1px solid #eee; font-size: 14px; }
+        /* === TABLE STYLING BARU (LEBIH RAPI) === */
+        .card { 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
+            overflow: hidden; 
+            border: 1px solid #e5e7eb;
+        }
         
-        .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-approved { background: #d4edda; color: #155724; }
-        .status-rejected { background: #f8d7da; color: #721c24; }
-        .status-completed { background: #d1ecf1; color: #0c5460; }
+        .table-container {
+            max-height: 70vh; /* Scroll vertikal jika data banyak */
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0; 
+            min-width: 1200px; /* Mencegah tabel gepeng di layar kecil */
+        }
+
+        th { 
+            background: #f8f9fa; 
+            padding: 16px; 
+            text-align: left; 
+            font-size: 13px; 
+            font-weight: 700; 
+            color: #495057; 
+            text-transform: uppercase; 
+            border-bottom: 2px solid #dee2e6; 
+            position: sticky; top: 0; z-index: 10; /* Header diam saat scroll */
+            white-space: nowrap;
+        }
+
+        td { 
+            padding: 14px 16px; 
+            border-bottom: 1px solid #f1f3f5; 
+            font-size: 14px; 
+            vertical-align: middle; 
+            color: #212529;
+        }
+
+        tbody tr:hover { background-color: #f8f9fa; }
+
+        /* Kolom Keterangan agar wrap text rapi */
+        .col-keterangan {
+            min-width: 250px;
+            max-width: 400px;
+            white-space: normal;
+            line-height: 1.5;
+        }
+
+        /* STATUS BADGES */
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; min-width: 80px; text-align: center; }
+        .status-pending { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .status-approved { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status-rejected { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
         /* BUTTONS */
-        .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
-        .btn-primary { background: #007bff; color: white; }
+        .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; }
+        .btn-primary { background: #007bff; color: white; box-shadow: 0 2px 4px rgba(0,123,255,0.2); }
         .btn-success { background: #28a745; color: white; }
-        .btn-back { background: #6c757d; color: white; text-decoration: none; font-size: 14px; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; }
         .btn-danger { background: #dc3545; color: white; }
-        .btn-excel { background: #198754; color: white; margin-left: auto; } /* Tombol Excel Hijau */
+        .btn-excel { background: #198754; color: white; margin-left: auto; box-shadow: 0 2px 4px rgba(25,135,84,0.2); }
 
         /* MODAL */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
-        .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 1200px; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); overflow-y: auto; }
+        .modal-content { 
+            background: white; 
+            margin: 30px auto; 
+            padding: 30px; 
+            border-radius: 12px; 
+            width: 90%; 
+            max-width: 1100px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
         
         /* INFO GRID */
-        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #003366; }
-        .info-item label { font-size: 11px; color: #666; display: block; margin-bottom: 3px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-        .info-item span { font-size: 14px; font-weight: bold; color: #333; }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 5px solid #003366;
+        }
+        .info-item label { font-size: 11px; color: #6c757d; display: block; margin-bottom: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-item span { font-size: 15px; font-weight: 600; color: #212529; }
 
-        .section-header { background: #f1f4f8; padding: 10px 15px; margin: 20px 0 0 0; font-weight: bold; color: #003366; border-left: 5px solid #003366; font-size: 15px; border-top-left-radius: 4px; border-top-right-radius: 4px; }
-        .sub-header { background: #e9ecef; padding: 8px 15px; font-weight: bold; color: #495057; font-size: 13px; border-bottom: 1px solid #dee2e6; }
+        /* SECTION HEADERS (Inside Modal) */
+        .section-header { 
+            background: #eef2f7; padding: 12px 15px; margin: 25px 0 0 0; 
+            font-weight: 700; color: #003366; border-left: 5px solid #003366; 
+            font-size: 14px; border-top-left-radius: 4px; border-top-right-radius: 4px;
+        }
+        .sub-header { background: #f8f9fa; padding: 8px 15px; font-weight: bold; color: #495057; font-size: 13px; border-bottom: 1px solid #dee2e6; }
 
-        .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #0c5460; }
         
-        .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
+        .sig-area { border: 2px dashed #ced4da; margin: 15px 0; background: #fafafa; border-radius: 8px; position: relative; }
         canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
-        textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
         
-        .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; margin-bottom: 15px; }
-        .json-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px; }
-        .json-table th { background: #eee; text-align: left; padding: 12px 15px; border-bottom: 2px solid #ddd; }
-        .json-table td { padding: 10px 15px; border-bottom: 1px solid #eee; vertical-align: top; }
-        
-        .col-item { width: 35%; }
-        .col-status { width: 10%; text-align: center; }
-        .col-ket { width: 55%; }
+        textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ced4da; padding: 12px; box-sizing: border-box; font-family: inherit; }
+        textarea:focus, input.input-nama:focus { outline: none; border-color: #003366; box-shadow: 0 0 0 3px rgba(0,51,102,0.1); }
 
-        .status-ng { color: red; font-weight: bold; }
-        .status-ok { color: green; font-weight: bold; }
-        .status-na { color: #666; font-style: italic; font-weight: bold; }
+        /* JSON Table (Inside Modal) */
+        .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #dee2e6; margin-bottom: 15px; border-radius: 0 0 4px 4px; }
+        .json-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 600px; }
+        .json-table th { background: #f1f3f5; text-align: left; padding: 10px 15px; border-bottom: 2px solid #dee2e6; color: #495057; }
+        .json-table td { padding: 10px 15px; border-bottom: 1px solid #f1f3f5; vertical-align: top; }
         
-        .all-ok-msg { padding: 15px; background: #d4edda; color: #155724; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px; }
+        .col-item { width: 40%; font-weight: 600; }
+        .col-status { width: 10%; text-align: center; font-weight: bold; }
+        .col-ket { width: 50%; color: #666; font-style: italic; }
+
+        .status-ng { color: #dc3545; }
+        .status-ok { color: #198754; }
+        .status-na { color: #adb5bd; }
+        
+        .all-ok-msg { padding: 15px; background: #d1e7dd; color: #0f5132; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px; border: 1px solid #badbcc; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
+    <div style="font-size: 1.25rem; font-weight: 800; letter-spacing: 0.5px;">SUPERINTENDENT - APPROVAL</div>
     <div>
         <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
-        <button class="btn btn-primary" onclick="refreshData()">Refresh Data</button>
+        <button class="btn btn-primary" onclick="refreshData()">↻ Refresh</button>
     </div>
 </header>
 
@@ -100,48 +172,50 @@
     </div>
 
     <div class="card">
-        <table>
-            <thead><tr id="tableHeader"></tr></thead>
-            <tbody id="mainTable"><tr><td colspan="8" style="text-align:center;">Memuat data...</td></tr></tbody>
-        </table>
+        <div class="table-container">
+            <table>
+                <thead><tr id="tableHeader"></tr></thead>
+                <tbody id="mainTable"><tr><td colspan="8" style="text-align:center; padding: 30px;">Memuat data...</td></tr></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <div id="modal" class="modal">
     <div class="modal-content">
-        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
-        <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 15px;">Review Checklist</h2>
+        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold; color:#aaa;" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 20px; font-size: 1.5rem;">Review Checklist</h2>
         
         <div id="infoBox" class="info-grid"></div>
         
         <div id="superNoteArea"></div>
         <div id="modalBody"></div>
 
-        <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
+        <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:25px;">
             <div id="pendingSection" style="display:none; text-align:center;">
-                <div style="text-align: left; margin-bottom: 15px;">
+                <div style="text-align: left; margin-bottom: 20px;">
                     <label><strong>Nama Superintendent:</strong></label>
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama...">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
                     
-                    <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
+                    <label style="color:#003366; margin-top:15px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
                     <textarea id="keteranganSuper" placeholder="Tuliskan komentar, instruksi, atau alasan reject di sini..."></textarea>
                 </div>
 
                 <p><strong>Tanda Tangan Superintendent:</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
-                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
+                <button class="btn" style="background:#6c757d; color:white; margin-bottom:20px; font-size: 12px;" onclick="clearSig()">Hapus TTD</button>
                 
-                <div style="display: flex; justify-content: space-around;">
-                    <button class="btn btn-success" style="width: 45%;" onclick="processStatus('Approved')">APPROVE</button>
-                    <button class="btn btn-danger" style="width: 45%;" onclick="processStatus('Rejected')">REJECT</button>
+                <div style="display: flex; justify-content: center; gap: 20px;">
+                    <button class="btn btn-success" style="width: 200px; padding: 12px;" onclick="processStatus('Approved')">✅ APPROVE</button>
+                    <button class="btn btn-danger" style="width: 200px; padding: 12px;" onclick="processStatus('Rejected')">❌ REJECT</button>
                 </div>
             </div>
 
             <div id="historySection" style="display:none; text-align:center;">
-                <h3 id="historyLabel"></h3>
+                <h3 id="historyLabel" style="text-transform: uppercase;"></h3>
                 <p><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
-                <div id="historySigArea"><img id="historySigImg" style="max-width:300px; border:1px solid #ddd; padding:5px; background:white;"></div>
+                <div id="historySigArea"><img id="historySigImg" style="max-width:300px; border:1px solid #ddd; padding:10px; background:white; border-radius: 8px;"></div>
             </div>
         </div>
     </div>
@@ -153,23 +227,8 @@
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     const rutinGroups = [
-        { 
-            title: "1. STAND LABEL", 
-            subs: [
-                { sub: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] },
-                { sub: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] },
-                { sub: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] },
-                { sub: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] }
-            ]
-        },
-        { 
-            title: "2. STACKING", 
-            subs: [
-                { sub: "ELECTRICAL", items: ["stacking_wiring", "stacking_sensor"] },
-                { sub: "MOTION", items: ["stacking_linier", "stacking_mechanical_part"] },
-                { sub: "PNEUMATIC", items: ["stacking_cylinder", "stacking_pneumatic"] }
-            ]
-        },
+        { title: "1. STAND LABEL", subs: [ { sub: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] }, { sub: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] }, { sub: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] }, { sub: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] } ] },
+        { title: "2. STACKING", subs: [ { sub: "ELECTRICAL", items: ["stacking_wiring", "stacking_sensor"] }, { sub: "MOTION", items: ["stacking_linier", "stacking_mechanical_part"] }, { sub: "PNEUMATIC", items: ["stacking_cylinder", "stacking_pneumatic"] } ] },
         { title: "3. CONVEYOR", subs: [{ sub: "", items: ["conveyor_belt", "conveyor_motor", "conveyor_rantai", "conveyor_frame", "conveyor_inverter"] }] },
         { title: "4. DOSING", subs: [{ sub: "", items: ["dosing_alarm", "dosing_setting"] }] },
         { title: "5. DUMMY", subs: [{ sub: "", items: ["dummy_vacuum", "dummy_condition", "dummy_flange", "dummy_instalasi", "dummy_tubbing"] }] }
@@ -205,49 +264,61 @@
     async function loadData() {
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
-        
-        // 1. AMBIL SEMUA DATA
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
         if(error) return console.error(error);
         
         rawData = data;
-        
-        // 2. JALANKAN FILTER (Menentukan Pending atau Semua)
         filterDataByDate();
     }
 
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
-        
         if (selectedDate) {
-            // KALO ADA TANGGAL -> TAMPILKAN SEMUA STATUS
             filteredData = rawData.filter(row => {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
             });
         } else {
-            // KALO GAK ADA TANGGAL -> HANYA TAMPILKAN PENDING
             filteredData = rawData.filter(row => {
                 const status = (row.status || 'Pending').toLowerCase();
                 return status === 'pending';
             });
         }
-        
         renderTable(filteredData);
     }
 
+    // === RENDER TABLE YANG LEBIH RAPI ===
     function renderTable(dataList) {
         const header = document.getElementById('tableHeader');
         const tableBody = document.getElementById('mainTable');
 
+        // Mengatur lebar kolom agar rapi
         if (currentTab === 'rutin') {
-            header.innerHTML = `<th>Pelaksana</th><th>Super</th><th>Equip</th><th>Tanggal</th><th>Week</th><th>Ket</th><th>Status</th><th>Aksi</th>`;
+            header.innerHTML = `
+                <th style="width: 15%;">Pelaksana</th>
+                <th style="width: 15%;">Superintendent</th>
+                <th style="width: 10%;">Equipment</th>
+                <th style="width: 10%;">Tanggal</th>
+                <th style="width: 5%;">Week</th>
+                <th style="width: 30%;">Keterangan</th>
+                <th style="width: 10%; text-align:center;">Status</th>
+                <th style="width: 5%; text-align:center;">Aksi</th>
+            `;
         } else {
-            header.innerHTML = `<th>PIC Trial</th><th>Super</th><th>Mesin</th><th>Project</th><th>Tanggal</th><th>Ket. Super</th><th>Status</th><th>Aksi</th>`;
+            header.innerHTML = `
+                <th style="width: 15%;">PIC Trial</th>
+                <th style="width: 15%;">Superintendent</th>
+                <th style="width: 10%;">Mesin</th>
+                <th style="width: 10%;">Project</th>
+                <th style="width: 10%;">Tanggal</th>
+                <th style="width: 25%;">Ket. Super</th>
+                <th style="width: 10%; text-align:center;">Status</th>
+                <th style="width: 5%; text-align:center;">Aksi</th>
+            `;
         }
 
         if (!dataList || dataList.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Tidak ada data.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px; color: #888;">Tidak ada data ditemukan.</td></tr>`;
             return;
         }
 
@@ -265,8 +336,8 @@
                     <td>${row.pelaksana?.nama_tools || '-'}</td>
                     <td>${row.pelaksana?.tanggal_checklist || '-'}</td>
                     <td>${row.pelaksana?.week || '-'}</td> 
-                    <td>${row.keterangan || '-'}</td>
-                    <td><span class="badge ${statusClass}">${statusText}</span></td>
+                    <td class="col-keterangan">${row.keterangan || '-'}</td>
+                    <td style="text-align:center;"><span class="badge ${statusClass}">${statusText}</span></td>
                     <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
                 </tr>`;
             } else {
@@ -276,8 +347,8 @@
                     <td>${row.machine_name || '-'}</td>
                     <td>${row.project_name || '-'}</td>
                     <td>${row.trial_date || '-'}</td> 
-                    <td>${row.keterangan_superintendent || '-'}</td>
-                    <td><span class="badge ${statusClass}">${statusText}</span></td>
+                    <td class="col-keterangan">${row.keterangan_superintendent || '-'}</td>
+                    <td style="text-align:center;"><span class="badge ${statusClass}">${statusText}</span></td>
                     <td style="text-align: center;"><button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button></td>
                 </tr>`;
             }
@@ -286,17 +357,13 @@
 
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
-    // === FUNGSI DOWNLOAD EXCEL ===
     function downloadExcel() {
         if (!filteredData || filteredData.length === 0) {
             alert("Tidak ada data untuk diunduh!");
             return;
         }
-
         let dataToExport = [];
-
         if (currentTab === 'rutin') {
-            // Mapping Data Checklist Rutin
             dataToExport = filteredData.map(row => ({
                 "Pelaksana": row.pelaksana?.nama_pelaksana || '-',
                 "Superintendent": row.nama_superintendent || '-',
@@ -308,7 +375,6 @@
                 "Status": row.status || 'Pending'
             }));
         } else {
-            // Mapping Data Checklist Trial
             dataToExport = filteredData.map(row => ({
                 "PIC Trial": row.pic_trial || '-',
                 "Superintendent": row.nama_superintendent || '-',
@@ -321,12 +387,9 @@
                 "Status": row.status || 'Pending'
             }));
         }
-
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Data");
-        
-        // Nama file dinamis
         const fileName = `Report_${currentTab}_${new Date().toISOString().slice(0,10)}.xlsx`;
         XLSX.writeFile(wb, fileName);
     }
@@ -361,7 +424,6 @@
     function renderRutinChecklist(row) {
         let htmlContent = '';
         let totalIssues = 0;
-
         rutinGroups.forEach(group => {
             let groupRows = '';
             group.subs.forEach(sub => {
@@ -394,10 +456,7 @@
                                 </div>`;
             }
         });
-
-        if (totalIssues === 0) {
-            return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>`;
-        }
+        if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>`;
         return htmlContent;
     }
 
@@ -446,10 +505,7 @@
             checksHtml += renderJsonCheck("4. MATERIAL", row.check_material);
             checksHtml += renderJsonCheck("5. QC TOOLS", row.check_qc);
             checksHtml += renderJsonCheck("6. SAFETY", row.check_safety);
-
-            if (checksHtml === "") {
-                checksHtml = `<div class="all-ok-msg">✨ Semua Item Check Berstatus OK (Tidak ada temuan NG/NA)</div>`;
-            }
+            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Item Check Berstatus OK (Tidak ada temuan NG/NA)</div>`;
             body.innerHTML = checksHtml;
         }
 
@@ -473,8 +529,6 @@
         if(!namaSuper) return alert("Isi nama superintendent!");
 
         let update = { status: st, approved_at: new Date().toISOString(), nama_superintendent: namaSuper };
-        
-        // Simpan Catatan Super
         if (currentTab === 'rutin') update.keterangan = ketInput; 
         else update.keterangan_superintendent = ketInput; 
 
