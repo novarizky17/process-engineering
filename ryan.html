@@ -94,9 +94,7 @@
         .badge-mid { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        .badge-status { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
-        .badge-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-
+        
         /* Tree Line */
         .tree-line {
             border-left: 2px dashed #cbd5e1;
@@ -385,7 +383,7 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 align-middle font-bold text-slate-700 flex justify-between items-center gap-3">
-                            <span class="text-sm">${sub.subtask_desc}</span>
+                            <span class="text-[15px]">${sub.subtask_desc}</span>
                             <div class="hidden group-hover:flex gap-2">
                                 <button onclick="editSubtask('${sub.id}', '${row.id}')" class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-500 hover:text-white transition-all flex items-center justify-center text-xs" title="Edit"><i class="fa-solid fa-pen"></i></button>
                                 <button onclick="deleteSubTask('${sub.id}')" class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-xs" title="Hapus"><i class="fa-solid fa-trash"></i></button>
@@ -403,9 +401,22 @@
                         <td class="px-4 py-4 text-center align-middle">
                             ${sub.job_type && sub.job_type !== '-' ? `<span class="badge-select py-1.5 px-3 text-[12px] ${jobBadge} border-none pointer-events-none">${sub.job_type}</span>` : '-'}
                         </td>
-                        <td class="px-4 py-4 align-middle text-[11px] italic text-slate-500 truncate max-w-[200px]" title="${sub.worker_notes}">${sub.worker_notes || '-'}</td>
-                        <td class="px-4 py-4 text-center align-middle"><span class="badge-select py-1.5 px-3 text-[10px] ${statusBadge} border-none pointer-events-none">${sub.status}</span></td>
-                        <td></td>
+                        <td class="px-4 py-4 align-middle">
+                            <textarea id="sub-note-${sub.id}" class="table-input text-[13px] resize-none h-10 placeholder:text-slate-300" placeholder="Catatan...">${sub.worker_notes || ''}</textarea>
+                        </td>
+                        <td class="px-4 py-4 text-center align-middle">
+                            <select id="sub-stat-${sub.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusBadge}">
+                                <option value="Pending" ${sub.status=='Pending'?'selected':''}>PENDING</option>
+                                <option value="In Progress" ${sub.status=='In Progress'?'selected':''}>IN PROGRESS</option>
+                                <option value="Hold" ${sub.status=='Hold'?'selected':''}>HOLD</option>
+                                <option value="Done" ${sub.status=='Done'?'selected':''}>DONE</option>
+                            </select>
+                        </td>
+                        <td class="px-4 py-4 text-center align-middle">
+                            <button class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto" onclick="saveSubtaskInline('${sub.id}')" title="Simpan">
+                                <i class="fa-solid fa-floppy-disk text-xs"></i>
+                            </button>
+                        </td>
                     </tr>
                     `;
                 }).join('');
@@ -414,6 +425,7 @@
             }).join('');
         }
 
+        // --- VALIDATION & SAVE LOGIC ---
         async function saveMain(id) {
             const sVal = document.getElementById(`start-${id}`).value;
             const eVal = document.getElementById(`end-${id}`).value;
@@ -445,6 +457,32 @@
             }
         }
 
+        async function saveSubtaskInline(subId) {
+            const statusVal = document.getElementById(`sub-stat-${subId}`).value;
+            const noteVal = document.getElementById(`sub-note-${subId}`).value;
+
+            // VALIDASI HOLD SUBTASK INLINE
+            if (statusVal === 'Hold' && !noteVal.trim()) {
+                alert("⚠️ Jika Status HOLD, Catatan WAJIB diisi!");
+                document.getElementById(`sub-note-${subId}`).focus();
+                return;
+            }
+
+            const payload = {
+                status: statusVal,
+                worker_notes: noteVal
+            };
+
+            const { error } = await _sb.from('employee_subtasks').update(payload).eq('id', subId);
+
+            if (error) {
+                alert("Gagal menyimpan subtask: " + error.message);
+            } else {
+                alert("Subtask berhasil disimpan!");
+                fetchRyanTasks();
+            }
+        }
+
         async function saveSubtask() {
             const subId = document.getElementById('modal-subtask-id').value;
             const parentId = document.getElementById('modal-parent-id').value;
@@ -454,7 +492,7 @@
 
             if(!parentId || !desc) return alert("Lengkapi data project dan nama tugas!");
 
-            // VALIDASI HOLD SUBTASK
+            // VALIDASI HOLD SUBTASK MODAL
             if (statusVal === 'Hold' && !noteVal.trim()) {
                 alert("⚠️ Jika Status HOLD, Catatan Tambahan WAJIB diisi!");
                 document.getElementById('modal-note').focus();
