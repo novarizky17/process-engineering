@@ -90,7 +90,7 @@
             display: inline-flex;
             align-items: center;
             gap: 3px;
-            white-space: nowrap; /* Mencegah turun baris */
+            white-space: nowrap; 
         }
         
         .txt-mid { color: #3b82f6; font-weight: 800; } 
@@ -99,7 +99,6 @@
         
         .txt-job { color: #7c3aed; font-weight: 700; font-size: 11px; border: 1px solid #ddd6fe; background: #f5f3ff; padding: 2px 6px; rounded: 4px; white-space: nowrap; } 
         
-        /* Note Box agar sejajar */
         .note-box {
             background-color: #f1f5f9;
             border: 1px dashed #cbd5e1;
@@ -109,10 +108,10 @@
             color: #475569;
             display: inline-flex;
             align-items: center;
-            white-space: nowrap; /* Mencegah turun baris */
-            max-width: 200px; /* Batas panjang text */
+            white-space: nowrap; 
+            max-width: 180px; 
             overflow: hidden;
-            text-overflow: ellipsis; /* Titik-titik jika kepanjangan */
+            text-overflow: ellipsis; 
         }
     </style>
 </head>
@@ -479,10 +478,14 @@
                     return `
                     <div class="flex items-center gap-3 mb-2 pb-2 border-b border-dashed border-slate-200 last:border-0 bg-white p-3 rounded-lg shadow-sm border border-slate-100 hover:bg-slate-50 transition-colors group">
                         <div class="w-2 h-2 bg-blue-500 rounded-full shrink-0"></div>
-                        <div class="flex-grow">
-                            <div class="text-[15px] font-bold text-slate-800 mb-1">${sub.subtask_desc}</div>
+                        
+                        <div class="flex-grow flex flex-col xl:flex-row xl:items-center justify-between gap-x-4 gap-y-2">
                             
-                            <div class="flex items-center gap-2 mt-1 overflow-x-auto">
+                            <div class="text-[15px] font-bold text-slate-800 min-w-[200px]">
+                                ${sub.subtask_desc}
+                            </div>
+                            
+                            <div class="flex items-center gap-2 flex-wrap shrink-0">
                                 <span class="badge-box">Pri: <span class="${priColor}">${sub.priority || '-'}</span></span>
                                 <span class="badge-box">Prog: <span class="text-slate-700">${sub.progress_percent || 0}%</span></span>
                                 ${sub.job_type && sub.job_type !== '-' ? `<span class="txt-job">${sub.job_type}</span>` : ''}
@@ -492,6 +495,7 @@
                                     <span class="font-bold text-slate-500 mr-1">Ket:</span> ${sub.worker_notes}
                                 </div>` : ''}
                             </div>
+
                         </div>
                         
                         ${!isDone ? `
