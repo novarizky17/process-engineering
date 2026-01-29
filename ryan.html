@@ -13,7 +13,7 @@
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #f1f5f9; /* Background body abu-abu terang */
+            background-color: #f8fafc; 
             color: #334155;
             font-size: 13px;
         }
@@ -56,10 +56,10 @@
         /* Floating Button */
         .fab {
             position: fixed; bottom: 30px; right: 30px;
-            width: 64px; height: 64px;
+            width: 60px; height: 60px;
             background: #2563eb; color: white;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 32px; box-shadow: 0 10px 30px -5px rgba(37, 99, 235, 0.5);
+            font-size: 30px; box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.6);
             transition: transform 0.2s; z-index: 50; border: 4px solid white; cursor: pointer;
         }
         .fab:hover { transform: scale(1.1); }
@@ -67,19 +67,19 @@
         /* Modal Styles */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px);
             z-index: 100; display: none; align-items: center; justify-content: center;
             padding: 20px;
         }
         .modal-box {
-            background: white; width: 100%; max-width: 600px;
-            border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            background: white; width: 100%; max-width: 550px;
+            border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             max-height: 90vh; overflow-y: auto;
-            animation: popUp 0.2s ease-out;
+            animation: popUp 0.3s ease-out;
         }
         @keyframes popUp { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        .modal-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 4px; display: block; }
+        .modal-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; display: block; }
         .modal-input { 
             width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; 
             padding: 10px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; 
@@ -87,7 +87,7 @@
         .modal-input:focus { border-color: #3b82f6; background-color: #eff6ff; }
 
         /* Subtask Badge */
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-mid { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
@@ -97,24 +97,21 @@
 </head>
 <body class="antialiased bg-slate-50">
 
-    <div class="bg-[#0f172a] border-b border-slate-800 px-8 py-6 shadow-md sticky top-0 z-40 w-full">
+    <div class="bg-[#111827] border-b border-gray-800 px-8 py-6 shadow-lg w-full">
         <div class="flex justify-between items-center w-full">
             <div class="flex items-center gap-5">
                 <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-blue-900/50">
                     R
                 </div>
                 <div>
-                    <h1 class="text-xl font-extrabold text-white leading-tight tracking-tight">Panel Kerja Ryan</h1>
+                    <h1 class="text-2xl font-extrabold text-white tracking-tight">Panel Kerja Ryan</h1>
                     <div class="flex items-center gap-2 mt-1">
-                        <span class="relative flex h-2 w-2">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                        </span>
-                        <p class="text-xs text-slate-400 font-semibold">Online &bull; Monitoring Tugas</p>
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <p class="text-xs text-gray-400 font-semibold tracking-wide">Online &bull; Monitoring Tugas</p>
                     </div>
                 </div>
             </div>
-            <a href="employee_report.html" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 px-5 py-2.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wide flex items-center gap-2">
+            <a href="employee_report.html" class="bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 px-6 py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center gap-2 shadow-md">
                 <i class="fa-solid fa-arrow-left"></i> Kembali Menu
             </a>
         </div>
@@ -123,28 +120,28 @@
     <div class="w-full px-8 py-8 pb-32">
         
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-blue-500 flex justify-between items-center">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-blue-500 flex justify-between items-center hover:shadow-md transition-shadow">
                 <div>
                     <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p>
                     <h3 id="stat-active" class="text-4xl font-black text-slate-800">0</h3>
                 </div>
                 <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 text-xl"><i class="fa-solid fa-spinner fa-spin"></i></div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-amber-500 flex justify-between items-center">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-amber-500 flex justify-between items-center hover:shadow-md transition-shadow">
                 <div>
                     <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p>
                     <h3 id="stat-pending" class="text-4xl font-black text-slate-800">0</h3>
                 </div>
                 <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 text-xl"><i class="fa-regular fa-clock"></i></div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-rose-500 flex justify-between items-center">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-rose-500 flex justify-between items-center hover:shadow-md transition-shadow">
                 <div>
                     <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p>
                     <h3 id="stat-hold" class="text-4xl font-black text-slate-800">0</h3>
                 </div>
                 <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 text-xl"><i class="fa-solid fa-pause"></i></div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-emerald-500 flex justify-between items-center">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 border-l-4 border-l-emerald-500 flex justify-between items-center hover:shadow-md transition-shadow">
                 <div>
                     <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Selesai</p>
                     <h3 id="stat-finished" class="text-4xl font-black text-slate-800">0</h3>
@@ -203,7 +200,7 @@
 
     <div id="subtaskModal" class="modal-overlay">
         <div class="modal-box">
-            <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50">
+            <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50 rounded-t-2xl">
                 <div>
                     <h3 id="modal-title" class="text-lg font-extrabold text-slate-800">TAMBAH RINCIAN</h3>
                     <p class="text-xs text-slate-500 mt-1">Input sub-task pekerjaan baru</p>
@@ -329,6 +326,7 @@
                 const progress = row.progress_percent || 0; 
                 const mySubtasks = subTasksMap[row.id] || [];
                 
+                // === PARENT ROW ===
                 let mainRow = `
                     <tr class="bg-white border-b border-slate-100 hover:bg-blue-50/30 transition-colors">
                         <td class="px-6 py-5 align-top border-l-4 border-blue-500 pl-5">
@@ -365,10 +363,10 @@
                         </td>
                         <td class="px-4 py-5 align-top text-center">
                             <select id="stat-${row.id}" class="status-badge-select ${row.status=='Done'?'bg-emerald-100 text-emerald-700':(row.status=='Hold'?'bg-rose-100 text-rose-700':(row.status=='In Progress'?'bg-blue-100 text-blue-700':'bg-slate-100 text-slate-600'))}" onchange="saveMain('${row.id}')" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/></svg>')">
-                                <option value="Pending" ${row.status=='Pending'?'selected':''}>Pending</option>
-                                <option value="In Progress" ${row.status=='In Progress'?'selected':''}>Active</option>
-                                <option value="Hold" ${row.status=='Hold'?'selected':''}>Hold</option>
-                                <option value="Done" ${row.status=='Done'?'selected':''}>Done</option>
+                                <option value="Pending" ${row.status=='Pending'?'selected':''}>PENDING</option>
+                                <option value="In Progress" ${row.status=='In Progress'?'selected':''}>ACTIVE</option>
+                                <option value="Hold" ${row.status=='Hold'?'selected':''}>HOLD</option>
+                                <option value="Done" ${row.status=='Done'?'selected':''}>DONE</option>
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
@@ -379,6 +377,7 @@
                     </tr>
                 `;
 
+                // === SUBTASK ROW ===
                 let subRows = mySubtasks.map(sub => {
                     let badgeClass = sub.priority === 'High' ? 'badge-high' : (sub.priority === 'Mid' ? 'badge-mid' : 'badge-low');
                     let statusBadge = sub.status === 'Done' ? 'badge-done' : 'badge-status';
@@ -402,7 +401,7 @@
                         <td class="px-4 py-3 text-center align-middle">
                             <div class="flex items-center gap-2 justify-center">
                                 <span class="text-slate-600 font-bold text-xs">${sub.progress_percent}%</span>
-                                <div class="w-10 bg-slate-200 h-1.5 rounded-full overflow-hidden"><div class="bg-slate-500 h-full" style="width:${sub.progress_percent}%"></div></div>
+                                <div class="w-8 bg-slate-200 h-1 rounded-full overflow-hidden"><div class="bg-slate-500 h-full" style="width:${sub.progress_percent}%"></div></div>
                             </div>
                         </td>
                         <td class="px-4 py-3 text-center align-middle text-[10px] font-mono text-slate-500">${formatTime(sub.start_date)}</td>
@@ -434,7 +433,7 @@
             if(!error) fetchRyanTasks();
         }
 
-        // --- MODAL FUNCTIONS ---
+        // --- MODAL FUNCTIONS (SAMA) ---
         function openSubtaskModal() {
             document.getElementById('modal-title').innerText = "Tambah Rincian";
             document.getElementById('modal-subtask-id').value = ""; 
