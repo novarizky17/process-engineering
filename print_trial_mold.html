@@ -30,7 +30,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
             display: flex; flex-direction: column;
             overflow: hidden;
-            font-family: 'Arial', sans-serif; /* Ganti ke Arial biasa biar ga terlalu padat */
+            font-family: 'Arial', sans-serif;
         }
 
         /* === 4. MODE PRINT === */
@@ -64,7 +64,7 @@
 
         .panel-header {
             font-size: 16px; 
-            font-weight: 700; /* Dikurangi */
+            font-weight: 700;
             color: #1e293b; 
             margin-bottom: 15px; 
             text-align: center;
@@ -96,7 +96,7 @@
             border-radius: 6px; 
             cursor: pointer; 
             border: none; 
-            font-weight: 600; /* Dikurangi */
+            font-weight: 600; 
             font-size: 13px; 
             display: flex; align-items: center; justify-content: center; gap: 8px;
             transition: transform 0.1s, box-shadow 0.2s;
@@ -120,22 +120,22 @@
         
         .main-title { 
             font-size: 18pt; 
-            font-weight: 700; /* Dikurangi dari 900 ke 700 */
+            font-weight: 700; 
             text-align: center; 
             text-transform: uppercase; 
             letter-spacing: 1px; 
         }
         
-        .meta-table { width: 100%; font-size: 8pt; font-weight: normal; border: none; } /* Jadi Normal */
+        .meta-table { width: 100%; font-size: 8pt; font-weight: normal; border: none; }
         .meta-table td { border: none; padding: 0; line-height: 1.1; }
-        .meta-label { font-weight: 600; } /* Label agak tebal dikit */
+        .meta-label { font-weight: 600; }
 
         /* Info Bar */
         .info-bar {
             border: 1px solid black; padding: 3px 5px; margin-bottom: 3px; width: 100%;
             display: flex; justify-content: space-between;
-            font-size: 9pt; 
-            font-weight: 600; /* Dikurangi jadi semi-bold */
+            font-size: 8pt; /* Sedikit dikecilkan biar muat Nama Mold */
+            font-weight: 600; 
             background: #fff;
         }
         .info-group span { font-weight: normal; margin-left: 3px; text-transform: uppercase; }
@@ -147,7 +147,7 @@
             background-color: #334155; color: white; border: 1px solid black; 
             padding: 3px; text-transform: uppercase; 
             font-size: 8pt;
-            font-weight: 600; /* Dikurangi */
+            font-weight: 600; 
         }
         .main-table td { 
             border: 1px solid black; padding: 1px 3px; 
@@ -158,12 +158,12 @@
         /* Judul Section */
         .sect-row { 
             background-color: #e2e8f0; 
-            font-weight: 700; /* Dikurangi dari 800 */
+            font-weight: 700; 
             font-size: 8pt; 
             padding: 2px; text-transform: uppercase; 
         }
 
-        .st-ok { color: green; font-weight: 600; text-align: center; } /* Dikurangi */
+        .st-ok { color: green; font-weight: 600; text-align: center; } 
         .st-ng { background: #fee2e2; color: red; font-weight: 600; text-align: center; }
         .st-na { color: #888; font-style: italic; text-align: center; }
 
@@ -177,7 +177,7 @@
         .ttd-head { 
             background: #eee; 
             font-size: 8pt; 
-            font-weight: 600; /* Dikurangi */
+            font-weight: 600; 
             border-bottom: 1px solid black; padding: 2px; 
         }
         .ttd-sign { height: 45px; display: flex; align-items: center; justify-content: center; }
@@ -185,7 +185,7 @@
         .ttd-name { 
             border-top: 1px solid black; 
             font-size: 8pt; 
-            font-weight: 600; /* Dikurangi */
+            font-weight: 600; 
             padding: 2px; text-transform: uppercase; 
         }
 
@@ -240,8 +240,8 @@
 
         <div class="info-bar">
             <div class="info-group">PROJECT: <span id="d-project">-</span></div>
-            <div class="info-group">MOLD: <span id="d-mold">-</span></div>
-            <div class="info-group">MESIN: <span id="d-mesin">-</span></div>
+            <div class="info-group">KODE MOLD: <span id="d-mold">-</span></div>
+            <div class="info-group">NAMA MOLD: <span id="d-mold-name">-</span></div> <div class="info-group">MESIN: <span id="d-mesin">-</span></div>
             <div class="info-group">TGL: <span id="d-date">-</span></div>
             <div class="info-group">PIC: <span id="d-pic">-</span></div>
         </div>
@@ -315,6 +315,7 @@
             const r = data[0];
             document.getElementById('d-project').innerText = r.project_name || '-';
             document.getElementById('d-mold').innerText = r.mold_code;
+            document.getElementById('d-mold-name').innerText = r.mold_name || '-'; // ISI NAMA MOLD
             document.getElementById('d-mesin').innerText = r.machine_name;
             document.getElementById('d-date').innerText = r.trial_date;
             document.getElementById('d-pic').innerText = r.pic_trial;
