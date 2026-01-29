@@ -34,7 +34,7 @@
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
         .btn-primary { background: #007bff; color: white; }
         .btn-success { background: #28a745; color: white; }
-        .btn-back { background: #6c757d; color: white; text-decoration: none; font-size: 14px; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; }
         .btn-danger { background: #dc3545; color: white; }
         .btn-excel { background: #198754; color: white; margin-left: auto; }
 
@@ -200,9 +200,12 @@
                 return rowDate === selectedDate;
             });
         } else {
+            // === LOGIKA FILTER DIPERBAIKI ===
+            // Tampilkan semua data KECUALI yang sudah Approved atau Rejected
+            // Jadi Completed, Null, atau apapun akan tetap muncul sebagai "Pending"
             filteredData = rawData.filter(row => {
-                const status = (row.status || 'Pending').toLowerCase();
-                return status === 'pending';
+                const status = (row.status || '').toLowerCase();
+                return status !== 'approved' && status !== 'rejected';
             });
         }
         renderTable(filteredData);
@@ -233,9 +236,10 @@
         }
 
         tableBody.innerHTML = dataList.map(row => {
+            // === LOGIKA STATUS DI TAMPILAN WEB (SAMA DENGAN FILTER) ===
             let statusText = row.status || 'Pending';
             
-            // PAKSA PENDING JIKA BELUM APPROVE/REJECT
+            // JIKA BUKAN APPROVED DAN BUKAN REJECTED -> PAKSA JADI PENDING
             if (statusText !== 'Approved' && statusText !== 'Rejected') {
                 statusText = 'Pending';
             }
@@ -316,7 +320,6 @@
         XLSX.writeFile(wb, fileName);
     }
 
-    // === MODIFIKASI: KHUSUS TRIAL MOLD HANYA NG ===
     function renderJsonCheck(title, jsonData) {
         if (!jsonData || Object.keys(jsonData).length === 0) return '';
         let rows = '';
@@ -325,8 +328,7 @@
             let status = val.status || '-';
             let note = val.note || '-';
             
-            // HANYA TAMPILKAN JIKA STATUS === NG
-            // NA TIDAK DITAMPILKAN LAGI DI SINI
+            // KHUSUS TRIAL MOLD: HANYA TAMPILKAN NG
             if (status === 'NG') {
                 hasIssues = true;
                 let colorClass = 'status-ng';
@@ -337,7 +339,7 @@
                         </tr>`;
             }
         }
-        if (!hasIssues) return ''; // Jika tidak ada NG, sembunyikan section
+        if (!hasIssues) return ''; 
         return `<div class="section-header">${title}</div>
                 <div class="table-wrapper">
                     <table class="json-table">
