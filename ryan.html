@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Ryan (Premium UI)</title>
+    <title>Work Panel - Ryan (Ultimate Validated)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,63 +13,48 @@
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #f8fafc; 
+            background-color: #f1f5f9; 
             color: #334155;
             font-size: 13px;
             overflow-x: hidden;
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* --- MODERN INPUT STYLES --- */
-        .modern-input {
-            background-color: #ffffff;
+        /* Table Inputs */
+        .table-input {
+            background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 8px; /* Sudut lebih bulat */
-            padding: 8px 12px;
+            border-radius: 6px;
+            padding: 6px 8px;
             width: 100%;
             font-size: 12px;
-            font-weight: 600;
-            color: #475569;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Sedikit bayangan */
+            color: #334155;
+            transition: all 0.2s;
         }
-        
-        .modern-input:focus { 
-            border-color: #3b82f6; 
-            background-color: #fff;
-            outline: none; 
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); /* Efek Ring saat aktif */
-        }
+        .table-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
 
-        .modern-input::placeholder { color: #cbd5e1; font-weight: 500; }
-
-        /* --- MODERN BADGE SELECT (PILL SHAPE) --- */
+        /* Status & Job Badge Select */
         .badge-select {
             appearance: none;
-            padding: 6px 28px 6px 14px;
-            border-radius: 999px; /* Bentuk Kapsul */
+            padding: 4px 24px 4px 10px;
+            border-radius: 6px;
             font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-weight: 700;
             cursor: pointer;
             border: 1px solid transparent;
-            text-align: left;
-            width: 100%;
-            transition: all 0.2s;
-            /* Custom Arrow Icon */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E");
+            text-align: center;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 0.8rem center;
-            background-size: 0.8em;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            background-position: right 0.5rem center;
+            background-size: 1em;
+            text-transform: capitalize;
+            width: 100%;
+            transition: transform 0.2s;
         }
-        .badge-select:hover { filter: brightness(0.97); transform: translateY(-1px); }
-        .badge-select:focus { outline: none; ring: 2px solid rgba(59, 130, 246, 0.3); }
+        .badge-select:hover { transform: scale(1.02); }
 
         /* Floating Button */
         .fab {
@@ -91,7 +76,7 @@
         }
         .modal-box {
             background: white; width: 100%; max-width: 600px;
-            border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             max-height: 90vh; overflow-y: auto;
             animation: popUp 0.3s ease-out;
         }
@@ -104,18 +89,20 @@
         }
         .modal-input:focus { border-color: #3b82f6; background-color: #eff6ff; }
 
-        /* Static Badges */
+        /* Badges */
         .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-mid { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        
+        .badge-status { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+        .badge-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+
         /* Tree Line */
         .tree-line {
             border-left: 2px dashed #cbd5e1;
             border-bottom: 2px dashed #cbd5e1;
             height: 25px; width: 15px;
-            display: inline-block; margin-right: 8px; margin-bottom: 5px;
+            display: inline-block; margin-right: 5px; margin-bottom: 4px;
         }
     </style>
 </head>
@@ -187,14 +174,14 @@
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] uppercase font-bold tracking-wider">
                             <th class="px-6 py-4 w-[250px]">Project / Mesin</th>
-                            <th class="px-6 py-4 min-w-[380px]">Rincian Tugas & Sub-Task</th>
-                            <th class="px-4 py-4 text-center w-[80px]">Priority</th>
+                            <th class="px-6 py-4 min-w-[400px]">Rincian Tugas & Sub-Task</th>
+                            <th class="px-4 py-4 text-center w-[100px]">Priority</th>
                             <th class="px-4 py-4 text-center w-[120px]">Progress (%)</th>
                             <th class="px-4 py-4 text-center w-[150px]">Start Date</th>
                             <th class="px-4 py-4 text-center w-[150px]">Finish Date</th>
-                            <th class="px-4 py-4 text-center w-[160px]">Jenis Pekerjaan</th>
-                            <th class="px-4 py-4 text-left w-[200px]">Keterangan</th>
-                            <th class="px-4 py-4 text-center w-[160px]">Status</th>
+                            <th class="px-4 py-4 text-center w-[140px]">Jenis Pekerjaan</th>
+                            <th class="px-4 py-4 text-left w-[220px]">Keterangan</th>
+                            <th class="px-4 py-4 text-center w-[130px]">Status</th>
                             <th class="px-4 py-4 text-center w-[70px]">Aksi</th>
                         </tr>
                     </thead>
@@ -244,11 +231,12 @@
                         <select id="modal-status" class="modal-input font-bold text-blue-600">
                             <option value="Pending">Pending</option>
                             <option value="In Progress">In Progress</option>
+                            <option value="Hold">Hold</option>
                             <option value="Done">Done</option>
                         </select>
                     </div>
                 </div>
-                <div><label class="modal-label">Catatan Tambahan</label><textarea id="modal-note" class="modal-input h-20 resize-none" placeholder="Tulis catatan..."></textarea></div>
+                <div><label class="modal-label">Catatan Tambahan (Wajib jika HOLD)</label><textarea id="modal-note" class="modal-input h-20 resize-none" placeholder="Tulis catatan..."></textarea></div>
             </div>
             <div class="p-6 border-t border-slate-100 bg-slate-50">
                 <button onclick="saveSubtask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg transition-all text-sm tracking-wide">Simpan Data</button>
@@ -269,7 +257,7 @@
             return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear().toString().substr(-2)} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
         }
 
-        // --- HELPER WARNA UNTUK BADGE SELECT ---
+        // --- HELPER WARNA ---
         function getJobClass(job) {
             switch(job) {
                 case 'Improvement': return 'bg-blue-100 text-blue-700 border-blue-200';
@@ -277,16 +265,16 @@
                 case 'Perawatan': return 'bg-amber-100 text-amber-700 border-amber-200';
                 case 'New Project': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
                 case 'Trial': return 'bg-pink-100 text-pink-700 border-pink-200';
-                default: return 'bg-white text-slate-500 border-slate-200';
+                default: return 'bg-slate-50 text-slate-500 border-slate-200';
             }
         }
 
         function getStatusClass(status) {
             switch(status) {
-                case 'Pending': return 'bg-amber-50 text-amber-600 border-amber-200';
-                case 'In Progress': return 'bg-blue-50 text-blue-600 border-blue-200';
-                case 'Hold': return 'bg-rose-50 text-rose-600 border-rose-200';
-                case 'Done': return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                case 'Pending': return 'bg-amber-100 text-amber-700 border-amber-200';
+                case 'In Progress': return 'bg-blue-100 text-blue-700 border-blue-200';
+                case 'Hold': return 'bg-rose-100 text-rose-700 border-rose-200';
+                case 'Done': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
                 default: return 'bg-white text-slate-500 border-slate-200';
             }
         }
@@ -333,7 +321,7 @@
                 const statusClass = getStatusClass(row.status);
                 
                 let mainRow = `
-                    <tr class="bg-white border-b border-slate-100 hover:bg-blue-50/20 transition-colors group">
+                    <tr class="bg-white border-b border-slate-100 hover:bg-blue-50/30 transition-colors">
                         <td class="px-6 py-5 align-top border-l-4 border-blue-500 pl-5">
                             <div class="font-extrabold text-slate-800 text-sm uppercase tracking-tight">${row.project_name}</div>
                             <div class="text-[11px] text-slate-400 mt-1 font-bold bg-slate-100 inline-block px-2 py-0.5 rounded">${row.machine_name || '-'}</div>
@@ -347,13 +335,13 @@
                         <td class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
                         <td class="px-4 py-5 align-top">
                             <div class="flex items-center gap-2 justify-center">
-                                <input type="number" id="prog-${row.id}" value="${progress}" class="modern-input text-center w-16 bg-slate-50 font-bold" onchange="saveMain('${row.id}')">
+                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
                             <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="bg-blue-600 h-full transition-all duration-500" style="width:${progress}%"></div></div>
                         </td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="modern-input text-center"></td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="modern-input text-center"></td>
+                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-center"></td>
+                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-center"></td>
                         <td class="px-4 py-5 align-top text-center">
                             <select id="job-${row.id}" onchange="updateSelectColor(this, 'job')" class="badge-select ${jobClass}">
                                 <option value="-" ${row.job_type=='-'?'selected':''}>-</option>
@@ -365,7 +353,7 @@
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top">
-                            <textarea id="hold-${row.id}" class="modern-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan...">${row.hold_reason||''}</textarea>
+                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold...">${row.hold_reason||''}</textarea>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
                             <select id="stat-${row.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusClass}">
@@ -426,17 +414,27 @@
             }).join('');
         }
 
+        // --- VALIDATION & SAVE LOGIC ---
         async function saveMain(id) {
             const sVal = document.getElementById(`start-${id}`).value;
             const eVal = document.getElementById(`end-${id}`).value;
+            const statVal = document.getElementById(`stat-${id}`).value;
+            const holdVal = document.getElementById(`hold-${id}`).value;
+
+            // VALIDASI HOLD PARENT
+            if (statVal === 'Hold' && !holdVal.trim()) {
+                alert("⚠️ Jika Status HOLD, kolom Keterangan WAJIB diisi!");
+                document.getElementById(`hold-${id}`).focus();
+                return;
+            }
 
             const payload = {
-                status: document.getElementById(`stat-${id}`).value,
+                status: statVal,
                 progress_percent: document.getElementById(`prog-${id}`).value,
                 work_start_time: sVal ? sVal : null,
                 work_end_time: eVal ? eVal : null,
                 job_type: document.getElementById(`job-${id}`).value,
-                hold_reason: document.getElementById(`hold-${id}`).value
+                hold_reason: holdVal
             };
             const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
             
@@ -448,7 +446,56 @@
             }
         }
 
-        // --- MODAL FUNCTIONS ---
+        async function saveSubtask() {
+            const subId = document.getElementById('modal-subtask-id').value;
+            const parentId = document.getElementById('modal-parent-id').value;
+            const desc = document.getElementById('modal-desc').value;
+            const statusVal = document.getElementById('modal-status').value;
+            const noteVal = document.getElementById('modal-note').value;
+
+            if(!parentId || !desc) return alert("Lengkapi data project dan nama tugas!");
+
+            // VALIDASI HOLD SUBTASK
+            if (statusVal === 'Hold' && !noteVal.trim()) {
+                alert("⚠️ Jika Status HOLD, Catatan Tambahan WAJIB diisi!");
+                document.getElementById('modal-note').focus();
+                return;
+            }
+
+            const sVal = document.getElementById('modal-start').value;
+            const eVal = document.getElementById('modal-finish').value;
+
+            const payload = {
+                parent_task_id: parentId,
+                subtask_desc: desc,
+                priority: document.getElementById('modal-prio').value,
+                progress_percent: document.getElementById('modal-prog').value,
+                start_date: sVal ? sVal : null,
+                end_date: eVal ? eVal : null,
+                job_type: document.getElementById('modal-job').value,
+                worker_notes: noteVal,
+                status: statusVal
+            };
+            
+            let error;
+            if(subId) {
+                const res = await _sb.from('employee_subtasks').update(payload).eq('id', subId);
+                error = res.error;
+            } else {
+                const res = await _sb.from('employee_subtasks').insert([payload]);
+                error = res.error;
+            }
+
+            if(error) {
+                alert("Gagal menyimpan: " + error.message);
+            } else {
+                alert("Subtask berhasil disimpan!");
+                closeModal(); 
+                fetchRyanTasks();
+            }
+        }
+
+        // --- COMMON FUNCTIONS ---
         function openSubtaskModal() {
             document.getElementById('modal-title').innerText = "Tambah Rincian";
             document.getElementById('modal-subtask-id').value = ""; 
@@ -482,45 +529,6 @@
         }
         function closeModal() { document.getElementById('subtaskModal').style.display = 'none'; }
         
-        async function saveSubtask() {
-            const subId = document.getElementById('modal-subtask-id').value;
-            const parentId = document.getElementById('modal-parent-id').value;
-            const desc = document.getElementById('modal-desc').value;
-            if(!parentId || !desc) return alert("Lengkapi data!");
-
-            const sVal = document.getElementById('modal-start').value;
-            const eVal = document.getElementById('modal-finish').value;
-
-            const payload = {
-                parent_task_id: parentId,
-                subtask_desc: desc,
-                priority: document.getElementById('modal-prio').value,
-                progress_percent: document.getElementById('modal-prog').value,
-                start_date: sVal ? sVal : null,
-                end_date: eVal ? eVal : null,
-                job_type: document.getElementById('modal-job').value,
-                worker_notes: document.getElementById('modal-note').value,
-                status: document.getElementById('modal-status').value
-            };
-            
-            let error;
-            if(subId) {
-                const res = await _sb.from('employee_subtasks').update(payload).eq('id', subId);
-                error = res.error;
-            } else {
-                const res = await _sb.from('employee_subtasks').insert([payload]);
-                error = res.error;
-            }
-
-            if(error) {
-                alert("Gagal menyimpan: " + error.message);
-            } else {
-                alert("Subtask berhasil disimpan!");
-                closeModal(); 
-                fetchRyanTasks();
-            }
-        }
-
         async function deleteSubTask(id) {
             if(confirm("Hapus?")) { await _sb.from('employee_subtasks').delete().eq('id', id); fetchRyanTasks(); }
         }
