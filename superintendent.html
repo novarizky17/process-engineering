@@ -34,7 +34,7 @@
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
         .btn-primary { background: #007bff; color: white; }
         .btn-success { background: #28a745; color: white; }
-        .btn-back { background: #6c757d; color: white; text-decoration: none; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; font-size: 14px; }
         .btn-danger { background: #dc3545; color: white; }
         .btn-excel { background: #198754; color: white; margin-left: auto; }
 
@@ -200,17 +200,14 @@
                 return rowDate === selectedDate;
             });
         } else {
-            // FILTER DEFAULT: HANYA TAMPILKAN YANG STATUSNYA BUKAN APPROVED/REJECTED
-            // JADI KALO 'COMPLETED' TETAP MUNCUL TAPI DI RENDER NANTI JADI 'PENDING'
             filteredData = rawData.filter(row => {
-                const status = (row.status || '').toLowerCase();
-                return status !== 'approved' && status !== 'rejected';
+                const status = (row.status || 'Pending').toLowerCase();
+                return status === 'pending';
             });
         }
         renderTable(filteredData);
     }
 
-    // === FORMAT TANGGAL HELPER (YYYY-MM-DD -> DD-MM-YYYY) ===
     function formatDate(dateString) {
         if (!dateString) return '-';
         const parts = dateString.split('-');
@@ -236,10 +233,9 @@
         }
 
         tableBody.innerHTML = dataList.map(row => {
-            // === LOGIKA PENTING: PAKSA TAMPILAN JADI PENDING DI WEB ===
             let statusText = row.status || 'Pending';
             
-            // JIKA STATUS BUKAN APPROVED/REJECTED, PAKSA JADI 'Pending'
+            // PAKSA PENDING JIKA BELUM APPROVE/REJECT
             if (statusText !== 'Approved' && statusText !== 'Rejected') {
                 statusText = 'Pending';
             }
@@ -291,7 +287,6 @@
                 "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
                 "Week": row.pelaksana?.week || '-',
                 "Keterangan": row.keterangan || '-', 
-                // Logika Status Pending di Excel Rutin
                 "Status": (row.status !== 'Approved' && row.status !== 'Rejected') ? 'Pending' : row.status
             }));
         } else {
@@ -303,14 +298,12 @@
                 "Kode Mold": row.mold_code || '-',
                 "Nama Mold": row.mold_name || '-',
                 "Tanggal Trial": formatDate(row.trial_date),
-                // Logika Status Pending di Excel Trial
                 "Status": (row.status !== 'Approved' && row.status !== 'Rejected') ? 'Pending' : row.status
             }));
         }
         
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         
-        // SETTING LEBAR KOLOM EXCEL
         if (currentTab === 'rutin') {
             ws['!cols'] = [{wch:25}, {wch:25}, {wch:40}, {wch:15}, {wch:8}, {wch:50}, {wch:15}];
         } else {
@@ -323,6 +316,7 @@
         XLSX.writeFile(wb, fileName);
     }
 
+    // === MODIFIKASI: KHUSUS TRIAL MOLD HANYA NG ===
     function renderJsonCheck(title, jsonData) {
         if (!jsonData || Object.keys(jsonData).length === 0) return '';
         let rows = '';
@@ -330,9 +324,12 @@
         for (const [key, val] of Object.entries(jsonData)) {
             let status = val.status || '-';
             let note = val.note || '-';
-            if (status === 'NG' || status === 'NA') {
+            
+            // HANYA TAMPILKAN JIKA STATUS === NG
+            // NA TIDAK DITAMPILKAN LAGI DI SINI
+            if (status === 'NG') {
                 hasIssues = true;
-                let colorClass = status === 'NG' ? 'status-ng' : 'status-na';
+                let colorClass = 'status-ng';
                 rows += `<tr>
                             <td class="col-item">${key}</td>
                             <td class="col-status ${colorClass}">${status}</td>
@@ -340,7 +337,7 @@
                         </tr>`;
             }
         }
-        if (!hasIssues) return ''; 
+        if (!hasIssues) return ''; // Jika tidak ada NG, sembunyikan section
         return `<div class="section-header">${title}</div>
                 <div class="table-wrapper">
                     <table class="json-table">
@@ -434,7 +431,7 @@
             checksHtml += renderJsonCheck("4. MATERIAL", row.check_material);
             checksHtml += renderJsonCheck("5. QC TOOLS", row.check_qc);
             checksHtml += renderJsonCheck("6. SAFETY", row.check_safety);
-            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Item Check Berstatus OK (Tidak ada temuan NG/NA)</div>`;
+            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Item Check Berstatus OK (Tidak ada temuan NG)</div>`;
             body.innerHTML = checksHtml;
         }
 
