@@ -13,7 +13,7 @@
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #f1f5f9; 
+            background-color: #f1f5f9; /* Background body abu-abu terang */
             color: #334155;
             font-size: 13px;
         }
@@ -97,17 +97,25 @@
 </head>
 <body class="antialiased bg-slate-50">
 
-    <div class="bg-white border-b border-slate-200 px-8 py-5 shadow-sm sticky top-0 z-40 w-full">
+    <div class="bg-[#0f172a] border-b border-slate-800 px-8 py-6 shadow-md sticky top-0 z-40 w-full">
         <div class="flex justify-between items-center w-full">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-blue-200">R</div>
+            <div class="flex items-center gap-5">
+                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-blue-900/50">
+                    R
+                </div>
                 <div>
-                    <h1 class="text-xl font-extrabold text-slate-800 leading-tight tracking-tight">Panel Kerja Ryan</h1>
-                    <p class="text-xs text-slate-500 font-semibold mt-0.5">Monitoring Tugas & Sub-Task</p>
+                    <h1 class="text-xl font-extrabold text-white leading-tight tracking-tight">Panel Kerja Ryan</h1>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="relative flex h-2 w-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <p class="text-xs text-slate-400 font-semibold">Online &bull; Monitoring Tugas</p>
+                    </div>
                 </div>
             </div>
-            <a href="employee_report.html" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-5 py-2.5 rounded-lg text-xs font-bold transition-colors uppercase tracking-wide border border-slate-200">
-                <i class="fa-solid fa-arrow-left mr-2"></i> Kembali Menu
+            <a href="employee_report.html" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 px-5 py-2.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wide flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Kembali Menu
             </a>
         </div>
     </div>
@@ -357,10 +365,10 @@
                         </td>
                         <td class="px-4 py-5 align-top text-center">
                             <select id="stat-${row.id}" class="status-badge-select ${row.status=='Done'?'bg-emerald-100 text-emerald-700':(row.status=='Hold'?'bg-rose-100 text-rose-700':(row.status=='In Progress'?'bg-blue-100 text-blue-700':'bg-slate-100 text-slate-600'))}" onchange="saveMain('${row.id}')" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/></svg>')">
-                                <option value="Pending" ${row.status=='Pending'?'selected':''}>PENDING</option>
-                                <option value="In Progress" ${row.status=='In Progress'?'selected':''}>ACTIVE</option>
-                                <option value="Hold" ${row.status=='Hold'?'selected':''}>HOLD</option>
-                                <option value="Done" ${row.status=='Done'?'selected':''}>DONE</option>
+                                <option value="Pending" ${row.status=='Pending'?'selected':''}>Pending</option>
+                                <option value="In Progress" ${row.status=='In Progress'?'selected':''}>Active</option>
+                                <option value="Hold" ${row.status=='Hold'?'selected':''}>Hold</option>
+                                <option value="Done" ${row.status=='Done'?'selected':''}>Done</option>
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
@@ -380,7 +388,7 @@
                         <td class="px-6 py-3 text-right align-middle">
                             <div class="flex items-center justify-end gap-2">
                                 <div class="tree-line"></div>
-                                <span class="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded">SUBTASK</span>
+                                <span class="text-[9px] font-extrabold text-slate-300 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded">SUBTASK</span>
                             </div>
                         </td>
                         <td class="px-6 py-3 align-middle font-bold text-slate-700 flex justify-between items-center gap-3">
@@ -397,8 +405,8 @@
                                 <div class="w-10 bg-slate-200 h-1.5 rounded-full overflow-hidden"><div class="bg-slate-500 h-full" style="width:${sub.progress_percent}%"></div></div>
                             </div>
                         </td>
-                        <td class="px-4 py-3 text-center align-middle text-[11px] font-mono text-slate-500">${formatTime(sub.start_date)}</td>
-                        <td class="px-4 py-3 text-center align-middle text-[11px] font-mono text-slate-500">${formatTime(sub.end_date)}</td>
+                        <td class="px-4 py-3 text-center align-middle text-[10px] font-mono text-slate-500">${formatTime(sub.start_date)}</td>
+                        <td class="px-4 py-3 text-center align-middle text-[10px] font-mono text-slate-500">${formatTime(sub.end_date)}</td>
                         <td class="px-4 py-3 text-center align-middle">
                             ${sub.job_type && sub.job_type !== '-' ? `<span class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-md text-[10px] font-bold border border-indigo-100 uppercase tracking-wide">${sub.job_type}</span>` : '-'}
                         </td>
@@ -426,7 +434,7 @@
             if(!error) fetchRyanTasks();
         }
 
-        // --- MODAL FUNCTIONS (SAME) ---
+        // --- MODAL FUNCTIONS ---
         function openSubtaskModal() {
             document.getElementById('modal-title').innerText = "Tambah Rincian";
             document.getElementById('modal-subtask-id').value = ""; 
