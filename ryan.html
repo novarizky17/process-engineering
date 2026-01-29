@@ -57,28 +57,14 @@
         .status-badge-select:hover { transform: scale(1.05); }
 
         /* Hierarchy Line for Subtasks */
-        .tree-line {
-            position: relative;
-        }
+        .tree-line { position: relative; }
         .tree-line::before {
-            content: '';
-            position: absolute;
-            top: -50%; /* Connect to row above */
-            left: 20px;
-            width: 2px;
-            height: 100%;
-            background-color: #cbd5e1;
-            z-index: 0;
+            content: ''; position: absolute; top: -50%; left: 20px;
+            width: 2px; height: 100%; background-color: #cbd5e1; z-index: 0;
         }
         .tree-line::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 20px;
-            width: 15px;
-            height: 2px;
-            background-color: #cbd5e1;
-            z-index: 0;
+            content: ''; position: absolute; top: 50%; left: 20px;
+            width: 15px; height: 2px; background-color: #cbd5e1; z-index: 0;
         }
         .tree-content { position: relative; z-index: 1; }
 
@@ -94,13 +80,56 @@
             box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.5);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid rgba(255,255,255,0.2);
-            z-index: 50;
+            z-index: 40; /* Z-Index lebih rendah dari modal */
         }
         .fab:hover { transform: translateY(-4px) rotate(90deg); box-shadow: 0 20px 30px -5px rgba(79, 70, 229, 0.6); }
 
-        /* Modal Animation */
-        .modal-enter { animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        /* === PERBAIKAN CSS MODAL === */
+        .modal-overlay {
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(15, 23, 42, 0.75); /* Gelap transparan */
+            backdrop-filter: blur(5px);
+            z-index: 9999; /* Paling atas */
+            display: none; /* Default hide */
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: white;
+            width: 100%;
+            max-width: 500px; /* Batasi lebar agar tidak melar */
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh; /* Agar scrollable jika layar kecil */
+            animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .modal-content-scroll {
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        @keyframes modalIn { 
+            from { opacity: 0; transform: scale(0.95) translateY(20px); } 
+            to { opacity: 1; transform: scale(1) translateY(0); } 
+        }
+
+        .modal-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; display: block; }
+        .modal-input { 
+            width: 100%; border: 1px solid #cbd5e1; 
+            background: #f8fafc;
+            border-radius: 10px; padding: 10px 12px; 
+            font-size: 13px; font-weight: 600; color: #1e293b; outline: none; 
+            transition: all 0.2s;
+        }
+        .modal-input:focus { border-color: #6366f1; background: white; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
     </style>
 </head>
 <body class="antialiased">
@@ -139,9 +168,7 @@
                         <p class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-1">In Progress</p>
                         <h3 id="stat-active" class="text-3xl font-black text-slate-800 group-hover:text-blue-600 transition-colors">0</h3>
                     </div>
-                    <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
-                        <i class="fa-solid fa-spinner fa-spin"></i>
-                    </div>
+                    <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600"><i class="fa-solid fa-spinner fa-spin"></i></div>
                 </div>
             </div>
             <div class="bg-white p-5 rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow group">
@@ -150,9 +177,7 @@
                         <p class="text-xs font-bold text-amber-500 uppercase tracking-wider mb-1">Pending</p>
                         <h3 id="stat-pending" class="text-3xl font-black text-slate-800 group-hover:text-amber-600 transition-colors">0</h3>
                     </div>
-                    <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600">
-                        <i class="fa-regular fa-clock"></i>
-                    </div>
+                    <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600"><i class="fa-regular fa-clock"></i></div>
                 </div>
             </div>
             <div class="bg-white p-5 rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow group">
@@ -161,9 +186,7 @@
                         <p class="text-xs font-bold text-rose-500 uppercase tracking-wider mb-1">Hold</p>
                         <h3 id="stat-hold" class="text-3xl font-black text-slate-800 group-hover:text-rose-600 transition-colors">0</h3>
                     </div>
-                    <div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center text-rose-600">
-                        <i class="fa-solid fa-pause"></i>
-                    </div>
+                    <div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center text-rose-600"><i class="fa-solid fa-pause"></i></div>
                 </div>
             </div>
             <div class="bg-white p-5 rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow group">
@@ -172,9 +195,7 @@
                         <p class="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-1">Selesai</p>
                         <h3 id="stat-finished" class="text-3xl font-black text-slate-800 group-hover:text-emerald-600 transition-colors">0</h3>
                     </div>
-                    <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600">
-                        <i class="fa-solid fa-check-double"></i>
-                    </div>
+                    <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600"><i class="fa-solid fa-check-double"></i></div>
                 </div>
             </div>
         </div>
@@ -226,80 +247,83 @@
     </button>
 
     <div id="subtaskModal" class="modal-overlay">
-        <div class="modal-box modal-enter">
-            <div class="flex justify-between items-center mb-6">
+        <div class="modal-box">
+            
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                 <div>
-                    <h3 id="modal-title" class="text-xl font-bold text-slate-800">Tambah Rincian</h3>
-                    <p class="text-xs text-slate-500 mt-1">Isi form di bawah untuk menambah/edit subtask.</p>
+                    <h3 id="modal-title" class="text-lg font-extrabold text-slate-800">TAMBAH RINCIAN</h3>
+                    <p class="text-[11px] text-slate-500 font-medium">Input sub-task pekerjaan baru</p>
                 </div>
-                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-rose-100 hover:text-rose-500 flex items-center justify-center transition-colors">
+                <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-slate-200 text-slate-400 hover:text-rose-500 hover:border-rose-200 transition-all">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             
-            <input type="hidden" id="modal-subtask-id">
+            <div class="modal-content-scroll">
+                <input type="hidden" id="modal-subtask-id">
 
-            <div class="space-y-5">
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                    <label class="text-xs font-bold text-blue-600 mb-2 block uppercase">Pilih Project (Wajib)</label>
-                    <select id="modal-parent-id" class="w-full bg-white border border-blue-200 text-blue-900 text-sm rounded-lg p-3 font-bold outline-none focus:ring-2 focus:ring-blue-400">
-                        <option value="">-- Pilih Project --</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="modal-label">Nama Pekerjaan / Sub-Task</label>
-                    <input type="text" id="modal-desc" class="modal-input" placeholder="Contoh: Bongkar Cylinder...">
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="modal-label">Priority</label>
-                        <select id="modal-prio" class="modal-input">
-                            <option value="Low">Low</option>
-                            <option value="Mid">Mid</option>
-                            <option value="High">High</option>
+                <div class="space-y-4">
+                    <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+                        <label class="modal-label text-indigo-600">PILIH PROJECT UTAMA (WAJIB)</label>
+                        <select id="modal-parent-id" class="w-full bg-white border border-indigo-200 text-indigo-900 text-sm rounded-lg p-2.5 font-bold outline-none focus:ring-2 focus:ring-indigo-400">
+                            <option value="">-- Pilih Project --</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="modal-label">Progress (%)</label>
-                        <input type="number" id="modal-prog" class="modal-input" value="0" min="0" max="100">
-                    </div>
-                </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="modal-label">Start Date</label><input type="datetime-local" id="modal-start" class="modal-input"></div>
-                    <div><label class="modal-label">Finish Date</label><input type="datetime-local" id="modal-finish" class="modal-input"></div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="modal-label">Kategori</label>
-                        <select id="modal-job" class="modal-input">
-                            <option value="-">-</option>
-                            <option value="Improvement">Improvement</option>
-                            <option value="Overhaul">Overhaul</option>
-                            <option value="Perawatan">Perawatan</option>
-                        </select>
+                        <label class="modal-label">Nama Pekerjaan / Sub-Task</label>
+                        <input type="text" id="modal-desc" class="modal-input" placeholder="Contoh: Bongkar Cylinder...">
                     </div>
-                    <div>
-                        <label class="modal-label">Status</label>
-                        <select id="modal-status" class="modal-input font-bold text-indigo-600">
-                            <option value="Pending">Pending</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Done">Done</option>
-                        </select>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="modal-label">Priority</label>
+                            <select id="modal-prio" class="modal-input">
+                                <option value="Low">Low</option>
+                                <option value="Mid">Mid</option>
+                                <option value="High">High</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="modal-label">Progress (%)</label>
+                            <input type="number" id="modal-prog" class="modal-input" value="0" min="0" max="100">
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <label class="modal-label">Catatan Tambahan</label>
-                    <textarea id="modal-note" class="modal-input h-20 resize-none" placeholder="Tulis catatan..."></textarea>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="modal-label">Start Date</label><input type="datetime-local" id="modal-start" class="modal-input"></div>
+                        <div><label class="modal-label">Finish Date</label><input type="datetime-local" id="modal-finish" class="modal-input"></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="modal-label">Kategori</label>
+                            <select id="modal-job" class="modal-input">
+                                <option value="-">-</option>
+                                <option value="Improvement">Improvement</option>
+                                <option value="Overhaul">Overhaul</option>
+                                <option value="Perawatan">Perawatan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="modal-label">Status</label>
+                            <select id="modal-status" class="modal-input font-bold text-blue-600">
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Done">Done</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="modal-label">Catatan Tambahan</label>
+                        <textarea id="modal-note" class="modal-input h-16 resize-none" placeholder="Tulis catatan jika ada..."></textarea>
+                    </div>
                 </div>
             </div>
 
-            <div class="mt-8">
-                <button onclick="saveSubtask()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold text-sm uppercase shadow-lg hover:shadow-indigo-200 transition-all flex items-center justify-center gap-2">
+            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50">
+                <button onclick="saveSubtask()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold text-sm uppercase shadow-lg hover:shadow-indigo-200 transition-all flex items-center justify-center gap-2">
                     <i class="fa-solid fa-save"></i> Simpan Data
                 </button>
             </div>
@@ -501,13 +525,6 @@
             document.getElementById('modal-parent-id').value = '';
             document.getElementById('modal-parent-id').disabled = false;
             document.getElementById('modal-desc').value = '';
-            document.getElementById('modal-prio').value = 'Mid';
-            document.getElementById('modal-prog').value = '0';
-            document.getElementById('modal-start').value = '';
-            document.getElementById('modal-finish').value = '';
-            document.getElementById('modal-job').value = '-';
-            document.getElementById('modal-note').value = '';
-            document.getElementById('modal-status').value = 'Pending';
             document.getElementById('subtaskModal').style.display = 'flex';
         }
         function editSubtask(subId, parentId) {
