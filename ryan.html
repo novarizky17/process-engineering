@@ -371,10 +371,10 @@
                         </td>
                         <td class="px-4 py-5 align-top text-center">
                             <select id="stat-${row.id}" class="status-badge-select ${row.status=='Done'?'bg-emerald-100 text-emerald-700':(row.status=='Hold'?'bg-rose-100 text-rose-700':(row.status=='In Progress'?'bg-blue-100 text-blue-700':'bg-slate-100 text-slate-600'))}" onchange="saveMain('${row.id}')" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'/></svg>')">
-                                <option value="Pending" ${row.status=='Pending'?'selected':''}>Pending</option>
+                                <option value="Pending" ${row.status=='Pending'?'selected':''}>PENDING</option>
                                 <option value="In Progress" ${row.status=='In Progress'?'selected':''}>In Progress</option>
-                                <option value="Hold" ${row.status=='Hold'?'selected':''}>Hold</option>
-                                <option value="Done" ${row.status=='Done'?'selected':''}>Done</option>
+                                <option value="Hold" ${row.status=='Hold'?'selected':''}>HOLD</option>
+                                <option value="Done" ${row.status=='Done'?'selected':''}>DONE</option>
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
@@ -428,11 +428,14 @@
         }
 
         async function saveMain(id) {
+            const sVal = document.getElementById(`start-${id}`).value;
+            const eVal = document.getElementById(`end-${id}`).value;
+
             const payload = {
                 status: document.getElementById(`stat-${id}`).value,
                 progress_percent: document.getElementById(`prog-${id}`).value,
-                work_start_time: document.getElementById(`start-${id}`).value,
-                work_end_time: document.getElementById(`end-${id}`).value,
+                work_start_time: sVal ? sVal : null,
+                work_end_time: eVal ? eVal : null,
                 job_type: document.getElementById(`job-${id}`).value,
                 hold_reason: document.getElementById(`hold-${id}`).value
             };
@@ -446,7 +449,6 @@
             }
         }
 
-        // --- MODAL FUNCTIONS (SAME) ---
         function openSubtaskModal() {
             document.getElementById('modal-title').innerText = "Tambah Rincian";
             document.getElementById('modal-subtask-id').value = ""; 
@@ -486,13 +488,16 @@
             const desc = document.getElementById('modal-desc').value;
             if(!parentId || !desc) return alert("Lengkapi data!");
 
+            const sVal = document.getElementById('modal-start').value;
+            const eVal = document.getElementById('modal-finish').value;
+
             const payload = {
                 parent_task_id: parentId,
                 subtask_desc: desc,
                 priority: document.getElementById('modal-prio').value,
                 progress_percent: document.getElementById('modal-prog').value,
-                start_date: document.getElementById('modal-start').value || null,
-                end_date: document.getElementById('modal-finish').value || null,
+                start_date: sVal ? sVal : null,
+                end_date: eVal ? eVal : null,
                 job_type: document.getElementById('modal-job').value,
                 worker_notes: document.getElementById('modal-note').value,
                 status: document.getElementById('modal-status').value
