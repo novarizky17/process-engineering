@@ -48,7 +48,7 @@
         .no-print { 
             position: fixed; 
             top: 20px; left: 20px; 
-            width: 280px; /* Sedikit diperlebar */
+            width: 280px; 
             background: #ffffff; 
             padding: 20px; 
             border-radius: 12px; 
@@ -56,6 +56,8 @@
             z-index: 9999; 
             border: 1px solid #f0f0f0;
             transition: all 0.3s ease;
+            max-height: 90vh; /* Agar bisa scroll kalau layar kecil */
+            overflow-y: auto;
         }
 
         .no-print:hover {
@@ -73,8 +75,8 @@
             padding-bottom: 10px;
         }
 
-        .input-group { margin-bottom: 12px; }
-        .input-label { font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block; }
+        .input-group { margin-bottom: 10px; }
+        .input-label { font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 3px; display: block; }
         
         .inp { 
             width: 100%; 
@@ -197,8 +199,18 @@
         <div class="panel-header">🎛️ PANEL KONTROL</div>
         
         <div class="input-group">
-            <span class="input-label">Cari (Mold / Mesin / Project)</span>
-            <input type="text" id="filter-text" class="inp" placeholder="Ketik Mold / Mesin / Project...">
+            <span class="input-label">Cari Nama Mold</span>
+            <input type="text" id="filter-mold" class="inp" placeholder="Ketik Nama Mold...">
+        </div>
+
+        <div class="input-group">
+            <span class="input-label">Cari Nama Mesin</span>
+            <input type="text" id="filter-mesin" class="inp" placeholder="Ketik Nama Mesin...">
+        </div>
+
+        <div class="input-group">
+            <span class="input-label">Cari Project</span>
+            <input type="text" id="filter-project" class="inp" placeholder="Ketik Nama Project...">
         </div>
 
         <div class="input-group">
@@ -303,21 +315,22 @@
         };
 
         async function fetchData() {
-            const filterText = document.getElementById('filter-text').value; // Ambil Input Teks
+            // AMBIL INPUT DARI 4 KOLOM
+            const moldName = document.getElementById('filter-mold').value;
+            const mesinName = document.getElementById('filter-mesin').value;
+            const projectName = document.getElementById('filter-project').value;
             const date = document.getElementById('filter-date').value;
             
             let q = _sb.from('checklist_trial').select('*').order('created_at', {ascending:false});
 
-            // LOGIKA PENCARIAN GABUNGAN (OR)
-            if(filterText) {
-                // Mencari di Nama Mold, Nama Mesin, atau Nama Project
-                q = q.or(`mold_name.ilike.%${filterText}%,machine_name.ilike.%${filterText}%,project_name.ilike.%${filterText}%,mold_code.ilike.%${filterText}%`);
-            }
-
+            // FILTER DINAMIS (HANYA JIKA DIISI)
+            if(moldName) q = q.ilike('mold_name', `%${moldName}%`);
+            if(mesinName) q = q.ilike('machine_name', `%${mesinName}%`);
+            if(projectName) q = q.ilike('project_name', `%${projectName}%`);
             if(date) q = q.eq('trial_date', date);
 
             const { data, error } = await q.limit(1); // Ambil 1 data teratas sesuai filter
-            if(error || !data.length) return alert("Data tidak ditemukan!");
+            if(error || !data.length) return alert("Data tidak ditemukan! Coba cek input pencarian.");
             
             const r = data[0];
             document.getElementById('d-project').innerText = r.project_name || '-';
