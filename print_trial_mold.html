@@ -56,7 +56,7 @@
             z-index: 9999; 
             border: 1px solid #f0f0f0;
             transition: all 0.3s ease;
-            max-height: 90vh; /* Agar bisa scroll kalau layar kecil */
+            max-height: 90vh;
             overflow-y: auto;
         }
 
@@ -200,18 +200,18 @@
         
         <div class="input-group">
             <span class="input-label">Cari Nama Mold</span>
-            <input type="text" id="filter-mold" class="inp" placeholder="Ketik Nama Mold...">
-        </div>
+            <input type="text" id="filter-mold" class="inp" list="list-mold" placeholder="Pilih atau Ketik...">
+            <datalist id="list-mold"></datalist> </div>
 
         <div class="input-group">
             <span class="input-label">Cari Nama Mesin</span>
-            <input type="text" id="filter-mesin" class="inp" placeholder="Ketik Nama Mesin...">
-        </div>
+            <input type="text" id="filter-mesin" class="inp" list="list-mesin" placeholder="Pilih atau Ketik...">
+            <datalist id="list-mesin"></datalist> </div>
 
         <div class="input-group">
             <span class="input-label">Cari Project</span>
-            <input type="text" id="filter-project" class="inp" placeholder="Ketik Nama Project...">
-        </div>
+            <input type="text" id="filter-project" class="inp" list="list-project" placeholder="Pilih atau Ketik...">
+            <datalist id="list-project"></datalist> </div>
 
         <div class="input-group">
             <span class="input-label">Pilih Tanggal</span>
@@ -271,7 +271,7 @@
                     </tr>
                 </thead>
                 <tbody id="table-body">
-                    <tr><td colspan="5" style="text-align:center; padding:30px; color:#aaa;">DATA BELUM DIMUAT...</td></tr>
+                    <tr><td colspan="5" style="text-align:center; padding:30px; color:#aaa;">SILAHKAN CARI DATA TERLEBIH DAHULU...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -314,8 +314,38 @@
             "APD Lengkap": "sf1", "Safety Gate": "sf2", "Emergency Stop": "sf3"
         };
 
+        // === FUNGSI UNTUK ISI DROPDOWN OTOMATIS ===
+        async function populateDropdowns() {
+            // Ambil semua data nama mold, mesin, project dari database
+            const { data, error } = await _sb.from('checklist_trial').select('mold_name, machine_name, project_name');
+            
+            if (error || !data) return;
+
+            // Filter data unik (menghapus duplikat)
+            const uniqueMold = [...new Set(data.map(item => item.mold_name).filter(i => i))].sort();
+            const uniqueMesin = [...new Set(data.map(item => item.machine_name).filter(i => i))].sort();
+            const uniqueProject = [...new Set(data.map(item => item.project_name).filter(i => i))].sort();
+
+            // Masukkan ke dalam Datalist HTML
+            fillDatalist('list-mold', uniqueMold);
+            fillDatalist('list-mesin', uniqueMesin);
+            fillDatalist('list-project', uniqueProject);
+        }
+
+        function fillDatalist(elementId, items) {
+            const datalist = document.getElementById(elementId);
+            datalist.innerHTML = ''; // Kosongkan dulu
+            items.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                datalist.appendChild(option);
+            });
+        }
+
+        // Panggil fungsi isi dropdown saat halaman dimuat
+        window.onload = populateDropdowns;
+
         async function fetchData() {
-            // AMBIL INPUT DARI 4 KOLOM
             const moldName = document.getElementById('filter-mold').value;
             const mesinName = document.getElementById('filter-mesin').value;
             const projectName = document.getElementById('filter-project').value;
@@ -323,14 +353,13 @@
             
             let q = _sb.from('checklist_trial').select('*').order('created_at', {ascending:false});
 
-            // FILTER DINAMIS (HANYA JIKA DIISI)
             if(moldName) q = q.ilike('mold_name', `%${moldName}%`);
             if(mesinName) q = q.ilike('machine_name', `%${mesinName}%`);
             if(projectName) q = q.ilike('project_name', `%${projectName}%`);
             if(date) q = q.eq('trial_date', date);
 
-            const { data, error } = await q.limit(1); // Ambil 1 data teratas sesuai filter
-            if(error || !data.length) return alert("Data tidak ditemukan! Coba cek input pencarian.");
+            const { data, error } = await q.limit(1); 
+            if(error || !data.length) return alert("Data tidak ditemukan! Coba cek filter pencarian.");
             
             const r = data[0];
             document.getElementById('d-project').innerText = r.project_name || '-';
