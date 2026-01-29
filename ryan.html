@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Ryan (Ultimate)</title>
+    <title>Work Panel - Ryan (Premium UI)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,52 +13,63 @@
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #f1f5f9; 
+            background-color: #f8fafc; 
             color: #334155;
             font-size: 13px;
             overflow-x: hidden;
         }
 
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Table Inputs */
-        .table-input {
-            background: #ffffff;
+        /* --- MODERN INPUT STYLES --- */
+        .modern-input {
+            background-color: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 6px 8px;
+            border-radius: 8px; /* Sudut lebih bulat */
+            padding: 8px 12px;
             width: 100%;
             font-size: 12px;
-            color: #334155;
-            transition: all 0.2s;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* Sedikit bayangan */
         }
-        .table-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+        
+        .modern-input:focus { 
+            border-color: #3b82f6; 
+            background-color: #fff;
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); /* Efek Ring saat aktif */
+        }
 
-        /* --- STYLE BARU UNTUK STATUS & JOB --- */
+        .modern-input::placeholder { color: #cbd5e1; font-weight: 500; }
+
+        /* --- MODERN BADGE SELECT (PILL SHAPE) --- */
         .badge-select {
             appearance: none;
-            padding: 6px 28px 6px 12px;
-            border-radius: 999px; /* Pill Shape */
+            padding: 6px 28px 6px 14px;
+            border-radius: 999px; /* Bentuk Kapsul */
             font-size: 11px;
             font-weight: 800;
-            cursor: pointer;
-            border: 1px solid transparent;
-            text-align: center;
-            /* Custom Arrow Icon yang lebih rapi */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='3'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.7rem center;
-            background-size: 0.8em;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            text-align: left;
             width: 100%;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.2s;
+            /* Custom Arrow Icon */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.8rem center;
+            background-size: 0.8em;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
-        .badge-select:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-        .badge-select:focus { outline: none; ring: 2px solid rgba(59, 130, 246, 0.2); }
+        .badge-select:hover { filter: brightness(0.97); transform: translateY(-1px); }
+        .badge-select:focus { outline: none; ring: 2px solid rgba(59, 130, 246, 0.3); }
 
         /* Floating Button */
         .fab {
@@ -80,7 +91,7 @@
         }
         .modal-box {
             background: white; width: 100%; max-width: 600px;
-            border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             max-height: 90vh; overflow-y: auto;
             animation: popUp 0.3s ease-out;
         }
@@ -93,7 +104,7 @@
         }
         .modal-input:focus { border-color: #3b82f6; background-color: #eff6ff; }
 
-        /* Badges static */
+        /* Static Badges */
         .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-mid { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
@@ -104,7 +115,7 @@
             border-left: 2px dashed #cbd5e1;
             border-bottom: 2px dashed #cbd5e1;
             height: 25px; width: 15px;
-            display: inline-block; margin-right: 5px; margin-bottom: 4px;
+            display: inline-block; margin-right: 8px; margin-bottom: 5px;
         }
     </style>
 </head>
@@ -176,14 +187,14 @@
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] uppercase font-bold tracking-wider">
                             <th class="px-6 py-4 w-[250px]">Project / Mesin</th>
-                            <th class="px-6 py-4 min-w-[400px]">Rincian Tugas & Sub-Task</th>
-                            <th class="px-4 py-4 text-center w-[100px]">Priority</th>
+                            <th class="px-6 py-4 min-w-[380px]">Rincian Tugas & Sub-Task</th>
+                            <th class="px-4 py-4 text-center w-[80px]">Priority</th>
                             <th class="px-4 py-4 text-center w-[120px]">Progress (%)</th>
                             <th class="px-4 py-4 text-center w-[150px]">Start Date</th>
                             <th class="px-4 py-4 text-center w-[150px]">Finish Date</th>
-                            <th class="px-4 py-4 text-center w-[140px]">Jenis Pekerjaan</th>
-                            <th class="px-4 py-4 text-left w-[220px]">Keterangan</th>
-                            <th class="px-4 py-4 text-center w-[150px]">Status</th>
+                            <th class="px-4 py-4 text-center w-[160px]">Jenis Pekerjaan</th>
+                            <th class="px-4 py-4 text-left w-[200px]">Keterangan</th>
+                            <th class="px-4 py-4 text-center w-[160px]">Status</th>
                             <th class="px-4 py-4 text-center w-[70px]">Aksi</th>
                         </tr>
                     </thead>
@@ -199,7 +210,7 @@
         <div class="modal-box">
             <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50 rounded-t-2xl">
                 <div><h3 id="modal-title" class="text-lg font-extrabold text-slate-800">TAMBAH RINCIAN</h3><p class="text-xs text-slate-500 mt-1">Input sub-task pekerjaan baru</p></div>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 text-xl"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 text-xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="p-6 space-y-5">
                 <input type="hidden" id="modal-subtask-id">
@@ -258,7 +269,7 @@
             return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear().toString().substr(-2)} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
         }
 
-        // --- HELPER WARNA ---
+        // --- HELPER WARNA UNTUK BADGE SELECT ---
         function getJobClass(job) {
             switch(job) {
                 case 'Improvement': return 'bg-blue-100 text-blue-700 border-blue-200';
@@ -266,21 +277,20 @@
                 case 'Perawatan': return 'bg-amber-100 text-amber-700 border-amber-200';
                 case 'New Project': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
                 case 'Trial': return 'bg-pink-100 text-pink-700 border-pink-200';
-                default: return 'bg-slate-50 text-slate-500 border-slate-200';
+                default: return 'bg-white text-slate-500 border-slate-200';
             }
         }
 
         function getStatusClass(status) {
             switch(status) {
-                case 'Pending': return 'bg-amber-100 text-amber-700 border-amber-200';
-                case 'In Progress': return 'bg-blue-100 text-blue-700 border-blue-200';
-                case 'Hold': return 'bg-rose-100 text-rose-700 border-rose-200';
-                case 'Done': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-                default: return 'bg-slate-100 text-slate-600 border-slate-200';
+                case 'Pending': return 'bg-amber-50 text-amber-600 border-amber-200';
+                case 'In Progress': return 'bg-blue-50 text-blue-600 border-blue-200';
+                case 'Hold': return 'bg-rose-50 text-rose-600 border-rose-200';
+                case 'Done': return 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                default: return 'bg-white text-slate-500 border-slate-200';
             }
         }
 
-        // Fungsi Update Warna saat Dropdown Diganti
         function updateSelectColor(el, type) {
             if(type === 'job') el.className = `badge-select ${getJobClass(el.value)}`;
             if(type === 'status') el.className = `badge-select ${getStatusClass(el.value)}`;
@@ -323,7 +333,7 @@
                 const statusClass = getStatusClass(row.status);
                 
                 let mainRow = `
-                    <tr class="bg-white border-b border-slate-100 hover:bg-blue-50/30 transition-colors">
+                    <tr class="bg-white border-b border-slate-100 hover:bg-blue-50/20 transition-colors group">
                         <td class="px-6 py-5 align-top border-l-4 border-blue-500 pl-5">
                             <div class="font-extrabold text-slate-800 text-sm uppercase tracking-tight">${row.project_name}</div>
                             <div class="text-[11px] text-slate-400 mt-1 font-bold bg-slate-100 inline-block px-2 py-0.5 rounded">${row.machine_name || '-'}</div>
@@ -337,13 +347,13 @@
                         <td class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
                         <td class="px-4 py-5 align-top">
                             <div class="flex items-center gap-2 justify-center">
-                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold">
+                                <input type="number" id="prog-${row.id}" value="${progress}" class="modern-input text-center w-16 bg-slate-50 font-bold" onchange="saveMain('${row.id}')">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
                             <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="bg-blue-600 h-full transition-all duration-500" style="width:${progress}%"></div></div>
                         </td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-center"></td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-center"></td>
+                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="modern-input text-center"></td>
+                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="modern-input text-center"></td>
                         <td class="px-4 py-5 align-top text-center">
                             <select id="job-${row.id}" onchange="updateSelectColor(this, 'job')" class="badge-select ${jobClass}">
                                 <option value="-" ${row.job_type=='-'?'selected':''}>-</option>
@@ -355,7 +365,7 @@
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top">
-                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold...">${row.hold_reason||''}</textarea>
+                            <textarea id="hold-${row.id}" class="modern-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan...">${row.hold_reason||''}</textarea>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
                             <select id="stat-${row.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusClass}">
@@ -366,7 +376,7 @@
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
-                             <button class="w-10 h-10 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md flex items-center justify-center mx-auto" onclick="saveMain('${row.id}')" title="Simpan">
+                             <button class="w-10 h-10 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md flex items-center justify-center mx-auto hover:scale-105 active:scale-95" onclick="saveMain('${row.id}')" title="Simpan">
                                 <i class="fa-solid fa-floppy-disk text-lg"></i>
                              </button>
                         </td>
@@ -375,11 +385,11 @@
 
                 let subRows = mySubtasks.map(sub => {
                     let badgeClass = sub.priority === 'High' ? 'badge-high' : (sub.priority === 'Mid' ? 'badge-mid' : 'badge-low');
-                    let jobBadgeClass = getJobClass(sub.job_type); 
-                    let statusBadgeClass = getStatusClass(sub.status); 
+                    let jobBadge = getJobClass(sub.job_type); 
+                    let statusBadge = getStatusClass(sub.status);
                     
                     return `
-                    <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white">
+                    <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white transition-colors">
                         <td class="px-6 py-3 text-right align-middle">
                             <div class="flex items-center justify-end gap-2">
                                 <div class="tree-line"></div>
@@ -403,10 +413,10 @@
                         <td class="px-4 py-3 text-center align-middle text-[10px] font-mono text-slate-500">${formatTime(sub.start_date)}</td>
                         <td class="px-4 py-3 text-center align-middle text-[10px] font-mono text-slate-500">${formatTime(sub.end_date)}</td>
                         <td class="px-4 py-3 text-center align-middle">
-                            ${sub.job_type && sub.job_type !== '-' ? `<span class="badge ${jobBadgeClass.replace('badge-select', '')} border">${sub.job_type}</span>` : '-'}
+                            ${sub.job_type && sub.job_type !== '-' ? `<span class="badge-select py-1 px-3 text-[10px] ${jobBadge} border-none pointer-events-none">${sub.job_type}</span>` : '-'}
                         </td>
                         <td class="px-4 py-3 align-middle text-[11px] italic text-slate-500 truncate max-w-[200px]" title="${sub.worker_notes}">${sub.worker_notes || '-'}</td>
-                        <td class="px-4 py-3 text-center align-middle"><span class="badge ${statusBadgeClass.replace('badge-select', '')} border">${sub.status}</span></td>
+                        <td class="px-4 py-3 text-center align-middle"><span class="badge-select py-1 px-3 text-[10px] ${statusBadge} border-none pointer-events-none">${sub.status}</span></td>
                         <td></td>
                     </tr>
                     `;
@@ -438,7 +448,7 @@
             }
         }
 
-        // --- MODAL FUNCTIONS (SAME) ---
+        // --- MODAL FUNCTIONS ---
         function openSubtaskModal() {
             document.getElementById('modal-title').innerText = "Tambah Rincian";
             document.getElementById('modal-subtask-id').value = ""; 
