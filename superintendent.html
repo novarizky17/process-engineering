@@ -240,7 +240,7 @@
             if (statusText === 'Approved') statusClass = 'status-approved';
             else if (statusText === 'Rejected') statusClass = 'status-rejected';
 
-            // PAKAI formatDate() UNTUK TAMPILAN TABEL
+            // PAKAI formatDate() UNTUK TAMPILAN TABEL WEB
             if (currentTab === 'rutin') {
                 return `<tr>
                     <td><strong>${row.pelaksana?.nama_pelaksana || '-'}</strong></td>
@@ -269,12 +269,14 @@
 
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
+    // === FUNGSI DOWNLOAD EXCEL SESUAI REQUEST ===
     function downloadExcel() {
         if (!filteredData || filteredData.length === 0) {
             alert("Tidak ada data untuk diunduh!");
             return;
         }
         let dataToExport = [];
+        
         if (currentTab === 'rutin') {
             dataToExport = filteredData.map(row => ({
                 "Pelaksana": row.pelaksana?.nama_pelaksana || '-',
@@ -282,8 +284,8 @@
                 "Equipment": row.pelaksana?.nama_tools || '-',
                 "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
                 "Week": row.pelaksana?.week || '-',
-                "Keterangan Pelaksana": row.keterangan || '-',
-                "Catatan Superintendent": row.keterangan_superintendent || '-',
+                "Keterangan": row.keterangan || '-', // Header diubah jadi 'Keterangan'
+                // Catatan Super DIHAPUS dari sini
                 "Status": row.status || 'Pending'
             }));
         } else {
@@ -295,17 +297,20 @@
                 "Kode Mold": row.mold_code || '-',
                 "Nama Mold": row.mold_name || '-',
                 "Tanggal Trial": formatDate(row.trial_date),
-                "Keterangan Super": row.keterangan_superintendent || '-',
+                // Catatan Super DIHAPUS dari sini
                 "Status": row.status || 'Pending'
             }));
         }
+        
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         
-        // SETTING LEBAR KOLOM EXCEL (Equipment/Mesin diperlebar jadi 40)
+        // SETTING LEBAR KOLOM EXCEL (Equipment/Mesin = 40)
         if (currentTab === 'rutin') {
-            ws['!cols'] = [{wch:25}, {wch:25}, {wch:40}, {wch:15}, {wch:8}, {wch:40}, {wch:40}, {wch:15}];
+            // Kolom dikurangi 1 (Catatan Super hilang)
+            ws['!cols'] = [{wch:25}, {wch:25}, {wch:40}, {wch:15}, {wch:8}, {wch:50}, {wch:15}];
         } else {
-            ws['!cols'] = [{wch:25}, {wch:25}, {wch:40}, {wch:25}, {wch:20}, {wch:25}, {wch:15}, {wch:40}, {wch:15}];
+            // Kolom dikurangi 1 (Catatan Super hilang)
+            ws['!cols'] = [{wch:25}, {wch:25}, {wch:40}, {wch:25}, {wch:20}, {wch:25}, {wch:15}, {wch:15}];
         }
 
         const wb = XLSX.utils.book_new();
