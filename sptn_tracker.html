@@ -271,13 +271,16 @@
                     <input type="date" id="rev-due" class="edit-input">
                 </div>
                 <div class="md:col-span-2 space-y-4 pt-2 border-t mt-2">
-                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
-                        <label class="text-[10px] font-black text-blue-400 uppercase">Activity (Update Lapangan)</label>
-                        <textarea id="rev-activity" class="edit-input !bg-transparent border-none font-semibold text-blue-800 uppercase h-16 w-full resize-none"></textarea>
-                    </div>
                     <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
                         <label class="text-[10px] font-black text-rose-400 uppercase">Keterangan (Hold Reason)</label>
                         <textarea id="rev-hold" class="edit-input !bg-transparent border-none font-bold text-rose-600 italic h-16 w-full resize-none"></textarea>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 border-t pt-4 mt-2">
+                    <h3 class="text-sm font-bold text-slate-600 mb-2 uppercase">Sub-Tasks</h3>
+                    <div id="rev-subtasks" class="space-y-2 max-h-40 overflow-y-auto">
+                        <div class="text-xs text-center text-slate-400 italic p-2">Memuat sub-tasks...</div>
                     </div>
                 </div>
             </div>
@@ -294,7 +297,7 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let allData = [];
-        let currentPickerTarget = ""; // Untuk tau input mana yang lagi diklik
+        let currentPickerTarget = ""; 
 
         // DATA MASTER (STATIC + DYNAMIC)
         const MASTER_DATA = {
@@ -310,8 +313,8 @@
                 "FCS 100 T (NICK FURRY)", "FCS 250 T (CYCLOPS)", "NPC 260 T (HAWKEYE)", "EXTRUDER"
             ],
             personnel: ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"],
-            project: [], // Akan diisi dari database
-            task: []     // Akan diisi dari database
+            project: [], 
+            task: []     
         };
 
         async function fetchProjectData() {
@@ -319,7 +322,6 @@
             if (error) return;
             allData = data;
             
-            // UPDATE DATA MASTER DARI DATABASE
             MASTER_DATA.project = [...new Set(data.map(i => (i.project_name || "").toUpperCase()))].sort();
             MASTER_DATA.task = [...new Set(data.map(i => (i.task_desc || "").trim()))].sort();
             const dbPersonnel = data.map(i => (i.assigned_to || "").toUpperCase());
@@ -329,14 +331,13 @@
             updateStats(allData);
         }
 
-        // --- FUNGSI PICKER POP-UP (SOLUSI ANDROID) ---
         function openPicker(type) {
             currentPickerTarget = type;
             const modal = document.getElementById('pickerModal');
             const title = document.getElementById('picker-title');
             const search = document.getElementById('picker-search');
             
-            search.value = ""; // Reset pencarian
+            search.value = ""; 
             document.getElementById('btn-add-new').classList.add('hidden'); 
 
             let items = [];
@@ -347,7 +348,7 @@
 
             renderPickerList(items);
             modal.style.display = 'block';
-            search.focus(); // Fokus ke pencarian otomatis
+            search.focus(); 
         }
 
         function renderPickerList(items) {
@@ -372,7 +373,6 @@
             const filtered = source.filter(item => item.toUpperCase().includes(query));
             renderPickerList(filtered);
 
-            // Jika mengetik sesuatu yang tidak ada di list, munculkan tombol "Gunakan Nama Ini"
             if(query.length > 0) {
                 btnAdd.classList.remove('hidden');
                 btnAdd.innerText = `+ PAKAI: "${query}"`;
@@ -402,8 +402,7 @@
         function closePicker(e) {
             if(e.target.id === 'pickerModal') e.target.style.display = 'none';
         }
-        // -----------------------------------------------------
-
+        
         function toggleProjectMode() {
             const mode = document.querySelector('input[name="proj_mode"]:checked').value;
             const inputExisting = document.getElementById('in-project-existing');
@@ -537,7 +536,6 @@
             document.getElementById('rev-priority').value = row.priority || 'Mid';
             document.getElementById('rev-due').value = row.due_date;
             document.getElementById('rev-progress').value = row.progress_percent || 0;
-            document.getElementById('rev-activity').value = row.worker_comment || '';
             document.getElementById('rev-hold').value = row.hold_reason || '';
             
             const alertBox = document.getElementById('rev-late-alert');
@@ -554,8 +552,40 @@
                 alertBox.classList.add('hidden');
             }
 
+            // --- FETCH SUB-TASKS ---
+            fetchSubTasks(row.id);
+
             document.getElementById('reviewModal').style.display = 'block';
         }
+
+        async function fetchSubTasks(taskId) {
+            const container = document.getElementById('rev-subtasks');
+            container.innerHTML = '<div class="text-xs text-center text-slate-400 italic p-2">Memuat...</div>';
+
+            const { data, error } = await _sb.from('employee_subtasks').select('*').eq('parent_task_id', taskId).order('created_at', { ascending: true });
+
+            if (error || !data || data.length === 0) {
+                container.innerHTML = '<div class="text-xs text-center text-slate-400 italic p-2">Tidak ada sub-task.</div>';
+                return;
+            }
+
+            container.innerHTML = data.map(sub => {
+                const sColor = sub.status === 'Done' ? 'text-emerald-600 bg-emerald-50' : (sub.status === 'Hold' ? 'text-rose-600 bg-rose-50' : 'text-blue-600 bg-blue-50');
+                return `
+                    <div class="bg-white p-2 rounded border border-slate-200 flex justify-between items-center">
+                        <div class="w-2/3">
+                            <p class="text-xs font-bold text-slate-700 truncate">${sub.subtask_desc}</p>
+                            <p class="text-[10px] text-slate-400 italic truncate">${sub.worker_notes || 'No Notes'}</p>
+                        </div>
+                        <div class="text-right">
+                             <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase ${sColor}">${sub.status}</span>
+                             <div class="text-[10px] font-bold text-slate-500 mt-0.5">${sub.progress_percent}%</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
 
         function closeReviewModal() { document.getElementById('reviewModal').style.display = 'none'; }
 
@@ -574,7 +604,7 @@
                 progress_percent: progress,
                 status: status,
                 due_date: document.getElementById('rev-due').value,
-                worker_comment: document.getElementById('rev-activity').value,
+                // worker_comment dihapus
                 hold_reason: document.getElementById('rev-hold').value
             }).eq('id', id);
 
