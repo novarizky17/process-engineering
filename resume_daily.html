@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Daily Report - Analytics (High Contrast)</title>
+    <title>Resume Daily Report - Final Complete</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -24,16 +24,23 @@
         .card-eko { background-color: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
         .card-tata { background-color: #fff1f2; border-color: #fecdd3; color: #9f1239; }
         .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
+        
+        /* Modal Styles */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
         .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; max-height: 90vh; }
+        
+        /* Pop-up Detail (Nested Modal) */
         .popup-modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); justify-content: center; align-items: center; }
         .popup-content { background: white; border-radius: 20px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; position: relative; animation: zoomIn 0.2s ease-out; padding: 25px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 8px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.8s ease-out; }
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
         @keyframes zoomIn { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        /* Card Style */
         .task-card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); position: relative; overflow: hidden; transition: all 0.2s; cursor: pointer; }
         .task-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.1); border-color: #cbd5e1; }
         .left-border { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; }
@@ -288,7 +295,7 @@
             renderGroupedTable(search);
         }
 
-        // RENDER GROUPED TABLE
+        // --- RENDER TABEL (GROUPED) ---
         function renderGroupedTable(searchTerm = "") {
             const tbody = document.getElementById('resume-body');
             const projectNames = Object.keys(groupedData).filter(name => name.toLowerCase().includes(searchTerm));
@@ -328,45 +335,6 @@
                     </td>
                 </tr>`;
             }).join('');
-        }
-
-        // --- DASHBOARD CHART WITH DATA LABELS ---
-        function switchChart(type) {
-            document.querySelectorAll('.btn-toggle').forEach(btn => btn.classList.remove('btn-active'));
-            document.getElementById('btn-' + type)?.classList.add('btn-active');
-            const ctx = document.getElementById('projectChart').getContext('2d');
-            if (projectChart) projectChart.destroy();
-            const personnel = ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
-            const colors = ['#3b82f6', '#6366f1', '#f59e0b', '#10b981', '#f43f5e', '#475569'];
-            let dataArr = personnel.map(n => {
-                if(type === 'person') return rawData.filter(r => r.assigned_to === n).length;
-                return rawData.filter(r => r.assigned_to === n && r.status === type).length;
-            });
-            
-            projectChart = new Chart(ctx, { 
-                type: 'bar', 
-                data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: colors, borderRadius: 6 }] },
-                plugins: [ChartDataLabels], // ACTIVATE PLUGIN
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    layout: { padding: { top: 30 } }, // Add padding for labels
-                    plugins: { 
-                        legend: {display: false},
-                        datalabels: { // CONFIG DATALABELS
-                            anchor: 'end',
-                            align: 'top',
-                            color: '#0f172a',
-                            font: { weight: '900', size: 14 },
-                            backgroundColor: 'rgba(255,255,255,0.8)',
-                            borderRadius: 4,
-                            padding: 4,
-                            formatter: (value) => value > 0 ? value : ''
-                        }
-                    },
-                    scales: { y: { beginAtZero: true, grace: '5%' } }
-                } 
-            });
         }
 
         // --- GROUP DETAIL MODAL ---
@@ -504,6 +472,106 @@
 
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
+        // --- EXPORT LENGKAP (PARENT + SUBTASK) ---
+        function exportToExcel() {
+            if (rawData.length === 0) return alert("Tidak ada data untuk di-export!");
+            
+            const exportData = [];
+
+            // Iterate over all parent tasks
+            rawData.forEach((parent, index) => {
+                // Find children
+                const children = allSubtasks.filter(s => s.parent_task_id == parent.id);
+
+                if (children.length > 0) {
+                    // If has children, create a row for each
+                    children.forEach(child => {
+                        exportData.push({
+                            'No': exportData.length + 1,
+                            'Project Name': (parent.project_name || "").toUpperCase(),
+                            'PIC': parent.assigned_to,
+                            'Parent Task': parent.task_desc,
+                            'Parent Status': parent.status,
+                            'Parent Progress (%)': parent.progress_percent,
+                            'Parent Start': formatDateTimeClean(parent.start_date),
+                            'Parent Due': formatDateTimeClean(parent.due_date),
+                            'Parent Hold Reason': parent.hold_reason || "-",
+                            'Parent Comment': parent.worker_comment || "-",
+                            '--- SUBTASK INFO ---': '>>>', 
+                            'Subtask Detail': child.subtask_desc,
+                            'Subtask Status': child.status,
+                            'Subtask Progress (%)': child.progress_percent,
+                            'Subtask Note': child.worker_notes || "-",
+                            'Subtask Start': formatDateTimeClean(child.start_date),
+                            'Subtask End': formatDateTimeClean(child.end_date)
+                        });
+                    });
+                } else {
+                    // If no children, create single row for parent
+                    exportData.push({
+                        'No': exportData.length + 1,
+                        'Project Name': (parent.project_name || "").toUpperCase(),
+                        'PIC': parent.assigned_to,
+                        'Parent Task': parent.task_desc,
+                        'Parent Status': parent.status,
+                        'Parent Progress (%)': parent.progress_percent,
+                        'Parent Start': formatDateTimeClean(parent.start_date),
+                        'Parent Due': formatDateTimeClean(parent.due_date),
+                        'Parent Hold Reason': parent.hold_reason || "-",
+                        'Parent Comment': parent.worker_comment || "-",
+                        '--- SUBTASK INFO ---': '>>>',
+                        'Subtask Detail': '- TIDAK ADA SUBTASK -',
+                        'Subtask Status': '-',
+                        'Subtask Progress (%)': '-',
+                        'Subtask Note': '-',
+                        'Subtask Start': '-',
+                        'Subtask End': '-'
+                    });
+                }
+            });
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const colWidths = Object.keys(exportData[0]).map(() => ({ wch: 25 }));
+            ws['!cols'] = colWidths;
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Laporan Lengkap");
+            XLSX.writeFile(wb, "Resume_Daily_Report_FULL.xlsx");
+        }
+
+        // CHARTS & STATS WITH LABELS
+        function switchChart(type) {
+            document.querySelectorAll('.btn-toggle').forEach(btn => btn.classList.remove('btn-active'));
+            document.getElementById('btn-' + type)?.classList.add('btn-active');
+            const ctx = document.getElementById('projectChart').getContext('2d');
+            if (projectChart) projectChart.destroy();
+            const personnel = ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
+            const colors = ['#3b82f6', '#6366f1', '#f59e0b', '#10b981', '#f43f5e', '#475569'];
+            let dataArr = personnel.map(n => {
+                if(type === 'person') return rawData.filter(r => r.assigned_to === n).length;
+                return rawData.filter(r => r.assigned_to === n && r.status === type).length;
+            });
+            projectChart = new Chart(ctx, { 
+                type: 'bar', 
+                data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: colors, borderRadius: 6 }] }, 
+                plugins: [ChartDataLabels],
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 30 } },
+                    plugins: { 
+                        legend: {display: false},
+                        datalabels: {
+                            anchor: 'end', align: 'top', color: '#1e293b', font: { weight: '900', size: 14 },
+                            backgroundColor: 'rgba(255,255,255,0.8)', borderRadius: 4, padding: 4,
+                            formatter: (value) => value > 0 ? value : ''
+                        }
+                    },
+                    scales: { y: { beginAtZero: true, grace: '5%' } }
+                } 
+            });
+        }
+
         function renderProjectPieChart() {
             const ctx = document.getElementById('projectPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
@@ -514,37 +582,22 @@
             const finalOverallProgress = totalProjectCount > 0 ? (sumOfProjectAverages / totalProjectCount).toFixed(1) : 0;
             const displayValue = parseFloat(finalOverallProgress);
             document.getElementById('overall-prog-label').innerText = displayValue + '%';
-            
             pieChartInstance = new Chart(ctx, { 
                 type: 'doughnut', 
                 data: { labels: ['Selesai', 'Sisa'], datasets: [{ data: [displayValue, 100-displayValue], backgroundColor: ['#10b981', '#f1f5f9'], borderWidth: 0, cutout: '75%' }] }, 
-                plugins: [ChartDataLabels], // PLUGIN AKTIF
+                plugins: [ChartDataLabels],
                 options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
+                    responsive: true, maintainAspectRatio: false, 
                     plugins: { 
                         legend: { display: false },
-                        datalabels: { // KONFIGURASI ANGKA
-                            color: '#1e293b',
-                            font: { weight: '900', size: 16 },
+                        datalabels: {
+                            color: '#1e293b', font: { weight: '900', size: 16 },
                             formatter: (val, ctx) => ctx.dataIndex === 0 ? val + '%' : ''
                         }
                     } 
                 }, 
                 plugins: [{ id: 'centerText', beforeDraw: function(chart) { var width = chart.width, height = chart.height, ctx = chart.ctx; ctx.restore(); ctx.font = "bold 2.5em sans-serif"; ctx.textBaseline = "middle"; ctx.fillStyle = "#1e293b"; var text = displayValue + "%", textX = Math.round((width - ctx.measureText(text).width) / 2), textY = height / 2; ctx.fillText(text, textX, textY); ctx.save(); } }] 
             });
-        }
-
-        // EXPORT
-        function exportToExcel() {
-            if (rawData.length === 0) return alert("Tidak ada data!");
-            const exportData = rawData.map((r, index) => ({
-                'NO': index + 1, 'Project Name': r.project_name, 'Task': r.task_desc, 'Person': r.assigned_to, 'Status': r.status, 'Progress': r.progress_percent, 'Due Date': r.due_date
-            }));
-            const ws = XLSX.utils.json_to_sheet(exportData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Tasks");
-            XLSX.writeFile(wb, "Report.xlsx");
         }
 
         function updatePersonnelGrid() {
