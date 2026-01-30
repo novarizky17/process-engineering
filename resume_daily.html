@@ -488,7 +488,7 @@
             XLSX.writeFile(wb, "Report.xlsx");
         }
 
-        // CHARTS & STATS
+        // CHARTS & STATS WITH DATA LABELS
         function switchChart(type) {
             document.querySelectorAll('.btn-toggle').forEach(btn => btn.classList.remove('btn-active'));
             document.getElementById('btn-' + type)?.classList.add('btn-active');
@@ -500,7 +500,30 @@
                 if(type === 'person') return rawData.filter(r => r.assigned_to === n).length;
                 return rawData.filter(r => r.assigned_to === n && r.status === type).length;
             });
-            projectChart = new Chart(ctx, { type: 'bar', data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: colors, borderRadius: 6 }] }, options: { plugins: { legend: {display: false}, datalabels: { anchor: 'end', align: 'top', color: '#1e293b', font: {weight: 'bold', size: 12}, formatter: (v) => v > 0 ? v : '' } }, responsive: true, maintainAspectRatio: false } });
+            
+            projectChart = new Chart(ctx, { 
+                type: 'bar', 
+                data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: colors, borderRadius: 6 }] },
+                plugins: [ChartDataLabels],
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 25 } },
+                    plugins: { 
+                        legend: {display: false},
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#1e293b',
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (value) => value > 0 ? value : ''
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grace: '5%' }
+                    }
+                } 
+            });
         }
 
         function renderProjectPieChart() {
