@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Isyqi (Ultimate Fixed)</title>
+    <title>Work Panel - Isyqi (Cyan Theme)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,7 +13,7 @@
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #f8fafc; /* Latar sedikit lebih terang/biru muda */
+            background-color: #f8fafc;
             color: #334155;
             font-size: 13px;
             overflow-x: hidden;
@@ -23,7 +23,7 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Table Inputs - INDIGO THEME */
+        /* Table Inputs - CYAN THEME */
         .table-input {
             background: #ffffff;
             border: 1px solid #e2e8f0;
@@ -34,7 +34,8 @@
             color: #334155;
             transition: all 0.2s;
         }
-        .table-input:focus { border-color: #6366f1; outline: none; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1); }
+        /* Ubah fokus border ke Cyan */
+        .table-input:focus { border-color: #06b6d4; outline: none; box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.1); }
 
         /* Badge Select */
         .badge-select {
@@ -55,13 +56,13 @@
         }
         .badge-select:hover { transform: scale(1.02); }
 
-        /* Floating Button (INDIGO) */
+        /* Floating Button (CYAN) */
         .fab {
             position: fixed; bottom: 30px; right: 30px;
             width: 60px; height: 60px;
-            background: #4f46e5; color: white;
+            background: #0891b2; color: white; /* Cyan 600 */
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 30px; box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.6);
+            font-size: 30px; box-shadow: 0 10px 25px -5px rgba(8, 145, 178, 0.6);
             transition: transform 0.2s; z-index: 50; border: 4px solid white; cursor: pointer;
         }
         .fab:hover { transform: scale(1.1); }
@@ -69,7 +70,7 @@
         /* Modal Styles */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(30, 27, 75, 0.6); /* Gelap Indigo */
+            background: rgba(22, 78, 99, 0.7); /* Cyan Gelap Transparan */
             backdrop-filter: blur(4px);
             z-index: 100; display: none; align-items: center; justify-content: center;
             padding: 20px;
@@ -84,11 +85,13 @@
 
         .modal-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; display: block; }
         .modal-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; }
-        .modal-input:focus { border-color: #6366f1; background-color: #eef2ff; }
+        /* Ubah fokus input modal ke Cyan */
+        .modal-input:focus { border-color: #06b6d4; background-color: #ecfeff; }
 
         /* Badges */
         .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge-mid { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; } /* Indigo theme */
+        /* Ubah badge mid ke tema Cyan */
+        .badge-mid { background: #cffafe; color: #0e7490; border: 1px solid #a5f3fc; } 
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
         .tree-line { border-left: 2px dashed #cbd5e1; border-bottom: 2px dashed #cbd5e1; height: 25px; width: 15px; display: inline-block; margin-right: 5px; margin-bottom: 4px; }
@@ -96,21 +99,21 @@
 </head>
 <body class="antialiased bg-slate-50">
 
-    <div class="bg-[#1e1b4b] border-b border-indigo-950 pt-8 pb-36 px-8 shadow-xl w-full relative">
+    <div class="bg-cyan-950 border-b border-cyan-900 pt-8 pb-36 px-8 shadow-xl w-full relative">
         <div class="flex justify-between items-center w-full max-w-[100%] mx-auto">
             <div class="flex items-center gap-5">
-                <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-indigo-900/50">
+                <div class="w-12 h-12 bg-cyan-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-cyan-900/50">
                     I
                 </div>
                 <div>
                     <h1 class="text-2xl font-extrabold text-white tracking-tight">Panel Kerja Isyqi</h1>
                     <div class="flex items-center gap-2 mt-1">
-                        <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
-                        <p class="text-xs text-indigo-200 font-semibold tracking-wide">Online &bull; Monitoring Tugas</p>
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                        <p class="text-xs text-cyan-200 font-semibold tracking-wide">Online &bull; Monitoring Tugas</p>
                     </div>
                 </div>
             </div>
-            <a href="employee_report.html" class="bg-indigo-900 hover:bg-indigo-800 text-white border border-indigo-800 px-6 py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center gap-2 shadow-md">
+            <a href="employee_report.html" class="bg-cyan-900 hover:bg-cyan-800 text-white border border-cyan-800 px-6 py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center gap-2 shadow-md">
                 <i class="fa-solid fa-arrow-left"></i> Kembali Menu
             </a>
         </div>
@@ -119,9 +122,9 @@
     <div class="w-full px-8 -mt-28 pb-32 relative z-10">
         
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 w-full">
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-indigo-500 flex justify-between items-center">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-cyan-500 flex justify-between items-center">
                 <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p><h3 id="stat-active" class="text-4xl font-black text-slate-800">0</h3></div>
-                <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 text-xl"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                <div class="w-12 h-12 bg-cyan-50 rounded-full flex items-center justify-center text-cyan-500 text-xl"><i class="fa-solid fa-spinner fa-spin"></i></div>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-amber-500 flex justify-between items-center">
                 <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p><h3 id="stat-pending" class="text-4xl font-black text-slate-800">0</h3></div>
@@ -141,11 +144,11 @@
             <div class="flex gap-4 w-full md:w-2/3">
                 <div class="relative flex-grow">
                     <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="text" id="search-input" oninput="filterTable()" placeholder="Cari Project, Mesin, atau Tugas..." class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:border-indigo-500 outline-none transition-all">
+                    <input type="text" id="search-input" oninput="filterTable()" placeholder="Cari Project, Mesin, atau Tugas..." class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:border-cyan-500 outline-none transition-all">
                 </div>
                 <div class="relative w-1/4">
                     <i class="fa-solid fa-filter absolute left-4 top-3.5 text-slate-400"></i>
-                    <select id="filter-priority" onchange="filterTable()" class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 outline-none cursor-pointer focus:bg-white focus:border-indigo-500 appearance-none">
+                    <select id="filter-priority" onchange="filterTable()" class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 outline-none cursor-pointer focus:bg-white focus:border-cyan-500 appearance-none">
                         <option value="">Semua Priority</option>
                         <option value="Low">Low Priority</option>
                         <option value="Mid">Mid Priority</option>
@@ -153,7 +156,7 @@
                     </select>
                 </div>
             </div>
-            <button onclick="fetchIsyqiTasks()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg text-sm font-bold uppercase shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+            <button onclick="fetchIsyqiTasks()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-lg text-sm font-bold uppercase shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                 <i class="fa-solid fa-arrows-rotate"></i> Refresh Data
             </button>
         </div>
@@ -191,9 +194,9 @@
             </div>
             <div class="p-6 space-y-5">
                 <input type="hidden" id="modal-subtask-id">
-                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                    <label class="modal-label text-indigo-700 uppercase tracking-wide">PILIH PROJECT UTAMA (WAJIB)</label>
-                    <select id="modal-parent-id" class="modal-input font-bold text-indigo-900 border-indigo-200 h-12"><option value="">-- Pilih Project --</option></select>
+                <div class="bg-cyan-50 p-4 rounded-xl border border-cyan-100">
+                    <label class="modal-label text-cyan-700 uppercase tracking-wide">PILIH PROJECT UTAMA (WAJIB)</label>
+                    <select id="modal-parent-id" class="modal-input font-bold text-cyan-900 border-cyan-200 h-12"><option value="">-- Pilih Project --</option></select>
                 </div>
                 <div><label class="modal-label">Nama Pekerjaan / Sub-Task</label><input type="text" id="modal-desc" class="modal-input" placeholder="Contoh: Bongkar Cylinder..."></div>
                 <div class="grid grid-cols-2 gap-5">
@@ -218,7 +221,7 @@
                     </div>
                     <div>
                         <label class="modal-label">Status</label>
-                        <select id="modal-status" class="modal-input font-bold text-indigo-600">
+                        <select id="modal-status" class="modal-input font-bold text-cyan-600">
                             <option value="Pending">Pending</option>
                             <option value="In Progress">In Progress</option>
                             <option value="Hold">Hold</option>
@@ -229,7 +232,7 @@
                 <div><label class="modal-label">Catatan Tambahan (Wajib jika HOLD)</label><textarea id="modal-note" class="modal-input h-20 resize-none" placeholder="Tulis catatan..."></textarea></div>
             </div>
             <div class="p-6 border-t border-slate-100 bg-slate-50">
-                <button onclick="saveSubtask()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg transition-all text-sm tracking-wide">Simpan Data</button>
+                <button onclick="saveSubtask()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg transition-all text-sm tracking-wide">Simpan Data</button>
             </div>
         </div>
     </div>
@@ -242,7 +245,7 @@
 
         function cleanTimestamp(dateStr) { return dateStr ? dateStr.substring(0, 16) : ''; }
 
-        // PERBAIKAN FORMAT JAM (UTC)
+        // FORMAT JAM (UTC)
         function formatTime(dateStr) {
             if (!dateStr) return '-';
             const date = new Date(dateStr);
@@ -257,10 +260,11 @@
             return `${day}/${month}/${year} ${hours}:${minutes}`;
         }
 
-        // --- HELPER WARNA (INDIGO THEME) ---
+        // --- HELPER WARNA (CYAN THEME) ---
+        // Mengubah warna default (Improvement/In Progress) menjadi Cyan
         function getJobClass(job) {
             switch(job) {
-                case 'Improvement': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+                case 'Improvement': return 'bg-cyan-50 text-cyan-700 border-cyan-200'; /* CYAN */
                 case 'Overhaul': return 'bg-purple-50 text-purple-700 border-purple-200';
                 case 'Perawatan': return 'bg-amber-50 text-amber-700 border-amber-200';
                 case 'New Project': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
@@ -272,7 +276,7 @@
         function getStatusClass(status) {
             switch(status) {
                 case 'Pending': return 'bg-amber-100 text-amber-700 border-amber-200';
-                case 'In Progress': return 'bg-indigo-100 text-indigo-700 border-indigo-200';
+                case 'In Progress': return 'bg-cyan-100 text-cyan-700 border-cyan-200'; /* CYAN */
                 case 'Hold': return 'bg-rose-100 text-rose-700 border-rose-200';
                 case 'Done': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
                 default: return 'bg-white text-slate-500 border-slate-200';
@@ -321,15 +325,16 @@
                 const jobClass = getJobClass(row.job_type); 
                 const statusClass = getStatusClass(row.status);
                 
+                // Hover row jadi Cyan muda
                 let mainRow = `
-                    <tr class="bg-white border-b border-slate-100 hover:bg-indigo-50/30 transition-colors">
-                        <td class="px-6 py-5 align-top border-l-4 border-indigo-500 pl-5">
+                    <tr class="bg-white border-b border-slate-100 hover:bg-cyan-50/30 transition-colors">
+                        <td class="px-6 py-5 align-top border-l-4 border-cyan-500 pl-5">
                             <div class="font-extrabold text-slate-800 text-sm uppercase tracking-tight">${row.project_name}</div>
                             <div class="text-[11px] text-slate-400 mt-1 font-bold bg-slate-100 inline-block px-2 py-0.5 rounded">${row.machine_name || '-'}</div>
                         </td>
                         <td class="px-6 py-5 align-top">
-                            <div class="bg-indigo-50 border border-indigo-100 px-4 py-3 rounded-xl text-indigo-900 font-medium relative shadow-sm">
-                                <span class="text-[9px] font-extrabold text-indigo-500 uppercase block mb-1 tracking-widest">Instruksi Utama</span>
+                            <div class="bg-cyan-50 border border-cyan-100 px-4 py-3 rounded-xl text-cyan-900 font-medium relative shadow-sm">
+                                <span class="text-[9px] font-extrabold text-cyan-500 uppercase block mb-1 tracking-widest">Instruksi Utama</span>
                                 "${row.task_desc || '-'}"
                             </div>
                         </td>
@@ -339,7 +344,7 @@
                                 <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold" onchange="saveMain('${row.id}')">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
-                            <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="bg-indigo-600 h-full transition-all duration-500" style="width:${progress}%"></div></div>
+                            <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="bg-cyan-600 h-full transition-all duration-500" style="width:${progress}%"></div></div>
                         </td>
                         <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" onchange="saveMain('${row.id}')" class="table-input text-center"></td>
                         <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" onchange="saveMain('${row.id}')" class="table-input text-center"></td>
@@ -365,7 +370,7 @@
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
-                             <button class="w-10 h-10 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-all shadow-md flex items-center justify-center mx-auto hover:scale-105 active:scale-95" onclick="saveMain('${row.id}')" title="Simpan">
+                             <button class="w-10 h-10 rounded-xl bg-cyan-600 text-white hover:bg-cyan-700 transition-all shadow-md flex items-center justify-center mx-auto hover:scale-105 active:scale-95" onclick="saveMain('${row.id}')" title="Simpan">
                                 <i class="fa-solid fa-floppy-disk text-lg"></i>
                              </button>
                         </td>
@@ -396,7 +401,7 @@
                         <td class="px-4 py-4 text-center align-middle">
                             <div class="flex items-center gap-2 justify-center">
                                 <span class="text-slate-600 font-bold text-xs">${sub.progress_percent}%</span>
-                                <div class="w-12 bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-indigo-600 h-full" style="width:${sub.progress_percent}%"></div></div>
+                                <div class="w-12 bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-cyan-600 h-full" style="width:${sub.progress_percent}%"></div></div>
                             </div>
                         </td>
                         <td class="px-4 py-4 text-center align-middle text-[13px] font-mono text-slate-600 font-bold">${formatTime(sub.start_date)}</td>
@@ -416,7 +421,7 @@
                             </select>
                         </td>
                         <td class="px-4 py-4 text-center align-middle">
-                             <button class="w-8 h-8 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-all shadow-sm flex items-center justify-center mx-auto" onclick="saveSubtaskInline('${sub.id}')" title="Simpan">
+                             <button class="w-8 h-8 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-all shadow-sm flex items-center justify-center mx-auto" onclick="saveSubtaskInline('${sub.id}')" title="Simpan">
                                 <i class="fa-solid fa-floppy-disk text-xs"></i>
                              </button>
                         </td>
