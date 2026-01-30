@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Jumawan (Manual Save)</title>
+    <title>Work Panel - Jumawan (Manual Save Only)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -234,7 +234,7 @@
                 <div><label class="modal-label">Catatan Tambahan (Wajib jika HOLD)</label><textarea id="modal-note" class="modal-input h-20 resize-none" placeholder="Tulis catatan..."></textarea></div>
             </div>
             <div class="p-6 border-t border-slate-100 bg-slate-50">
-                <button onclick="saveSubtask()" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg text-sm tracking-wide">Simpan Data</button>
+                <button onclick="saveSubtask()" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg transition-all text-sm tracking-wide">Simpan Data</button>
             </div>
         </div>
     </div>
@@ -247,13 +247,12 @@
 
         function cleanTimestamp(dateStr) { return dateStr ? dateStr.substring(0, 16) : ''; }
 
-        // FORMAT JAM (UTC) - FIX TAMPILAN
+        // FORMAT JAM (UTC)
         function formatTime(dateStr) {
             if (!dateStr) return '-';
             const date = new Date(dateStr);
             if(isNaN(date.getTime())) return '-';
             
-            // Gunakan UTC methods agar sinkron dengan input
             const day = String(date.getUTCDate()).padStart(2, '0');
             const month = String(date.getUTCMonth() + 1).padStart(2, '0');
             const year = date.getUTCFullYear().toString().substr(-2);
@@ -328,7 +327,7 @@
                 const jobClass = getJobClass(row.job_type); 
                 const statusClass = getStatusClass(row.status);
                 
-                // NO ONCHANGE IN INPUTS (MANUAL SAVE ONLY)
+                // NO ONCHANGE (MANUAL SAVE)
                 let mainRow = `
                     <tr class="bg-white border-b border-slate-100 hover:bg-orange-50/30 transition-colors">
                         <td class="px-6 py-5 align-top border-l-4 border-orange-500 pl-5">
@@ -344,15 +343,15 @@
                         <td class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
                         <td class="px-4 py-5 align-top">
                             <div class="flex items-center gap-2 justify-center">
-                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold" onchange="saveMain('${row.id}')">
+                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
                             <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="bg-orange-600 h-full transition-all duration-500" style="width:${progress}%"></div></div>
                         </td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" onchange="saveMain('${row.id}')" class="table-input text-center"></td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" onchange="saveMain('${row.id}')" class="table-input text-center"></td>
+                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-center"></td>
+                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-center"></td>
                         <td class="px-4 py-5 align-top text-center">
-                            <select id="job-${row.id}" onchange="updateSelectColor(this, 'job'); saveMain('${row.id}')" class="badge-select ${jobClass}">
+                            <select id="job-${row.id}" onchange="updateSelectColor(this, 'job')" class="badge-select ${jobClass}">
                                 <option value="-" ${row.job_type=='-'?'selected':''}>-</option>
                                 <option value="Improvement" ${row.job_type=='Improvement'?'selected':''}>Improvement</option>
                                 <option value="Overhaul" ${row.job_type=='Overhaul'?'selected':''}>Overhaul</option>
@@ -362,10 +361,10 @@
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top">
-                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold..." onchange="saveMain('${row.id}')">${row.hold_reason||''}</textarea>
+                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold..."></textarea>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
-                            <select id="stat-${row.id}" onchange="updateSelectColor(this, 'status'); saveMain('${row.id}')" class="badge-select ${statusClass}">
+                            <select id="stat-${row.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusClass}">
                                 <option value="Pending" ${row.status=='Pending'?'selected':''}>PENDING</option>
                                 <option value="In Progress" ${row.status=='In Progress'?'selected':''}>IN PROGRESS</option>
                                 <option value="Hold" ${row.status=='Hold'?'selected':''}>HOLD</option>
@@ -472,7 +471,6 @@
             const statusVal = document.getElementById(`sub-stat-${subId}`).value;
             const noteVal = document.getElementById(`sub-note-${subId}`).value;
 
-            // VALIDASI HOLD SUBTASK INLINE
             if (statusVal === 'Hold' && !noteVal.trim()) {
                 alert("⚠️ Jika Status HOLD, Catatan WAJIB diisi!");
                 document.getElementById(`sub-note-${subId}`).focus();
@@ -503,7 +501,6 @@
 
             if(!parentId || !desc) return alert("Lengkapi data project dan nama tugas!");
 
-            // VALIDASI HOLD SUBTASK MODAL
             if (statusVal === 'Hold' && !noteVal.trim()) {
                 alert("⚠️ Jika Status HOLD, Catatan Tambahan WAJIB diisi!");
                 document.getElementById('modal-note').focus();
@@ -543,7 +540,6 @@
             }
         }
 
-        // --- COMMON FUNCTIONS ---
         function openSubtaskModal() {
             document.getElementById('modal-title').innerText = "Tambah Rincian";
             document.getElementById('modal-subtask-id').value = ""; 
@@ -592,7 +588,6 @@
             renderTasks(filtered);
         }
 
-        // --- UPDATED STATS LOGIC (FIXED) ---
         function updateStats(data) {
              let p = 0, i = 0, h = 0, d = 0;
              data.forEach(item => {
