@@ -247,7 +247,7 @@
 
         function cleanTimestamp(dateStr) { return dateStr ? dateStr.substring(0, 16) : ''; }
 
-        // FORMAT JAM (UTC)
+        // FORMAT JAM (UTC) - FIX TAMPILAN
         function formatTime(dateStr) {
             if (!dateStr) return '-';
             const date = new Date(dateStr);
@@ -263,7 +263,6 @@
         }
 
         // --- HELPER WARNA (EMERALD THEME) ---
-        // Mengubah warna default (Improvement/In Progress) menjadi Emerald
         function getJobClass(job) {
             switch(job) {
                 case 'Improvement': return 'bg-emerald-50 text-emerald-700 border-emerald-200'; /* EMERALD */
@@ -361,7 +360,7 @@
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top">
-                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold..."></textarea>
+                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold...">${row.hold_reason||''}</textarea>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
                             <select id="stat-${row.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusClass}">
@@ -610,4 +609,3 @@
     </script>
 </body>
 </html>
-tata.html masih auto save ya matikan saja dan jangan ubah program lain ny atau mengapus program hanya mengubah saja
