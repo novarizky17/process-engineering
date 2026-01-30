@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Ryan (Timezone Fixed)</title>
+    <title>Work Panel - Ryan (Stats Fixed)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -28,20 +28,20 @@
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 6px;
-            padding: 6px 8px;
+            padding: 8px 10px;
             width: 100%;
-            font-size: 12px;
+            font-size: 13px; 
             color: #334155;
             transition: all 0.2s;
         }
         .table-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
 
-        /* Status & Job Badge Select */
+        /* Badge Select */
         .badge-select {
             appearance: none;
-            padding: 4px 24px 4px 10px;
+            padding: 6px 20px 6px 10px;
             border-radius: 6px;
-            font-size: 11px;
+            font-size: 12px; 
             font-weight: 700;
             cursor: pointer;
             border: 1px solid transparent;
@@ -52,7 +52,6 @@
             background-size: 1em;
             text-transform: capitalize;
             width: 100%;
-            transition: transform 0.2s;
         }
         .badge-select:hover { transform: scale(1.02); }
 
@@ -83,14 +82,11 @@
         @keyframes popUp { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
         .modal-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; display: block; }
-        .modal-input { 
-            width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; 
-            padding: 10px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; 
-        }
+        .modal-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; }
         .modal-input:focus { border-color: #3b82f6; background-color: #eff6ff; }
 
         /* Badges */
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-mid { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
@@ -218,28 +214,21 @@
                     <div>
                         <label class="modal-label">Kategori</label>
                         <select id="modal-job" class="modal-input">
-                            <option value="-">-</option>
-                            <option value="Improvement">Improvement</option>
-                            <option value="Overhaul">Overhaul</option>
-                            <option value="Perawatan">Perawatan</option>
-                            <option value="New Project">New Project</option>
-                            <option value="Trial">Trial</option>
+                            <option value="-">-</option><option value="Improvement">Improvement</option><option value="Overhaul">Overhaul</option>
+                            <option value="Perawatan">Perawatan</option><option value="New Project">New Project</option><option value="Trial">Trial</option>
                         </select>
                     </div>
                     <div>
                         <label class="modal-label">Status</label>
                         <select id="modal-status" class="modal-input font-bold text-blue-600">
-                            <option value="Pending">Pending</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Hold">Hold</option>
-                            <option value="Done">Done</option>
+                            <option value="Pending">Pending</option><option value="In Progress">In Progress</option><option value="Hold">Hold</option><option value="Done">Done</option>
                         </select>
                     </div>
                 </div>
                 <div><label class="modal-label">Catatan Tambahan (Wajib jika HOLD)</label><textarea id="modal-note" class="modal-input h-20 resize-none" placeholder="Tulis catatan..."></textarea></div>
             </div>
             <div class="p-6 border-t border-slate-100 bg-slate-50">
-                <button onclick="saveSubtask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg transition-all text-sm tracking-wide">Simpan Data</button>
+                <button onclick="saveSubtask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg text-sm tracking-wide">Simpan Data</button>
             </div>
         </div>
     </div>
@@ -250,20 +239,13 @@
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let allTasks = [], subTasksMap = {}; 
 
-        // Fungsi membersihkan format timestamp database untuk input (tetap T)
-        function cleanTimestamp(dateStr) { 
-            if (!dateStr) return '';
-            return dateStr.substring(0, 16); // YYYY-MM-DDTHH:mm
-        }
+        function cleanTimestamp(dateStr) { return dateStr ? dateStr.substring(0, 16) : ''; }
 
-        // --- PERBAIKAN FORMAT TIMEZONE ---
-        // Menggunakan getUTC methods agar tampilan tabel sama persis dengan input
         function formatTime(dateStr) {
             if (!dateStr) return '-';
             const date = new Date(dateStr);
             if(isNaN(date.getTime())) return '-';
             
-            // Gunakan UTC methods agar tidak ada konversi ke lokal (+7 jam)
             const day = String(date.getUTCDate()).padStart(2, '0');
             const month = String(date.getUTCMonth() + 1).padStart(2, '0');
             const year = date.getUTCFullYear().toString().substr(-2);
@@ -599,9 +581,17 @@
             renderTasks(filtered);
         }
 
+        // --- UPDATED STATS LOGIC ---
         function updateStats(data) {
              let p = 0, i = 0, h = 0, d = 0;
-             data.forEach(d => { if(d.status=='Pending') p++; else if(d.status=='In Progress') i++; else if(d.status=='Hold') h++; else d++; });
+             data.forEach(item => {
+                 const status = (item.status || 'Pending'); // Default ke Pending jika null
+                 if (status === 'Pending') p++;
+                 else if (status === 'In Progress') i++;
+                 else if (status === 'Hold') h++;
+                 else if (status === 'Done') d++;
+             });
+             
              document.getElementById('stat-active').innerText = i;
              document.getElementById('stat-pending').innerText = p;
              document.getElementById('stat-hold').innerText = h;
