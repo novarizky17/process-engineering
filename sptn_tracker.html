@@ -35,6 +35,18 @@
         
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* Badge Styles for Subtasks */
+        .badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block;}
+        .badge-mid { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
+        .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .badge-status { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+        .badge-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .badge-hold { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
+        .badge-prog { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .badge-pend { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
     </style>
 </head>
 <body class="min-h-screen pb-12">
@@ -193,6 +205,7 @@
             <div id="picker-list" class="picker-list space-y-2"></div>
         </div>
     </div>
+    
     <div id="taskListModal" class="modal">
         <div class="modal-content shadow-2xl">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -277,12 +290,25 @@
                     </div>
                 </div>
 
-                <div class="md:col-span-2 border-t pt-4 mt-2">
-                    <h3 class="text-sm font-bold text-slate-600 mb-2 uppercase">Sub-Tasks</h3>
-                    <div id="rev-subtasks" class="space-y-2 max-h-40 overflow-y-auto">
-                        <div class="text-xs text-center text-slate-400 italic p-2">Memuat sub-tasks...</div>
+                <div class="md:col-span-2 space-y-2 pt-2 border-t mt-2">
+                    <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Monitoring Sub-Task Personil</h3>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl max-h-48 overflow-y-auto">
+                        <table class="w-full text-left text-[11px]">
+                            <thead class="bg-slate-100 font-bold text-slate-500 border-b">
+                                <tr>
+                                    <th class="px-3 py-2">Sub-Task</th>
+                                    <th class="px-2 py-2 text-center">Status</th>
+                                    <th class="px-2 py-2 text-center">Prog.</th>
+                                    <th class="px-3 py-2">Catatan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rev-subtasks-body" class="divide-y divide-slate-200">
+                                <tr><td colspan="4" class="p-3 text-center text-slate-400 italic">Memuat sub-tasks...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+
             </div>
 
             <div class="flex gap-3 mt-8">
@@ -313,8 +339,8 @@
                 "FCS 100 T (NICK FURRY)", "FCS 250 T (CYCLOPS)", "NPC 260 T (HAWKEYE)", "EXTRUDER"
             ],
             personnel: ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"],
-            project: [], 
-            task: []     
+            project: [], // Akan diisi dari database
+            task: []     // Akan diisi dari database
         };
 
         async function fetchProjectData() {
@@ -322,6 +348,7 @@
             if (error) return;
             allData = data;
             
+            // UPDATE DATA MASTER DARI DATABASE
             MASTER_DATA.project = [...new Set(data.map(i => (i.project_name || "").toUpperCase()))].sort();
             MASTER_DATA.task = [...new Set(data.map(i => (i.task_desc || "").trim()))].sort();
             const dbPersonnel = data.map(i => (i.assigned_to || "").toUpperCase());
@@ -331,13 +358,14 @@
             updateStats(allData);
         }
 
+        // --- FUNGSI PICKER POP-UP (SOLUSI ANDROID) ---
         function openPicker(type) {
             currentPickerTarget = type;
             const modal = document.getElementById('pickerModal');
             const title = document.getElementById('picker-title');
             const search = document.getElementById('picker-search');
             
-            search.value = ""; 
+            search.value = ""; // Reset pencarian
             document.getElementById('btn-add-new').classList.add('hidden'); 
 
             let items = [];
@@ -348,7 +376,7 @@
 
             renderPickerList(items);
             modal.style.display = 'block';
-            search.focus(); 
+            search.focus(); // Fokus ke pencarian otomatis
         }
 
         function renderPickerList(items) {
@@ -373,6 +401,7 @@
             const filtered = source.filter(item => item.toUpperCase().includes(query));
             renderPickerList(filtered);
 
+            // Jika mengetik sesuatu yang tidak ada di list, munculkan tombol "Gunakan Nama Ini"
             if(query.length > 0) {
                 btnAdd.classList.remove('hidden');
                 btnAdd.innerText = `+ PAKAI: "${query}"`;
@@ -402,7 +431,8 @@
         function closePicker(e) {
             if(e.target.id === 'pickerModal') e.target.style.display = 'none';
         }
-        
+        // -----------------------------------------------------
+
         function toggleProjectMode() {
             const mode = document.querySelector('input[name="proj_mode"]:checked').value;
             const inputExisting = document.getElementById('in-project-existing');
@@ -526,7 +556,7 @@
 
         function closeTaskListModal() { document.getElementById('taskListModal').style.display = 'none'; }
 
-        function openReviewModal(row) {
+        async function openReviewModal(row) {
             document.getElementById('rev-id').value = row.id;
             document.getElementById('rev-project').value = row.project_name;
             document.getElementById('rev-machine').value = row.machine_name || ''; 
@@ -536,6 +566,8 @@
             document.getElementById('rev-priority').value = row.priority || 'Mid';
             document.getElementById('rev-due').value = row.due_date;
             document.getElementById('rev-progress').value = row.progress_percent || 0;
+            // REMOVED activity population
+            // document.getElementById('rev-activity').value = row.worker_comment || ''; 
             document.getElementById('rev-hold').value = row.hold_reason || '';
             
             const alertBox = document.getElementById('rev-late-alert');
@@ -552,40 +584,30 @@
                 alertBox.classList.add('hidden');
             }
 
-            // --- FETCH SUB-TASKS ---
-            fetchSubTasks(row.id);
+            // --- FETCH SUBTASKS ---
+            const tbody = document.getElementById('rev-subtasks-body');
+            tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-slate-400 italic">Memuat sub-tasks...</td></tr>';
+            
+            const { data: subtasks, error } = await _sb.from('employee_subtasks').select('*').eq('parent_task_id', row.id).order('created_at', { ascending: true });
+
+            if (subtasks && subtasks.length > 0) {
+                tbody.innerHTML = subtasks.map(sub => {
+                    const badgeClass = sub.status === 'Done' ? 'badge-done' : (sub.status === 'Hold' ? 'badge-hold' : (sub.status === 'In Progress' ? 'badge-prog' : 'badge-pend'));
+                    return `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                            <td class="px-3 py-2 font-bold text-slate-700 truncate max-w-[150px]">${sub.subtask_desc}</td>
+                            <td class="px-2 py-2 text-center"><span class="badge ${badgeClass} text-[9px]">${sub.status}</span></td>
+                            <td class="px-2 py-2 text-center font-bold text-blue-600">${sub.progress_percent}%</td>
+                            <td class="px-3 py-2 italic text-slate-500 truncate max-w-[150px]" title="${sub.worker_notes}">${sub.worker_notes || '-'}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-slate-400 italic text-xs">Belum ada sub-task.</td></tr>';
+            }
 
             document.getElementById('reviewModal').style.display = 'block';
         }
-
-        async function fetchSubTasks(taskId) {
-            const container = document.getElementById('rev-subtasks');
-            container.innerHTML = '<div class="text-xs text-center text-slate-400 italic p-2">Memuat...</div>';
-
-            const { data, error } = await _sb.from('employee_subtasks').select('*').eq('parent_task_id', taskId).order('created_at', { ascending: true });
-
-            if (error || !data || data.length === 0) {
-                container.innerHTML = '<div class="text-xs text-center text-slate-400 italic p-2">Tidak ada sub-task.</div>';
-                return;
-            }
-
-            container.innerHTML = data.map(sub => {
-                const sColor = sub.status === 'Done' ? 'text-emerald-600 bg-emerald-50' : (sub.status === 'Hold' ? 'text-rose-600 bg-rose-50' : 'text-blue-600 bg-blue-50');
-                return `
-                    <div class="bg-white p-2 rounded border border-slate-200 flex justify-between items-center">
-                        <div class="w-2/3">
-                            <p class="text-xs font-bold text-slate-700 truncate">${sub.subtask_desc}</p>
-                            <p class="text-[10px] text-slate-400 italic truncate">${sub.worker_notes || 'No Notes'}</p>
-                        </div>
-                        <div class="text-right">
-                             <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase ${sColor}">${sub.status}</span>
-                             <div class="text-[10px] font-bold text-slate-500 mt-0.5">${sub.progress_percent}%</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
 
         function closeReviewModal() { document.getElementById('reviewModal').style.display = 'none'; }
 
@@ -604,7 +626,7 @@
                 progress_percent: progress,
                 status: status,
                 due_date: document.getElementById('rev-due').value,
-                // worker_comment dihapus
+                // Removed worker_comment update
                 hold_reason: document.getElementById('rev-hold').value
             }).eq('id', id);
 
