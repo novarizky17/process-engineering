@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Isyqi (Fixed Stats)</title>
+    <title>Work Panel - Isyqi (Manual Save)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -34,7 +34,6 @@
             color: #334155;
             transition: all 0.2s;
         }
-        /* Ubah fokus border ke Cyan */
         .table-input:focus { border-color: #06b6d4; outline: none; box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.1); }
 
         /* Badge Select */
@@ -47,7 +46,7 @@
             cursor: pointer;
             border: 1px solid transparent;
             text-align: center;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.5rem center;
             background-size: 1em;
@@ -60,7 +59,7 @@
         .fab {
             position: fixed; bottom: 30px; right: 30px;
             width: 60px; height: 60px;
-            background: #0891b2; color: white; /* Cyan 600 */
+            background: #0891b2; color: white;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 30px; box-shadow: 0 10px 25px -5px rgba(8, 145, 178, 0.6);
             transition: transform 0.2s; z-index: 50; border: 4px solid white; cursor: pointer;
@@ -70,7 +69,7 @@
         /* Modal Styles */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(22, 78, 99, 0.7); /* Cyan Gelap Transparan */
+            background: rgba(22, 78, 99, 0.7);
             backdrop-filter: blur(4px);
             z-index: 100; display: none; align-items: center; justify-content: center;
             padding: 20px;
@@ -85,18 +84,16 @@
 
         .modal-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; display: block; }
         .modal-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; }
-        /* Ubah fokus input modal ke Cyan */
         .modal-input:focus { border-color: #06b6d4; background-color: #ecfeff; }
 
         /* Badges */
         .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        /* Ubah badge mid ke tema Cyan */
         .badge-mid { background: #cffafe; color: #0e7490; border: 1px solid #a5f3fc; } 
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
         .badge-status { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
         .badge-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-
+        
         .tree-line { border-left: 2px dashed #cbd5e1; border-bottom: 2px dashed #cbd5e1; height: 25px; width: 15px; display: inline-block; margin-right: 5px; margin-bottom: 4px; }
     </style>
 </head>
@@ -105,9 +102,7 @@
     <div class="bg-cyan-950 border-b border-cyan-900 pt-8 pb-36 px-8 shadow-xl w-full relative">
         <div class="flex justify-between items-center w-full max-w-[100%] mx-auto">
             <div class="flex items-center gap-5">
-                <div class="w-12 h-12 bg-cyan-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-cyan-900/50">
-                    I
-                </div>
+                <div class="w-12 h-12 bg-cyan-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-cyan-900/50">I</div>
                 <div>
                     <h1 class="text-2xl font-extrabold text-white tracking-tight">Panel Kerja Isyqi</h1>
                     <div class="flex items-center gap-2 mt-1">
@@ -265,7 +260,6 @@
         }
 
         // --- HELPER WARNA (CYAN THEME) ---
-        // Mengubah warna default (Improvement/In Progress) menjadi Cyan
         function getJobClass(job) {
             switch(job) {
                 case 'Improvement': return 'bg-cyan-50 text-cyan-700 border-cyan-200'; /* CYAN */
@@ -345,15 +339,15 @@
                         <td class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
                         <td class="px-4 py-5 align-top">
                             <div class="flex items-center gap-2 justify-center">
-                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold" onchange="saveMain('${row.id}')">
+                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
                             <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="bg-cyan-600 h-full transition-all duration-500" style="width:${progress}%"></div></div>
                         </td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" onchange="saveMain('${row.id}')" class="table-input text-center"></td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" onchange="saveMain('${row.id}')" class="table-input text-center"></td>
+                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-center"></td>
+                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-center"></td>
                         <td class="px-4 py-5 align-top text-center">
-                            <select id="job-${row.id}" onchange="updateSelectColor(this, 'job'); saveMain('${row.id}')" class="badge-select ${jobClass}">
+                            <select id="job-${row.id}" onchange="updateSelectColor(this, 'job')" class="badge-select ${jobClass}">
                                 <option value="-" ${row.job_type=='-'?'selected':''}>-</option>
                                 <option value="Improvement" ${row.job_type=='Improvement'?'selected':''}>Improvement</option>
                                 <option value="Overhaul" ${row.job_type=='Overhaul'?'selected':''}>Overhaul</option>
@@ -363,10 +357,10 @@
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top">
-                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold..." onchange="saveMain('${row.id}')">${row.hold_reason||''}</textarea>
+                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold...">${row.hold_reason||''}</textarea>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
-                            <select id="stat-${row.id}" onchange="updateSelectColor(this, 'status'); saveMain('${row.id}')" class="badge-select ${statusClass}">
+                            <select id="stat-${row.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusClass}">
                                 <option value="Pending" ${row.status=='Pending'?'selected':''}>PENDING</option>
                                 <option value="In Progress" ${row.status=='In Progress'?'selected':''}>IN PROGRESS</option>
                                 <option value="Hold" ${row.status=='Hold'?'selected':''}>HOLD</option>
@@ -593,7 +587,6 @@
             renderTasks(filtered);
         }
 
-        // --- UPDATE STATS LOGIC (FIXED) ---
         function updateStats(data) {
              let p = 0, i = 0, h = 0, d = 0;
              data.forEach(item => {
