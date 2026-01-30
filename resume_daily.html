@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Daily Report - Final Complete</title>
+    <title>Resume Daily Report - Parent Only Excel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -472,71 +472,35 @@
 
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
-        // --- EXPORT LENGKAP (PARENT + SUBTASK) ---
+        // --- NEW EXPORT LOGIC: PARENT ONLY ---
         function exportToExcel() {
             if (rawData.length === 0) return alert("Tidak ada data untuk di-export!");
             
-            const exportData = [];
-
-            // Iterate over all parent tasks
-            rawData.forEach((parent, index) => {
-                // Find children
-                const children = allSubtasks.filter(s => s.parent_task_id == parent.id);
-
-                if (children.length > 0) {
-                    // If has children, create a row for each
-                    children.forEach(child => {
-                        exportData.push({
-                            'No': exportData.length + 1,
-                            'Project Name': (parent.project_name || "").toUpperCase(),
-                            'PIC': parent.assigned_to,
-                            'Parent Task': parent.task_desc,
-                            'Parent Status': parent.status,
-                            'Parent Progress (%)': parent.progress_percent,
-                            'Parent Start': formatDateTimeClean(parent.start_date),
-                            'Parent Due': formatDateTimeClean(parent.due_date),
-                            'Parent Hold Reason': parent.hold_reason || "-",
-                            'Parent Comment': parent.worker_comment || "-",
-                            '--- SUBTASK INFO ---': '>>>', 
-                            'Subtask Detail': child.subtask_desc,
-                            'Subtask Status': child.status,
-                            'Subtask Progress (%)': child.progress_percent,
-                            'Subtask Note': child.worker_notes || "-",
-                            'Subtask Start': formatDateTimeClean(child.start_date),
-                            'Subtask End': formatDateTimeClean(child.end_date)
-                        });
-                    });
-                } else {
-                    // If no children, create single row for parent
-                    exportData.push({
-                        'No': exportData.length + 1,
-                        'Project Name': (parent.project_name || "").toUpperCase(),
-                        'PIC': parent.assigned_to,
-                        'Parent Task': parent.task_desc,
-                        'Parent Status': parent.status,
-                        'Parent Progress (%)': parent.progress_percent,
-                        'Parent Start': formatDateTimeClean(parent.start_date),
-                        'Parent Due': formatDateTimeClean(parent.due_date),
-                        'Parent Hold Reason': parent.hold_reason || "-",
-                        'Parent Comment': parent.worker_comment || "-",
-                        '--- SUBTASK INFO ---': '>>>',
-                        'Subtask Detail': '- TIDAK ADA SUBTASK -',
-                        'Subtask Status': '-',
-                        'Subtask Progress (%)': '-',
-                        'Subtask Note': '-',
-                        'Subtask Start': '-',
-                        'Subtask End': '-'
-                    });
-                }
-            });
+            // Map data dan HANYA ambil data dari 'rawData' (Parent Task)
+            // Tidak melakukan loop ke 'allSubtasks'
+            const exportData = rawData.map((parent, index) => ({
+                'No': index + 1,
+                'Project Name': (parent.project_name || "").toUpperCase(),
+                'PIC': parent.assigned_to,
+                'Task Description': parent.task_desc,
+                'Status': parent.status,
+                'Progress (%)': parent.progress_percent,
+                'Start Date': formatDateTimeClean(parent.start_date),
+                'Due Date': formatDateTimeClean(parent.due_date),
+                'Actual Finish': formatDateTimeClean(parent.actual_finish || parent.work_end_time),
+                'Hold Reason': parent.hold_reason || "-",
+                'Worker Comment': parent.worker_comment || "-"
+            }));
 
             const ws = XLSX.utils.json_to_sheet(exportData);
+            
+            // Auto width sederhana
             const colWidths = Object.keys(exportData[0]).map(() => ({ wch: 25 }));
             ws['!cols'] = colWidths;
 
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Laporan Lengkap");
-            XLSX.writeFile(wb, "Resume_Daily_Report_FULL.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "Laporan Harian");
+            XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
         }
 
         // CHARTS & STATS WITH LABELS
