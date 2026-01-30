@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Jumawan (Ultimate Fixed)</title>
+    <title>Work Panel - Jumawan (Manual Save)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -47,7 +47,7 @@
             cursor: pointer;
             border: 1px solid transparent;
             text-align: center;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.5rem center;
             background-size: 1em;
@@ -93,6 +93,9 @@
         .badge-mid { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; } /* Orange Theme */
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .badge-status { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+        .badge-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        
         .tree-line { border-left: 2px dashed #cbd5e1; border-bottom: 2px dashed #cbd5e1; height: 25px; width: 15px; display: inline-block; margin-right: 5px; margin-bottom: 4px; }
     </style>
 </head>
@@ -231,7 +234,7 @@
                 <div><label class="modal-label">Catatan Tambahan (Wajib jika HOLD)</label><textarea id="modal-note" class="modal-input h-20 resize-none" placeholder="Tulis catatan..."></textarea></div>
             </div>
             <div class="p-6 border-t border-slate-100 bg-slate-50">
-                <button onclick="saveSubtask()" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg transition-all text-sm tracking-wide">Simpan Data</button>
+                <button onclick="saveSubtask()" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg text-sm tracking-wide">Simpan Data</button>
             </div>
         </div>
     </div>
@@ -244,12 +247,13 @@
 
         function cleanTimestamp(dateStr) { return dateStr ? dateStr.substring(0, 16) : ''; }
 
-        // FORMAT JAM (UTC)
+        // FORMAT JAM (UTC) - FIX TAMPILAN
         function formatTime(dateStr) {
             if (!dateStr) return '-';
             const date = new Date(dateStr);
             if(isNaN(date.getTime())) return '-';
             
+            // Gunakan UTC methods agar sinkron dengan input
             const day = String(date.getUTCDate()).padStart(2, '0');
             const month = String(date.getUTCMonth() + 1).padStart(2, '0');
             const year = date.getUTCFullYear().toString().substr(-2);
@@ -324,7 +328,7 @@
                 const jobClass = getJobClass(row.job_type); 
                 const statusClass = getStatusClass(row.status);
                 
-                // Hover row jadi Orange muda
+                // NO ONCHANGE IN INPUTS (MANUAL SAVE ONLY)
                 let mainRow = `
                     <tr class="bg-white border-b border-slate-100 hover:bg-orange-50/30 transition-colors">
                         <td class="px-6 py-5 align-top border-l-4 border-orange-500 pl-5">
@@ -468,6 +472,7 @@
             const statusVal = document.getElementById(`sub-stat-${subId}`).value;
             const noteVal = document.getElementById(`sub-note-${subId}`).value;
 
+            // VALIDASI HOLD SUBTASK INLINE
             if (statusVal === 'Hold' && !noteVal.trim()) {
                 alert("⚠️ Jika Status HOLD, Catatan WAJIB diisi!");
                 document.getElementById(`sub-note-${subId}`).focus();
@@ -498,6 +503,7 @@
 
             if(!parentId || !desc) return alert("Lengkapi data project dan nama tugas!");
 
+            // VALIDASI HOLD SUBTASK MODAL
             if (statusVal === 'Hold' && !noteVal.trim()) {
                 alert("⚠️ Jika Status HOLD, Catatan Tambahan WAJIB diisi!");
                 document.getElementById('modal-note').focus();
@@ -586,9 +592,16 @@
             renderTasks(filtered);
         }
 
+        // --- UPDATED STATS LOGIC (FIXED) ---
         function updateStats(data) {
              let p = 0, i = 0, h = 0, d = 0;
-             data.forEach(d => { if(d.status=='Pending') p++; else if(d.status=='In Progress') i++; else if(d.status=='Hold') h++; else d++; });
+             data.forEach(item => {
+                 const status = item.status;
+                 if(status === 'Pending') p++;
+                 else if(status === 'In Progress') i++;
+                 else if(status === 'Hold') h++;
+                 else if(status === 'Done') d++;
+             });
              document.getElementById('stat-active').innerText = i;
              document.getElementById('stat-pending').innerText = p;
              document.getElementById('stat-hold').innerText = h;
