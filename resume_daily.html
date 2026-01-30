@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Daily Report - Analytics</title>
+    <title>Resume Daily Report - Analytics (Grouped View)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -26,7 +26,7 @@
         .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
         .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 10px; overflow: hidden; }
+        .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 8px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.8s ease-out; }
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
         .custom-scroll::-webkit-scrollbar { width: 5px; }
@@ -92,18 +92,11 @@
             </div>
         </section>
 
-        <section class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-            <select id="filter-user" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none">
-                <option value="">-- Semua Personil --</option>
-                <option value="RYAN">RYAN</option><option value="ISYQI">ISYQI</option><option value="JUMAWAN">JUMAWAN</option>
-                <option value="EKO">EKO</option><option value="TATA">TATA</option><option value="BAROK">BAROK</option>
-            </select>
-            <select id="filter-status" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm font-bold outline-none">
-                <option value="">-- Semua Status --</option>
-                <option value="Pending">Pending</option><option value="In Progress">In Progress</option>
-                <option value="Hold">Hold</option><option value="Done">Done</option>
-            </select>
+        <section class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Project..." class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none">
+            <div class="flex items-center justify-end px-4 text-xs text-slate-500 italic">
+                * Data dikelompokkan berdasarkan Nama Project. Klik "Review" untuk detail.
+            </div>
         </section>
 
         <section class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden text-sm">
@@ -111,10 +104,9 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b">
-                            <th class="px-6 py-5">Project / Tugas</th>
-                            <th class="px-4 py-5 text-center">Personil</th>
-                            <th class="px-4 py-5 text-center text-slate-800">Priority</th> 
-                            <th class="px-4 py-5 text-center text-slate-800">Status</th>
+                            <th class="px-6 py-5">Nama Project</th>
+                            <th class="px-4 py-5 text-center">Jml Task</th>
+                            <th class="px-4 py-5 text-center text-slate-800">Avg Progress</th>
                             <th class="px-6 py-5 text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -143,15 +135,6 @@
                         <canvas id="projectPieChart"></canvas>
                     </div>
                 </div>
-                <div class="max-w-xl mx-auto mb-6">
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                        </span>
-                        <input type="text" id="search-modal-project" oninput="renderAggregateProjects()" placeholder="Cari Judul Project di sini..." class="w-full bg-white border border-slate-200 pl-11 pr-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
-                    </div>
-                </div>
-                <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center gap-4">
                 <button onclick="exportProjectSummary()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] shadow-md transition-all active:scale-95 flex items-center gap-2">
@@ -163,58 +146,19 @@
         </div>
     </div>
 
-    <div id="projectDetailModal" class="modal">
-        <div class="modal-content shadow-2xl" style="max-width: 850px;">
-            <div class="bg-blue-800 p-6 text-white flex justify-between items-center">
-                <div><h2 id="proj-modal-title" class="text-lg font-black uppercase tracking-tight"></h2><p class="text-blue-100 text-[10px] font-bold uppercase tracking-widest">Detail Pekerjaan Terintegrasi</p></div>
-                <button onclick="closeProjectModal()" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
-            </div>
-            <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll">
-                <div id="proj-modal-dates" class="hidden"></div>
-                <div id="proj-modal-list" class="space-y-4"></div>
-            </div>
-            <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeProjectModal()" class="bg-slate-800 text-white px-12 py-3 rounded-xl font-black uppercase text-[10px]">Tutup Detail</button></div>
-        </div>
-    </div>
-
     <div id="detailModal" class="modal">
-        <div class="modal-content shadow-2xl" style="max-width: 750px;">
+        <div class="modal-content shadow-2xl" style="max-width: 900px;">
             <div class="bg-slate-900 p-6 text-white flex justify-between items-center border-b border-slate-800">
                 <div>
                     <h2 class="text-lg font-black uppercase flex items-center gap-3">
-                        Review Task 
-                        <span id="det-overdue-label" class="hidden bg-rose-600 text-white text-[10px] px-2 py-0.5 rounded animate-pulse font-black"></span>
+                        Detail Project Group
                     </h2>
                     <p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase truncate"></p>
                 </div>
                 <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl ml-4">&times;</button>
             </div>
-            <div class="p-8 space-y-6 max-h-[70vh] overflow-y-auto text-sm">
-                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Capaian Progres Proyek</label>
-                        <span id="det-progress-text" class="text-sm font-black text-blue-600">0%</span>
-                    </div>
-                    <div class="progress-bg"><div id="det-progress-bar" class="progress-fill" style="width: 0%"></div></div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Personil</label><p id="det-pic" class="text-sm font-black text-slate-800"></p></div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Priority</label><p id="det-priority" class="text-sm font-black text-slate-800 uppercase"></p></div>
-                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100"><label class="text-[9px] font-black text-slate-400 uppercase">Status</label><p id="det-status" class="text-sm font-black text-slate-800 uppercase"></p></div>
-                </div>
-                <div><label class="text-[9px] font-black text-slate-400 uppercase">Deskripsi Tugas Utama</label><p id="det-task" class="text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium whitespace-pre-wrap min-h-[40px]"></p></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="text-[9px] font-black text-blue-500 uppercase">Start Work</label><div id="det-start" class="text-[10px] font-bold text-slate-700"></div></div>
-                    <div id="finish-box" class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-                        <label id="finish-label" class="text-[9px] font-black text-emerald-500 uppercase">Plan Finish (Due Date)</label>
-                        <div id="det-finish" class="text-[10px] font-bold text-slate-700"></div>
-                    </div>
-                </div>
-                <div>
-                    <label class="text-[9px] font-black text-indigo-500 uppercase">Rincian Sub-Task</label>
-                    <div id="det-subtasks-list" class="space-y-2 mt-2"></div>
-                </div>
-                <div><label class="text-[9px] font-black text-rose-500 uppercase">Keterangan (Hold/Pending Reason)</label><div id="det-hold-reason" class="bg-rose-50 p-5 rounded-xl text-sm font-bold text-rose-700 border border-rose-100 whitespace-pre-wrap leading-relaxed min-h-[40px]"></div></div>
+            <div class="p-8 max-h-[70vh] overflow-y-auto text-sm custom-scroll">
+                 <div id="grouped-tasks-container" class="space-y-6"></div>
             </div>
             <div class="p-6 bg-slate-50 border-t flex justify-center"><button onclick="closeModal()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-black uppercase text-xs">Tutup Laporan</button></div>
         </div>
@@ -225,13 +169,13 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let rawData = [];
-        let allSubtasks = []; // Variabel baru untuk menampung data subtask
-        let filteredData = [];
+        let allSubtasks = [];
+        let groupedData = {}; // Object untuk menyimpan data yang dikelompokkan
         let projectChart = null;
         let pieChartInstance = null;
 
         function formatDateTimeClean(str) {
-            if (!str) return 'Belum Ada';
+            if (!str) return '-';
             try {
                 const dateMatch = str.match(/(\d{4}-\d{2}-\d{2})/);
                 if (dateMatch) {
@@ -243,18 +187,34 @@
         }
 
         async function fetchAllData() {
-            // Ambil data task utama
             const { data: mainData, error: mainError } = await _sb.from('management_tracker').select('*').order('created_at', { ascending: false });
             if (mainError) return;
             rawData = mainData;
 
-            // Ambil data subtask
             const { data: subData, error: subError } = await _sb.from('employee_subtasks').select('*').order('created_at', { ascending: true });
             if (!subError) allSubtasks = subData;
 
+            processGroupedData();
             updatePersonnelGrid();
             switchChart('person'); 
-            applyFilters();
+            renderGroupedTable();
+        }
+
+        function processGroupedData() {
+            groupedData = {};
+            rawData.forEach(item => {
+                const name = (item.project_name || "Tanpa Nama").toUpperCase();
+                if (!groupedData[name]) {
+                    groupedData[name] = {
+                        tasks: [],
+                        totalProgress: 0,
+                        count: 0
+                    };
+                }
+                groupedData[name].tasks.push(item);
+                groupedData[name].totalProgress += parseFloat(item.progress_percent || 0);
+                groupedData[name].count += 1;
+            });
         }
 
         function getProgressColor(percent) {
@@ -292,19 +252,11 @@
             const ctx = document.getElementById('projectPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
 
-            const projects = {};
-            rawData.forEach(item => {
-                const name = (item.project_name || "Tanpa Nama").toUpperCase();
-                if (!projects[name]) { projects[name] = { totalProgress: 0, count: 0 }; }
-                projects[name].totalProgress += parseFloat(item.progress_percent || 0);
-                projects[name].count += 1;
-            });
-
-            const projectNames = Object.keys(projects);
+            const projectNames = Object.keys(groupedData);
             const totalProjectCount = projectNames.length;
             let sumOfProjectAverages = 0;
             projectNames.forEach(name => {
-                sumOfProjectAverages += (projects[name].totalProgress / projects[name].count);
+                sumOfProjectAverages += (groupedData[name].totalProgress / groupedData[name].count);
             });
 
             const finalOverallProgress = totalProjectCount > 0 ? (sumOfProjectAverages / totalProjectCount).toFixed(1) : 0;
@@ -356,69 +308,27 @@
         }
 
         function selectPerson(name) {
-            const filterUser = document.getElementById('filter-user');
-            if (filterUser) { filterUser.value = name; applyFilters(); filterUser.scrollIntoView({ behavior: 'smooth' }); }
+            // Person filter logic can be complex with grouped data, skipping for simplicity in this grouped view
+            console.log("Filter by person in grouped view is disabled to maintain grouping structure.");
         }
 
         function openProjectAggregateModal() { 
-            if(document.getElementById('search-modal-project')) document.getElementById('search-modal-project').value = '';
-            renderAggregateProjects(); 
             renderProjectPieChart();
             document.getElementById('projectAggregateModal').style.display = 'block'; 
         }
 
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
-        function renderAggregateProjects() {
-            const searchVal = document.getElementById('search-modal-project')?.value.toLowerCase() || "";
-            const projects = {};
-            rawData.forEach(item => {
-                const name = (item.project_name || "Tanpa Nama").toUpperCase();
-                if (searchVal !== "" && !name.toLowerCase().includes(searchVal)) return;
-
-                if (!projects[name]) { projects[name] = { totalProgress: 0, count: 0 }; }
-                projects[name].totalProgress += parseFloat(item.progress_percent || 0);
-                projects[name].count += 1;
-            });
-
-            const container = document.getElementById('modal-project-list');
-            const projectKeys = Object.keys(projects);
-            if (projectKeys.length === 0) {
-                container.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 font-bold italic">Project tidak ditemukan...</div>`;
-                return;
-            }
-
-            container.innerHTML = projectKeys.map(projName => {
-                const data = projects[projName];
-                const avgProgress = (data.totalProgress / data.count).toFixed(1);
-                const displayAvg = parseFloat(avgProgress);
-
-                return `<div onclick="openProjectModal('${projName.replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm">
-                    <div class="flex justify-between items-start mb-4">
-                        <h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4>
-                        <span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${displayAvg >= 50 ? 'text-blue-700' : 'text-rose-700'}">${displayAvg}%</span>
-                    </div>
-                    <div class="progress-bg h-2 mb-4"><div class="progress-fill ${getProgressColor(displayAvg)}" style="width: ${displayAvg}%"></div></div>
-                    <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div>
-                </div>`;
-            }).join('');
-        }
-
         function exportProjectSummary() {
-            const projects = {};
-            rawData.forEach(item => {
-                const name = (item.project_name || "Tanpa Nama").toUpperCase();
-                if (!projects[name]) { projects[name] = { totalProgress: 0, count: 0 }; }
-                projects[name].totalProgress += parseFloat(item.progress_percent || 0);
-                projects[name].count += 1;
+            const exportData = Object.keys(groupedData).map((name, index) => {
+                const data = groupedData[name];
+                return {
+                    'NO': index + 1,
+                    'PROJECT': name,
+                    'TOTAL TASK': data.count,
+                    'AVERAGE PROGRESS (%)': parseFloat((data.totalProgress / data.count).toFixed(1))
+                };
             });
-
-            const exportData = Object.keys(projects).map((name, index) => ({
-                'NO': index + 1,
-                'PROJECT': name,
-                'TOTAL TASK': projects[name].count,
-                'AVERAGE PROGRESS (%)': parseFloat((projects[name].totalProgress / projects[name].count).toFixed(1))
-            }));
 
             if (exportData.length === 0) return alert("Tidak ada data!");
 
@@ -429,73 +339,95 @@
             XLSX.writeFile(wb, "Ringkasan_Project_Report.xlsx");
         }
 
-        function openProjectModal(projName) {
-            document.getElementById('proj-modal-title').innerText = projName;
-            const tasks = rawData.filter(item => (item.project_name || "").toUpperCase() === projName);
-            const container = document.getElementById('proj-modal-list');
-            
-            container.innerHTML = tasks.map(t => `
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-[11px] font-black text-slate-800 uppercase tracking-tighter">${t.assigned_to}</span>
-                        <span class="text-[9px] font-black px-3 py-1 rounded text-white ${t.status.toUpperCase()==='DONE'?'bg-emerald-500':'bg-blue-600'} uppercase">${t.status}</span>
-                    </div>
-                    <p class="text-xs font-semibold text-slate-500 mb-4 leading-relaxed">${t.task_desc || '-'}</p>
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
-                            <p class="text-[8px] font-black text-slate-400 uppercase">Start</p>
-                            <p class="text-[10px] font-bold text-slate-600">${formatDateTimeClean(t.start_date)}</p>
-                        </div>
-                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
-                            <p class="text-[8px] font-black text-slate-400 uppercase">Due</p>
-                            <p class="text-[10px] font-bold text-slate-600">${formatDateTimeClean(t.due_date)}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <div class="progress-bg h-2 flex-grow"><div class="progress-fill ${getProgressColor(t.progress_percent)}" style="width: ${t.progress_percent}%"></div></div>
-                        <span class="text-[11px] font-black text-slate-700">${t.progress_percent}%</span>
-                    </div>
-                </div>`).join('');
-            document.getElementById('projectDetailModal').style.display = 'block';
-        }
-
-        function closeProjectModal() { document.getElementById('projectDetailModal').style.display = 'none'; }
-
         function applyFilters() {
-            const user = document.getElementById('filter-user').value;
-            const status = document.getElementById('filter-status').value;
             const search = document.getElementById('search-report').value.toLowerCase();
-            const filtered = rawData.filter(item => {
-                const matchU = !user || item.assigned_to === user;
-                const matchS = !status || item.status === status;
-                const matchK = !search || (item.project_name && item.project_name.toLowerCase().includes(search));
-                return matchU && matchS && matchK;
-            });
-            renderTable(filtered);
+            renderGroupedTable(search);
         }
 
-        function renderTable(data) {
+        function renderGroupedTable(searchTerm = "") {
             const tbody = document.getElementById('resume-body');
-            tbody.innerHTML = data.map(row => {
-                const pClass = row.priority === 'High' ? 'text-red-600 border-red-200' : (row.priority === 'Low' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
-                const sClass = row.status === 'Done' ? 'text-emerald-600 border-emerald-200' : (row.status === 'Pending' ? 'text-slate-400 border-slate-200' : 'text-blue-600 border-blue-200');
+            const projectNames = Object.keys(groupedData).filter(name => name.toLowerCase().includes(searchTerm));
+            
+            if (projectNames.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-400 italic">Tidak ada project ditemukan</td></tr>';
+                return;
+            }
 
-                return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold">
-                    <td class="px-6 py-5 uppercase text-slate-800">${row.project_name}
-                        <div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${row.task_desc || '-'}</div>
+            tbody.innerHTML = projectNames.map(name => {
+                const data = groupedData[name];
+                const avgProgress = (data.totalProgress / data.count).toFixed(1);
+                
+                return `<tr class="hover:bg-slate-50 transition-all text-xs font-bold border-b border-slate-100">
+                    <td class="px-6 py-5 uppercase text-slate-800">
+                        ${name}
+                        <div class="text-[9px] text-slate-400 normal-case italic mt-1 font-medium">${data.count} Tasks Total</div>
                     </td>
-                    <td class="px-4 py-5 text-center text-slate-500">${row.assigned_to}</td>
+                    <td class="px-4 py-5 text-center text-slate-500">${data.count} Tasks</td>
                     <td class="px-4 py-5 text-center">
-                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${pClass}">${row.priority || 'Mid'}</span>
-                    </td>
-                    <td class="px-4 py-5 text-center">
-                        <span class="px-3 py-1 rounded-full text-[9px] border uppercase ${sClass}">${row.status}</span>
+                        <div class="flex items-center justify-center gap-2">
+                            <span class="text-blue-600">${avgProgress}%</span>
+                            <div class="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                <div class="h-full ${getProgressColor(avgProgress)}" style="width: ${avgProgress}%"></div>
+                            </div>
+                        </div>
                     </td>
                     <td class="px-6 py-5 text-center">
-                        <button onclick='openDetail(${JSON.stringify(row)})' class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button>
+                        <button onclick="openGroupDetail('${name.replace(/'/g, "\\'")}')" class="bg-orange-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-orange-600 shadow-md transition-all">Review</button>
                     </td>
                 </tr>`;
             }).join('');
+        }
+
+        function openGroupDetail(projName) {
+            document.getElementById('det-project-name').innerText = projName;
+            const tasks = groupedData[projName].tasks;
+            const container = document.getElementById('grouped-tasks-container');
+            
+            container.innerHTML = tasks.map(t => {
+                const subtasks = allSubtasks.filter(s => s.parent_task_id == t.id);
+                let subtasksHtml = '';
+                
+                if (subtasks.length > 0) {
+                    subtasksHtml = `<div class="mt-3 pl-4 border-l-2 border-slate-200">
+                        <p class="text-[9px] font-bold text-slate-400 uppercase mb-2">Subtasks:</p>
+                        ${subtasks.map(s => `
+                            <div class="bg-slate-50 p-2 rounded-lg mb-2 text-xs flex justify-between items-center border border-slate-100">
+                                <span class="text-slate-600">${s.subtask_desc}</span>
+                                <span class="text-[9px] px-2 py-0.5 rounded bg-white border border-slate-200 font-bold">${s.progress_percent}%</span>
+                            </div>
+                        `).join('')}
+                    </div>`;
+                } else {
+                    subtasksHtml = `<div class="mt-3 pl-4 border-l-2 border-slate-200 text-[10px] text-slate-400 italic">Tidak ada subtask</div>`;
+                }
+
+                return `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full ${getProgressColor(t.progress_percent)}"></div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="text-[10px] font-black bg-blue-50 text-blue-600 px-2 py-0.5 rounded uppercase mb-1 inline-block">${t.assigned_to}</span>
+                            <p class="text-sm font-bold text-slate-800">${t.task_desc || 'No Description'}</p>
+                        </div>
+                        <div class="text-right">
+                             <span class="text-[10px] font-black ${t.status === 'Done' ? 'text-emerald-600' : 'text-slate-500'} uppercase">${t.status}</span>
+                             <p class="text-xs font-black text-slate-800">${t.progress_percent}%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-3 text-[10px] text-slate-500">
+                        <div>Start: <span class="font-bold text-slate-700">${formatDateTimeClean(t.start_date)}</span></div>
+                        <div>Due: <span class="font-bold text-slate-700">${formatDateTimeClean(t.due_date)}</span></div>
+                    </div>
+                    
+                    ${t.worker_comment ? `<div class="mt-3 bg-indigo-50 p-3 rounded-xl text-[10px] text-indigo-800 italic border border-indigo-100">"${t.worker_comment}"</div>` : ''}
+                    ${t.hold_reason ? `<div class="mt-2 bg-rose-50 p-3 rounded-xl text-[10px] text-rose-800 font-bold border border-rose-100">HOLD: ${t.hold_reason}</div>` : ''}
+                    
+                    ${subtasksHtml}
+                </div>`;
+            }).join('');
+
+            document.getElementById('detailModal').style.display = 'block';
         }
 
         function updatePersonnelGrid() {
@@ -504,81 +436,14 @@
             const container = document.getElementById('personnel-stats');
             container.innerHTML = personnel.map(name => {
                 const c = rawData.filter(r => r.assigned_to === name).length; total += c;
-                return `<div onclick="selectPerson('${name}')" class="person-card card-${name.toLowerCase()}"> <p class="text-[9px] font-black opacity-70">${name}</p> <h4 class="text-xl font-black">${c}</h4> </div>`;
+                return `<div class="person-card card-${name.toLowerCase()}"> <p class="text-[9px] font-black opacity-70">${name}</p> <h4 class="text-xl font-black">${c}</h4> </div>`;
             }).join('');
             document.getElementById('grand-total-tasks').innerText = total;
         }
 
-        function openDetail(row) {
-            document.getElementById('det-project-name').innerText = row.project_name || "Tanpa Judul";
-            document.getElementById('det-pic').innerText = row.assigned_to || "-";
-            document.getElementById('det-task').innerText = row.task_desc || 'Belum ada deskripsi tugas.';
-            document.getElementById('det-status').innerText = row.status || "PENDING";
-            document.getElementById('det-priority').innerText = row.priority || "MID";
-            document.getElementById('det-start').innerText = formatDateTimeClean(row.start_date);
-            
-            // REVISI: Ganti Laporan Aktivitas dengan Subtask
-            const subtasks = allSubtasks.filter(s => s.parent_task_id == row.id);
-            const subContainer = document.getElementById('det-subtasks-list');
-
-            if(subtasks.length === 0) {
-                subContainer.innerHTML = '<p class="text-slate-400 italic text-xs">Tidak ada sub-task.</p>';
-            } else {
-                subContainer.innerHTML = subtasks.map(s => `
-                    <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 flex justify-between items-center">
-                        <div>
-                            <p class="text-xs font-bold text-slate-700">${s.subtask_desc}</p>
-                            <p class="text-[9px] text-slate-500 mt-1 italic">${s.worker_notes || '-'}</p>
-                            <p class="text-[9px] text-slate-500 mt-0.5">${formatDateTimeClean(s.start_date)} - ${formatDateTimeClean(s.end_date)}</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded ${s.status === 'Done' ? 'bg-emerald-200 text-emerald-800' : 'bg-slate-200 text-slate-600'}">${s.status}</span>
-                            <p class="text-[9px] font-bold text-slate-600 mt-1">${s.progress_percent}%</p>
-                        </div>
-                    </div>
-                `).join('');
-            }
-            
-            document.getElementById('det-hold-reason').innerText = row.hold_reason || "-";
-
-            const finishValue = document.getElementById('det-finish');
-            const finishLabel = document.getElementById('finish-label');
-            const finishBox = document.getElementById('finish-box');
-
-            if (row.status === 'Done') {
-                finishBox.style.display = 'block';
-                finishLabel.innerText = "Finish Work";
-                finishValue.innerText = formatDateTimeClean(row.actual_finish || row.work_end_time || row.due_date);
-            } else {
-                finishBox.style.display = 'block';
-                finishLabel.innerText = "Plan Finish (Due Date)";
-                finishValue.innerText = formatDateTimeClean(row.due_date);
-            }
-
-            const overdueLabel = document.getElementById('det-overdue-label');
-            if (row.due_date && row.status !== 'Done') {
-                const dueDate = new Date(row.due_date);
-                const today = new Date(); today.setHours(0,0,0,0);
-                if (today > dueDate) {
-                    const diffDays = Math.floor((today - dueDate) / (1000 * 60 * 60 * 24));
-                    overdueLabel.innerText = `${diffDays}D LATE`;
-                    overdueLabel.classList.remove('hidden');
-                } else overdueLabel.classList.add('hidden');
-            } else overdueLabel.classList.add('hidden');
-
-            let prog = row.progress_percent || 0;
-            const progVal = (row.status === 'Done' ? 100 : prog);
-            document.getElementById('det-progress-text').innerText = progVal + '%';
-            const progressBar = document.getElementById('det-progress-bar');
-            progressBar.className = "progress-fill " + getProgressColor(progVal);
-            progressBar.style.width = progVal + '%';
-
-            document.getElementById('detailModal').style.display = 'block';
-        }
-
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
         
-        // EXPORT TO EXCEL
+        // EXPORT TO EXCEL - Tetap Detail Semua Data
         function exportToExcel() {
             if (rawData.length === 0) return alert("Tidak ada data untuk di-export!");
             
@@ -592,29 +457,20 @@
                 'Start Date': r.start_date || "-",
                 'Due Date': r.due_date || "-",
                 'Actual Finish': r.actual_finish || "-",
-                'Progress (%)': r.progress_percent || 0
+                'Progress (%)': r.progress_percent || 0,
+                'Worker Comment': r.worker_comment || "-",
+                'Hold Reason': r.hold_reason || "-"
             }));
 
             const ws = XLSX.utils.json_to_sheet(exportData);
-
-            // Auto-width logic for each column
-            const colWidths = Object.keys(exportData[0]).map(key => {
-                let maxLen = key.length;
-                exportData.forEach(row => {
-                    let cellValue = row[key] ? row[key].toString() : "";
-                    if (cellValue.length > maxLen) maxLen = cellValue.length;
-                });
-                return { wch: maxLen + 5 };
-            });
-
+            const colWidths = Object.keys(exportData[0]).map(key => ({ wch: 20 }));
             ws['!cols'] = colWidths;
-
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "DailyReport");
+            XLSX.utils.book_append_sheet(wb, ws, "AllTasksDetail");
             XLSX.writeFile(wb, "Resume_Daily_Report_All_Tasks.xlsx");
         }
 
-        window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); document.getElementById('projectDetailModal').style.display = 'none'; document.getElementById('projectAggregateModal').style.display = 'none'; } };
+        window.onclick = function(e) { if(e.target.className === 'modal') { closeModal(); document.getElementById('projectAggregateModal').style.display = 'none'; } };
         window.onload = fetchAllData;
     </script>
 </body>
