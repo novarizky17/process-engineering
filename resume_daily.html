@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Daily Report - Analytics (Grouped View)</title>
+    <title>Resume Daily Report - Analytics (Interactive)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -135,6 +135,15 @@
                         <canvas id="projectPieChart"></canvas>
                     </div>
                 </div>
+                <div class="max-w-xl mx-auto mb-6">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        </span>
+                        <input type="text" id="search-modal-project" oninput="renderAggregateProjects()" placeholder="Cari Judul Project di sini..." class="w-full bg-white border border-slate-200 pl-11 pr-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
+                    </div>
+                </div>
+                <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
             <div class="p-6 bg-white border-t flex justify-center gap-4">
                 <button onclick="exportProjectSummary()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] shadow-md transition-all active:scale-95 flex items-center gap-2">
@@ -428,6 +437,43 @@
             }).join('');
 
             document.getElementById('detailModal').style.display = 'block';
+        }
+
+        // UPDATE: renderAggregateProjects (SAMA DENGAN openGroupDetail agar konsisten)
+        function renderAggregateProjects() {
+            const searchVal = document.getElementById('search-modal-project')?.value.toLowerCase() || "";
+            const projects = {};
+            rawData.forEach(item => {
+                const name = (item.project_name || "Tanpa Nama").toUpperCase();
+                if (searchVal !== "" && !name.toLowerCase().includes(searchVal)) return;
+
+                if (!projects[name]) { projects[name] = { totalProgress: 0, count: 0 }; }
+                projects[name].totalProgress += parseFloat(item.progress_percent || 0);
+                projects[name].count += 1;
+            });
+
+            const container = document.getElementById('modal-project-list');
+            const projectKeys = Object.keys(projects);
+            if (projectKeys.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 font-bold italic">Project tidak ditemukan...</div>`;
+                return;
+            }
+
+            container.innerHTML = projectKeys.map(projName => {
+                const data = projects[projName];
+                const avgProgress = (data.totalProgress / data.count).toFixed(1);
+                const displayAvg = parseFloat(avgProgress);
+
+                // Tambahkan onclick="openGroupDetail(...)" agar sama dengan tabel utama
+                return `<div onclick="openGroupDetail('${projName.replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4>
+                        <span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${displayAvg >= 50 ? 'text-blue-700' : 'text-rose-700'}">${displayAvg}%</span>
+                    </div>
+                    <div class="progress-bg h-2 mb-4"><div class="progress-fill ${getProgressColor(displayAvg)}" style="width: ${displayAvg}%"></div></div>
+                    <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div>
+                </div>`;
+            }).join('');
         }
 
         function updatePersonnelGrid() {
