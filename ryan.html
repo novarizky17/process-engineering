@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Ryan (Time Fixed)</title>
+    <title>Work Panel - Ryan (Timezone Fixed)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -28,20 +28,20 @@
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 6px;
-            padding: 8px 10px;
+            padding: 6px 8px;
             width: 100%;
-            font-size: 13px; 
+            font-size: 12px;
             color: #334155;
             transition: all 0.2s;
         }
         .table-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
 
-        /* Badge Select */
+        /* Status & Job Badge Select */
         .badge-select {
             appearance: none;
-            padding: 6px 20px 6px 10px;
+            padding: 4px 24px 4px 10px;
             border-radius: 6px;
-            font-size: 12px; 
+            font-size: 11px;
             font-weight: 700;
             cursor: pointer;
             border: 1px solid transparent;
@@ -52,6 +52,7 @@
             background-size: 1em;
             text-transform: capitalize;
             width: 100%;
+            transition: transform 0.2s;
         }
         .badge-select:hover { transform: scale(1.02); }
 
@@ -82,15 +83,27 @@
         @keyframes popUp { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
         .modal-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; display: block; }
-        .modal-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; }
+        .modal-input { 
+            width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; 
+            padding: 10px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; 
+        }
         .modal-input:focus { border-color: #3b82f6; background-color: #eff6ff; }
 
         /* Badges */
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-mid { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        .tree-line { border-left: 2px dashed #cbd5e1; border-bottom: 2px dashed #cbd5e1; height: 25px; width: 15px; display: inline-block; margin-right: 5px; margin-bottom: 4px; }
+        .badge-status { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+        .badge-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+
+        /* Tree Line */
+        .tree-line {
+            border-left: 2px dashed #cbd5e1;
+            border-bottom: 2px dashed #cbd5e1;
+            height: 25px; width: 15px;
+            display: inline-block; margin-right: 5px; margin-bottom: 4px;
+        }
     </style>
 </head>
 <body class="antialiased bg-slate-50">
@@ -114,20 +127,21 @@
     </div>
 
     <div class="w-full px-8 -mt-28 pb-32 relative z-10">
+        
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 w-full">
-            <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-blue-500 flex justify-between items-center">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-blue-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
                 <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p><h3 id="stat-active" class="text-4xl font-black text-slate-800">0</h3></div>
                 <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 text-xl"><i class="fa-solid fa-spinner fa-spin"></i></div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-amber-500 flex justify-between items-center">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-amber-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
                 <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p><h3 id="stat-pending" class="text-4xl font-black text-slate-800">0</h3></div>
                 <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 text-xl"><i class="fa-regular fa-clock"></i></div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-rose-500 flex justify-between items-center">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-rose-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
                 <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p><h3 id="stat-hold" class="text-4xl font-black text-slate-800">0</h3></div>
                 <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 text-xl"><i class="fa-solid fa-pause"></i></div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-emerald-500 flex justify-between items-center">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-emerald-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
                 <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Selesai</p><h3 id="stat-finished" class="text-4xl font-black text-slate-800">0</h3></div>
                 <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 text-xl"><i class="fa-solid fa-check-double"></i></div>
             </div>
@@ -140,12 +154,18 @@
                     <input type="text" id="search-input" oninput="filterTable()" placeholder="Cari Project, Mesin, atau Tugas..." class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:border-blue-500 outline-none transition-all">
                 </div>
                 <div class="relative w-1/4">
-                    <select id="filter-priority" onchange="filterTable()" class="pl-4 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 outline-none cursor-pointer">
-                        <option value="">Semua Priority</option><option value="Low">Low</option><option value="Mid">Mid</option><option value="High">High</option>
+                    <i class="fa-solid fa-filter absolute left-4 top-3.5 text-slate-400"></i>
+                    <select id="filter-priority" onchange="filterTable()" class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 outline-none cursor-pointer focus:bg-white focus:border-blue-500 appearance-none">
+                        <option value="">Semua Priority</option>
+                        <option value="Low">Low Priority</option>
+                        <option value="Mid">Mid Priority</option>
+                        <option value="High">High Priority</option>
                     </select>
                 </div>
             </div>
-            <button onclick="fetchRyanTasks()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-bold uppercase shadow-md flex items-center gap-2"><i class="fa-solid fa-arrows-rotate"></i> Refresh Data</button>
+            <button onclick="fetchRyanTasks()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-bold uppercase shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+                <i class="fa-solid fa-arrows-rotate"></i> Refresh Data
+            </button>
         </div>
 
         <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden w-full">
@@ -198,21 +218,28 @@
                     <div>
                         <label class="modal-label">Kategori</label>
                         <select id="modal-job" class="modal-input">
-                            <option value="-">-</option><option value="Improvement">Improvement</option><option value="Overhaul">Overhaul</option>
-                            <option value="Perawatan">Perawatan</option><option value="New Project">New Project</option><option value="Trial">Trial</option>
+                            <option value="-">-</option>
+                            <option value="Improvement">Improvement</option>
+                            <option value="Overhaul">Overhaul</option>
+                            <option value="Perawatan">Perawatan</option>
+                            <option value="New Project">New Project</option>
+                            <option value="Trial">Trial</option>
                         </select>
                     </div>
                     <div>
                         <label class="modal-label">Status</label>
                         <select id="modal-status" class="modal-input font-bold text-blue-600">
-                            <option value="Pending">Pending</option><option value="In Progress">In Progress</option><option value="Hold">Hold</option><option value="Done">Done</option>
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Hold">Hold</option>
+                            <option value="Done">Done</option>
                         </select>
                     </div>
                 </div>
                 <div><label class="modal-label">Catatan Tambahan (Wajib jika HOLD)</label><textarea id="modal-note" class="modal-input h-20 resize-none" placeholder="Tulis catatan..."></textarea></div>
             </div>
             <div class="p-6 border-t border-slate-100 bg-slate-50">
-                <button onclick="saveSubtask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg text-sm tracking-wide">Simpan Data</button>
+                <button onclick="saveSubtask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg transition-all text-sm tracking-wide">Simpan Data</button>
             </div>
         </div>
     </div>
@@ -223,25 +250,25 @@
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let allTasks = [], subTasksMap = {}; 
 
-        // Fungsi membersihkan format timestamp database (jika ada T)
-        // tapi untuk input datetime-local kita perlu format 'YYYY-MM-DDTHH:mm'
+        // Fungsi membersihkan format timestamp database untuk input (tetap T)
         function cleanTimestamp(dateStr) { 
             if (!dateStr) return '';
-            // Mengembalikan format YYYY-MM-DDTHH:mm untuk value input
-            return dateStr.substring(0, 16); 
+            return dateStr.substring(0, 16); // YYYY-MM-DDTHH:mm
         }
 
-        // Fungsi format tampilan tabel (DD/MM/YY HH:mm)
+        // --- PERBAIKAN FORMAT TIMEZONE ---
+        // Menggunakan getUTC methods agar tampilan tabel sama persis dengan input
         function formatTime(dateStr) {
             if (!dateStr) return '-';
             const date = new Date(dateStr);
-            if (isNaN(date.getTime())) return '-';
+            if(isNaN(date.getTime())) return '-';
             
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
-            const year = date.getFullYear().toString().substr(-2);
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
+            // Gunakan UTC methods agar tidak ada konversi ke lokal (+7 jam)
+            const day = String(date.getUTCDate()).padStart(2, '0');
+            const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+            const year = date.getUTCFullYear().toString().substr(-2);
+            const hours = String(date.getUTCHours()).padStart(2, '0');
+            const minutes = String(date.getUTCMinutes()).padStart(2, '0');
 
             return `${day}/${month}/${year} ${hours}:${minutes}`;
         }
@@ -257,6 +284,7 @@
                 default: return 'bg-slate-50 text-slate-500 border-slate-200';
             }
         }
+
         function getStatusClass(status) {
             switch(status) {
                 case 'Pending': return 'bg-amber-100 text-amber-700 border-amber-200';
@@ -266,6 +294,7 @@
                 default: return 'bg-white text-slate-500 border-slate-200';
             }
         }
+
         function updateSelectColor(el, type) {
             if(type === 'job') el.className = `badge-select ${getJobClass(el.value)}`;
             if(type === 'status') el.className = `badge-select ${getStatusClass(el.value)}`;
@@ -416,8 +445,7 @@
 
         // --- VALIDATION & SAVE LOGIC ---
         async function saveMain(id) {
-            // ... (Kode saveMain sama seperti sebelumnya) ...
-             const sVal = document.getElementById(`start-${id}`).value;
+            const sVal = document.getElementById(`start-${id}`).value;
             const eVal = document.getElementById(`end-${id}`).value;
             const statVal = document.getElementById(`stat-${id}`).value;
             const holdVal = document.getElementById(`hold-${id}`).value;
@@ -432,7 +460,6 @@
             const payload = {
                 status: statVal,
                 progress_percent: document.getElementById(`prog-${id}`).value,
-                // Pastikan ini menyimpan value input (ISO string, e.g., 2026-01-30T16:03)
                 work_start_time: sVal ? sVal : null,
                 work_end_time: eVal ? eVal : null,
                 job_type: document.getElementById(`job-${id}`).value,
@@ -449,8 +476,7 @@
         }
 
         async function saveSubtaskInline(subId) {
-             // ... (Kode saveSubtaskInline sama seperti sebelumnya) ...
-             const statusVal = document.getElementById(`sub-stat-${subId}`).value;
+            const statusVal = document.getElementById(`sub-stat-${subId}`).value;
             const noteVal = document.getElementById(`sub-note-${subId}`).value;
 
             // VALIDASI HOLD SUBTASK INLINE
@@ -476,8 +502,7 @@
         }
 
         async function saveSubtask() {
-             // ... (Kode saveSubtask sama seperti sebelumnya) ...
-             const subId = document.getElementById('modal-subtask-id').value;
+            const subId = document.getElementById('modal-subtask-id').value;
             const parentId = document.getElementById('modal-parent-id').value;
             const desc = document.getElementById('modal-desc').value;
             const statusVal = document.getElementById('modal-status').value;
@@ -492,7 +517,6 @@
                 return;
             }
 
-            // Ambil value input date (format YYYY-MM-DDTHH:mm)
             const sVal = document.getElementById('modal-start').value;
             const eVal = document.getElementById('modal-finish').value;
 
@@ -501,7 +525,6 @@
                 subtask_desc: desc,
                 priority: document.getElementById('modal-prio').value,
                 progress_percent: document.getElementById('modal-prog').value,
-                // Simpan langsung format ISO string dari input
                 start_date: sVal ? sVal : null,
                 end_date: eVal ? eVal : null,
                 job_type: document.getElementById('modal-job').value,
@@ -528,8 +551,7 @@
         }
 
         // --- COMMON FUNCTIONS ---
-        // ... (Fungsi openSubtaskModal, editSubtask, closeModal, deleteSubTask, filterTable, updateStats sama) ...
-         function openSubtaskModal() {
+        function openSubtaskModal() {
             document.getElementById('modal-title').innerText = "Tambah Rincian";
             document.getElementById('modal-subtask-id').value = ""; 
             document.getElementById('modal-parent-id').value = '';
