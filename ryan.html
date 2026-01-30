@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Ryan (Stats Fixed)</title>
+    <title>Work Panel - Ryan (Manual Save)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -92,14 +92,8 @@
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
         .badge-status { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
         .badge-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
-
-        /* Tree Line */
-        .tree-line {
-            border-left: 2px dashed #cbd5e1;
-            border-bottom: 2px dashed #cbd5e1;
-            height: 25px; width: 15px;
-            display: inline-block; margin-right: 5px; margin-bottom: 4px;
-        }
+        
+        .tree-line { border-left: 2px dashed #cbd5e1; border-bottom: 2px dashed #cbd5e1; height: 25px; width: 15px; display: inline-block; margin-right: 5px; margin-bottom: 4px; }
     </style>
 </head>
 <body class="antialiased bg-slate-50">
@@ -214,14 +208,21 @@
                     <div>
                         <label class="modal-label">Kategori</label>
                         <select id="modal-job" class="modal-input">
-                            <option value="-">-</option><option value="Improvement">Improvement</option><option value="Overhaul">Overhaul</option>
-                            <option value="Perawatan">Perawatan</option><option value="New Project">New Project</option><option value="Trial">Trial</option>
+                            <option value="-">-</option>
+                            <option value="Improvement">Improvement</option>
+                            <option value="Overhaul">Overhaul</option>
+                            <option value="Perawatan">Perawatan</option>
+                            <option value="New Project">New Project</option>
+                            <option value="Trial">Trial</option>
                         </select>
                     </div>
                     <div>
                         <label class="modal-label">Status</label>
                         <select id="modal-status" class="modal-input font-bold text-blue-600">
-                            <option value="Pending">Pending</option><option value="In Progress">In Progress</option><option value="Hold">Hold</option><option value="Done">Done</option>
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Hold">Hold</option>
+                            <option value="Done">Done</option>
                         </select>
                     </div>
                 </div>
@@ -239,13 +240,19 @@
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let allTasks = [], subTasksMap = {}; 
 
-        function cleanTimestamp(dateStr) { return dateStr ? dateStr.substring(0, 16) : ''; }
+        // Fungsi membersihkan format timestamp database untuk input
+        function cleanTimestamp(dateStr) { 
+            if (!dateStr) return '';
+            return dateStr.substring(0, 16); 
+        }
 
+        // FORMAT JAM (UTC) - FIX TAMPILAN
         function formatTime(dateStr) {
             if (!dateStr) return '-';
             const date = new Date(dateStr);
             if(isNaN(date.getTime())) return '-';
             
+            // Gunakan UTC methods agar sinkron dengan input
             const day = String(date.getUTCDate()).padStart(2, '0');
             const month = String(date.getUTCMonth() + 1).padStart(2, '0');
             const year = date.getUTCFullYear().toString().substr(-2);
@@ -318,6 +325,7 @@
                 const jobClass = getJobClass(row.job_type); 
                 const statusClass = getStatusClass(row.status);
                 
+                // NO ONCHANGE IN INPUTS (MANUAL SAVE ONLY)
                 let mainRow = `
                     <tr class="bg-white border-b border-slate-100 hover:bg-blue-50/30 transition-colors">
                         <td class="px-6 py-5 align-top border-l-4 border-blue-500 pl-5">
@@ -333,15 +341,15 @@
                         <td class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
                         <td class="px-4 py-5 align-top">
                             <div class="flex items-center gap-2 justify-center">
-                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold" onchange="saveMain('${row.id}')">
+                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
                             <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="bg-blue-600 h-full transition-all duration-500" style="width:${progress}%"></div></div>
                         </td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" onchange="saveMain('${row.id}')" class="table-input text-center"></td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" onchange="saveMain('${row.id}')" class="table-input text-center"></td>
+                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-center"></td>
+                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-center"></td>
                         <td class="px-4 py-5 align-top text-center">
-                            <select id="job-${row.id}" onchange="updateSelectColor(this, 'job'); saveMain('${row.id}')" class="badge-select ${jobClass}">
+                            <select id="job-${row.id}" onchange="updateSelectColor(this, 'job')" class="badge-select ${jobClass}">
                                 <option value="-" ${row.job_type=='-'?'selected':''}>-</option>
                                 <option value="Improvement" ${row.job_type=='Improvement'?'selected':''}>Improvement</option>
                                 <option value="Overhaul" ${row.job_type=='Overhaul'?'selected':''}>Overhaul</option>
@@ -351,10 +359,10 @@
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top">
-                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold..." onchange="saveMain('${row.id}')">${row.hold_reason||''}</textarea>
+                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold...">${row.hold_reason||''}</textarea>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
-                            <select id="stat-${row.id}" onchange="updateSelectColor(this, 'status'); saveMain('${row.id}')" class="badge-select ${statusClass}">
+                            <select id="stat-${row.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusClass}">
                                 <option value="Pending" ${row.status=='Pending'?'selected':''}>PENDING</option>
                                 <option value="In Progress" ${row.status=='In Progress'?'selected':''}>IN PROGRESS</option>
                                 <option value="Hold" ${row.status=='Hold'?'selected':''}>HOLD</option>
@@ -581,17 +589,15 @@
             renderTasks(filtered);
         }
 
-        // --- UPDATED STATS LOGIC ---
         function updateStats(data) {
              let p = 0, i = 0, h = 0, d = 0;
              data.forEach(item => {
-                 const status = (item.status || 'Pending'); // Default ke Pending jika null
-                 if (status === 'Pending') p++;
-                 else if (status === 'In Progress') i++;
-                 else if (status === 'Hold') h++;
-                 else if (status === 'Done') d++;
+                 const status = item.status;
+                 if(status === 'Pending') p++;
+                 else if(status === 'In Progress') i++;
+                 else if(status === 'Hold') h++;
+                 else if(status === 'Done') d++;
              });
-             
              document.getElementById('stat-active').innerText = i;
              document.getElementById('stat-pending').innerText = p;
              document.getElementById('stat-hold').innerText = h;
