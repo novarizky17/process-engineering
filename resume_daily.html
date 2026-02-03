@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Daily Report - Smart Search</title>
+    <title>Resume Daily Report - Final Complete</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -24,23 +24,16 @@
         .card-eko { background-color: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
         .card-tata { background-color: #fff1f2; border-color: #fecdd3; color: #9f1239; }
         .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
-        
-        /* Modal Styles */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
         .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; max-height: 90vh; }
-        
-        /* Pop-up Detail (Nested Modal) */
         .popup-modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); justify-content: center; align-items: center; }
         .popup-content { background: white; border-radius: 20px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; position: relative; animation: zoomIn 0.2s ease-out; padding: 25px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-        
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 8px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.8s ease-out; }
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
         @keyframes zoomIn { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
-        /* Card Style */
         .task-card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); position: relative; overflow: hidden; transition: all 0.2s; cursor: pointer; }
         .task-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.1); border-color: #cbd5e1; }
         .left-border { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; }
@@ -107,11 +100,10 @@
 
         <section class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="relative">
-                <input type="text" id="search-report" list="project-list" oninput="applyFilters()" placeholder="Cari atau Pilih Project..." class="w-full bg-slate-50 border border-slate-200 pl-4 pr-4 py-3 rounded-2xl text-sm outline-none font-bold">
-                <datalist id="project-list"></datalist>
+                <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Nama Project..." class="w-full bg-slate-50 border border-slate-200 pl-4 pr-4 py-3 rounded-2xl text-sm outline-none font-bold">
             </div>
             <div class="flex items-center justify-end px-4 text-xs text-slate-500 italic font-medium">
-                * Ketik untuk mencari atau pilih dari daftar project yang tersedia.
+                * Data dikelompokkan per Project. Perhatikan notif LATE.
             </div>
         </section>
 
@@ -150,7 +142,7 @@
                     <div class="h-[250px] w-full relative"><canvas id="projectPieChart"></canvas></div>
                 </div>
                 <div class="max-w-xl mx-auto mb-6">
-                    <input type="text" id="search-modal-project" list="project-list" oninput="renderAggregateProjects()" placeholder="Filter Judul Project..." class="w-full bg-white border border-slate-200 pl-4 pr-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
+                    <input type="text" id="search-modal-project" oninput="renderAggregateProjects()" placeholder="Filter Judul Project..." class="w-full bg-white border border-slate-200 pl-4 pr-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
                 </div>
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
@@ -268,7 +260,6 @@
             updatePersonnelGrid();
             switchChart('person'); 
             renderGroupedTable();
-            populateProjectList(); // ISI DATALIST
         }
 
         function processGroupedData() {
@@ -285,19 +276,6 @@
             });
         }
 
-        // FUNGSI BARU: ISI DATALIST UNTUK SUGGESTION
-        function populateProjectList() {
-            const dataList = document.getElementById('project-list');
-            dataList.innerHTML = ''; // Reset
-            const projectNames = Object.keys(groupedData).sort(); // Urutkan Abjad
-
-            projectNames.forEach(name => {
-                const option = document.createElement('option');
-                option.value = name;
-                dataList.appendChild(option);
-            });
-        }
-
         function getProgressColor(percent) {
             const p = parseFloat(percent);
             if (p >= 100) return "bg-emerald-500"; 
@@ -310,6 +288,7 @@
             renderGroupedTable(search);
         }
 
+        // --- RENDER TABEL (GROUPED) ---
         function renderGroupedTable(searchTerm = "") {
             const tbody = document.getElementById('resume-body');
             const projectNames = Object.keys(groupedData).filter(name => name.toLowerCase().includes(searchTerm));
@@ -351,6 +330,7 @@
             }).join('');
         }
 
+        // --- GROUP DETAIL MODAL ---
         function openGroupDetail(projName) {
             document.getElementById('det-project-name').innerText = projName;
             const tasks = groupedData[projName].tasks;
@@ -362,6 +342,12 @@
                 if(t.priority === 'High') borderColor = 'bg-rose-500';
                 else if(t.priority === 'Mid') borderColor = 'bg-blue-500';
                 else if(t.priority === 'Low') borderColor = 'bg-emerald-500';
+                
+                // PRIORITY CLASS FOR BADGE
+                let prioClass = 'bg-slate-100 text-slate-600 border-slate-200';
+                if(t.priority === 'High') prioClass = 'bg-rose-100 text-rose-700 border-rose-200';
+                else if(t.priority === 'Mid') prioClass = 'bg-blue-50 text-blue-700 border-blue-200';
+                else if(t.priority === 'Low') prioClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
 
                 const subtaskCount = subtasks.length > 0 ? `${subtasks.length} Subtask` : 'Tidak ada subtask';
                 const taskData = encodeURIComponent(JSON.stringify(t));
@@ -373,7 +359,10 @@
                     <div class="left-border ${borderColor}"></div>
                     <div class="flex justify-between items-start mb-3 pl-2">
                         <div class="flex flex-col">
-                            <span class="bg-blue-100 text-blue-700 text-[9px] font-black px-3 py-1 rounded-md uppercase tracking-wide w-fit mb-2 flex items-center gap-1">👤 ${t.assigned_to}</span>
+                            <div class="flex gap-2 mb-2">
+                                <span class="bg-blue-100 text-blue-700 text-[9px] font-black px-3 py-1 rounded-md uppercase tracking-wide w-fit">👤 ${t.assigned_to}</span>
+                                <span class="${prioClass} text-[9px] font-black px-3 py-1 rounded-md uppercase tracking-wide border">${t.priority || 'Mid'}</span>
+                            </div>
                             <h3 class="text-sm font-bold text-slate-800 uppercase leading-snug">${t.task_desc || 'Tidak ada deskripsi'}</h3>
                         </div>
                         <div class="text-right flex-shrink-0 ml-4">
@@ -394,6 +383,7 @@
             document.getElementById('detailModal').style.display = 'block';
         }
 
+        // --- POP-UP DETAIL SATUAN ---
         function openPopup(encodedTask) {
             const t = JSON.parse(decodeURIComponent(encodedTask));
             const subtasks = allSubtasks.filter(s => s.parent_task_id == t.id);
@@ -448,6 +438,7 @@
         function closePopup() { document.getElementById('singleTaskPopup').style.display = 'none'; }
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
 
+        // --- GLOBAL REVIEW (AGREGAT) ---
         function renderAggregateProjects() {
             const searchVal = document.getElementById('search-modal-project')?.value.toLowerCase() || "";
             const container = document.getElementById('modal-project-list');
@@ -483,15 +474,17 @@
 
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
-        // EXPORT TO EXCEL: PARENT ONLY WITH AUTO-WIDTH
+        // --- NEW EXPORT LOGIC: PARENT ONLY WITH AUTO-WIDTH ---
         function exportToExcel() {
             if (rawData.length === 0) return alert("Tidak ada data untuk di-export!");
             
+            // Map data from rawData (Parent Only) - ADDED PRIORITY
             const exportData = rawData.map((parent, index) => ({
                 'No': index + 1,
                 'Project Name': (parent.project_name || "").toUpperCase(),
                 'PIC': parent.assigned_to,
                 'Task Description': parent.task_desc,
+                'Priority': parent.priority || "Mid", // ADDED PRIORITY HERE
                 'Status': parent.status,
                 'Progress (%)': parent.progress_percent,
                 'Start Date': formatDateTimeClean(parent.start_date),
@@ -503,14 +496,14 @@
 
             const ws = XLSX.utils.json_to_sheet(exportData);
             
-            // AUTO WIDTH
+            // AUTO WIDTH LOGIC
             const colWidths = Object.keys(exportData[0]).map(key => {
-                let maxLen = key.length;
+                let maxLen = key.length; 
                 exportData.forEach(row => {
                     let cellVal = row[key] ? String(row[key]) : "";
                     if (cellVal.length > maxLen) maxLen = cellVal.length;
                 });
-                return { wch: maxLen + 2 };
+                return { wch: maxLen + 2 }; 
             });
 
             ws['!cols'] = colWidths;
@@ -520,6 +513,7 @@
             XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
         }
 
+        // CHARTS & STATS WITH LABELS
         function switchChart(type) {
             document.querySelectorAll('.btn-toggle').forEach(btn => btn.classList.remove('btn-active'));
             document.getElementById('btn-' + type)?.classList.add('btn-active');
