@@ -6,6 +6,7 @@
     <title>Tooling Support - Control Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         
@@ -45,11 +46,43 @@
         #notif-content {
             transition: opacity 0.5s ease-in-out;
         }
+
+        /* Tombol Logout */
+        .btn-logout {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-logout:hover {
+            background: #ef4444; /* Merah */
+            border-color: #ef4444;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.4);
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <header class="gradient-bg text-white pt-20 pb-32 px-6 text-center shadow-2xl">
+    <header class="gradient-bg text-white pt-20 pb-32 px-6 text-center shadow-2xl relative">
+        <button onclick="handleLogout()" class="btn-logout">
+            <i class="fa-solid fa-power-off"></i> Logout
+        </button>
+
         <div class="max-w-4xl mx-auto">
             <h1 class="text-4xl md:text-5xl font-extrabold tracking-tighter uppercase mb-4">
                 Control Center
@@ -108,6 +141,14 @@
                 <h2 class="text-xl font-extrabold text-slate-800 uppercase mb-2">Form Checklist</h2>
                 <p class="text-slate-400 text-xs font-medium leading-relaxed">Data statistik dan ringkasan checklist kondisi aset tooling.</p>
             </a>
+            
+            <a href="resume_daily.html" class="menu-card bg-white p-8 rounded-[2.5rem] shadow-xl border-b-8 border-rose-600 group">
+                <div class="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-rose-600 transition-colors duration-300">
+                    <svg class="w-8 h-8 text-rose-600 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <h2 class="text-xl font-extrabold text-slate-800 uppercase mb-2">Daily Resume</h2>
+                <p class="text-slate-400 text-xs font-medium leading-relaxed">Analisis performa tim, progres tugas harian, dan ekspor laporan.</p>
+            </a>
 
         </div>
     </main>
@@ -126,6 +167,23 @@
 
         let listJadwal = [];
         let currentIndex = 0;
+
+        // FUNGSI LOGOUT
+        function handleLogout() {
+            if(confirm("Apakah Anda yakin ingin keluar?")) {
+                localStorage.removeItem("activeUser"); // Hapus sesi
+                window.location.href = "index.html";   // Kembali ke login
+            }
+        }
+
+        // FUNGSI CEK SESI (OPSIONAL, AGAR TIDAK BISA AKSES JIKA BELUM LOGIN)
+        function checkSession() {
+            const user = localStorage.getItem("activeUser");
+            if (!user) {
+                // Jika tidak ada user aktif, tendang ke login
+                window.location.href = "index.html";
+            }
+        }
 
         async function startNotificationLoop() {
             const container = document.getElementById('notif-container');
@@ -167,7 +225,10 @@
             }
         }
 
-        window.onload = startNotificationLoop;
+        window.onload = function() {
+            checkSession(); // Cek dulu boleh masuk atau tidak
+            startNotificationLoop(); // Baru jalankan notif
+        };
     </script>
 
 </body>
