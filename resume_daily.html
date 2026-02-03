@@ -3,86 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Daily Report - Final Interactive</title>
+    <title>Resume Daily Report - Final Complete</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .gradient-orange { background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%); }
-        
-        /* Utils */
-        .toggle-container { background-color: #f1f5f9; border-radius: 12px; padding: 4px; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; border: 1px solid #e2e8f0; }
-        .btn-toggle { padding: 8px 16px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; transition: all 0.2s ease; color: #64748b; border: none; cursor: pointer; }
-        .btn-toggle:hover { background-color: #e2e8f0; color: #475569; }
-        .btn-active { background-color: #ea580c !important; color: white !important; box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.4); }
-        
-        /* Interactive Person Card */
-        .person-card { transition: all 0.2s ease; cursor: pointer; border-radius: 16px; padding: 1.25rem; text-align: center; border: 2px solid transparent; background: white; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .person-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: #cbd5e1; }
-        
-        /* Active State untuk Kartu yang Diklik */
-        .person-card.active-filter { border-color: #ea580c; background-color: #fff7ed; transform: scale(1.02); box-shadow: 0 10px 20px -5px rgba(234, 88, 12, 0.2); }
-
-        .card-ryan { color: #1e40af; }
-        .card-isyqi { color: #5b21b6; }
-        .card-jumawan { color: #92400e; }
-        .card-eko { color: #065f46; }
-        .card-tata { color: #9f1239; }
-        .card-barok { color: #1e293b; }
-
-        /* Modals & Popups */
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
-        .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; max-height: 90vh; }
-        .popup-modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px); justify-content: center; align-items: center; }
-        .popup-content { background: white; border-radius: 24px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; position: relative; animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); padding: 30px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        
-        .progress-bg { width: 100%; background-color: #f1f5f9; border-radius: 9999px; height: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        @keyframes slideIn { from {transform: scale(0.95) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
-        @keyframes zoomIn { from {transform: scale(0.95); opacity: 0;} to {transform: scale(1); opacity: 1;} }
-        
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .toggle-container { background-color: #f1f5f9; border-radius: 16px; padding: 6px; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+        .btn-toggle { padding: 8px 16px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; transition: all 0.3s ease; color: #64748b; border: none; cursor: pointer; }
+        .btn-active { background-color: #ea580c; color: white; box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.4); }
+        .person-card { transition: all 0.3s ease; cursor: pointer; border-radius: 1rem; padding: 1rem; text-align: center; border: 1px solid transparent; }
+        .person-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); filter: brightness(0.95); }
+        .card-ryan { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+        .card-isyqi { background-color: #f5f3ff; border-color: #ddd6fe; color: #5b21b6; }
+        .card-jumawan { background-color: #fffbeb; border-color: #fde68a; color: #92400e; }
+        .card-eko { background-color: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+        .card-tata { background-color: #fff1f2; border-color: #fecdd3; color: #9f1239; }
+        .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
+        .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; max-height: 90vh; }
+        .popup-modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); justify-content: center; align-items: center; }
+        .popup-content { background: white; border-radius: 20px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; position: relative; animation: zoomIn 0.2s ease-out; padding: 25px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 8px; overflow: hidden; }
+        .progress-fill { height: 100%; transition: width 0.8s ease-out; }
+        @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
+        @keyframes zoomIn { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
-        .task-card { background: white; border: 1px solid #f1f5f9; border-radius: 20px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); position: relative; overflow: hidden; transition: all 0.2s; cursor: pointer; }
-        .task-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); border-color: #e2e8f0; }
+        .task-card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); position: relative; overflow: hidden; transition: all 0.2s; cursor: pointer; }
+        .task-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.1); border-color: #cbd5e1; }
         .left-border { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; }
     </style>
 </head>
 <body class="min-h-screen pb-12">
 
-    <header class="gradient-orange w-full pt-12 pb-28 px-8 mb-[-90px] shadow-xl">
+    <header class="gradient-orange w-full pt-12 pb-24 px-8 mb-[-80px] shadow-2xl">
         <div class="max-w-[98%] mx-auto flex justify-between items-end">
             <div>
                 <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Resume Daily Report</h1>
-                <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide opacity-90">Dashboard Monitoring & Analisis Kinerja</p>
+                <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Monitoring Progres & Analisis Data Terintegrasi</p>
             </div>
             <div class="flex gap-3">
-                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase border border-emerald-500 transition-all shadow-lg hover:shadow-emerald-500/30 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                    Download Excel
-                </button>
-                <a href="management_tracker.html" class="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase border border-white/20 transition-all backdrop-blur-sm">Kembali</a>
+                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-emerald-500 transition-all shadow-lg">Download Excel All Task</button>
+                <a href="management_tracker.html" class="bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-white/20 transition-all">Kembali</a>
             </div>
         </div>
     </header>
 
     <main class="max-w-[98%] mx-auto px-4 mt-20">
         <section class="mb-8 relative z-10">
-            <div class="bg-white p-1 rounded-[2rem] shadow-xl border border-slate-100">
-                <div class="bg-white p-6 rounded-[2rem]">
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-3">
-                            <span class="w-3 h-8 bg-blue-600 rounded-full shadow-lg shadow-blue-500/30"></span>
-                            Project Aggregated Progress
-                        </h3>
-                        <button onclick="openProjectAggregateModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl font-black text-[11px] uppercase shadow-lg shadow-blue-600/30 flex items-center gap-2 transition-all active:scale-95 hover:-translate-y-0.5">
+            <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
+                <div class="flex flex-col gap-4">
+                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
+                        <span class="w-2 h-6 bg-blue-600 rounded-full"></span>
+                        Project Aggregated Progress
+                    </h3>
+                    <div class="flex justify-start">
+                        <button onclick="openProjectAggregateModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase shadow-md flex items-center gap-2 transition-all active:scale-95">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                             Review Semua Project
                         </button>
@@ -92,12 +73,9 @@
         </section>
 
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 relative z-10">
-            <div class="lg:col-span-2 bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100">
-                <div class="flex flex-col gap-6 mb-2">
-                    <div class="flex justify-between items-center">
-                        <h3 id="chart-title" class="text-sm font-black text-slate-700 uppercase tracking-widest">Visualisasi Diagram</h3>
-                        <span id="active-filter-label" class="text-[10px] font-bold bg-slate-100 px-3 py-1 rounded-full text-slate-500">All Team</span>
-                    </div>
+            <div class="lg:col-span-2 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
+                <div class="flex flex-col gap-4 mb-6">
+                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">Visualisasi Diagram</h3>
                     <div class="toggle-container">
                         <button id="btn-person" onclick="switchChart('person')" class="btn-toggle btn-active">Per Personil</button>
                         <button id="btn-Pending" onclick="switchChart('Pending')" class="btn-toggle">Pending</button>
@@ -106,21 +84,15 @@
                         <button id="btn-Done" onclick="switchChart('Done')" class="btn-toggle">Done</button>
                     </div>
                 </div>
-                <div class="h-[380px] w-full relative">
-                    <canvas id="projectChart"></canvas>
-                </div>
+                <div class="h-[350px] w-full"><canvas id="projectChart"></canvas></div>
             </div>
-            
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 flex flex-col">
-                <div class="mb-6 text-center">
-                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">Summary Task</h3>
-                    <p class="text-[10px] text-slate-400 italic mt-1 font-medium">Klik nama untuk filter diagram</p>
-                </div>
-                <div id="personnel-stats" class="grid grid-cols-2 gap-4 flex-grow content-start"></div>
-                <div class="mt-8 pt-6 border-t border-slate-100 text-center">
-                    <div class="bg-slate-800 text-white p-5 rounded-2xl inline-block w-full shadow-lg shadow-slate-800/20">
-                        <p class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Grand Total Tasks</p>
-                        <h4 id="grand-total-tasks" class="text-3xl font-black mt-1">0</h4>
+            <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 flex flex-col">
+                <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest mb-6 text-center">Summary Task</h3>
+                <div id="personnel-stats" class="grid grid-cols-2 gap-3 flex-grow"></div>
+                <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+                    <div class="bg-slate-900 text-white p-4 rounded-2xl inline-block w-full">
+                        <p class="text-[10px] font-black uppercase text-slate-400">Grand Total Tasks</p>
+                        <h4 id="grand-total-tasks" class="text-2xl font-black mt-1">0</h4>
                     </div>
                 </div>
             </div>
@@ -128,26 +100,25 @@
 
         <section class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="relative">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-5 top-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Nama Project..." class="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-orange-400 pl-14 pr-6 py-3.5 rounded-2xl text-sm outline-none font-bold transition-all">
+                <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Nama Project..." class="w-full bg-slate-50 border border-slate-200 pl-4 pr-4 py-3 rounded-2xl text-sm outline-none font-bold">
             </div>
-            <div class="flex items-center justify-end px-4 text-xs text-slate-500 italic font-medium bg-slate-50 rounded-2xl border border-slate-100">
-                <span class="mr-2">💡</span> Data dikelompokkan per Project. Perhatikan notif LATE.
+            <div class="flex items-center justify-end px-4 text-xs text-slate-500 italic font-medium">
+                * Data dikelompokkan per Project. Perhatikan notif LATE.
             </div>
         </section>
 
-        <section class="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden text-sm">
+        <section class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden text-sm">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-50/80 text-slate-500 text-[10px] uppercase font-black border-b border-slate-100">
-                            <th class="px-8 py-6 w-1/3 tracking-wider">Nama Project</th>
-                            <th class="px-4 py-6 text-center w-1/6 tracking-wider">Total Task</th>
-                            <th class="px-4 py-6 text-center w-1/4 tracking-wider">Avg Progress</th>
-                            <th class="px-8 py-6 text-center w-1/6 tracking-wider">Aksi</th>
+                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-black border-b border-slate-100">
+                            <th class="px-6 py-5 w-1/3">Nama Project</th>
+                            <th class="px-4 py-5 text-center w-1/6">Total Task</th>
+                            <th class="px-4 py-5 text-center w-1/4">Avg Progress</th>
+                            <th class="px-6 py-5 text-center w-1/6">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="resume-body" class="divide-y divide-slate-50"></tbody>
+                    <tbody id="resume-body" class="divide-y divide-slate-100"></tbody>
                 </table>
             </div>
         </section>
@@ -155,46 +126,90 @@
 
     <div id="projectAggregateModal" class="modal">
         <div class="modal-content shadow-2xl" style="max-width: 1100px;">
-            <div class="bg-slate-900 p-8 text-white flex justify-between items-center flex-shrink-0">
-                <div><h2 class="text-2xl font-black uppercase tracking-tight">Review Semua Project</h2><p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Akumulasi Seluruh Project</p></div>
-                <button onclick="closeProjectAggregateModal()" class="text-white/50 hover:text-white text-4xl font-light leading-none transition-colors">&times;</button>
-            </div>
-            <div class="p-10 overflow-y-auto custom-scroll bg-slate-50 text-center flex-grow">
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 mb-10 inline-block w-full max-w-[500px]">
-                    <div class="flex justify-between items-center mb-6"><h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Total Akumulasi Progres</h3><span id="overall-prog-label" class="text-sm font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100">0%</span></div>
-                    <div class="h-[280px] w-full relative"><canvas id="projectPieChart"></canvas></div>
+            <div class="bg-blue-900 p-6 text-white flex justify-between items-center flex-shrink-0">
+                <div>
+                    <h2 class="text-lg font-black uppercase tracking-tight">Review Semua Project</h2>
+                    <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest">Akumulasi Seluruh Project</p>
                 </div>
-                <div class="max-w-2xl mx-auto mb-8"><div class="relative"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-5 top-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg><input type="text" id="search-modal-project" oninput="renderAggregateProjects()" placeholder="Filter Judul Project..." class="w-full bg-white border border-slate-200 pl-14 pr-6 py-4 rounded-2xl text-sm font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase"></div></div>
+                <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
+            </div>
+            <div class="p-8 overflow-y-auto custom-scroll bg-slate-50 text-center flex-grow">
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8 inline-block w-full max-w-[450px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Akumulasi Progres</h3>
+                        <span id="overall-prog-label" class="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100">0%</span>
+                    </div>
+                    <div class="h-[250px] w-full relative"><canvas id="projectPieChart"></canvas></div>
+                </div>
+                <div class="max-w-xl mx-auto mb-6">
+                    <input type="text" id="search-modal-project" oninput="renderAggregateProjects()" placeholder="Filter Judul Project..." class="w-full bg-white border border-slate-200 pl-4 pr-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
+                </div>
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
-            <div class="p-6 bg-white border-t flex justify-center gap-4 flex-shrink-0"><button onclick="closeProjectAggregateModal()" class="bg-slate-800 hover:bg-slate-900 text-white px-10 py-4 rounded-xl font-black uppercase text-xs transition-all shadow-lg">Tutup Review</button></div>
+            <div class="p-6 bg-white border-t flex justify-center gap-4 flex-shrink-0">
+                <button onclick="closeProjectAggregateModal()" class="bg-slate-800 text-white px-8 py-3 rounded-xl font-black uppercase text-[10px]">Tutup</button>
+            </div>
         </div>
     </div>
 
     <div id="detailModal" class="modal">
         <div class="modal-content shadow-2xl bg-slate-50">
-            <div class="bg-slate-900 p-8 text-white flex justify-between items-center border-b border-slate-800 flex-shrink-0">
-                <div><h2 class="text-xl font-black uppercase flex items-center gap-3"><span class="w-2 h-6 bg-orange-500 rounded-full"></span> Detail Project</h2><p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase tracking-wider mt-2 ml-5"></p></div>
-                <button onclick="closeModal()" class="text-white/50 hover:text-white text-4xl transition-colors">&times;</button>
+            <div class="bg-slate-900 p-6 text-white flex justify-between items-center border-b border-slate-800 flex-shrink-0">
+                <div>
+                    <h2 class="text-xl font-black uppercase flex items-center gap-3">Detail Project</h2>
+                    <p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase tracking-wider mt-1"></p>
+                </div>
+                <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl transition-colors">&times;</button>
             </div>
-            <div class="p-10 overflow-y-auto custom-scroll flex-grow"><div id="grouped-tasks-container" class="flex flex-col gap-6"></div></div>
-            <div class="p-6 bg-white border-t flex justify-center flex-shrink-0"><button onclick="closeModal()" class="bg-slate-800 hover:bg-slate-900 text-white w-full max-w-md py-4 rounded-xl font-black uppercase text-xs shadow-lg transition-all">Tutup Laporan</button></div>
+            <div class="p-8 overflow-y-auto custom-scroll flex-grow">
+                 <div id="grouped-tasks-container" class="flex flex-col gap-5"></div>
+            </div>
+            <div class="p-6 bg-white border-t flex justify-center flex-shrink-0">
+                <button onclick="closeModal()" class="bg-slate-800 hover:bg-slate-900 text-white w-full max-w-md py-4 rounded-xl font-black uppercase text-xs shadow-lg transition-all">Tutup</button>
+            </div>
         </div>
     </div>
 
     <div id="singleTaskPopup" class="popup-modal">
         <div class="popup-content">
             <div class="flex justify-between items-start mb-6 border-b border-slate-100 pb-4">
-                <div><span id="popup-person" class="bg-blue-100 text-blue-700 text-[10px] font-black px-3 py-1 rounded-lg uppercase tracking-wide border border-blue-200">PERSONIL</span><h3 id="popup-desc" class="text-lg font-black text-slate-800 mt-3 leading-snug">Task Description</h3><div id="popup-late-badge" class="hidden mt-2"></div></div>
-                <button onclick="closePopup()" class="text-slate-400 hover:text-red-500 text-3xl transition-colors">&times;</button>
+                <div>
+                    <span id="popup-person" class="bg-blue-100 text-blue-700 text-[10px] font-black px-3 py-1 rounded-md uppercase tracking-wide">PERSONIL</span>
+                    <h3 id="popup-desc" class="text-lg font-black text-slate-800 mt-2 leading-snug">Task Description</h3>
+                    <div id="popup-late-badge" class="hidden mt-2"></div>
+                </div>
+                <button onclick="closePopup()" class="text-slate-400 hover:text-red-500 text-2xl transition-colors">&times;</button>
             </div>
-            <div class="space-y-6">
-                <div class="grid grid-cols-2 gap-4"><div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center"><label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Status</label><p id="popup-status" class="text-sm font-black text-slate-700 uppercase mt-1">PENDING</p></div><div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center"><label class="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Progress</label><p id="popup-progress" class="text-sm font-black text-blue-600 mt-1">0%</p></div></div>
-                <div class="grid grid-cols-2 gap-4 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-100"><div><label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Start Date</label><p id="popup-start" class="font-bold text-slate-700 text-sm">-</p></div><div class="text-right"><label class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Target Finish</label><p id="popup-finish" class="font-bold text-slate-700 text-sm">-</p></div></div>
-                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden"><div class="bg-slate-50 px-4 py-2 border-b border-slate-100"><h4 class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Rincian Sub-Task</h4></div><div id="popup-subtasks" class="p-4 space-y-3 max-h-48 overflow-y-auto custom-scroll"></div></div>
+            <div class="space-y-5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase">Status</label>
+                        <p id="popup-status" class="text-sm font-black text-slate-700 uppercase">PENDING</p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase">Progress</label>
+                        <p id="popup-progress" class="text-sm font-black text-blue-600">0%</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-400 uppercase">Start Date</label>
+                        <p id="popup-start" class="font-bold text-slate-600">-</p>
+                    </div>
+                    <div class="text-right">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase">Target Finish</label>
+                        <p id="popup-finish" class="font-bold text-slate-600">-</p>
+                    </div>
+                </div>
+                <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
+                    <h4 class="text-xs font-black text-slate-500 uppercase mb-3 border-b border-slate-200 pb-2">Rincian Sub-Task</h4>
+                    <div id="popup-subtasks" class="space-y-3 max-h-40 overflow-y-auto custom-scroll pr-1"></div>
+                </div>
                 <div id="popup-notes-container" class="space-y-3"></div>
             </div>
-            <div class="mt-8 pt-4 border-t border-slate-100 text-center"><button onclick="closePopup()" class="bg-slate-800 text-white w-full py-3.5 rounded-xl font-bold text-xs hover:bg-slate-900 transition-all shadow-md">Tutup Detail</button></div>
+            <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+                <button onclick="closePopup()" class="bg-slate-800 text-white w-full py-3 rounded-xl font-bold text-xs hover:bg-slate-900 transition-all">Tutup Detail</button>
+            </div>
         </div>
     </div>
 
@@ -208,8 +223,6 @@
         let groupedData = {};
         let projectChart = null;
         let pieChartInstance = null;
-        // VARIABEL BARU UNTUK FILTER KLIK
-        let activePersonFilter = null; 
 
         function formatDateTimeClean(str) {
             if (!str) return '-';
@@ -275,12 +288,13 @@
             renderGroupedTable(search);
         }
 
+        // --- RENDER TABEL (GROUPED) ---
         function renderGroupedTable(searchTerm = "") {
             const tbody = document.getElementById('resume-body');
             const projectNames = Object.keys(groupedData).filter(name => name.toLowerCase().includes(searchTerm));
             
             if (projectNames.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-12 text-slate-400 italic font-medium">Tidak ada project ditemukan</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-400 italic">Tidak ada project ditemukan</td></tr>';
                 return;
             }
 
@@ -289,141 +303,275 @@
                 const avgProgress = (data.totalProgress / data.count).toFixed(1);
                 
                 const lateIndicator = data.hasLate 
-                    ? `<div class="text-[9px] text-rose-600 font-bold mt-1.5 animate-pulse flex items-center gap-1"><span class="w-1.5 h-1.5 bg-rose-600 rounded-full"></span> OVERDUE DETECTED</div>` 
-                    : `<div class="text-[10px] text-slate-400 normal-case mt-1.5 font-medium group-hover:text-blue-500 transition-colors">Klik review untuk detail</div>`;
+                    ? `<div class="text-[9px] text-red-600 font-bold mt-1 animate-pulse">⚠️ Overdue Item Detected</div>` 
+                    : `<div class="text-[10px] text-slate-400 normal-case mt-1 font-medium group-hover:text-orange-500 transition-colors">Klik review untuk detail</div>`;
 
-                return `<tr class="hover:bg-blue-50/30 transition-all text-xs font-bold border-b border-slate-50 group cursor-default"><td class="px-8 py-6 uppercase text-slate-800"><div class="font-black text-sm text-slate-900">${name}</div>${lateIndicator}</td><td class="px-4 py-6 text-center text-slate-500 font-black"><span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg border border-slate-200">${data.count} Tasks</span></td><td class="px-4 py-6 text-center"><div class="flex items-center justify-center gap-3"><span class="text-slate-700 font-black w-8 text-right">${avgProgress}%</span><div class="w-24 h-2.5 bg-slate-200 rounded-full overflow-hidden shadow-inner"><div class="h-full ${getProgressColor(avgProgress)}" style="width: ${avgProgress}%"></div></div></div></td><td class="px-8 py-6 text-center"><button onclick="openGroupDetail('${name.replace(/'/g, "\\'")}')" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-md hover:shadow-orange-500/30 transition-all active:scale-95 flex items-center gap-2 mx-auto">Review</button></td></tr>`;
+                return `
+                <tr class="hover:bg-slate-50 transition-all text-xs font-bold border-b border-slate-100 group">
+                    <td class="px-6 py-5 uppercase text-slate-800">
+                        <div class="font-black text-sm text-slate-900">${name}</div>
+                        ${lateIndicator}
+                    </td>
+                    <td class="px-4 py-5 text-center text-slate-500 font-black bg-slate-50/50">${data.count} Tasks</td>
+                    <td class="px-4 py-5 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <span class="text-blue-600 font-black w-8 text-right">${avgProgress}%</span>
+                            <div class="w-24 h-2 bg-slate-200 rounded-full overflow-hidden shadow-inner">
+                                <div class="h-full ${getProgressColor(avgProgress)}" style="width: ${avgProgress}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-5 text-center">
+                        <button onclick="openGroupDetail('${name.replace(/'/g, "\\'")}')" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center gap-2 mx-auto">
+                             Review
+                        </button>
+                    </td>
+                </tr>`;
             }).join('');
         }
 
-        // --- NEW LOGIC: FILTER CHART BY PERSON ---
-        function filterChartByPerson(name) {
-            // Toggle logic: If clicked again, reset to main chart
-            if (activePersonFilter === name) {
-                activePersonFilter = null;
-                switchChart('person'); // Reset to default
-                updatePersonnelGrid(); // Remove highlights
+        // --- GROUP DETAIL MODAL ---
+        function openGroupDetail(projName) {
+            document.getElementById('det-project-name').innerText = projName;
+            const tasks = groupedData[projName].tasks;
+            const container = document.getElementById('grouped-tasks-container');
+            
+            container.innerHTML = tasks.map(t => {
+                const subtasks = allSubtasks.filter(s => s.parent_task_id == t.id);
+                let borderColor = 'bg-slate-300';
+                if(t.priority === 'High') borderColor = 'bg-rose-500';
+                else if(t.priority === 'Mid') borderColor = 'bg-blue-500';
+                else if(t.priority === 'Low') borderColor = 'bg-emerald-500';
+
+                const subtaskCount = subtasks.length > 0 ? `${subtasks.length} Subtask` : 'Tidak ada subtask';
+                const taskData = encodeURIComponent(JSON.stringify(t));
+                const daysLate = getDaysLate(t.due_date, t.status);
+                const lateBadge = daysLate > 0 ? `<span class="bg-red-500 text-white text-[9px] px-2 py-0.5 rounded font-black animate-pulse shadow-sm ml-2">LATE ${daysLate} DAYS</span>` : '';
+
+                return `
+                <div onclick="openPopup('${taskData}')" class="task-card group hover:bg-blue-50/30 transition-colors">
+                    <div class="left-border ${borderColor}"></div>
+                    <div class="flex justify-between items-start mb-3 pl-2">
+                        <div class="flex flex-col">
+                            <span class="bg-blue-100 text-blue-700 text-[9px] font-black px-3 py-1 rounded-md uppercase tracking-wide w-fit mb-2 flex items-center gap-1">👤 ${t.assigned_to}</span>
+                            <h3 class="text-sm font-bold text-slate-800 uppercase leading-snug">${t.task_desc || 'Tidak ada deskripsi'}</h3>
+                        </div>
+                        <div class="text-right flex-shrink-0 ml-4">
+                             <span class="text-[9px] font-black px-2 py-1 rounded ${t.status === 'Done' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'} uppercase border border-slate-200">${t.status}</span>
+                             <div class="text-sm font-black text-slate-800 mt-1">${t.progress_percent}%</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] font-medium text-slate-500 mx-2 mt-2 bg-slate-50 p-2 rounded-lg">
+                        <div class="flex items-center">Target: <span class="font-bold text-slate-700 ml-1">${formatDateTimeClean(t.due_date)}</span> ${lateBadge}</div>
+                    </div>
+                    <div class="mt-3 mx-2 pt-2 border-t border-slate-100 flex justify-between items-center">
+                        <span class="text-[10px] text-slate-400 italic">${subtaskCount}</span>
+                        <span class="text-[10px] font-bold text-blue-600 group-hover:underline">Klik detail ></span>
+                    </div>
+                </div>`;
+            }).join('');
+
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        // --- POP-UP DETAIL SATUAN ---
+        function openPopup(encodedTask) {
+            const t = JSON.parse(decodeURIComponent(encodedTask));
+            const subtasks = allSubtasks.filter(s => s.parent_task_id == t.id);
+
+            document.getElementById('popup-person').innerText = t.assigned_to;
+            document.getElementById('popup-desc').innerText = t.task_desc;
+            document.getElementById('popup-status').innerText = t.status;
+            document.getElementById('popup-progress').innerText = t.progress_percent + '%';
+            document.getElementById('popup-start').innerText = formatDateTimeClean(t.start_date);
+            document.getElementById('popup-finish').innerText = formatDateTimeClean(t.due_date);
+
+            const daysLate = getDaysLate(t.due_date, t.status);
+            const badgeContainer = document.getElementById('popup-late-badge');
+            if(daysLate > 0) {
+                badgeContainer.innerHTML = `<span class="bg-red-500 text-white text-xs px-3 py-1 rounded-full font-black animate-pulse">⚠️ OVERDUE BY ${daysLate} DAYS</span>`;
+                badgeContainer.classList.remove('hidden');
+            } else {
+                badgeContainer.classList.add('hidden');
+            }
+
+            const subContainer = document.getElementById('popup-subtasks');
+            if (subtasks.length > 0) {
+                subContainer.innerHTML = subtasks.map(s => `
+                    <div class="bg-white p-2.5 rounded-lg border border-slate-100 shadow-sm flex flex-col gap-1">
+                        <div class="flex justify-between">
+                            <span class="text-[10px] font-bold text-slate-700">${s.subtask_desc}</span>
+                            <span class="text-[9px] font-black ${s.status==='Done'?'text-emerald-500':'text-orange-500'}">${s.status}</span>
+                        </div>
+                        ${s.worker_notes ? `<p class="text-[9px] text-slate-400 italic">"${s.worker_notes}"</p>` : ''}
+                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-1 overflow-hidden">
+                            <div class="h-full bg-blue-500" style="width: ${s.progress_percent}%"></div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                subContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Tidak ada rincian subtask.</p>';
+            }
+
+            const noteContainer = document.getElementById('popup-notes-container');
+            let notesHtml = '';
+            if(t.worker_comment && t.worker_comment !== '-') {
+                notesHtml += `<div class="bg-indigo-50 p-3 rounded-xl text-xs text-indigo-800 italic border border-indigo-100"><span class="font-bold not-italic block mb-1">Komentar:</span> "${t.worker_comment}"</div>`;
+            }
+            if(t.hold_reason) {
+                notesHtml += `<div class="bg-rose-50 p-3 rounded-xl text-xs text-rose-800 font-bold border border-rose-100"><span class="block mb-1 text-rose-500">ALASAN HOLD:</span> ${t.hold_reason}</div>`;
+            }
+            noteContainer.innerHTML = notesHtml;
+
+            document.getElementById('singleTaskPopup').style.display = 'flex';
+        }
+
+        function closePopup() { document.getElementById('singleTaskPopup').style.display = 'none'; }
+        function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+
+        // --- GLOBAL REVIEW (AGREGAT) ---
+        function renderAggregateProjects() {
+            const searchVal = document.getElementById('search-modal-project')?.value.toLowerCase() || "";
+            const container = document.getElementById('modal-project-list');
+            const projectKeys = Object.keys(groupedData).filter(name => name.toLowerCase().includes(searchVal));
+
+            if (projectKeys.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 font-bold italic">Project tidak ditemukan...</div>`;
                 return;
             }
 
-            activePersonFilter = name;
-            updatePersonnelGrid(); // Highlight selected card
+            container.innerHTML = projectKeys.map(projName => {
+                const data = groupedData[projName];
+                const avgProgress = (data.totalProgress / data.count).toFixed(1);
+                const displayAvg = parseFloat(avgProgress);
 
-            // Update UI Labels
-            document.getElementById('chart-title').innerText = `Statistik: ${name}`;
-            document.getElementById('active-filter-label').innerText = `Filter: ${name}`;
-            
-            // Remove active state from toggle buttons
-            document.querySelectorAll('.btn-toggle').forEach(btn => btn.classList.remove('btn-active'));
-
-            const personTasks = rawData.filter(r => r.assigned_to === name);
-            const statuses = ['Pending', 'In Progress', 'Hold', 'Done'];
-            const dataCounts = statuses.map(s => personTasks.filter(t => t.status === s).length);
-            
-            const statusColors = ['#f59e0b', '#3b82f6', '#f43f5e', '#10b981']; // Colors for statuses
-
-            const ctx = document.getElementById('projectChart').getContext('2d');
-            if (projectChart) projectChart.destroy();
-
-            projectChart = new Chart(ctx, { 
-                type: 'bar', 
-                data: { labels: statuses, datasets: [{ data: dataCounts, backgroundColor: statusColors, borderRadius: 12, barThickness: 50 }] }, 
-                plugins: [ChartDataLabels],
-                options: { 
-                    responsive: true, maintainAspectRatio: false, layout: { padding: { top: 35 } },
-                    plugins: { 
-                        legend: {display: false},
-                        datalabels: {
-                            anchor: 'end', align: 'top', color: '#1e293b', font: { family: 'Inter', weight: '900', size: 15 },
-                            backgroundColor: 'white', borderRadius: 6, padding: 6,
-                            formatter: (value) => value > 0 ? value : ''
-                        }
-                    },
-                    scales: { y: { beginAtZero: true, grace: '10%', grid: { borderDash: [5, 5] } }, x: { grid: { display: false } } }
-                } 
-            });
+                return `<div onclick="openGroupDetail('${projName.replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4>
+                        <span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${displayAvg >= 50 ? 'text-blue-700' : 'text-rose-700'}">${displayAvg}%</span>
+                    </div>
+                    <div class="progress-bg h-2 mb-4"><div class="progress-fill ${getProgressColor(displayAvg)}" style="width: ${displayAvg}%"></div></div>
+                    <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div>
+                </div>`;
+            }).join('');
+        }
+        
+        function openProjectAggregateModal() { 
+            if(document.getElementById('search-modal-project')) document.getElementById('search-modal-project').value = '';
+            renderAggregateProjects(); 
+            renderProjectPieChart();
+            document.getElementById('projectAggregateModal').style.display = 'block'; 
         }
 
-        // --- MAIN CHART LOGIC (WITH GRADIENTS) ---
-        function switchChart(type) {
-            activePersonFilter = null; // Reset person filter
-            updatePersonnelGrid(); 
-            document.getElementById('chart-title').innerText = "Visualisasi Diagram";
-            document.getElementById('active-filter-label').innerText = "Semua Personil";
+        function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
+        // --- EXPORT LOGIC: PARENT ONLY WITH AUTO-WIDTH ---
+        function exportToExcel() {
+            if (rawData.length === 0) return alert("Tidak ada data untuk di-export!");
+            
+            // Map data from rawData (Parent Only)
+            const exportData = rawData.map((parent, index) => ({
+                'No': index + 1,
+                'Project Name': (parent.project_name || "").toUpperCase(),
+                'PIC': parent.assigned_to,
+                'Task Description': parent.task_desc,
+                'Status': parent.status,
+                'Progress (%)': parent.progress_percent,
+                'Start Date': formatDateTimeClean(parent.start_date),
+                'Due Date': formatDateTimeClean(parent.due_date),
+                'Actual Finish': formatDateTimeClean(parent.actual_finish || parent.work_end_time),
+                'Hold Reason': parent.hold_reason || "-",
+                'Worker Comment': parent.worker_comment || "-"
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            
+            // AUTO WIDTH LOGIC
+            const colWidths = Object.keys(exportData[0]).map(key => {
+                let maxLen = key.length; // Mulai dengan panjang header
+                exportData.forEach(row => {
+                    let cellVal = row[key] ? String(row[key]) : "";
+                    if (cellVal.length > maxLen) maxLen = cellVal.length;
+                });
+                return { wch: maxLen + 2 }; // Tambah buffer sedikit
+            });
+
+            ws['!cols'] = colWidths;
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Laporan Harian");
+            XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
+        }
+
+        // CHARTS & STATS WITH LABELS
+        function switchChart(type) {
             document.querySelectorAll('.btn-toggle').forEach(btn => btn.classList.remove('btn-active'));
             document.getElementById('btn-' + type)?.classList.add('btn-active');
             const ctx = document.getElementById('projectChart').getContext('2d');
             if (projectChart) projectChart.destroy();
             const personnel = ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
-            
-            const colors = personnel.map((_, i) => {
-                const gradients = [['#3b82f6', '#93c5fd'], ['#6366f1', '#a5b4fc'], ['#f59e0b', '#fcd34d'], ['#10b981', '#6ee7b7'], ['#f43f5e', '#fda4af'], ['#475569', '#94a3b8']];
-                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                gradient.addColorStop(0, gradients[i][0]);
-                gradient.addColorStop(1, gradients[i][1]);
-                return gradient;
-            });
-
+            const colors = ['#3b82f6', '#6366f1', '#f59e0b', '#10b981', '#f43f5e', '#475569'];
             let dataArr = personnel.map(n => {
                 if(type === 'person') return rawData.filter(r => r.assigned_to === n).length;
                 return rawData.filter(r => r.assigned_to === n && r.status === type).length;
             });
-            
             projectChart = new Chart(ctx, { 
                 type: 'bar', 
-                data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: colors, borderRadius: 12, barThickness: 45 }] }, 
+                data: { labels: personnel, datasets: [{ data: dataArr, backgroundColor: colors, borderRadius: 6 }] }, 
                 plugins: [ChartDataLabels],
                 options: { 
-                    responsive: true, maintainAspectRatio: false, layout: { padding: { top: 35 } },
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 30 } },
                     plugins: { 
                         legend: {display: false},
                         datalabels: {
-                            anchor: 'end', align: 'top', color: '#1e293b', font: { family: 'Inter', weight: '900', size: 15 },
-                            backgroundColor: 'white', borderRadius: 6, padding: 6,
+                            anchor: 'end', align: 'top', color: '#1e293b', font: { weight: '900', size: 14 },
+                            backgroundColor: 'rgba(255,255,255,0.8)', borderRadius: 4, padding: 4,
                             formatter: (value) => value > 0 ? value : ''
                         }
                     },
-                    scales: { y: { beginAtZero: true, grace: '10%', grid: { borderDash: [5, 5], color: '#f1f5f9' }, border: { display: false } }, x: { grid: { display: false }, border: { display: false } } }
+                    scales: { y: { beginAtZero: true, grace: '5%' } }
                 } 
             });
         }
 
-        // --- UPDATE GRID WITH CLICK ACTION ---
+        function renderProjectPieChart() {
+            const ctx = document.getElementById('projectPieChart').getContext('2d');
+            if (pieChartInstance) pieChartInstance.destroy();
+            const projectNames = Object.keys(groupedData);
+            const totalProjectCount = projectNames.length;
+            let sumOfProjectAverages = 0;
+            projectNames.forEach(name => { sumOfProjectAverages += (groupedData[name].totalProgress / groupedData[name].count); });
+            const finalOverallProgress = totalProjectCount > 0 ? (sumOfProjectAverages / totalProjectCount).toFixed(1) : 0;
+            const displayValue = parseFloat(finalOverallProgress);
+            document.getElementById('overall-prog-label').innerText = displayValue + '%';
+            pieChartInstance = new Chart(ctx, { 
+                type: 'doughnut', 
+                data: { labels: ['Selesai', 'Sisa'], datasets: [{ data: [displayValue, 100-displayValue], backgroundColor: ['#10b981', '#f1f5f9'], borderWidth: 0, cutout: '75%' }] }, 
+                plugins: [ChartDataLabels],
+                options: { 
+                    responsive: true, maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false },
+                        datalabels: {
+                            color: '#1e293b', font: { weight: '900', size: 16 },
+                            formatter: (val, ctx) => ctx.dataIndex === 0 ? val + '%' : ''
+                        }
+                    } 
+                }, 
+                plugins: [{ id: 'centerText', beforeDraw: function(chart) { var width = chart.width, height = chart.height, ctx = chart.ctx; ctx.restore(); ctx.font = "bold 2.5em sans-serif"; ctx.textBaseline = "middle"; ctx.fillStyle = "#1e293b"; var text = displayValue + "%", textX = Math.round((width - ctx.measureText(text).width) / 2), textY = height / 2; ctx.fillText(text, textX, textY); ctx.save(); } }] 
+            });
+        }
+
         function updatePersonnelGrid() {
             const personnel = ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"];
             let total = 0;
             document.getElementById('personnel-stats').innerHTML = personnel.map(name => {
                 const c = rawData.filter(r => r.assigned_to === name).length; total += c;
-                // Add Active Class styling
-                const activeClass = (activePersonFilter === name) ? 'active-filter ring-2 ring-orange-500 scale-105 shadow-md' : '';
-                
-                return `<div onclick="filterChartByPerson('${name}')" class="person-card card-${name.toLowerCase()} border border-slate-100 shadow-sm ${activeClass}"><p class="text-[10px] font-black opacity-60 uppercase tracking-wider">${name}</p><h4 class="text-2xl font-black mt-1">${c}</h4></div>`;
+                return `<div class="person-card card-${name.toLowerCase()}"><p class="text-[9px] font-black opacity-70">${name}</p><h4 class="text-xl font-black">${c}</h4></div>`;
             }).join('');
             document.getElementById('grand-total-tasks').innerText = total;
-        }
-
-        // --- MODAL & POPUP FUNCTIONS (UNCHANGED) ---
-        function openProjectAggregateModal() { if(document.getElementById('search-modal-project')) document.getElementById('search-modal-project').value = ''; renderAggregateProjects(); renderProjectPieChart(); document.getElementById('projectAggregateModal').style.display = 'block'; }
-        function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
-        function openGroupDetail(projName) { document.getElementById('det-project-name').innerText = projName; const tasks = groupedData[projName].tasks; const container = document.getElementById('grouped-tasks-container'); container.innerHTML = tasks.map(t => { const subtasks = allSubtasks.filter(s => s.parent_task_id == t.id); let borderColor = 'bg-slate-300'; if(t.priority === 'High') borderColor = 'bg-rose-500'; else if(t.priority === 'Mid') borderColor = 'bg-blue-500'; else if(t.priority === 'Low') borderColor = 'bg-emerald-500'; const subtaskCount = subtasks.length > 0 ? `${subtasks.length} Subtask` : 'Tidak ada subtask'; const taskData = encodeURIComponent(JSON.stringify(t)); const daysLate = getDaysLate(t.due_date, t.status); const lateBadge = daysLate > 0 ? `<span class="bg-rose-500 text-white text-[9px] px-2 py-0.5 rounded-md font-black animate-pulse shadow-sm ml-2">LATE ${daysLate} DAYS</span>` : ''; return `<div onclick="openPopup('${taskData}')" class="task-card group hover:bg-blue-50/20 transition-colors"><div class="left-border ${borderColor}"></div><div class="flex justify-between items-start mb-4 pl-3"><div class="flex flex-col gap-1"><span class="bg-blue-50 text-blue-600 text-[9px] font-black px-3 py-1 rounded-lg uppercase tracking-wide w-fit border border-blue-100 flex items-center gap-1">👤 ${t.assigned_to}</span><h3 class="text-sm font-bold text-slate-800 uppercase leading-snug mt-1">${t.task_desc || 'Tidak ada deskripsi'}</h3></div><div class="text-right flex-shrink-0 ml-4"><span class="text-[9px] font-black px-2.5 py-1 rounded-lg ${t.status === 'Done' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'} uppercase border">${t.status}</span><div class="text-sm font-black text-slate-800 mt-2">${t.progress_percent}%</div></div></div><div class="flex justify-between items-center text-[10px] font-medium text-slate-500 mx-2 mt-3 bg-slate-50 p-3 rounded-xl border border-slate-100"><div class="flex items-center gap-2"><span class="text-slate-400">Target:</span> <span class="font-bold text-slate-700">${formatDateTimeClean(t.due_date)}</span> ${lateBadge}</div></div><div class="mt-4 mx-2 pt-3 border-t border-slate-100 flex justify-between items-center"><span class="text-[10px] text-slate-400 font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 bg-slate-300 rounded-full"></span> ${subtaskCount}</span><span class="text-[10px] font-bold text-blue-600 group-hover:translate-x-1 transition-transform">Klik detail &rarr;</span></div></div>`; }).join(''); document.getElementById('detailModal').style.display = 'block'; }
-        function openPopup(encodedTask) { const t = JSON.parse(decodeURIComponent(encodedTask)); const subtasks = allSubtasks.filter(s => s.parent_task_id == t.id); document.getElementById('popup-person').innerText = t.assigned_to; document.getElementById('popup-desc').innerText = t.task_desc; document.getElementById('popup-status').innerText = t.status; document.getElementById('popup-progress').innerText = t.progress_percent + '%'; document.getElementById('popup-start').innerText = formatDateTimeClean(t.start_date); document.getElementById('popup-finish').innerText = formatDateTimeClean(t.due_date); const daysLate = getDaysLate(t.due_date, t.status); const badgeContainer = document.getElementById('popup-late-badge'); if(daysLate > 0) { badgeContainer.innerHTML = `<span class="bg-rose-500 text-white text-xs px-4 py-1.5 rounded-xl font-black animate-pulse shadow-lg shadow-rose-500/30 inline-block">⚠️ OVERDUE BY ${daysLate} DAYS</span>`; badgeContainer.classList.remove('hidden'); } else { badgeContainer.classList.add('hidden'); } const subContainer = document.getElementById('popup-subtasks'); if (subtasks.length > 0) { subContainer.innerHTML = subtasks.map(s => `<div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col gap-2"><div class="flex justify-between items-start"><span class="text-[11px] font-bold text-slate-700 leading-snug w-3/4">${s.subtask_desc}</span><span class="text-[9px] font-black px-2 py-0.5 rounded ${s.status==='Done'?'bg-emerald-100 text-emerald-600':'bg-orange-100 text-orange-600'}">${s.status}</span></div>${s.worker_notes ? `<div class="bg-slate-50 p-2 rounded-lg text-[10px] text-slate-500 italic border border-slate-100">"${s.worker_notes}"</div>` : ''}<div class="flex items-center gap-2 mt-1"><div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div class="h-full bg-blue-500" style="width: ${s.progress_percent}%"></div></div><span class="text-[9px] font-bold text-slate-400">${s.progress_percent}%</span></div></div>`).join(''); } else { subContainer.innerHTML = '<div class="text-center py-4 border-2 border-dashed border-slate-200 rounded-xl"><p class="text-xs text-slate-400 font-bold">Tidak ada rincian subtask.</p></div>'; } const noteContainer = document.getElementById('popup-notes-container'); let notesHtml = ''; if(t.worker_comment && t.worker_comment !== '-') { notesHtml += `<div class="bg-indigo-50 p-4 rounded-2xl text-xs text-indigo-800 border border-indigo-100"><span class="font-black uppercase tracking-wider block mb-2 text-indigo-400">Komentar Personil</span> "${t.worker_comment}"</div>`; } if(t.hold_reason) { notesHtml += `<div class="bg-rose-50 p-4 rounded-2xl text-xs text-rose-800 border border-rose-100"><span class="font-black uppercase tracking-wider block mb-2 text-rose-400">Alasan Hold</span> ${t.hold_reason}</div>`; } noteContainer.innerHTML = notesHtml; document.getElementById('singleTaskPopup').style.display = 'flex'; }
-        function closePopup() { document.getElementById('singleTaskPopup').style.display = 'none'; }
-        function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
-        function renderProjectPieChart() { const ctx = document.getElementById('projectPieChart').getContext('2d'); if (pieChartInstance) pieChartInstance.destroy(); const projectNames = Object.keys(groupedData); const totalProjectCount = projectNames.length; let sumOfProjectAverages = 0; projectNames.forEach(name => { sumOfProjectAverages += (groupedData[name].totalProgress / groupedData[name].count); }); const finalOverallProgress = totalProjectCount > 0 ? (sumOfProjectAverages / totalProjectCount).toFixed(1) : 0; const displayValue = parseFloat(finalOverallProgress); document.getElementById('overall-prog-label').innerText = displayValue + '%'; pieChartInstance = new Chart(ctx, { type: 'doughnut', data: { labels: ['Selesai', 'Sisa'], datasets: [{ data: [displayValue, 100-displayValue], backgroundColor: ['#10b981', '#f1f5f9'], borderWidth: 0, cutout: '82%', borderRadius: 20 }] }, plugins: [ChartDataLabels], options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false }, datalabels: { color: '#1e293b', font: { family: 'Inter', weight: '900', size: 24 }, formatter: (val, ctx) => ctx.dataIndex === 0 ? val + '%' : '' } } }, plugins: [{ id: 'centerText', beforeDraw: function(chart) { var width = chart.width, height = chart.height, ctx = chart.ctx; ctx.restore(); ctx.font = "900 2.5em Inter"; ctx.textBaseline = "middle"; ctx.fillStyle = "#1e293b"; var text = displayValue + "%", textX = Math.round((width - ctx.measureText(text).width) / 2), textY = height / 2; ctx.fillText(text, textX, textY); ctx.save(); } }] }); }
-
-        // --- EXPORT PARENT ONLY (TETAP SEPERTI PERMINTAAN) ---
-        function exportToExcel() {
-            if (rawData.length === 0) return alert("Tidak ada data untuk di-export!");
-            const exportData = rawData.map((parent, index) => ({
-                'No': index + 1, 'Project Name': (parent.project_name || "").toUpperCase(), 'PIC': parent.assigned_to, 'Task Description': parent.task_desc, 'Status': parent.status, 'Progress (%)': parent.progress_percent, 'Start Date': formatDateTimeClean(parent.start_date), 'Due Date': formatDateTimeClean(parent.due_date), 'Actual Finish': formatDateTimeClean(parent.actual_finish || parent.work_end_time), 'Hold Reason': parent.hold_reason || "-", 'Worker Comment': parent.worker_comment || "-"
-            }));
-            const ws = XLSX.utils.json_to_sheet(exportData);
-            const colWidths = Object.keys(exportData[0]).map(key => { let maxLen = key.length; exportData.forEach(row => { let cellVal = row[key] ? String(row[key]) : ""; if (cellVal.length > maxLen) maxLen = cellVal.length; }); return { wch: maxLen + 5 }; });
-            ws['!cols'] = colWidths;
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Laporan Harian");
-            XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
         }
 
         window.onclick = function(e) { 
