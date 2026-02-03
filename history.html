@@ -83,7 +83,6 @@
 
         .col-no { width: 30px; }
         .col-item { width: 150px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
-        /* NEW: Kolom Standar */
         .col-standar { width: 120px; text-align: left !important; padding-left: 5px !important; font-size: 7pt; } 
         .col-status { width: 40px; }
         .col-ket { width: 60px; }
@@ -321,17 +320,32 @@
             document.getElementById('label-tonage').innerText = capacity || "-";
 
             const dateFilter = `${thn}-${bln}`;
+            
+            // Ambil data status Approved
             const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
             if (error) return console.error(error);
 
+            // FILTER DATA (LOOSE FILTER UNTUK CAPACITY)
             const filteredData = data.filter(item => {
                 if (!item.pelaksana || !item.pelaksana.tanggal_checklist) return false;
-                const mMatch = item.pelaksana.nama_tools?.toLowerCase().includes(tools.toLowerCase());
-                // Jika capacity kosong, abaikan filter capacity
-                const tMatch = capacity ? item.pelaksana.capacity?.toLowerCase().includes(capacity.toLowerCase()) : true;
+                
+                // 1. Cek Tanggal
                 const dMatch = item.pelaksana.tanggal_checklist.startsWith(dateFilter);
-                return mMatch && tMatch && dMatch;
+                
+                // 2. Cek Nama Mesin (Partial Match & Case Insensitive)
+                const dbName = item.pelaksana.nama_tools ? item.pelaksana.nama_tools.toLowerCase() : "";
+                const searchName = tools.toLowerCase();
+                const mMatch = dbName.includes(searchName) || searchName.includes(dbName);
+
+                // 3. Cek Capacity (DIABAIKAN SAJA agar data pasti muncul)
+                // Kita anggap jika Nama Mesin + Tanggal cocok, itu data yang benar.
+                
+                return dMatch && mMatch;
             });
+
+            if (filteredData.length === 0) {
+                alert("Data tidak ditemukan! Pastikan Nama Mesin dan Bulan sudah benar.");
+            }
 
             const dataMap = {};
             filteredData.forEach(item => {
