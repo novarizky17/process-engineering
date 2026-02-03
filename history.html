@@ -108,8 +108,11 @@
 <body>
 
     <div class="no-print">
-        <input type="text" id="input-merk" placeholder="NAMA TOOLS / EQUIPMENT">
+        <input type="text" id="input-merk" list="machine-list" placeholder="NAMA TOOLS / EQUIPMENT" oninput="autoFillCapacity()">
+        <datalist id="machine-list"></datalist>
+
         <input type="text" id="input-tonage" placeholder="CAPACITY">
+        
         <select id="filter-bulan">
             <option value="">PILIH BULAN</option>
             <option value="01">JANUARI</option><option value="02">FEBRUARI</option><option value="03">MARET</option>
@@ -202,6 +205,57 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
+        // DATA MESIN & KAPASITAS (SMART AUTOFILL)
+        const machineData = [
+            { name: "LIANXIN 80 T (TOAD)", cap: "80 TON" },
+            { name: "WIBA 270 T (NEBULA)", cap: "270 TON" },
+            { name: "WIBA 240 T (SPIDERMAN)", cap: "240 TON" },
+            { name: "WIBA 210 T (THOR)", cap: "210 TON" },
+            { name: "WIBA 350 T (IRON MAN)", cap: "350 TON" },
+            { name: "ARBURG 320 T (STAR LORD)", cap: "320 TON" },
+            { name: "WIBA 500 T (STEVE ROGERS)", cap: "500 TON" },
+            { name: "WIBA 500 T (THANOS)", cap: "500 TON" },
+            { name: "FCS 220 T (BLACKWIDOW)", cap: "220 TON" },
+            { name: "ENGEL 220 T (DEADPOOL)", cap: "220 TON" },
+            { name: "ARBURG 200 T (WOLVERINE)", cap: "200 TON" },
+            { name: "FCS 380 T (LOKI)", cap: "380 TON" },
+            { name: "ENGEL 380 T (INHUMANS)", cap: "380 TON" },
+            { name: "ENGEL 380 T (HULK)", cap: "380 TON" },
+            { name: "NPC 400 T (WANDA)", cap: "400 TON" },
+            { name: "ENGEL 280 T (DOCTOR STRANGE)", cap: "280 TON" },
+            { name: "FCS 100 T (ANTMAN)", cap: "100 TON" },
+            { name: "NPC 160 T (WASP)", cap: "160 TON" },
+            { name: "NPC 160 T (WONG)", cap: "160 TON" },
+            { name: "FCS 150 T (ROCKET)", cap: "150 TON" },
+            { name: "FCS 150 T (MANTIS)", cap: "150 TON" },
+            { name: "NPC 160 T (SHANCHI)", cap: "160 TON" },
+            { name: "NPC 260 T (VISION)", cap: "260 TON" },
+            { name: "NPC 200 T (MAGNETO)", cap: "200 TON" },
+            { name: "FCS 100 T (NICK FURRY)", cap: "100 TON" },
+            { name: "FCS 250 T (CYCLOPS)", cap: "250 TON" },
+            { name: "NPC 260 T (HAWKEYE)", cap: "260 TON" },
+            { name: "EXTRUDER", cap: "-" }
+        ];
+
+        // INIT DROPDOWN MESIN
+        function initMachineList() {
+            const list = document.getElementById('machine-list');
+            machineData.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.name;
+                list.appendChild(opt);
+            });
+        }
+
+        // AUTO-FILL CAPACITY
+        function autoFillCapacity() {
+            const inputVal = document.getElementById('input-merk').value.trim().toUpperCase();
+            const found = machineData.find(m => m.name === inputVal);
+            if(found) {
+                document.getElementById('input-tonage').value = found.cap;
+            }
+        }
+
         const checklistStructure = [
             { header: "1. STAND LABEL", type: 'head' },
             { name: "WIRING", field: "wiring", standar: "TIDAK KENDOR / LEPAS" },
@@ -273,6 +327,7 @@
             const filteredData = data.filter(item => {
                 if (!item.pelaksana || !item.pelaksana.tanggal_checklist) return false;
                 const mMatch = item.pelaksana.nama_tools?.toLowerCase().includes(tools.toLowerCase());
+                // Jika capacity kosong, abaikan filter capacity
                 const tMatch = capacity ? item.pelaksana.capacity?.toLowerCase().includes(capacity.toLowerCase()) : true;
                 const dMatch = item.pelaksana.tanggal_checklist.startsWith(dateFilter);
                 return mMatch && tMatch && dMatch;
@@ -296,11 +351,9 @@
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
                     alphabetCounter = 1;
-                    // Ubah colspan jadi 13 karena ada tambahan kolom Standar
                     tbody.innerHTML += `<tr><td colspan="3" class="section-header">${item.header}</td><td colspan="10"></td></tr>`;
                 } else {
                     let char = numToChar(alphabetCounter++);
-                    // Tambahkan kolom standar di sini
                     let rHtml = `<tr><td class="font-bold">${char}</td><td class="col-item">${item.name}</td><td class="col-standar">${item.standar}</td>`;
                     for(let w=1; w<=5; w++) {
                         let statusText = "", ket = "", statusClass = "";
@@ -353,7 +406,10 @@
             }
         }
 
-        window.onload = () => renderRows({});
+        window.onload = function() {
+            initMachineList();
+            renderRows({});
+        };
     </script>
 </body>
 </html>
