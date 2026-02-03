@@ -435,41 +435,55 @@
             }).join('');
         }
 
-        // --- NEW: SAVE ALL FUNCTION ---
+        // --- NEW: SAVE ALL FUNCTION WITH VALIDATION ---
         async function saveAllChanges() {
-            if(!confirm("Simpan semua perubahan pada tabel?")) return;
-
             const updatesMain = [];
             const updatesSub = [];
+            let isValid = true; // Flag untuk validasi
 
-            // 1. Loop semua baris MAIN TASK
+            // 1. Loop & Validate MAIN TASKS
             allTasks.forEach(task => {
                 const id = task.id;
                 const statVal = document.getElementById(`stat-${id}`)?.value;
-                const progVal = document.getElementById(`prog-${id}`)?.value;
-                const startVal = document.getElementById(`start-${id}`)?.value;
-                const endVal = document.getElementById(`end-${id}`)?.value;
-                const jobVal = document.getElementById(`job-${id}`)?.value;
                 const holdVal = document.getElementById(`hold-${id}`)?.value;
+                
+                // VALIDASI HOLD PARENT
+                if (statVal === 'Hold' && (!holdVal || !holdVal.trim())) {
+                    alert(`⚠️ Keterangan Project "${task.project_name}" wajib diisi karena status HOLD!`);
+                    document.getElementById(`hold-${id}`).focus();
+                    isValid = false;
+                    return; // Break loop
+                }
 
                 if (statVal) {
                     updatesMain.push({
                         id: id,
                         status: statVal,
-                        progress_percent: progVal,
-                        work_start_time: startVal || null,
-                        work_end_time: endVal || null,
-                        job_type: jobVal,
+                        progress_percent: document.getElementById(`prog-${id}`)?.value,
+                        work_start_time: document.getElementById(`start-${id}`)?.value || null,
+                        work_end_time: document.getElementById(`end-${id}`)?.value || null,
+                        job_type: document.getElementById(`job-${id}`)?.value,
                         hold_reason: holdVal
                     });
                 }
             });
 
-            // 2. Loop semua baris SUB TASK
-            Object.values(subTasksMap).flat().forEach(sub => {
+            if (!isValid) return; // Stop jika main task gagal validasi
+
+            // 2. Loop & Validate SUB TASKS
+            const subTaskArray = Object.values(subTasksMap).flat();
+            for (const sub of subTaskArray) {
                 const id = sub.id;
                 const statVal = document.getElementById(`sub-stat-${id}`)?.value;
                 const noteVal = document.getElementById(`sub-note-${id}`)?.value;
+
+                // VALIDASI HOLD SUBTASK
+                if (statVal === 'Hold' && (!noteVal || !noteVal.trim())) {
+                    alert(`⚠️ Catatan Subtask "${sub.subtask_desc}" wajib diisi karena status HOLD!`);
+                    document.getElementById(`sub-note-${id}`).focus();
+                    isValid = false;
+                    break; // Break loop
+                }
 
                 if (statVal) {
                     updatesSub.push({
@@ -478,7 +492,12 @@
                         worker_notes: noteVal
                     });
                 }
-            });
+            }
+
+            if (!isValid) return; // Stop jika subtask gagal validasi
+
+            // JIKA SEMUA LOLOS VALIDASI
+            if(!confirm("Simpan semua perubahan pada tabel?")) return;
 
             try {
                 const promises = [];
