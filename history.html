@@ -25,12 +25,12 @@
             .no-print { display: none !important; }
             .document-page { 
                 box-shadow: none !important; 
-                border: 1.5pt solid black !important; /* Gunakan pt agar garis tidak hilang */
+                border: 1.5pt solid black !important; 
                 width: 100% !important; 
                 max-width: none !important; 
                 margin: 0 auto !important; 
                 padding: 10px !important;
-                transform: scale(0.96); /* Skala sedikit agar tidak terpotong garis pinggirnya */
+                transform: scale(0.96); 
                 transform-origin: top center;
             }
             /* Mempertegas seluruh garis tabel saat print */
@@ -71,7 +71,7 @@
         .info-label { width: 110px; display: inline-block; }
         .info-value { border-bottom: 1.5px solid black; min-width: 200px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
-        /* TABLE STYLING AGAR GARIS TETAP MUNCUL */
+        /* TABLE STYLING */
         .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; }
         .table-official th, .table-official td { border: 1.5px solid black; padding: 2px; font-size: 7.5pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; }
@@ -89,7 +89,7 @@
         
         .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 8px !important; font-weight: bold; height: 25px; }
         
-        /* FOOTER PARAF */
+        /* FOOTER PARAF (Di dalam TBODY sekarang) */
         .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 8pt; height: 80px; }
         .sig-td { height: 80px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
         .sig-td img { max-height: 75px; width: auto; filter: grayscale(1) contrast(2) brightness(0.5); }
@@ -177,17 +177,7 @@
                 </tr>
             </thead>
             <tbody id="table-content"></tbody>
-            <tfoot>
-                <tr id="row-paraf-pelaksana">
-                    <td colspan="3" class="row-title-footer">PARAF PELAKSANA</td>
-                    <td colspan="2" class="sig-td" id="sig-w1"></td>
-                    <td colspan="2" class="sig-td" id="sig-w2"></td>
-                    <td colspan="2" class="sig-td" id="sig-w3"></td>
-                    <td colspan="2" class="sig-td" id="sig-w4"></td>
-                    <td colspan="2" class="sig-td" id="sig-w5"></td>
-                </tr>
-            </tfoot>
-        </table>
+            </table>
 
         <div class="footer-flex">
             <div class="diketahui-box">
@@ -236,7 +226,6 @@
             { name: "EXTRUDER", cap: "-" }
         ];
 
-        // INIT DROPDOWN MESIN
         function initMachineList() {
             const list = document.getElementById('machine-list');
             machineData.forEach(m => {
@@ -246,7 +235,6 @@
             });
         }
 
-        // AUTO-FILL CAPACITY
         function autoFillCapacity() {
             const inputVal = document.getElementById('input-merk').value.trim().toUpperCase();
             const found = machineData.find(m => m.name === inputVal);
@@ -303,6 +291,7 @@
 
         function numToChar(num) { return String.fromCharCode(96 + num).toUpperCase(); }
 
+        // --- FUNGSI RENDER (PERBAIKAN FILTER + FOOTER FIX) ---
         async function renderReport(isSearching) {
             const thn = document.getElementById('filter-tahun').value;
             const bln = document.getElementById('filter-bulan').value;
@@ -320,26 +309,15 @@
             document.getElementById('label-tonage').innerText = capacity || "-";
 
             const dateFilter = `${thn}-${bln}`;
-            
-            // Ambil data status Approved
             const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
-            if (error) return console.error(error);
+            if (error) return console.error("DB Error:", error);
 
-            // FILTER DATA (LOOSE FILTER UNTUK CAPACITY)
             const filteredData = data.filter(item => {
                 if (!item.pelaksana || !item.pelaksana.tanggal_checklist) return false;
-                
-                // 1. Cek Tanggal
                 const dMatch = item.pelaksana.tanggal_checklist.startsWith(dateFilter);
-                
-                // 2. Cek Nama Mesin (Partial Match & Case Insensitive)
-                const dbName = item.pelaksana.nama_tools ? item.pelaksana.nama_tools.toLowerCase() : "";
-                const searchName = tools.toLowerCase();
-                const mMatch = dbName.includes(searchName) || searchName.includes(dbName);
-
-                // 3. Cek Capacity (DIABAIKAN SAJA agar data pasti muncul)
-                // Kita anggap jika Nama Mesin + Tanggal cocok, itu data yang benar.
-                
+                const dbToolName = item.pelaksana.nama_tools ? item.pelaksana.nama_tools.toLowerCase() : "";
+                const searchToolName = tools.toLowerCase();
+                const mMatch = dbToolName.includes(searchToolName) || searchToolName.includes(dbToolName);
                 return dMatch && mMatch;
             });
 
@@ -362,6 +340,8 @@
             const tbody = document.getElementById('table-content');
             tbody.innerHTML = "";
             let alphabetCounter = 1;
+            
+            // 1. Render Checklist Data
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
                     alphabetCounter = 1;
@@ -374,13 +354,8 @@
                         if(dataMap[w]) {
                             const status = dataMap[w][item.field];
                             statusText = status || "";
-                            
-                            if (status === 'NG') {
-                                statusClass = "ng-color";
-                            } else if (status === 'N/A') {
-                                statusClass = "na-color";
-                            }
-                            
+                            if (status === 'NG') statusClass = "ng-color";
+                            else if (status === 'N/A') statusClass = "na-color";
                             ket = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
                         }
                         rHtml += `<td class="col-status font-bold ${statusClass}">${statusText}</td>`;
@@ -389,13 +364,33 @@
                     tbody.innerHTML += rHtml + `</tr>`;
                 }
             });
+
+            // 2. RENDER PARAF PELAKSANA (SEBAGAI ROW BIASA DI TBODY)
+            // Ini trik agar tidak berulang di setiap halaman
+            const signatureRow = `
+                <tr id="row-paraf-pelaksana">
+                    <td colspan="3" class="row-title-footer">PARAF PELAKSANA</td>
+                    <td colspan="2" class="sig-td" id="sig-w1"></td>
+                    <td colspan="2" class="sig-td" id="sig-w2"></td>
+                    <td colspan="2" class="sig-td" id="sig-w3"></td>
+                    <td colspan="2" class="sig-td" id="sig-w4"></td>
+                    <td colspan="2" class="sig-td" id="sig-w5"></td>
+                </tr>
+            `;
+            tbody.innerHTML += signatureRow;
         }
 
         function renderParaf(dataMap) {
-            for(let w=1; w<=5; w++) {
-                const cell = document.getElementById(`sig-w${w}`);
-                cell.innerHTML = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}">` : "";
-            }
+            // Karena row paraf baru dibuat di renderRows, kita isi datanya setelah itu
+            // Tunggu renderRows selesai dipanggil dulu
+            setTimeout(() => {
+                for(let w=1; w<=5; w++) {
+                    const cell = document.getElementById(`sig-w${w}`);
+                    if(cell) {
+                        cell.innerHTML = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}">` : "";
+                    }
+                }
+            }, 100);
         }
 
         function renderSuper(dataMap) {
