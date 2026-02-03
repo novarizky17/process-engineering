@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume Daily Report - Final Complete</title>
+    <title>Resume Daily Report - Final Fixed</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -100,7 +100,8 @@
 
         <section class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="relative">
-                <input type="text" id="search-report" oninput="applyFilters()" placeholder="Cari Nama Project..." class="w-full bg-slate-50 border border-slate-200 pl-4 pr-4 py-3 rounded-2xl text-sm outline-none font-bold">
+                <input type="text" id="search-report" list="project-list" oninput="applyFilters()" placeholder="Cari atau Pilih Project..." class="w-full bg-slate-50 border border-slate-200 pl-4 pr-4 py-3 rounded-2xl text-sm outline-none font-bold">
+                <datalist id="project-list"></datalist>
             </div>
             <div class="flex items-center justify-end px-4 text-xs text-slate-500 italic font-medium">
                 * Data dikelompokkan per Project. Perhatikan notif LATE.
@@ -142,7 +143,7 @@
                     <div class="h-[250px] w-full relative"><canvas id="projectPieChart"></canvas></div>
                 </div>
                 <div class="max-w-xl mx-auto mb-6">
-                    <input type="text" id="search-modal-project" oninput="renderAggregateProjects()" placeholder="Filter Judul Project..." class="w-full bg-white border border-slate-200 pl-4 pr-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
+                    <input type="text" id="search-modal-project" list="project-list" oninput="renderAggregateProjects()" placeholder="Filter Judul Project..." class="w-full bg-white border border-slate-200 pl-4 pr-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
                 </div>
                 <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
             </div>
@@ -260,6 +261,7 @@
             updatePersonnelGrid();
             switchChart('person'); 
             renderGroupedTable();
+            populateProjectList(); // ISI DATALIST (DROPDOWN SEARCH)
         }
 
         function processGroupedData() {
@@ -276,6 +278,21 @@
             });
         }
 
+        // --- FUNGSI MENGISI DATALIST (DROPDOWN SEARCH) ---
+        function populateProjectList() {
+            const dataList = document.getElementById('project-list');
+            if(!dataList) return;
+            
+            dataList.innerHTML = ''; // Reset list
+            const projectNames = Object.keys(groupedData).sort(); // Urut Abjad
+
+            projectNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                dataList.appendChild(option);
+            });
+        }
+
         function getProgressColor(percent) {
             const p = parseFloat(percent);
             if (p >= 100) return "bg-emerald-500"; 
@@ -288,7 +305,7 @@
             renderGroupedTable(search);
         }
 
-        // --- RENDER TABEL (GROUPED) ---
+        // --- RENDER TABEL ---
         function renderGroupedTable(searchTerm = "") {
             const tbody = document.getElementById('resume-body');
             const projectNames = Object.keys(groupedData).filter(name => name.toLowerCase().includes(searchTerm));
@@ -330,7 +347,7 @@
             }).join('');
         }
 
-        // --- GROUP DETAIL MODAL ---
+        // --- GROUP DETAIL MODAL (WITH PRIORITY) ---
         function openGroupDetail(projName) {
             document.getElementById('det-project-name').innerText = projName;
             const tasks = groupedData[projName].tasks;
@@ -474,11 +491,10 @@
 
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
-        // --- NEW EXPORT LOGIC: PARENT ONLY WITH AUTO-WIDTH ---
+        // EXPORT TO EXCEL: PARENT ONLY + PRIORITY
         function exportToExcel() {
             if (rawData.length === 0) return alert("Tidak ada data untuk di-export!");
             
-            // Map data from rawData (Parent Only) - ADDED PRIORITY
             const exportData = rawData.map((parent, index) => ({
                 'No': index + 1,
                 'Project Name': (parent.project_name || "").toUpperCase(),
@@ -496,7 +512,6 @@
 
             const ws = XLSX.utils.json_to_sheet(exportData);
             
-            // AUTO WIDTH LOGIC
             const colWidths = Object.keys(exportData[0]).map(key => {
                 let maxLen = key.length; 
                 exportData.forEach(row => {
