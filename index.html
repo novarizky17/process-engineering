@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>TOOLING SUPPORT - Secure Login</title>
+    <title>TOOLING SUPPORT - System Login</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0; padding: 0;
-            background-color: #e2e8f0;
+            background-color: #e2e8f0; /* Slate 200 */
             color: #333;
             min-height: 100vh;
             display: flex;
@@ -19,7 +20,7 @@
             align-items: center;
         }
         header {
-            background-color: #1e293b;
+            background-color: #0f172a; /* Slate 900 */
             color: white;
             width: 100%;
             padding: 20px;
@@ -34,9 +35,9 @@
         /* Container Cards */
         .container {
             position: relative;
-            width: 100%;
+            width: 90%;
             max-width: 400px;
-            perspective: 1000px;
+            margin-top: 60px;
         }
         
         .card {
@@ -47,6 +48,7 @@
             width: 100%;
             border: 1px solid #cbd5e1;
             transition: all 0.3s ease;
+            box-sizing: border-box;
         }
 
         h1 { font-size: 2em; margin: 0 0 5px; color: #0f172a; font-weight: 800; text-align: center; }
@@ -92,6 +94,9 @@
             gap: 8px;
         }
         .btn:hover { background-color: #334155; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
         .btn-outline {
             background-color: transparent;
             color: #475569;
@@ -112,7 +117,7 @@
         .alert-error { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
         .alert-success { background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
 
-        /* Spinner */
+        /* Loading Spinner */
         .spinner {
             border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
@@ -124,8 +129,14 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Utility classes for toggling views */
+        /* Utility classes */
         .hidden { display: none; }
+        .text-xs { font-size: 0.75rem; }
+        .text-slate-400 { color: #94a3b8; }
+        .font-bold { font-weight: 700; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .text-center { text-align: center; }
+        .mt-4 { margin-top: 1rem; }
     </style>
 </head>
 <body>
@@ -137,7 +148,7 @@
     <div class="container">
         <div id="loginCard" class="card">
             <h1>Selamat Datang</h1>
-            <span class="subtitle">Masuk untuk mengakses dashboard</span>
+            <span class="subtitle">Masuk menggunakan Akun atau Nama Personil</span>
 
             <div id="loginAlert" class="alert-box alert-error"></div>
             
@@ -145,7 +156,7 @@
                 <label>Username</label>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-user"></i>
-                    <input type="text" id="loginUser" placeholder="" autocomplete="off">
+                    <input type="text" id="loginUser" placeholder="Cth: PE, RYAN" autocomplete="off">
                 </div>
             </div>
             
@@ -163,8 +174,8 @@
             </button>
 
             <div class="text-center mt-4">
-                <p class="text-xs text-slate-400 font-bold mb-2">Belum punya password sendiri?</p>
-                <button class="btn btn-outline" onclick="toggleView('register')">Buat Akun Personil</button>
+                <p class="text-xs text-slate-400 font-bold mb-2">Belum punya akun personil?</p>
+                <button class="btn btn-outline" onclick="toggleView('register')">Buat Akun Baru</button>
             </div>
         </div>
 
@@ -178,7 +189,7 @@
                 <label>Nama Personil (Username)</label>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-id-card"></i>
-                    <input type="text" id="regUser" placeholder="" autocomplete="off">
+                    <input type="text" id="regUser" placeholder="Cth: JUMAWAN" autocomplete="off">
                 </div>
             </div>
 
@@ -190,7 +201,7 @@
                 </div>
             </div>
 
-            <button type="button" class="btn bg-blue-600 hover:bg-blue-700" id="btnReg" onclick="processRegister()">
+            <button type="button" class="btn" style="background-color: #2563eb;" id="btnReg" onclick="processRegister()">
                 <span class="btn-text">DAFTAR SEKARANG</span>
                 <div class="spinner" id="spinReg"></div>
             </button>
@@ -200,20 +211,25 @@
     </div>
 
     <script>
+        // --- KONFIGURASI SUPABASE ---
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        // --- NAVIGASI ---
+        // --- NAVIGASI ANTAR TAMPILAN ---
         function toggleView(view) {
             document.getElementById('loginCard').classList.add('hidden');
             document.getElementById('registerCard').classList.add('hidden');
+            
+            // Reset Input
             document.getElementById('loginUser').value = '';
             document.getElementById('loginPass').value = '';
             document.getElementById('regUser').value = '';
             document.getElementById('regPass').value = '';
-            hideAlert('loginAlert');
-            hideAlert('regAlert');
+            
+            // Sembunyikan Alert
+            document.getElementById('loginAlert').style.display = 'none';
+            document.getElementById('regAlert').style.display = 'none';
 
             if(view === 'login') {
                 document.getElementById('loginCard').classList.remove('hidden');
@@ -222,63 +238,79 @@
             }
         }
 
-        // --- LOGIC LOGIN ---
+        // --- PROSES LOGIN UTAMA ---
         async function processLogin() {
-            const user = document.getElementById('loginUser').value.trim().toUpperCase();
-            const pass = document.getElementById('loginPass').value;
+            const userInput = document.getElementById('loginUser').value.trim();
+            const passInput = document.getElementById('loginPass').value.trim();
             
-            if(!user || !pass) return showAlert('loginAlert', 'Isi Username & Password!', 'error');
-
-            setLoading('btnLogin', 'spinLogin', true);
-
-            // 1. CEK AKUN DARURAT (Manual/Hardcoded)
-            const emergencyUsers = [
-                { u: "pe", p: "123" },
-                { u: "OPERATOR1", p: "456" },
-                { u: "OPERATOR2", p: "789" },
-                { u: "SUPERVISOR", p: "000" }
-            ];
-            
-            const isEmergency = emergencyUsers.find(e => e.u === user && e.p === pass);
-            if(isEmergency) {
-                loginSuccess(user);
-                return;
+            if(!userInput || !passInput) {
+                return showAlert('loginAlert', 'Mohon isi Username & Password!', 'error');
             }
 
-            // 2. CEK DATABASE (Akun Personil)
+            const userUpper = userInput.toUpperCase();
+
+            // 1. CEK AKUN DARURAT (Manual/Hardcoded) - Prioritas Tertinggi
+            const emergencyAccounts = [
+                { username: "PE", password: "123" },
+                { username: "OPERATOR1", password: "456" },
+                { username: "OPERATOR2", password: "789" },
+                { username: "SUPERVISOR", password: "000" },
+                { username: "ADMIN", password: "admin" }
+            ];
+
+            // Cek apakah cocok dengan akun darurat
+            const foundEmergency = emergencyAccounts.find(acc => 
+                acc.username === userUpper && acc.password === passInput
+            );
+
+            if (foundEmergency) {
+                // Jika ketemu di darurat, langsung masuk!
+                loginSuccess(userUpper);
+                return; 
+            }
+
+            // 2. CEK DATABASE (Jika bukan akun darurat)
+            setLoading('btnLogin', 'spinLogin', true);
+
             try {
+                // Query ke tabel 'users'
                 const { data, error } = await _sb
                     .from('users')
                     .select('*')
-                    .ilike('username', user) // Case insensitive search
-                    .eq('password', pass)    // Password match (Plain text sesuai request)
-                    .single();
+                    .ilike('username', userInput) // Case insensitive
+                    .eq('password', passInput)    // Password exact match
+                    .maybeSingle();
 
-                if (error || !data) {
+                if (error) {
+                    console.error("DB Error:", error);
+                    showAlert('loginAlert', 'Gangguan koneksi server!', 'error');
+                } else if (!data) {
+                    // Tidak ada di DB
                     showAlert('loginAlert', 'Username atau Password salah!', 'error');
-                    setLoading('btnLogin', 'spinLogin', false);
                 } else {
+                    // Ada di DB
                     loginSuccess(data.username.toUpperCase());
                 }
             } catch (err) {
-                console.error(err);
-                showAlert('loginAlert', 'Koneksi Error!', 'error');
+                console.error("System Error:", err);
+                showAlert('loginAlert', 'Terjadi kesalahan sistem.', 'error');
+            } finally {
                 setLoading('btnLogin', 'spinLogin', false);
             }
         }
 
-        // --- LOGIC REGISTER ---
+        // --- PROSES REGISTER (BUAT AKUN) ---
         async function processRegister() {
             const user = document.getElementById('regUser').value.trim().toUpperCase();
             const pass = document.getElementById('regPass').value;
 
-            if(!user || !pass) return showAlert('regAlert', 'Lengkapi data!', 'error');
+            if(!user || !pass) return showAlert('regAlert', 'Lengkapi semua data!', 'error');
             if(pass.length < 3) return showAlert('regAlert', 'Password minimal 3 karakter', 'error');
 
             setLoading('btnReg', 'spinReg', true);
 
-            // Cek apakah user sudah ada
-            const { data: existing } = await _sb.from('users').select('username').ilike('username', user).single();
+            // Cek apakah username sudah dipakai
+            const { data: existing } = await _sb.from('users').select('username').ilike('username', user).maybeSingle();
             
             if(existing) {
                 showAlert('regAlert', 'Nama Personil sudah terdaftar!', 'error');
@@ -286,24 +318,35 @@
                 return;
             }
 
-            // Insert ke DB
+            // Simpan ke Database
             const { error } = await _sb.from('users').insert([{ username: user, password: pass }]);
 
             if(error) {
                 showAlert('regAlert', 'Gagal mendaftar: ' + error.message, 'error');
             } else {
-                showAlert('regAlert', 'Akun berhasil dibuat! Silakan Login.', 'success');
+                showAlert('regAlert', 'Akun berhasil dibuat! Mengalihkan...', 'success');
                 setTimeout(() => { toggleView('login'); }, 1500);
             }
             setLoading('btnReg', 'spinReg', false);
         }
 
+        // --- FUNGSI SUKSES LOGIN ---
         function loginSuccess(username) {
             localStorage.setItem("activeUser", username);
-            window.location.href = 'center.html';
+            
+            // Ubah tombol jadi hijau tanda sukses
+            const btn = document.getElementById('btnLogin');
+            if(btn) {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> BERHASIL';
+                btn.style.backgroundColor = '#16a34a';
+            }
+            
+            setTimeout(() => {
+                window.location.href = 'center.html';
+            }, 800);
         }
 
-        // --- UI UTILS ---
+        // --- UI HELPERS ---
         function setLoading(btnId, spinId, isLoading) {
             const btn = document.getElementById(btnId);
             const spin = document.getElementById(spinId);
@@ -311,12 +354,12 @@
             
             if(isLoading) {
                 btn.disabled = true;
-                spin.style.display = 'block';
-                text.style.display = 'none';
+                if(spin) spin.style.display = 'block';
+                if(text) text.style.display = 'none';
             } else {
                 btn.disabled = false;
-                spin.style.display = 'none';
-                text.style.display = 'block';
+                if(spin) spin.style.display = 'none';
+                if(text) text.style.display = 'block';
             }
         }
 
@@ -325,21 +368,22 @@
             el.innerText = msg;
             el.className = `alert-box ${type === 'error' ? 'alert-error' : 'alert-success'}`;
             el.style.display = 'block';
-            // Efek getar kalau error
+            
             if(type === 'error') {
                 const card = el.closest('.card');
-                card.style.animation = "shake 0.4s";
+                // Animasi getar
+                const styleSheet = document.styleSheets[0];
+                card.style.animation = "shake 0.4s ease-in-out";
                 setTimeout(() => card.style.animation = "none", 400);
             }
         }
 
-        function hideAlert(id) { document.getElementById(id).style.display = 'none'; }
-
-        // Animation CSS Inject
+        // Animasi Shake CSS
         const style = document.createElement('style');
         style.innerHTML = `@keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }`;
         document.head.appendChild(style);
 
+        // Enter Key Listener
         document.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 if(!document.getElementById('loginCard').classList.contains('hidden')) processLogin();
