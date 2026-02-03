@@ -13,7 +13,7 @@
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #f8fafc;
+            background-color: #f8fafc; 
             color: #334155;
             font-size: 13px;
             overflow-x: hidden;
@@ -55,16 +55,24 @@
         }
         .badge-select:hover { transform: scale(1.02); }
 
-        /* Floating Button (CYAN) */
-        .fab {
+        /* Floating Buttons Container */
+        .fab-container {
             position: fixed; bottom: 30px; right: 30px;
+            display: flex; gap: 15px; z-index: 50;
+        }
+
+        /* FAB Common Style */
+        .fab {
             width: 60px; height: 60px;
-            background: #0891b2; color: white;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 30px; box-shadow: 0 10px 25px -5px rgba(8, 145, 178, 0.6);
-            transition: transform 0.2s; z-index: 50; border: 4px solid white; cursor: pointer;
+            font-size: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0, 0.3);
+            transition: transform 0.2s; border: 4px solid white; cursor: pointer;
         }
         .fab:hover { transform: scale(1.1); }
+
+        /* Warna FAB Isyqi (Cyan) */
+        .fab-add { background: #0891b2; color: white; }
+        .fab-save { background: #10b981; color: white; }
 
         /* Modal Styles */
         .modal-overlay {
@@ -91,8 +99,6 @@
         .badge-mid { background: #cffafe; color: #0e7490; border: 1px solid #a5f3fc; } 
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        .badge-status { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
-        .badge-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
         
         .tree-line { border-left: 2px dashed #cbd5e1; border-bottom: 2px dashed #cbd5e1; height: 25px; width: 15px; display: inline-block; margin-right: 5px; margin-bottom: 4px; }
     </style>
@@ -182,7 +188,10 @@
         </div>
     </div>
 
-    <button onclick="openSubtaskModal()" class="fab" title="Tambah Sub-Task"><i class="fa-solid fa-plus"></i></button>
+    <div class="fab-container">
+        <button onclick="saveAllChanges()" class="fab fab-save" title="Simpan Semua"><i class="fa-solid fa-floppy-disk"></i></button>
+        <button onclick="openSubtaskModal()" class="fab fab-add" title="Tambah Sub-Task"><i class="fa-solid fa-plus"></i></button>
+    </div>
 
     <div id="subtaskModal" class="modal-overlay">
         <div class="modal-box">
@@ -241,25 +250,24 @@
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let allTasks = [], subTasksMap = {}; 
 
-        function cleanTimestamp(dateStr) { return dateStr ? dateStr.substring(0, 16) : ''; }
-
-        // FORMAT JAM (UTC) - FIX TAMPILAN
+        // CLEAN & FORMAT DATE
+        function cleanTimestamp(dateStr) { 
+            if (!dateStr) return '';
+            return dateStr.substring(0, 16); 
+        }
         function formatTime(dateStr) {
             if (!dateStr) return '-';
             const date = new Date(dateStr);
             if(isNaN(date.getTime())) return '-';
-            
-            // Gunakan UTC methods agar sinkron dengan input
             const day = String(date.getUTCDate()).padStart(2, '0');
             const month = String(date.getUTCMonth() + 1).padStart(2, '0');
             const year = date.getUTCFullYear().toString().substr(-2);
             const hours = String(date.getUTCHours()).padStart(2, '0');
             const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-
             return `${day}/${month}/${year} ${hours}:${minutes}`;
         }
 
-        // --- HELPER WARNA (CYAN THEME) ---
+        // --- HELPER WARNA ---
         function getJobClass(job) {
             switch(job) {
                 case 'Improvement': return 'bg-cyan-50 text-cyan-700 border-cyan-200'; /* CYAN */
@@ -270,7 +278,6 @@
                 default: return 'bg-slate-50 text-slate-500 border-slate-200';
             }
         }
-
         function getStatusClass(status) {
             switch(status) {
                 case 'Pending': return 'bg-amber-100 text-amber-700 border-amber-200';
@@ -280,14 +287,12 @@
                 default: return 'bg-white text-slate-500 border-slate-200';
             }
         }
-
         function updateSelectColor(el, type) {
             if(type === 'job') el.className = `badge-select ${getJobClass(el.value)}`;
             if(type === 'status') el.className = `badge-select ${getStatusClass(el.value)}`;
         }
 
         async function fetchIsyqiTasks() {
-            // FILTER KHUSUS ISYQI
             const { data: mainData, error } = await _sb.from('management_tracker').select('*').ilike('assigned_to', 'isyqi').order('created_at', { ascending: false });
             if (error) return console.error(error);
             allTasks = mainData || [];
@@ -323,9 +328,8 @@
                 const jobClass = getJobClass(row.job_type); 
                 const statusClass = getStatusClass(row.status);
                 
-                // NO ONCHANGE IN INPUTS (MANUAL SAVE ONLY)
                 let mainRow = `
-                    <tr class="bg-white border-b border-slate-100 hover:bg-cyan-50/30 transition-colors">
+                    <tr class="bg-white border-b border-slate-100 hover:bg-cyan-50/30 transition-colors" data-id="${row.id}">
                         <td class="px-6 py-5 align-top border-l-4 border-cyan-500 pl-5">
                             <div class="font-extrabold text-slate-800 text-sm uppercase tracking-tight">${row.project_name}</div>
                             <div class="text-[11px] text-slate-400 mt-1 font-bold bg-slate-100 inline-block px-2 py-0.5 rounded">${row.machine_name || '-'}</div>
@@ -368,7 +372,7 @@
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
-                             <button class="w-10 h-10 rounded-xl bg-cyan-600 text-white hover:bg-cyan-700 transition-all shadow-md flex items-center justify-center mx-auto hover:scale-105 active:scale-95" onclick="saveMain('${row.id}')" title="Simpan">
+                             <button class="w-10 h-10 rounded-xl bg-cyan-600 text-white hover:bg-cyan-700 transition-all shadow-md flex items-center justify-center mx-auto hover:scale-105 active:scale-95" onclick="saveMain('${row.id}')" title="Simpan Satu">
                                 <i class="fa-solid fa-floppy-disk text-lg"></i>
                              </button>
                         </td>
@@ -381,7 +385,7 @@
                     let statusBadge = getStatusClass(sub.status);
                     
                     return `
-                    <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white transition-colors">
+                    <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white transition-colors" data-id="${sub.id}" data-type="sub">
                         <td class="px-6 py-4 text-right align-middle">
                             <div class="flex items-center justify-end gap-3">
                                 <div class="tree-line"></div>
@@ -419,7 +423,7 @@
                             </select>
                         </td>
                         <td class="px-4 py-4 text-center align-middle">
-                             <button class="w-8 h-8 rounded-lg bg-cyan-600 text-white hover:bg-cyan-700 transition-all shadow-sm flex items-center justify-center mx-auto" onclick="saveSubtaskInline('${sub.id}')" title="Simpan">
+                             <button class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
                                 <i class="fa-solid fa-floppy-disk text-xs"></i>
                              </button>
                         </td>
@@ -431,14 +435,73 @@
             }).join('');
         }
 
-        // --- VALIDATION & SAVE LOGIC ---
+        // --- NEW: SAVE ALL FUNCTION ---
+        async function saveAllChanges() {
+            if(!confirm("Simpan semua perubahan pada tabel?")) return;
+
+            const updatesMain = [];
+            const updatesSub = [];
+
+            // 1. Loop semua baris MAIN TASK
+            allTasks.forEach(task => {
+                const id = task.id;
+                const statVal = document.getElementById(`stat-${id}`)?.value;
+                const progVal = document.getElementById(`prog-${id}`)?.value;
+                const startVal = document.getElementById(`start-${id}`)?.value;
+                const endVal = document.getElementById(`end-${id}`)?.value;
+                const jobVal = document.getElementById(`job-${id}`)?.value;
+                const holdVal = document.getElementById(`hold-${id}`)?.value;
+
+                if (statVal) {
+                    updatesMain.push({
+                        id: id,
+                        status: statVal,
+                        progress_percent: progVal,
+                        work_start_time: startVal || null,
+                        work_end_time: endVal || null,
+                        job_type: jobVal,
+                        hold_reason: holdVal
+                    });
+                }
+            });
+
+            // 2. Loop semua baris SUB TASK
+            Object.values(subTasksMap).flat().forEach(sub => {
+                const id = sub.id;
+                const statVal = document.getElementById(`sub-stat-${id}`)?.value;
+                const noteVal = document.getElementById(`sub-note-${id}`)?.value;
+
+                if (statVal) {
+                    updatesSub.push({
+                        id: id,
+                        status: statVal,
+                        worker_notes: noteVal
+                    });
+                }
+            });
+
+            try {
+                const promises = [];
+                updatesMain.forEach(item => { promises.push(_sb.from('management_tracker').update(item).eq('id', item.id)); });
+                updatesSub.forEach(item => { promises.push(_sb.from('employee_subtasks').update(item).eq('id', item.id)); });
+
+                await Promise.all(promises);
+                alert("Semua data berhasil disimpan!");
+                fetchIsyqiTasks();
+
+            } catch (err) {
+                console.error(err);
+                alert("Terjadi kesalahan saat menyimpan data massal.");
+            }
+        }
+
+        // --- SINGLE SAVE LOGIC ---
         async function saveMain(id) {
             const sVal = document.getElementById(`start-${id}`).value;
             const eVal = document.getElementById(`end-${id}`).value;
             const statVal = document.getElementById(`stat-${id}`).value;
             const holdVal = document.getElementById(`hold-${id}`).value;
 
-            // VALIDASI HOLD PARENT
             if (statVal === 'Hold' && !holdVal.trim()) {
                 alert("⚠️ Jika Status HOLD, kolom Keterangan WAJIB diisi!");
                 document.getElementById(`hold-${id}`).focus();
@@ -455,38 +518,25 @@
             };
             const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
             
-            if (error) {
-                alert("Gagal menyimpan: " + error.message);
-            } else {
-                alert("Data berhasil disimpan!");
-                fetchIsyqiTasks();
-            }
+            if (error) alert("Gagal menyimpan: " + error.message);
+            else { alert("Data berhasil disimpan!"); fetchIsyqiTasks(); }
         }
 
         async function saveSubtaskInline(subId) {
             const statusVal = document.getElementById(`sub-stat-${subId}`).value;
             const noteVal = document.getElementById(`sub-note-${subId}`).value;
 
-            // VALIDASI HOLD SUBTASK INLINE
             if (statusVal === 'Hold' && !noteVal.trim()) {
                 alert("⚠️ Jika Status HOLD, Catatan WAJIB diisi!");
                 document.getElementById(`sub-note-${subId}`).focus();
                 return;
             }
 
-            const payload = {
-                status: statusVal,
-                worker_notes: noteVal
-            };
-
+            const payload = { status: statusVal, worker_notes: noteVal };
             const { error } = await _sb.from('employee_subtasks').update(payload).eq('id', subId);
 
-            if (error) {
-                alert("Gagal menyimpan subtask: " + error.message);
-            } else {
-                alert("Subtask berhasil disimpan!");
-                fetchIsyqiTasks();
-            }
+            if (error) alert("Gagal menyimpan subtask: " + error.message);
+            else { alert("Subtask berhasil disimpan!"); fetchIsyqiTasks(); }
         }
 
         async function saveSubtask() {
@@ -498,7 +548,6 @@
 
             if(!parentId || !desc) return alert("Lengkapi data project dan nama tugas!");
 
-            // VALIDASI HOLD SUBTASK MODAL
             if (statusVal === 'Hold' && !noteVal.trim()) {
                 alert("⚠️ Jika Status HOLD, Catatan Tambahan WAJIB diisi!");
                 document.getElementById('modal-note').focus();
@@ -529,13 +578,8 @@
                 error = res.error;
             }
 
-            if(error) {
-                alert("Gagal menyimpan: " + error.message);
-            } else {
-                alert("Subtask berhasil disimpan!");
-                closeModal(); 
-                fetchIsyqiTasks();
-            }
+            if(error) alert("Gagal menyimpan: " + error.message);
+            else { alert("Subtask berhasil disimpan!"); closeModal(); fetchIsyqiTasks(); }
         }
 
         // --- COMMON FUNCTIONS ---
