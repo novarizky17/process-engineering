@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Ryan (Manual Save)</title>
+    <title>Work Panel - Isyqi (Manual Save)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,7 +13,7 @@
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #f1f5f9; 
+            background-color: #f8fafc; 
             color: #334155;
             font-size: 13px;
             overflow-x: hidden;
@@ -23,7 +23,7 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Table Inputs */
+        /* Table Inputs - CYAN THEME */
         .table-input {
             background: #ffffff;
             border: 1px solid #e2e8f0;
@@ -34,7 +34,7 @@
             color: #334155;
             transition: all 0.2s;
         }
-        .table-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+        .table-input:focus { border-color: #06b6d4; outline: none; box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.1); }
 
         /* Badge Select */
         .badge-select {
@@ -70,13 +70,15 @@
         }
         .fab:hover { transform: scale(1.1); }
 
-        .fab-add { background: #2563eb; color: white; }
+        /* Warna FAB Isyqi (Cyan) */
+        .fab-add { background: #0891b2; color: white; }
         .fab-save { background: #10b981; color: white; }
 
         /* Modal Styles */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px);
+            background: rgba(22, 78, 99, 0.7);
+            backdrop-filter: blur(4px);
             z-index: 100; display: none; align-items: center; justify-content: center;
             padding: 20px;
         }
@@ -90,11 +92,11 @@
 
         .modal-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; display: block; }
         .modal-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; }
-        .modal-input:focus { border-color: #3b82f6; background-color: #eff6ff; }
+        .modal-input:focus { border-color: #06b6d4; background-color: #ecfeff; }
 
         /* Badges */
         .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge-mid { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .badge-mid { background: #cffafe; color: #0e7490; border: 1px solid #a5f3fc; } 
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
         
@@ -103,19 +105,19 @@
 </head>
 <body class="antialiased bg-slate-50">
 
-    <div class="bg-[#111827] border-b border-slate-900 pt-8 pb-36 px-8 shadow-xl w-full relative">
+    <div class="bg-cyan-950 border-b border-cyan-900 pt-8 pb-36 px-8 shadow-xl w-full relative">
         <div class="flex justify-between items-center w-full max-w-[100%] mx-auto">
             <div class="flex items-center gap-5">
-                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-blue-900/50">R</div>
+                <div class="w-12 h-12 bg-cyan-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-cyan-900/50">I</div>
                 <div>
-                    <h1 class="text-2xl font-extrabold text-white tracking-tight">Panel Kerja Ryan</h1>
+                    <h1 class="text-2xl font-extrabold text-white tracking-tight">Panel Kerja Isyqi</h1>
                     <div class="flex items-center gap-2 mt-1">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <p class="text-xs text-gray-400 font-semibold tracking-wide">Online &bull; Monitoring Tugas</p>
+                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                        <p class="text-xs text-cyan-200 font-semibold tracking-wide">Online &bull; Monitoring Tugas</p>
                     </div>
                 </div>
             </div>
-            <a href="employee_report.html" class="bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 px-6 py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center gap-2 shadow-md">
+            <a href="employee_report.html" class="bg-cyan-900 hover:bg-cyan-800 text-white border border-cyan-800 px-6 py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center gap-2 shadow-md">
                 <i class="fa-solid fa-arrow-left"></i> Kembali Menu
             </a>
         </div>
@@ -124,9 +126,9 @@
     <div class="w-full px-8 -mt-28 pb-32 relative z-10">
         
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 w-full">
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-blue-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-cyan-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
                 <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p><h3 id="stat-active" class="text-4xl font-black text-slate-800">0</h3></div>
-                <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 text-xl"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                <div class="w-12 h-12 bg-cyan-50 rounded-full flex items-center justify-center text-cyan-500 text-xl"><i class="fa-solid fa-spinner fa-spin"></i></div>
             </div>
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-amber-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
                 <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p><h3 id="stat-pending" class="text-4xl font-black text-slate-800">0</h3></div>
@@ -146,11 +148,11 @@
             <div class="flex gap-4 w-full md:w-2/3">
                 <div class="relative flex-grow">
                     <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="text" id="search-input" oninput="filterTable()" placeholder="Cari Project, Mesin, atau Tugas..." class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:border-blue-500 outline-none transition-all">
+                    <input type="text" id="search-input" oninput="filterTable()" placeholder="Cari Project, Mesin, atau Tugas..." class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:border-cyan-500 outline-none transition-all">
                 </div>
                 <div class="relative w-1/4">
                     <i class="fa-solid fa-filter absolute left-4 top-3.5 text-slate-400"></i>
-                    <select id="filter-priority" onchange="filterTable()" class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 outline-none cursor-pointer focus:bg-white focus:border-blue-500 appearance-none">
+                    <select id="filter-priority" onchange="filterTable()" class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 outline-none cursor-pointer focus:bg-white focus:border-cyan-500 appearance-none">
                         <option value="">Semua Priority</option>
                         <option value="Low">Low Priority</option>
                         <option value="Mid">Mid Priority</option>
@@ -158,7 +160,7 @@
                     </select>
                 </div>
             </div>
-            <button onclick="fetchRyanTasks()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-bold uppercase shadow-md hover:shadow-lg transition-all flex items-center gap-2">
+            <button onclick="fetchIsyqiTasks()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-6 py-3 rounded-lg text-sm font-bold uppercase shadow-md hover:shadow-lg transition-all flex items-center gap-2">
                 <i class="fa-solid fa-arrows-rotate"></i> Refresh Data
             </button>
         </div>
@@ -180,14 +182,14 @@
                             <th class="px-4 py-4 text-center w-[70px]">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="ryan-work-body" class="divide-y divide-slate-100 bg-white text-sm"></tbody>
+                    <tbody id="isyqi-work-body" class="divide-y divide-slate-100 bg-white text-sm"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
     <div class="fab-container">
-        <button onclick="saveAllChanges()" class="fab fab-save" title="Simpan Semua Perubahan"><i class="fa-solid fa-floppy-disk"></i></button>
+        <button onclick="saveAllChanges()" class="fab fab-save" title="Simpan Semua"><i class="fa-solid fa-floppy-disk"></i></button>
         <button onclick="openSubtaskModal()" class="fab fab-add" title="Tambah Sub-Task"><i class="fa-solid fa-plus"></i></button>
     </div>
 
@@ -199,9 +201,9 @@
             </div>
             <div class="p-6 space-y-5">
                 <input type="hidden" id="modal-subtask-id">
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                    <label class="modal-label text-blue-700 uppercase tracking-wide">PILIH PROJECT UTAMA (WAJIB)</label>
-                    <select id="modal-parent-id" class="modal-input font-bold text-blue-900 border-blue-200 h-12"><option value="">-- Pilih Project --</option></select>
+                <div class="bg-cyan-50 p-4 rounded-xl border border-cyan-100">
+                    <label class="modal-label text-cyan-700 uppercase tracking-wide">PILIH PROJECT UTAMA (WAJIB)</label>
+                    <select id="modal-parent-id" class="modal-input font-bold text-cyan-900 border-cyan-200 h-12"><option value="">-- Pilih Project --</option></select>
                 </div>
                 <div><label class="modal-label">Nama Pekerjaan / Sub-Task</label><input type="text" id="modal-desc" class="modal-input" placeholder="Contoh: Bongkar Cylinder..."></div>
                 <div class="grid grid-cols-2 gap-5">
@@ -226,7 +228,7 @@
                     </div>
                     <div>
                         <label class="modal-label">Status</label>
-                        <select id="modal-status" class="modal-input font-bold text-blue-600">
+                        <select id="modal-status" class="modal-input font-bold text-cyan-600">
                             <option value="Pending">Pending</option>
                             <option value="In Progress">In Progress</option>
                             <option value="Hold">Hold</option>
@@ -237,7 +239,7 @@
                 <div><label class="modal-label">Catatan Tambahan (Wajib jika HOLD)</label><textarea id="modal-note" class="modal-input h-20 resize-none" placeholder="Tulis catatan..."></textarea></div>
             </div>
             <div class="p-6 border-t border-slate-100 bg-slate-50">
-                <button onclick="saveSubtask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg text-sm tracking-wide">Simpan Data</button>
+                <button onclick="saveSubtask()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg transition-all text-sm tracking-wide">Simpan Data</button>
             </div>
         </div>
     </div>
@@ -268,18 +270,18 @@
         // --- HELPER WARNA ---
         function getJobClass(job) {
             switch(job) {
-                case 'Improvement': return 'bg-blue-100 text-blue-700 border-blue-200';
-                case 'Overhaul': return 'bg-purple-100 text-purple-700 border-purple-200';
-                case 'Perawatan': return 'bg-amber-100 text-amber-700 border-amber-200';
-                case 'New Project': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-                case 'Trial': return 'bg-pink-100 text-pink-700 border-pink-200';
+                case 'Improvement': return 'bg-cyan-50 text-cyan-700 border-cyan-200'; /* CYAN */
+                case 'Overhaul': return 'bg-purple-50 text-purple-700 border-purple-200';
+                case 'Perawatan': return 'bg-amber-50 text-amber-700 border-amber-200';
+                case 'New Project': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                case 'Trial': return 'bg-pink-50 text-pink-700 border-pink-200';
                 default: return 'bg-slate-50 text-slate-500 border-slate-200';
             }
         }
         function getStatusClass(status) {
             switch(status) {
                 case 'Pending': return 'bg-amber-100 text-amber-700 border-amber-200';
-                case 'In Progress': return 'bg-blue-100 text-blue-700 border-blue-200';
+                case 'In Progress': return 'bg-cyan-100 text-cyan-700 border-cyan-200'; /* CYAN */
                 case 'Hold': return 'bg-rose-100 text-rose-700 border-rose-200';
                 case 'Done': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
                 default: return 'bg-white text-slate-500 border-slate-200';
@@ -290,8 +292,8 @@
             if(type === 'status') el.className = `badge-select ${getStatusClass(el.value)}`;
         }
 
-        async function fetchRyanTasks() {
-            const { data: mainData, error } = await _sb.from('management_tracker').select('*').ilike('assigned_to', 'ryan').order('created_at', { ascending: false });
+        async function fetchIsyqiTasks() {
+            const { data: mainData, error } = await _sb.from('management_tracker').select('*').ilike('assigned_to', 'isyqi').order('created_at', { ascending: false });
             if (error) return console.error(error);
             allTasks = mainData || [];
             fillProjectDropdown(allTasks);
@@ -319,7 +321,7 @@
         }
 
         function renderTasks(dataList) {
-            const tbody = document.getElementById('ryan-work-body');
+            const tbody = document.getElementById('isyqi-work-body');
             tbody.innerHTML = dataList.map(row => {
                 const progress = row.progress_percent || 0; 
                 const mySubtasks = subTasksMap[row.id] || [];
@@ -327,14 +329,14 @@
                 const statusClass = getStatusClass(row.status);
                 
                 let mainRow = `
-                    <tr class="bg-white border-b border-slate-100 hover:bg-blue-50/30 transition-colors" data-id="${row.id}" data-type="main">
-                        <td class="px-6 py-5 align-top border-l-4 border-blue-500 pl-5">
+                    <tr class="bg-white border-b border-slate-100 hover:bg-cyan-50/30 transition-colors" data-id="${row.id}">
+                        <td class="px-6 py-5 align-top border-l-4 border-cyan-500 pl-5">
                             <div class="font-extrabold text-slate-800 text-sm uppercase tracking-tight">${row.project_name}</div>
                             <div class="text-[11px] text-slate-400 mt-1 font-bold bg-slate-100 inline-block px-2 py-0.5 rounded">${row.machine_name || '-'}</div>
                         </td>
                         <td class="px-6 py-5 align-top">
-                            <div class="bg-blue-50 border border-blue-100 px-4 py-3 rounded-xl text-blue-900 font-medium relative shadow-sm">
-                                <span class="text-[9px] font-extrabold text-blue-500 uppercase block mb-1 tracking-widest">Instruksi Utama</span>
+                            <div class="bg-cyan-50 border border-cyan-100 px-4 py-3 rounded-xl text-cyan-900 font-medium relative shadow-sm">
+                                <span class="text-[9px] font-extrabold text-cyan-500 uppercase block mb-1 tracking-widest">Instruksi Utama</span>
                                 "${row.task_desc || '-'}"
                             </div>
                         </td>
@@ -344,7 +346,7 @@
                                 <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
-                            <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="bg-blue-600 h-full transition-all duration-500" style="width:${progress}%"></div></div>
+                            <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="bg-cyan-600 h-full transition-all duration-500" style="width:${progress}%"></div></div>
                         </td>
                         <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-center"></td>
                         <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-center"></td>
@@ -370,7 +372,7 @@
                             </select>
                         </td>
                         <td class="px-4 py-5 align-top text-center">
-                             <button class="w-10 h-10 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md flex items-center justify-center mx-auto hover:scale-105 active:scale-95" onclick="saveMain('${row.id}')" title="Simpan Satu">
+                             <button class="w-10 h-10 rounded-xl bg-cyan-600 text-white hover:bg-cyan-700 transition-all shadow-md flex items-center justify-center mx-auto hover:scale-105 active:scale-95" onclick="saveMain('${row.id}')" title="Simpan Satu">
                                 <i class="fa-solid fa-floppy-disk text-lg"></i>
                              </button>
                         </td>
@@ -401,7 +403,7 @@
                         <td class="px-4 py-4 text-center align-middle">
                             <div class="flex items-center gap-2 justify-center">
                                 <span class="text-slate-600 font-bold text-xs">${sub.progress_percent}%</span>
-                                <div class="w-12 bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-slate-500 h-full" style="width:${sub.progress_percent}%"></div></div>
+                                <div class="w-12 bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-cyan-600 h-full" style="width:${sub.progress_percent}%"></div></div>
                             </div>
                         </td>
                         <td class="px-4 py-4 text-center align-middle text-[13px] font-mono text-slate-600 font-bold">${formatTime(sub.start_date)}</td>
@@ -433,41 +435,55 @@
             }).join('');
         }
 
-        // --- NEW: SAVE ALL FUNCTION ---
+        // --- NEW: SAVE ALL FUNCTION WITH VALIDATION ---
         async function saveAllChanges() {
-            if(!confirm("Simpan semua perubahan pada tabel?")) return;
-
             const updatesMain = [];
             const updatesSub = [];
+            let isValid = true; // Flag untuk validasi
 
-            // 1. Loop semua baris MAIN TASK
+            // 1. Loop & Validate MAIN TASKS
             allTasks.forEach(task => {
                 const id = task.id;
                 const statVal = document.getElementById(`stat-${id}`)?.value;
-                const progVal = document.getElementById(`prog-${id}`)?.value;
-                const startVal = document.getElementById(`start-${id}`)?.value;
-                const endVal = document.getElementById(`end-${id}`)?.value;
-                const jobVal = document.getElementById(`job-${id}`)?.value;
                 const holdVal = document.getElementById(`hold-${id}`)?.value;
+                
+                // VALIDASI HOLD PARENT
+                if (statVal === 'Hold' && (!holdVal || !holdVal.trim())) {
+                    alert(`⚠️ Keterangan Project "${task.project_name}" wajib diisi karena status HOLD!`);
+                    document.getElementById(`hold-${id}`).focus();
+                    isValid = false;
+                    return; // Break loop
+                }
 
                 if (statVal) {
                     updatesMain.push({
                         id: id,
                         status: statVal,
-                        progress_percent: progVal,
-                        work_start_time: startVal || null,
-                        work_end_time: endVal || null,
-                        job_type: jobVal,
+                        progress_percent: document.getElementById(`prog-${id}`)?.value,
+                        work_start_time: document.getElementById(`start-${id}`)?.value || null,
+                        work_end_time: document.getElementById(`end-${id}`)?.value || null,
+                        job_type: document.getElementById(`job-${id}`)?.value,
                         hold_reason: holdVal
                     });
                 }
             });
 
-            // 2. Loop semua baris SUB TASK
-            Object.values(subTasksMap).flat().forEach(sub => {
+            if (!isValid) return; // Stop jika main task gagal validasi
+
+            // 2. Loop & Validate SUB TASKS
+            const subTaskArray = Object.values(subTasksMap).flat();
+            for (const sub of subTaskArray) {
                 const id = sub.id;
                 const statVal = document.getElementById(`sub-stat-${id}`)?.value;
                 const noteVal = document.getElementById(`sub-note-${id}`)?.value;
+
+                // VALIDASI HOLD SUBTASK
+                if (statVal === 'Hold' && (!noteVal || !noteVal.trim())) {
+                    alert(`⚠️ Catatan Subtask "${sub.subtask_desc}" wajib diisi karena status HOLD!`);
+                    document.getElementById(`sub-note-${id}`).focus();
+                    isValid = false;
+                    break; // Break loop
+                }
 
                 if (statVal) {
                     updatesSub.push({
@@ -476,24 +492,21 @@
                         worker_notes: noteVal
                     });
                 }
-            });
+            }
+
+            if (!isValid) return; // Stop jika subtask gagal validasi
+
+            // JIKA SEMUA LOLOS VALIDASI
+            if(!confirm("Simpan semua perubahan pada tabel?")) return;
 
             try {
-                // Batch Update Main Tasks (Satu per satu karena Supabase JS belum support bulk update dengan ID berbeda secara native dengan mudah)
-                // Kita pakai Promise.all untuk mempercepat
                 const promises = [];
-
-                updatesMain.forEach(item => {
-                    promises.push(_sb.from('management_tracker').update(item).eq('id', item.id));
-                });
-
-                updatesSub.forEach(item => {
-                    promises.push(_sb.from('employee_subtasks').update(item).eq('id', item.id));
-                });
+                updatesMain.forEach(item => { promises.push(_sb.from('management_tracker').update(item).eq('id', item.id)); });
+                updatesSub.forEach(item => { promises.push(_sb.from('employee_subtasks').update(item).eq('id', item.id)); });
 
                 await Promise.all(promises);
                 alert("Semua data berhasil disimpan!");
-                fetchRyanTasks();
+                fetchIsyqiTasks();
 
             } catch (err) {
                 console.error(err);
@@ -525,7 +538,7 @@
             const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
             
             if (error) alert("Gagal menyimpan: " + error.message);
-            else { alert("Data berhasil disimpan!"); fetchRyanTasks(); }
+            else { alert("Data berhasil disimpan!"); fetchIsyqiTasks(); }
         }
 
         async function saveSubtaskInline(subId) {
@@ -542,7 +555,7 @@
             const { error } = await _sb.from('employee_subtasks').update(payload).eq('id', subId);
 
             if (error) alert("Gagal menyimpan subtask: " + error.message);
-            else { alert("Subtask berhasil disimpan!"); fetchRyanTasks(); }
+            else { alert("Subtask berhasil disimpan!"); fetchIsyqiTasks(); }
         }
 
         async function saveSubtask() {
@@ -585,13 +598,13 @@
             }
 
             if(error) alert("Gagal menyimpan: " + error.message);
-            else { alert("Subtask berhasil disimpan!"); closeModal(); fetchRyanTasks(); }
+            else { alert("Subtask berhasil disimpan!"); closeModal(); fetchIsyqiTasks(); }
         }
 
         // --- COMMON FUNCTIONS ---
         function openSubtaskModal() {
             document.getElementById('modal-title').innerText = "Tambah Rincian";
-            document.getElementById('modal-subtask-id').value = ""; 
+            document.getElementById('modal-subtask-id').value = ""; 
             document.getElementById('modal-parent-id').value = '';
             document.getElementById('modal-parent-id').disabled = false;
             document.getElementById('modal-desc').value = '';
@@ -623,10 +636,10 @@
         function closeModal() { document.getElementById('subtaskModal').style.display = 'none'; }
         
         async function deleteSubTask(id) {
-            if(confirm("Hapus?")) { await _sb.from('employee_subtasks').delete().eq('id', id); fetchRyanTasks(); }
+            if(confirm("Hapus?")) { await _sb.from('employee_subtasks').delete().eq('id', id); fetchIsyqiTasks(); }
         }
 
-        function filterTable() { 
+        function filterTable() { 
             const query = document.getElementById('search-input').value.toLowerCase();
             const priorityFilter = document.getElementById('filter-priority').value;
             const filtered = allTasks.filter(task => {
@@ -652,7 +665,7 @@
              document.getElementById('stat-finished').innerText = d;
         }
 
-        window.onload = fetchRyanTasks;
+        window.onload = fetchIsyqiTasks;
     </script>
 </body>
 </html>
