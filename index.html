@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>TOOLING SUPPORT - Login</title>
+    <title>TOOLING SUPPORT - Secure Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0; padding: 0;
-            background-color: #f4f4f4;
+            background-color: #e2e8f0;
             color: #333;
             min-height: 100vh;
             display: flex;
@@ -17,125 +19,332 @@
             align-items: center;
         }
         header {
-            background-color: #003366;
+            background-color: #1e293b;
             color: white;
             width: 100%;
             padding: 20px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             position: fixed;
             top: 0;
             z-index: 1000;
         }
-        .logo { font-size: 2.2em; font-weight: bold; }
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 100px 20px 40px;
-        }
-        h1 { font-size: 3em; margin: 0 0 10px; color: #004085; }
-        .subtitle { font-size: 1.1em; margin-bottom: 30px; max-width: 500px; color: #555; }
-        .login-box {
-            background: white;
-            padding: 35px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        .logo { font-size: 1.8em; font-weight: 800; letter-spacing: 1px; }
+        
+        /* Container Cards */
+        .container {
+            position: relative;
             width: 100%;
-            max-width: 380px;
+            max-width: 400px;
+            perspective: 1000px;
         }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        .form-group label { display: block; font-size: 1em; margin-bottom: 8px; font-weight: bold; color: #003366; }
+        
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            transition: all 0.3s ease;
+        }
+
+        h1 { font-size: 2em; margin: 0 0 5px; color: #0f172a; font-weight: 800; text-align: center; }
+        .subtitle { font-size: 0.9em; margin-bottom: 25px; color: #64748b; font-weight: 500; text-align: center; display: block; }
+        
+        .form-group { margin-bottom: 18px; text-align: left; }
+        .form-group label { display: block; font-size: 0.75em; margin-bottom: 6px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-wrapper { position: relative; }
+        .input-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        
         .form-group input {
             width: 100%;
-            padding: 12px;
+            padding: 14px 14px 14px 40px;
             font-size: 1em;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
             box-sizing: border-box;
+            transition: all 0.2s;
+            outline: none;
+            color: #1e293b;
+            font-weight: 600;
+            background: #f8fafc;
         }
+        .form-group input:focus { border-color: #3b82f6; background-color: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        
         .btn {
-            background-color: #155724;
+            background-color: #0f172a;
             color: white;
             width: 100%;
-            padding: 15px;
-            font-size: 1.4em;
+            padding: 16px;
+            font-size: 1em;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
         }
-        .error-msg {
-            color: #721c24;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 10px;
-            border-radius: 5px;
+        .btn:hover { background-color: #334155; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .btn-outline {
+            background-color: transparent;
+            color: #475569;
+            border: 2px solid #e2e8f0;
+            margin-top: 15px;
+        }
+        .btn-outline:hover { background-color: #f1f5f9; color: #0f172a; border-color: #cbd5e1; transform: none; box-shadow: none; }
+
+        .alert-box {
+            padding: 12px;
+            border-radius: 10px;
             margin-bottom: 20px;
             display: none;
+            font-weight: 600;
+            font-size: 0.85em;
+            text-align: center;
         }
+        .alert-error { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+        .alert-success { background-color: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+
+        /* Spinner */
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 18px;
+            height: 18px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Utility classes for toggling views */
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">TOOLING SUPPORT</div>
+        <div class="logo"><i class="fa-solid fa-wrench"></i> TOOLING SUPPORT</div>
     </header>
 
-    <div class="main-content">
-        <h1>Login</h1>
-        <p class="subtitle">Silakan masukkan akun Anda untuk mengakses sistem digital monitoring checklist.</p>
+    <div class="container">
+        <div id="loginCard" class="card">
+            <h1>Selamat Datang</h1>
+            <span class="subtitle">Masuk untuk mengakses dashboard</span>
 
-        <div class="login-box">
-            <div id="error-alert" class="error-msg">Username atau Password salah!</div>
+            <div id="loginAlert" class="alert-box alert-error"></div>
             
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" placeholder="Masukkan username" autocomplete="off">
+                <label>Username</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="loginUser" placeholder="Cth: PE, RYAN" autocomplete="off">
+                </div>
             </div>
             
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Masukkan password">
+                <label>Password</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="loginPass" placeholder="Masukkan password">
+                </div>
             </div>
 
-            <button type="button" class="btn" onclick="handleLogin()">Masuk</button>
+            <button type="button" class="btn" id="btnLogin" onclick="processLogin()">
+                <span class="btn-text">MASUK</span>
+                <div class="spinner" id="spinLogin"></div>
+            </button>
+
+            <div class="text-center mt-4">
+                <p class="text-xs text-slate-400 font-bold mb-2">Belum punya password sendiri?</p>
+                <button class="btn btn-outline" onclick="toggleView('register')">Buat Akun Personil</button>
+            </div>
+        </div>
+
+        <div id="registerCard" class="card hidden">
+            <h1>Buat Akun</h1>
+            <span class="subtitle">Daftarkan nama personil & password baru</span>
+
+            <div id="regAlert" class="alert-box alert-error"></div>
+
+            <div class="form-group">
+                <label>Nama Personil (Username)</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-id-card"></i>
+                    <input type="text" id="regUser" placeholder="Cth: JUMAWAN" autocomplete="off">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Buat Password</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-key"></i>
+                    <input type="password" id="regPass" placeholder="Password rahasia Anda">
+                </div>
+            </div>
+
+            <button type="button" class="btn bg-blue-600 hover:bg-blue-700" id="btnReg" onclick="processRegister()">
+                <span class="btn-text">DAFTAR SEKARANG</span>
+                <div class="spinner" id="spinReg"></div>
+            </button>
+
+            <button class="btn btn-outline" onclick="toggleView('login')">Kembali ke Login</button>
         </div>
     </div>
 
     <script>
-        function handleLogin() {
-            const userField = document.getElementById('username').value;
-            const passField = document.getElementById('password').value;
-            const errorBox = document.getElementById('error-alert');
+        const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
+        const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-            // DAFTAR AKUN USER
-            const users = [
-                { username: "pe", password: "123" },
-                { username: "operator1", password: "456" },
-                { username: "operator2", password: "789" },
-                { username: "supervisor", password: "000" }
-            ];
+        // --- NAVIGASI ---
+        function toggleView(view) {
+            document.getElementById('loginCard').classList.add('hidden');
+            document.getElementById('registerCard').classList.add('hidden');
+            document.getElementById('loginUser').value = '';
+            document.getElementById('loginPass').value = '';
+            document.getElementById('regUser').value = '';
+            document.getElementById('regPass').value = '';
+            hideAlert('loginAlert');
+            hideAlert('regAlert');
 
-            const foundUser = users.find(u => u.username === userField && u.password === passField);
-
-            if (foundUser) {
-                // Simpan user aktif ke localStorage
-                localStorage.setItem("activeUser", foundUser.username);
-                // DIARAHKAN KE HALAMAN DASHBOARD
-                window.location.href = 'center.html'; 
+            if(view === 'login') {
+                document.getElementById('loginCard').classList.remove('hidden');
             } else {
-                errorBox.style.display = 'block';
-                setTimeout(() => { errorBox.style.display = 'none'; }, 3000);
+                document.getElementById('registerCard').classList.remove('hidden');
             }
         }
 
-        // Mendukung login dengan menekan tombol Enter
+        // --- LOGIC LOGIN ---
+        async function processLogin() {
+            const user = document.getElementById('loginUser').value.trim().toUpperCase();
+            const pass = document.getElementById('loginPass').value;
+            
+            if(!user || !pass) return showAlert('loginAlert', 'Isi Username & Password!', 'error');
+
+            setLoading('btnLogin', 'spinLogin', true);
+
+            // 1. CEK AKUN DARURAT (Manual/Hardcoded)
+            const emergencyUsers = [
+                { u: "pe", p: "123" },
+                { u: "OPERATOR1", p: "456" },
+                { u: "OPERATOR2", p: "789" },
+                { u: "SUPERVISOR", p: "000" }
+            ];
+            
+            const isEmergency = emergencyUsers.find(e => e.u === user && e.p === pass);
+            if(isEmergency) {
+                loginSuccess(user);
+                return;
+            }
+
+            // 2. CEK DATABASE (Akun Personil)
+            try {
+                const { data, error } = await _sb
+                    .from('users')
+                    .select('*')
+                    .ilike('username', user) // Case insensitive search
+                    .eq('password', pass)    // Password match (Plain text sesuai request)
+                    .single();
+
+                if (error || !data) {
+                    showAlert('loginAlert', 'Username atau Password salah!', 'error');
+                    setLoading('btnLogin', 'spinLogin', false);
+                } else {
+                    loginSuccess(data.username.toUpperCase());
+                }
+            } catch (err) {
+                console.error(err);
+                showAlert('loginAlert', 'Koneksi Error!', 'error');
+                setLoading('btnLogin', 'spinLogin', false);
+            }
+        }
+
+        // --- LOGIC REGISTER ---
+        async function processRegister() {
+            const user = document.getElementById('regUser').value.trim().toUpperCase();
+            const pass = document.getElementById('regPass').value;
+
+            if(!user || !pass) return showAlert('regAlert', 'Lengkapi data!', 'error');
+            if(pass.length < 3) return showAlert('regAlert', 'Password minimal 3 karakter', 'error');
+
+            setLoading('btnReg', 'spinReg', true);
+
+            // Cek apakah user sudah ada
+            const { data: existing } = await _sb.from('users').select('username').ilike('username', user).single();
+            
+            if(existing) {
+                showAlert('regAlert', 'Nama Personil sudah terdaftar!', 'error');
+                setLoading('btnReg', 'spinReg', false);
+                return;
+            }
+
+            // Insert ke DB
+            const { error } = await _sb.from('users').insert([{ username: user, password: pass }]);
+
+            if(error) {
+                showAlert('regAlert', 'Gagal mendaftar: ' + error.message, 'error');
+            } else {
+                showAlert('regAlert', 'Akun berhasil dibuat! Silakan Login.', 'success');
+                setTimeout(() => { toggleView('login'); }, 1500);
+            }
+            setLoading('btnReg', 'spinReg', false);
+        }
+
+        function loginSuccess(username) {
+            localStorage.setItem("activeUser", username);
+            window.location.href = 'center.html';
+        }
+
+        // --- UI UTILS ---
+        function setLoading(btnId, spinId, isLoading) {
+            const btn = document.getElementById(btnId);
+            const spin = document.getElementById(spinId);
+            const text = btn.querySelector('.btn-text');
+            
+            if(isLoading) {
+                btn.disabled = true;
+                spin.style.display = 'block';
+                text.style.display = 'none';
+            } else {
+                btn.disabled = false;
+                spin.style.display = 'none';
+                text.style.display = 'block';
+            }
+        }
+
+        function showAlert(id, msg, type) {
+            const el = document.getElementById(id);
+            el.innerText = msg;
+            el.className = `alert-box ${type === 'error' ? 'alert-error' : 'alert-success'}`;
+            el.style.display = 'block';
+            // Efek getar kalau error
+            if(type === 'error') {
+                const card = el.closest('.card');
+                card.style.animation = "shake 0.4s";
+                setTimeout(() => card.style.animation = "none", 400);
+            }
+        }
+
+        function hideAlert(id) { document.getElementById(id).style.display = 'none'; }
+
+        // Animation CSS Inject
+        const style = document.createElement('style');
+        style.innerHTML = `@keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }`;
+        document.head.appendChild(style);
+
         document.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') { handleLogin(); }
+            if (e.key === 'Enter') {
+                if(!document.getElementById('loginCard').classList.contains('hidden')) processLogin();
+                else processRegister();
+            }
         });
     </script>
 </body>
