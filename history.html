@@ -3,37 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHECKLIST HISTORY (FULL PAGE)</title>
+    <title>HISTORY CHECKLIST (FIXED) - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* RESET CSS UNTUK PRINT */
+        /* --- RESET CSS --- */
         * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        
         body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #e5e5e5; }
 
-        @page {
-            size: A4 portrait;
-            margin: 0; /* Hapus margin default browser */
-        }
+        /* --- SETTING PRINT --- */
+        @page { size: A4 portrait; margin: 0; }
 
         @media print {
             body { padding: 0; background: white; }
             .no-print { display: none !important; }
             
-            /* HALAMAN A4 FISIK */
+            /* HALAMAN FISIK */
             .page-container {
                 width: 210mm;
-                height: 297mm;
-                padding: 10mm; /* Jarak aman dari tepi kertas */
+                height: 296mm; /* Sedikit dikurangi biar aman */
+                padding: 10mm;
                 position: relative;
-                page-break-after: always;
+                page-break-after: always; /* PEMISAH HALAMAN */
                 overflow: hidden;
+                margin: 0;
             }
             .page-container:last-child { page-break-after: auto; }
+            
+            /* Border saat print */
+            .border-box { border: 2pt solid black !important; }
+            .header-table td, .main-table th, .main-table td { border: 1pt solid black !important; }
         }
 
-        /* TAMPILAN DI LAYAR */
+        /* --- TAMPILAN LAYAR --- */
         .page-container {
             background: white;
             width: 210mm;
@@ -45,7 +47,7 @@
             flex-direction: column;
         }
 
-        /* FRAME GARIS TEPI */
+        /* STRUKTUR HALAMAN */
         .border-box {
             border: 2px solid black;
             width: 100%;
@@ -56,15 +58,15 @@
             padding: 5px;
         }
 
-        /* HEADER SECTION */
+        /* HEADER */
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
         .header-table td { border: 1.5px solid black; padding: 5px; vertical-align: middle; }
         .logo-img { width: 80px; display: block; margin: 0 auto; }
         .title-text { text-align: center; font-weight: bold; font-size: 14pt; text-transform: uppercase; }
         .meta-text { font-size: 8pt; font-weight: bold; }
 
-        /* META DATA SECTION */
-        .info-box { display: flex; justify-content: space-between; font-weight: bold; font-size: 9pt; margin-bottom: 5px; }
+        /* META INFO */
+        .info-box { display: flex; justify-content: space-between; font-weight: bold; font-size: 9pt; margin-bottom: 5px; text-transform: uppercase; }
         .info-item { width: 48%; display: flex; }
         .info-label { width: 80px; }
         .info-val { border-bottom: 1px solid black; flex-grow: 1; padding-left: 5px; }
@@ -76,33 +78,36 @@
         .main-table th { background: #e5e7eb; font-weight: bold; height: 22px; }
         
         .col-no { width: 25px; }
-        .col-item { width: 140px; text-align: left !important; font-weight: bold; }
-        .col-std { width: 80px; text-align: left !important; }
-        .section-header { background: #d1d5db; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
+        .col-item { width: 140px; text-align: left !important; font-weight: bold; padding-left: 5px !important; }
+        .col-std { width: 80px; text-align: left !important; padding-left: 5px !important; }
+        .section-header { background: #d1d5db !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
 
-        /* STATUS COLORS */
-        .status-ok { font-weight: bold; color: black; }
-        .status-ng { font-weight: bold; color: red; }
-        .status-na { font-weight: bold; color: gray; font-style: italic; }
-        .text-note { font-size: 6pt; text-align: left !important; line-height: 1.1; }
+        /* WARNA STATUS */
+        .status-ng { color: red; font-weight: bold; }
+        .status-na { color: gray; font-style: italic; font-weight: bold; }
+        .status-ok { color: black; font-weight: bold; }
+        .text-note { font-size: 6pt; text-align: left !important; padding-left: 3px !important; line-height: 1.1; }
 
-        /* FOOTER TANDA TANGAN */
-        .footer-section { margin-top: auto; } /* Dorong ke bawah */
+        /* FOOTER */
+        .footer-section { margin-top: auto; }
         .ttd-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
         .ttd-table td { border: 1px solid black; text-align: center; font-size: 7pt; height: 35px; vertical-align: middle; }
         .ttd-title { background: #f3f4f6; font-weight: bold; height: 20px; }
+        .ttd-img-small { max-height: 30px; margin: 0 auto; display: block; }
         
         .approve-box { display: flex; justify-content: flex-end; margin-top: 10px; text-align: center; font-size: 8pt; font-weight: bold; }
         .ttd-kotak { border: 1px solid black; width: 100px; height: 50px; margin: 2px auto; display: flex; align-items: center; justify-content: center; }
-        .ttd-img-small { max-height: 30px; }
         .ttd-img-big { max-height: 45px; }
 
-        /* NO PRINT UI */
-        .control-panel { width: 800px; margin: 0 auto 20px; background: white; padding: 15px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .input-field { border: 1px solid #ccc; padding: 5px; border-radius: 4px; text-transform: uppercase; }
-        .btn-action { background: #1e3a8a; color: white; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-print { background: #1f2937; color: white; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        .btn-back { background: #4b5563; color: white; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        /* INPUT CONTROL (NO PRINT) */
+        .control-panel { width: 900px; margin: 0 auto 20px; background: white; padding: 15px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .input-field { border: 1px solid #ccc; padding: 8px; border-radius: 4px; text-transform: uppercase; width: 180px; }
+        .btn { padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; border: none; }
+        .btn-search { background: #1e3a8a; }
+        .btn-print { background: #1f2937; }
+        .btn-back { background: #4b5563; }
+        
+        .page-badge { position: absolute; top: -30px; left: 0; background: #f59e0b; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -111,6 +116,7 @@
         <input type="text" id="input-merk" list="machine-list" placeholder="NAMA MESIN" class="input-field" oninput="autoFillCapacity()">
         <datalist id="machine-list"></datalist>
         <input type="text" id="input-tonage" placeholder="KAPASITAS" class="input-field">
+        
         <select id="filter-bulan" class="input-field">
             <option value="">PILIH BULAN</option>
             <option value="01">JANUARI</option><option value="02">FEBRUARI</option><option value="03">MARET</option>
@@ -118,15 +124,18 @@
             <option value="07">JULI</option><option value="08">AGUSTUS</option><option value="09">SEPTEMBER</option>
             <option value="10">OKTOBER</option><option value="11">NOVEMBER</option><option value="12">DESEMBER</option>
         </select>
+        
         <select id="filter-tahun" class="input-field">
             <script>for(let y=2024; y<=2030; y++) document.write(`<option value="${y}" ${y===2026?'selected':''}>${y}</option>`);</script>
         </select>
-        <button onclick="renderReport(true)" class="btn-action">CARI DATA</button>
-        <button onclick="window.print()" class="btn-print">PRINT PDF</button>
-        <button onclick="window.location.href='dashboard.html'" class="btn-back">KEMBALI</button>
+        
+        <button onclick="renderReport(true)" class="btn btn-search">CARI DATA</button>
+        <button onclick="window.print()" class="btn btn-print">PRINT PDF</button>
+        <button onclick="window.location.href='dashboard.html'" class="btn btn-back">KEMBALI</button>
     </div>
 
     <div class="page-container">
+        <div class="no-print page-badge">HALAMAN 1: STATUS</div>
         <div class="border-box">
             <table class="header-table">
                 <tr>
@@ -183,6 +192,7 @@
     </div>
 
     <div class="page-container">
+        <div class="no-print page-badge">HALAMAN 2: KETERANGAN</div>
         <div class="border-box">
             <table class="header-table">
                 <tr>
@@ -211,7 +221,7 @@
                         <tr>
                             <th class="col-no">NO</th>
                             <th class="col-item">JENIS PENGECEKAN</th>
-                            <th>KETERANGAN WEEK 1</th><th>KETERANGAN WEEK 2</th><th>KETERANGAN WEEK 3</th><th>KETERANGAN WEEK 4</th><th>KETERANGAN WEEK 5</th>
+                            <th>KETERANGAN W1</th><th>KETERANGAN W2</th><th>KETERANGAN W3</th><th>KETERANGAN W4</th><th>KETERANGAN W5</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-notes"></tbody>
@@ -242,6 +252,39 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
+        // DATA MESIN
+        const machineData = [
+            { name: "LIANXIN 80 T (TOAD)", cap: "80 TON" },
+            { name: "WIBA 270 T (NEBULA)", cap: "270 TON" },
+            { name: "WIBA 240 T (SPIDERMAN)", cap: "240 TON" },
+            { name: "WIBA 210 T (THOR)", cap: "210 TON" },
+            { name: "WIBA 350 T (IRON MAN)", cap: "350 TON" },
+            { name: "ARBURG 320 T (STAR LORD)", cap: "320 TON" },
+            { name: "WIBA 500 T (STEVE ROGERS)", cap: "500 TON" },
+            { name: "WIBA 500 T (THANOS)", cap: "500 TON" },
+            { name: "FCS 220 T (BLACKWIDOW)", cap: "220 TON" },
+            { name: "ENGEL 220 T (DEADPOOL)", cap: "220 TON" },
+            { name: "ARBURG 200 T (WOLVERINE)", cap: "200 TON" },
+            { name: "FCS 380 T (LOKI)", cap: "380 TON" },
+            { name: "ENGEL 380 T (INHUMANS)", cap: "380 TON" },
+            { name: "ENGEL 380 T (HULK)", cap: "380 TON" },
+            { name: "NPC 400 T (WANDA)", cap: "400 TON" },
+            { name: "ENGEL 280 T (DOCTOR STRANGE)", cap: "280 TON" },
+            { name: "FCS 100 T (ANTMAN)", cap: "100 TON" },
+            { name: "NPC 160 T (WASP)", cap: "160 TON" },
+            { name: "NPC 160 T (WONG)", cap: "160 TON" },
+            { name: "FCS 150 T (ROCKET)", cap: "150 TON" },
+            { name: "FCS 150 T (MANTIS)", cap: "150 TON" },
+            { name: "NPC 160 T (SHANCHI)", cap: "160 TON" },
+            { name: "NPC 260 T (VISION)", cap: "260 TON" },
+            { name: "NPC 200 T (MAGNETO)", cap: "200 TON" },
+            { name: "FCS 100 T (NICK FURRY)", cap: "100 TON" },
+            { name: "FCS 250 T (CYCLOPS)", cap: "250 TON" },
+            { name: "NPC 260 T (HAWKEYE)", cap: "260 TON" },
+            { name: "EXTRUDER", cap: "-" }
+        ];
+
+        // STRUCTURE
         const checklistStructure = [
             { header: "1. STAND LABEL", type: 'head' },
             { name: "WIRING", field: "wiring", std: "TIDAK KENDOR" },
@@ -277,44 +320,14 @@
             { name: "ALARM", field: "dosing_alarm", std: "BERFUNGSI" },
             { name: "SETTING", field: "dosing_setting", std: "SESUAI STANDAR" },
             { header: "5. DUMMY", type: 'head' },
-            { name: "VACUUM", field: "dummy_vacuum", std: "KUAT / MENGHISAP" },
+            { name: "VACUUM", field: "dummy_vacuum", std: "KUAT" },
             { name: "KONDISI", field: "dummy_condition", std: "BAIK" },
             { name: "FLANGE", field: "dummy_flange", std: "TIDAK KENDOR" },
             { name: "INSTALASI", field: "dummy_instalasi", std: "RAPIH" },
             { name: "TUBBING", field: "dummy_tubbing", std: "TIDAK BOCOR" }
         ];
 
-        const machineData = [
-            { name: "LIANXIN 80 T (TOAD)", cap: "80 TON" },
-            { name: "WIBA 270 T (NEBULA)", cap: "270 TON" },
-            { name: "WIBA 240 T (SPIDERMAN)", cap: "240 TON" },
-            { name: "WIBA 210 T (THOR)", cap: "210 TON" },
-            { name: "WIBA 350 T (IRON MAN)", cap: "350 TON" },
-            { name: "ARBURG 320 T (STAR LORD)", cap: "320 TON" },
-            { name: "WIBA 500 T (STEVE ROGERS)", cap: "500 TON" },
-            { name: "WIBA 500 T (THANOS)", cap: "500 TON" },
-            { name: "FCS 220 T (BLACKWIDOW)", cap: "220 TON" },
-            { name: "ENGEL 220 T (DEADPOOL)", cap: "220 TON" },
-            { name: "ARBURG 200 T (WOLVERINE)", cap: "200 TON" },
-            { name: "FCS 380 T (LOKI)", cap: "380 TON" },
-            { name: "ENGEL 380 T (INHUMANS)", cap: "380 TON" },
-            { name: "ENGEL 380 T (HULK)", cap: "380 TON" },
-            { name: "NPC 400 T (WANDA)", cap: "400 TON" },
-            { name: "ENGEL 280 T (DOCTOR STRANGE)", cap: "280 TON" },
-            { name: "FCS 100 T (ANTMAN)", cap: "100 TON" },
-            { name: "NPC 160 T (WASP)", cap: "160 TON" },
-            { name: "NPC 160 T (WONG)", cap: "160 TON" },
-            { name: "FCS 150 T (ROCKET)", cap: "150 TON" },
-            { name: "FCS 150 T (MANTIS)", cap: "150 TON" },
-            { name: "NPC 160 T (SHANCHI)", cap: "160 TON" },
-            { name: "NPC 260 T (VISION)", cap: "260 TON" },
-            { name: "NPC 200 T (MAGNETO)", cap: "200 TON" },
-            { name: "FCS 100 T (NICK FURRY)", cap: "100 TON" },
-            { name: "FCS 250 T (CYCLOPS)", cap: "250 TON" },
-            { name: "NPC 260 T (HAWKEYE)", cap: "260 TON" },
-            { name: "EXTRUDER", cap: "-" }
-        ];
-
+        // INIT & FUNCTIONS
         function initMachineList() {
             const list = document.getElementById('machine-list');
             machineData.forEach(m => {
@@ -325,106 +338,102 @@
         }
 
         function autoFillCapacity() {
-            const inputVal = document.getElementById('input-merk').value.trim().toUpperCase();
-            const found = machineData.find(m => m.name === inputVal);
-            if(found) document.getElementById('input-tonage').value = found.cap;
+            const val = document.getElementById('input-merk').value.toUpperCase();
+            const f = machineData.find(m => m.name === val);
+            if(f) document.getElementById('input-tonage').value = f.cap;
         }
 
         function numToChar(num) { return String.fromCharCode(96 + num).toUpperCase(); }
 
+        // --- MAIN LOGIC ---
         async function renderReport(isSearching) {
             const thn = document.getElementById('filter-tahun').value;
             const bln = document.getElementById('filter-bulan').value;
             const tools = document.getElementById('input-merk').value.trim();
-            const capacity = document.getElementById('input-tonage').value.trim();
+            const cap = document.getElementById('input-tonage').value.trim();
 
-            if (!isSearching || !bln || !tools) {
-                alert("Mohon isi Nama Tools dan pilih Bulan!");
-                return;
-            }
+            if (!isSearching || !bln || !tools) { alert("Isi Nama Mesin & Bulan!"); return; }
 
+            // UPDATE LABELS
+            const blnTxt = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text;
             document.querySelectorAll('.label-tahun').forEach(e => e.innerText = thn);
-            document.querySelectorAll('.label-bulan').forEach(e => e.innerText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text);
+            document.querySelectorAll('.label-bulan').forEach(e => e.innerText = blnTxt);
             document.querySelectorAll('.label-merk').forEach(e => e.innerText = tools.toUpperCase());
-            document.querySelectorAll('.label-tonage').forEach(e => e.innerText = capacity || "-";
+            document.querySelectorAll('.label-tonage').forEach(e => e.innerText = cap || "-");
 
+            // FETCH DATA
             const dateFilter = `${thn}-${bln}`;
             const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
-            if (error) return console.error(error);
+            
+            if (error) { console.error(error); alert("Koneksi Error"); return; }
 
-            const filteredData = data.filter(item => {
-                if (!item.pelaksana || !item.pelaksana.tanggal_checklist) return false;
+            const filtered = data.filter(item => {
+                if(!item.pelaksana || !item.pelaksana.tanggal_checklist) return false;
                 const dMatch = item.pelaksana.tanggal_checklist.startsWith(dateFilter);
-                const dbName = item.pelaksana.nama_tools ? item.pelaksana.nama_tools.toLowerCase() : "";
-                const searchName = tools.toLowerCase();
-                return dMatch && (dbName.includes(searchName) || searchName.includes(dbName));
+                const dbName = (item.pelaksana.nama_tools || "").toLowerCase();
+                const sName = tools.toLowerCase();
+                return dMatch && (dbName.includes(sName) || sName.includes(dbName));
             });
 
-            if (filteredData.length === 0) alert("Data tidak ditemukan.");
+            if (filtered.length === 0) alert("Data Tidak Ditemukan.");
 
             const dataMap = {};
-            filteredData.forEach(item => {
-                const w = item.pelaksana ? item.pelaksana.week : null;
-                if(w >= 1 && w <= 5) dataMap[w] = item;
+            filtered.forEach(item => {
+                const w = item.pelaksana.week;
+                if(w>=1 && w<=5) dataMap[w] = item;
             });
 
-            renderContent(dataMap);
+            // RENDER TABLES & SIGS
+            renderTables(dataMap);
             renderSignatures(dataMap);
         }
 
-        function renderContent(dataMap) {
-            const tbodyStatus = document.getElementById('tbody-status');
-            const tbodyNotes = document.getElementById('tbody-notes');
-            tbodyStatus.innerHTML = "";
-            tbodyNotes.innerHTML = "";
+        function renderTables(dataMap) {
+            const bodyStat = document.getElementById('tbody-status');
+            const bodyNote = document.getElementById('tbody-notes');
+            bodyStat.innerHTML = ""; bodyNote.innerHTML = "";
 
-            let alphabetCounter = 1;
+            let alpha = 1;
             checklistStructure.forEach(item => {
-                if(item.type === 'head') {
-                    alphabetCounter = 1;
-                    tbodyStatus.innerHTML += `<tr><td colspan="3" class="section-header">${item.header}</td><td colspan="5"></td></tr>`;
-                    tbodyNotes.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="5"></td></tr>`;
+                if (item.type === 'head') {
+                    alpha = 1;
+                    bodyStat.innerHTML += `<tr><td colspan="3" class="section-header">${item.header}</td><td colspan="5" class="section-header"></td></tr>`;
+                    bodyNote.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="5" class="section-header"></td></tr>`;
                 } else {
-                    let char = numToChar(alphabetCounter++);
-                    let rowS = `<tr><td class="font-bold">${char}</td><td class="col-item">${item.name}</td><td class="col-std">${item.std}</td>`;
-                    let rowN = `<tr><td class="font-bold">${char}</td><td class="col-item">${item.name}</td>`;
+                    let char = numToChar(alpha++);
+                    let rowS = `<tr><td class="col-no font-bold">${char}</td><td class="col-item">${item.name}</td><td class="col-std">${item.std}</td>`;
+                    let rowN = `<tr><td class="col-no font-bold">${char}</td><td class="col-item">${item.name}</td>`;
 
                     for(let w=1; w<=5; w++) {
-                        let statusText = "-", ketText = "-", statusClass = "status-ok";
+                        let st = "-", kt = "-", cls = "status-ok";
                         if(dataMap[w]) {
-                            const st = dataMap[w][item.field];
-                            statusText = st || "-";
-                            if(st === 'NG') statusClass = "status-ng";
-                            else if(st === 'N/A') statusClass = "status-na";
-                            ketText = (st === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "-";
+                            st = dataMap[w][item.field] || "-";
+                            if(st === 'NG') { cls = "status-ng"; kt = dataMap[w][item.field+"_keterangan"] || "-"; }
+                            else if(st === 'N/A') { cls = "status-na"; }
                         }
-                        rowS += `<td class="${statusClass}">${statusText}</td>`;
-                        rowN += `<td class="text-note">${ketText}</td>`;
+                        rowS += `<td class="${cls}">${st}</td>`;
+                        rowN += `<td class="text-note">${kt}</td>`;
                     }
                     rowS += "</tr>"; rowN += "</tr>";
-                    tbodyStatus.innerHTML += rowS;
-                    tbodyNotes.innerHTML += rowN;
+                    bodyStat.innerHTML += rowS;
+                    bodyNote.innerHTML += rowN;
                 }
             });
         }
 
         function renderSignatures(dataMap) {
-            setTimeout(() => {
-                for(let w=1; w<=5; w++) {
-                    const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" class="ttd-img-small">` : "";
-                    document.getElementById(`sig-s-w${w}`).innerHTML = img;
-                    document.getElementById(`sig-k-w${w}`).innerHTML = img;
-                }
-            }, 100);
-
-            // SUPERINTENDENT
-            const frames = document.querySelectorAll('.super-sig');
-            const names = document.querySelectorAll('.super-name');
+            // Pelaksana
+            for(let w=1; w<=5; w++) {
+                const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" class="ttd-img-small">` : "";
+                document.getElementById(`sig-s-w${w}`).innerHTML = img;
+                document.getElementById(`sig-k-w${w}`).innerHTML = img;
+            }
+            // Superintendent
             let latest = null;
-            for(let w=5; w>=1; w--) { if(dataMap[w] && dataMap[w].signature) { latest = dataMap[w]; break; } }
-
-            frames.forEach(f => f.innerHTML = latest ? `<img src="${latest.signature}" class="ttd-img-big">` : "");
-            names.forEach(n => n.innerText = latest ? `( ${latest.nama_superintendent || 'SUPERINTENDENT'} )` : "( ........................ )");
+            for(let w=5; w>=1; w--) { if(dataMap[w] && dataMap[w].signature) { latest=dataMap[w]; break; } }
+            
+            document.querySelectorAll('.super-sig').forEach(e => e.innerHTML = latest ? `<img src="${latest.signature}" class="ttd-img-big">` : "");
+            document.querySelectorAll('.super-name').forEach(e => e.innerText = latest ? `( ${latest.nama_superintendent} )` : "( ........................ )");
         }
 
         window.onload = initMachineList;
