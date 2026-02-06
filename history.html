@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HISTORY CHECKLIST (WITH NOTIF) - TOOLING SUPPORT</title>
+    <title>HISTORY CHECKLIST (FINAL DOC) - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -56,7 +56,11 @@
         .logo { width: 70px; display: block; margin: 0 auto; }
         .judul-dok { text-align: center; font-weight: bold; font-size: 14pt; text-transform: uppercase; }
         .sub-judul { font-size: 10pt; font-weight: normal; }
-        .meta-txt { font-size: 7pt; font-weight: bold; }
+        
+        /* META DATA HEADER (UPDATED) */
+        .meta-row { display: flex; font-size: 7pt; font-weight: bold; line-height: 1.3; }
+        .meta-lbl { width: 80px; }
+        .meta-val { flex-grow: 1; }
 
         /* INFO */
         .info-wrapper { display: flex; justify-content: space-between; font-size: 8pt; font-weight: bold; margin: 5px 0; text-transform: uppercase; }
@@ -88,7 +92,6 @@
         .st-ng { color: red; font-weight: bold; }
         .st-na { color: gray; font-style: italic; font-weight: bold; }
         
-        /* CSS KETERANGAN AGAR RAPI */
         .txt-ket { 
             font-size: 6pt; 
             text-align: left !important; 
@@ -142,7 +145,12 @@
                 <tr>
                     <td width="15%" align="center"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo"></td>
                     <td width="60%" align="center" class="judul-dok">CHECKLIST MONITORING TOOLING SUPPORT<br><span class="sub-judul">(STATUS CHECKLIST)</span></td>
-                    <td width="25%"><div class="meta-txt">NO DOK : -</div><div class="meta-txt">TGL TERBIT : -</div><div class="meta-txt">HALAMAN : 1 / 2</div></td>
+                    <td width="25%">
+                        <div class="meta-row"><div class="meta-lbl">NO DOKUMEN</div><div class="meta-val">: FRM-ENG-002</div></div>
+                        <div class="meta-row"><div class="meta-lbl">REVISI</div><div class="meta-val">: 00</div></div>
+                        <div class="meta-row"><div class="meta-lbl">TGL EFEKTIF</div><div class="meta-val">: 01-01-2026</div></div>
+                        <div class="meta-row"><div class="meta-lbl">HALAMAN</div><div class="meta-val">: 1 / 2</div></div>
+                    </td>
                 </tr>
             </table>
             <div class="info-wrapper">
@@ -179,7 +187,12 @@
                 <tr>
                     <td width="15%" align="center"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo"></td>
                     <td width="60%" align="center" class="judul-dok">CHECKLIST MONITORING TOOLING SUPPORT<br><span class="sub-judul">(CATATAN / KETERANGAN)</span></td>
-                    <td width="25%"><div class="meta-txt">NO DOK : -</div><div class="meta-txt">TGL TERBIT : -</div><div class="meta-txt">HALAMAN : 2 / 2</div></td>
+                    <td width="25%">
+                        <div class="meta-row"><div class="meta-lbl">NO DOKUMEN</div><div class="meta-val">: FRM-ENG-002</div></div>
+                        <div class="meta-row"><div class="meta-lbl">REVISI</div><div class="meta-val">: 00</div></div>
+                        <div class="meta-row"><div class="meta-lbl">TGL EFEKTIF</div><div class="meta-val">: 01-01-2026</div></div>
+                        <div class="meta-row"><div class="meta-lbl">HALAMAN</div><div class="meta-val">: 2 / 2</div></div>
+                    </td>
                 </tr>
             </table>
             <div class="info-wrapper">
@@ -333,12 +346,7 @@
                 return dMatch && (dbName.includes(sName) || sName.includes(dbName));
             });
 
-            if (filtered.length === 0) {
-                alert("Data tidak ditemukan! Mohon cek kembali Nama Mesin dan Bulan.");
-                renderTables({}); // Kosongkan tabel
-                renderSignatures({}); // Kosongkan TTD
-                return;
-            }
+            if (filtered.length === 0) alert("Data Tidak Ditemukan.");
 
             const dataMap = {};
             filtered.forEach(item => {
