@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HISTORY CHECKLIST (FINAL CLEAN) - TOOLING SUPPORT</title>
+    <title>HISTORY CHECKLIST (WITH NOTIF) - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -333,7 +333,12 @@
                 return dMatch && (dbName.includes(sName) || sName.includes(dbName));
             });
 
-            if (filtered.length === 0) alert("Data Tidak Ditemukan.");
+            if (filtered.length === 0) {
+                alert("Data tidak ditemukan! Mohon cek kembali Nama Mesin dan Bulan.");
+                renderTables({}); // Kosongkan tabel
+                renderSignatures({}); // Kosongkan TTD
+                return;
+            }
 
             const dataMap = {};
             filtered.forEach(item => {
@@ -388,7 +393,7 @@
             for(let w=5; w>=1; w--) { if(dataMap[w] && dataMap[w].signature) { latest=dataMap[w]; break; } }
             
             document.querySelectorAll('.super-sig').forEach(e => e.innerHTML = latest ? `<img src="${latest.signature}" class="super-img">` : "");
-            document.querySelectorAll('.super-name').forEach(e => e.innerText = latest ? `( ${latest.nama_superintendent} )` : "( ................. )");
+            document.querySelectorAll('.super-name').forEach(e => e.innerText = latest ? `( ${latest.nama_superintendent} )` : "( ... )");
         }
 
         window.onload = initMachineList;
