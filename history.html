@@ -3,224 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HISTORY CHECKLIST (FIXED) - TOOLING SUPPORT</title>
+    <title>HISTORY CHECKLIST (COMPACT) - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* --- RESET CSS --- */
+        /* --- RESET & PRINT SETTINGS --- */
         * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #e5e5e5; }
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #525252; }
 
-        /* --- SETTING PRINT --- */
         @page { size: A4 portrait; margin: 0; }
 
         @media print {
             body { padding: 0; background: white; }
             .no-print { display: none !important; }
             
-            /* HALAMAN FISIK */
-            .page-container {
+            /* HALAMAN CETAK */
+            .sheet {
                 width: 210mm;
-                height: 296mm; /* Sedikit dikurangi biar aman */
-                padding: 10mm;
+                height: 296mm; /* Pas A4 */
+                padding: 5mm 8mm; /* Margin Kiri Kanan agak lebar dikit, Atas Bawah tipis */
+                page-break-after: always;
                 position: relative;
-                page-break-after: always; /* PEMISAH HALAMAN */
                 overflow: hidden;
-                margin: 0;
             }
-            .page-container:last-child { page-break-after: auto; }
+            .sheet:last-child { page-break-after: auto; }
             
-            /* Border saat print */
-            .border-box { border: 2pt solid black !important; }
-            .header-table td, .main-table th, .main-table td { border: 1pt solid black !important; }
+            /* BORDER TEBAL SAAT PRINT */
+            .outer-border { border: 2pt solid black !important; height: 100%; }
         }
 
-        /* --- TAMPILAN LAYAR --- */
-        .page-container {
+        /* TAMPILAN LAYAR */
+        .sheet {
             background: white;
             width: 210mm;
             height: 297mm;
             margin: 0 auto 30px auto;
-            padding: 10mm;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            padding: 5mm 8mm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
         }
 
-        /* STRUKTUR HALAMAN */
-        .border-box {
+        .outer-border {
             border: 2px solid black;
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
             padding: 5px;
         }
 
+        /* --- ELEMEN DALAM --- */
+        
         /* HEADER */
-        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
-        .header-table td { border: 1.5px solid black; padding: 5px; vertical-align: middle; }
-        .logo-img { width: 80px; display: block; margin: 0 auto; }
-        .title-text { text-align: center; font-weight: bold; font-size: 14pt; text-transform: uppercase; }
-        .meta-text { font-size: 8pt; font-weight: bold; }
+        .header-tbl { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
+        .header-tbl td { border: 1px solid black; padding: 3px; vertical-align: middle; }
+        .logo { width: 60px; display: block; margin: 0 auto; }
+        .judul-dok { text-align: center; font-weight: bold; font-size: 12pt; text-transform: uppercase; }
+        .sub-judul { font-size: 8pt; font-weight: normal; }
+        .meta-txt { font-size: 6pt; font-weight: bold; }
 
-        /* META INFO */
-        .info-box { display: flex; justify-content: space-between; font-weight: bold; font-size: 9pt; margin-bottom: 5px; text-transform: uppercase; }
-        .info-item { width: 48%; display: flex; }
-        .info-label { width: 80px; }
-        .info-val { border-bottom: 1px solid black; flex-grow: 1; padding-left: 5px; }
+        /* INFO BOX */
+        .info-wrapper { display: flex; justify-content: space-between; font-size: 7pt; font-weight: bold; margin: 3px 0; text-transform: uppercase; }
+        .info-col { width: 48%; }
+        .info-row { display: flex; margin-bottom: 1px; }
+        .lbl { width: 70px; }
+        .val { border-bottom: 1px solid black; flex-grow: 1; padding-left: 3px; }
 
-        /* TABEL DATA */
-        .main-table-container { flex-grow: 1; display: flex; flex-direction: column; }
-        .main-table { width: 100%; border-collapse: collapse; font-size: 7pt; table-layout: fixed; }
-        .main-table th, .main-table td { border: 1px solid black; padding: 2px 3px; text-align: center; vertical-align: middle; }
-        .main-table th { background: #e5e7eb; font-weight: bold; height: 22px; }
+        /* TABEL DATA (YANG DIPERKECIL) */
+        .data-tbl { width: 100%; border-collapse: collapse; font-size: 6pt; table-layout: fixed; }
+        .data-tbl th, .data-tbl td { border: 1px solid black; padding: 1px 2px; text-align: center; vertical-align: middle; height: 13px; /* TINGGI BARIS DIPERKECIL */ }
+        .data-tbl th { background: #e5e5e5; font-weight: bold; height: 18px; }
         
-        .col-no { width: 25px; }
-        .col-item { width: 140px; text-align: left !important; font-weight: bold; padding-left: 5px !important; }
-        .col-std { width: 80px; text-align: left !important; padding-left: 5px !important; }
-        .section-header { background: #d1d5db !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
+        /* Kolom */
+        .c-no { width: 15px; }
+        .c-item { width: 100px; text-align: left !important; padding-left: 3px !important; font-weight: bold; }
+        .c-std { width: 60px; text-align: left !important; padding-left: 3px !important; font-size: 5pt; }
+        .sec-head { background: #d4d4d4 !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
 
-        /* WARNA STATUS */
-        .status-ng { color: red; font-weight: bold; }
-        .status-na { color: gray; font-style: italic; font-weight: bold; }
-        .status-ok { color: black; font-weight: bold; }
-        .text-note { font-size: 6pt; text-align: left !important; padding-left: 3px !important; line-height: 1.1; }
+        /* Status & Text */
+        .st-ok { color: black; font-weight: bold; }
+        .st-ng { color: red; font-weight: bold; }
+        .st-na { color: gray; font-style: italic; font-weight: bold; }
+        .txt-ket { font-size: 5pt; text-align: left !important; padding-left: 2px !important; line-height: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
-        /* FOOTER */
-        .footer-section { margin-top: auto; }
-        .ttd-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
-        .ttd-table td { border: 1px solid black; text-align: center; font-size: 7pt; height: 35px; vertical-align: middle; }
-        .ttd-title { background: #f3f4f6; font-weight: bold; height: 20px; }
-        .ttd-img-small { max-height: 30px; margin: 0 auto; display: block; }
+        /* FOOTER AREA */
+        .footer-area { margin-top: auto; border-top: none; } /* Dorong ke paling bawah */
+        .footer-tbl { width: 100%; border-collapse: collapse; margin-top: 2px; }
+        .footer-tbl td { border: 1px solid black; text-align: center; font-size: 6pt; height: 35px; vertical-align: middle; }
+        .f-head { background: #f3f4f6; font-weight: bold; height: 15px !important; }
         
-        .approve-box { display: flex; justify-content: flex-end; margin-top: 10px; text-align: center; font-size: 8pt; font-weight: bold; }
-        .ttd-kotak { border: 1px solid black; width: 100px; height: 50px; margin: 2px auto; display: flex; align-items: center; justify-content: center; }
-        .ttd-img-big { max-height: 45px; }
+        .ttd-approve { display: flex; justify-content: flex-end; margin-top: 5px; text-align: center; font-size: 7pt; font-weight: bold; }
+        .box-ttd { border: 1px solid black; width: 80px; height: 40px; margin: 2px auto; display: flex; align-items: center; justify-content: center; }
+        .img-ttd-sm { max-height: 28px; margin: 0 auto; }
+        .img-ttd-bg { max-height: 38px; margin: 0 auto; }
 
-        /* INPUT CONTROL (NO PRINT) */
-        .control-panel { width: 900px; margin: 0 auto 20px; background: white; padding: 15px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .input-field { border: 1px solid #ccc; padding: 8px; border-radius: 4px; text-transform: uppercase; width: 180px; }
-        .btn { padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; border: none; }
-        .btn-search { background: #1e3a8a; }
-        .btn-print { background: #1f2937; }
-        .btn-back { background: #4b5563; }
-        
-        .page-badge { position: absolute; top: -30px; left: 0; background: #f59e0b; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        /* UI CONTROLLER */
+        .ctl-pnl { width: 800px; margin: 0 auto 20px; background: white; padding: 10px; border-radius: 8px; display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+        .inp { border: 1px solid #ccc; padding: 5px; border-radius: 4px; text-transform: uppercase; font-size: 12px; }
+        .btn { padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; color: white; border: none; }
     </style>
 </head>
 <body>
 
-    <div class="control-panel no-print">
-        <input type="text" id="input-merk" list="machine-list" placeholder="NAMA MESIN" class="input-field" oninput="autoFillCapacity()">
+    <div class="ctl-pnl no-print">
+        <input type="text" id="input-merk" list="machine-list" placeholder="NAMA MESIN" class="inp" oninput="autoFillCapacity()">
         <datalist id="machine-list"></datalist>
-        <input type="text" id="input-tonage" placeholder="KAPASITAS" class="input-field">
-        
-        <select id="filter-bulan" class="input-field">
+        <input type="text" id="input-tonage" placeholder="KAPASITAS" class="inp">
+        <select id="filter-bulan" class="inp">
             <option value="">PILIH BULAN</option>
             <option value="01">JANUARI</option><option value="02">FEBRUARI</option><option value="03">MARET</option>
             <option value="04">APRIL</option><option value="05">MEI</option><option value="06">JUNI</option>
             <option value="07">JULI</option><option value="08">AGUSTUS</option><option value="09">SEPTEMBER</option>
             <option value="10">OKTOBER</option><option value="11">NOVEMBER</option><option value="12">DESEMBER</option>
         </select>
-        
-        <select id="filter-tahun" class="input-field">
+        <select id="filter-tahun" class="inp">
             <script>for(let y=2024; y<=2030; y++) document.write(`<option value="${y}" ${y===2026?'selected':''}>${y}</option>`);</script>
         </select>
-        
-        <button onclick="renderReport(true)" class="btn btn-search">CARI DATA</button>
-        <button onclick="window.print()" class="btn btn-print">PRINT PDF</button>
-        <button onclick="window.location.href='dashboard.html'" class="btn btn-back">KEMBALI</button>
+        <button onclick="renderReport(true)" class="btn" style="background:#1e3a8a;">CARI</button>
+        <button onclick="window.print()" class="btn" style="background:#1f2937;">PRINT PDF</button>
+        <button onclick="window.location.href='dashboard.html'" class="btn" style="background:#4b5563;">KEMBALI</button>
     </div>
 
-    <div class="page-container">
-        <div class="no-print page-badge">HALAMAN 1: STATUS</div>
-        <div class="border-box">
-            <table class="header-table">
+    <div class="sheet">
+        <div class="outer-border">
+            <table class="header-tbl">
                 <tr>
-                    <td width="15%"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo-img"></td>
-                    <td width="55%" class="title-text">CHECKLIST MONITORING TOOLING SUPPORT<br><span style="font-size:10pt;">(STATUS CHECKLIST)</span></td>
-                    <td width="30%">
-                        <div class="meta-text">NO DOK : -</div>
-                        <div class="meta-text">TGL TERBIT : -</div>
-                        <div class="meta-text">HALAMAN : 1 / 2</div>
+                    <td width="15%" align="center"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo"></td>
+                    <td width="60%" align="center" class="judul-dok">CHECKLIST MONITORING TOOLING SUPPORT<br><span class="sub-judul">(STATUS CHECKLIST)</span></td>
+                    <td width="25%">
+                        <div class="meta-txt">NO DOK : -</div>
+                        <div class="meta-txt">TGL TERBIT : -</div>
+                        <div class="meta-txt">HALAMAN : 1 / 2</div>
                     </td>
                 </tr>
             </table>
 
-            <div class="info-box">
-                <div class="info-item"><span class="info-label">EQUIPMENT :</span><span class="info-val label-merk">-</span></div>
-                <div class="info-item"><span class="info-label">BULAN :</span><span class="info-val label-bulan">-</span></div>
-            </div>
-            <div class="info-box">
-                <div class="info-item"><span class="info-label">CAPACITY :</span><span class="info-val label-tonage">-</span></div>
-                <div class="info-item"><span class="info-label">TAHUN :</span><span class="info-val label-tahun">-</span></div>
+            <div class="info-wrapper">
+                <div class="info-col">
+                    <div class="info-row"><div class="lbl">EQUIPMENT</div>: <div class="val label-merk">-</div></div>
+                    <div class="info-row"><div class="lbl">CAPACITY</div>: <div class="val label-tonage">-</div></div>
+                </div>
+                <div class="info-col">
+                    <div class="info-row"><div class="lbl">BULAN</div>: <div class="val label-bulan">-</div></div>
+                    <div class="info-row"><div class="lbl">TAHUN</div>: <div class="val label-tahun">-</div></div>
+                </div>
             </div>
 
-            <div class="main-table-container">
-                <table class="main-table">
+            <div style="flex-grow: 1;">
+                <table class="data-tbl">
                     <thead>
                         <tr>
-                            <th class="col-no">NO</th>
-                            <th class="col-item">JENIS PENGECEKAN</th>
-                            <th class="col-std">STANDAR</th>
-                            <th>WEEK 1</th><th>WEEK 2</th><th>WEEK 3</th><th>WEEK 4</th><th>WEEK 5</th>
+                            <th class="c-no">NO</th>
+                            <th class="c-item">JENIS PENGECEKAN</th>
+                            <th class="c-std">STANDAR</th>
+                            <th>W1</th><th>W2</th><th>W3</th><th>W4</th><th>W5</th>
                         </tr>
                     </thead>
                     <tbody id="tbody-status"></tbody>
                 </table>
             </div>
 
-            <div class="footer-section">
-                <table class="ttd-table">
+            <div class="footer-area">
+                <table class="footer-tbl">
                     <tr>
-                        <td colspan="3" class="ttd-title" width="40%">PARAF PELAKSANA</td>
+                        <td colspan="3" class="f-head" width="30%">PARAF PELAKSANA</td>
                         <td id="sig-s-w1"></td><td id="sig-s-w2"></td><td id="sig-s-w3"></td><td id="sig-s-w4"></td><td id="sig-s-w5"></td>
                     </tr>
                 </table>
-                <div class="approve-box">
-                    <div style="width: 150px;">
+                <div class="ttd-approve">
+                    <div style="width: 100px;">
                         <div>DIKETAHUI</div>
-                        <div class="ttd-kotak super-sig"></div>
-                        <div style="border-top:1px solid black; margin-top:2px;" class="super-name">( ........................ )</div>
-                        <div style="font-size:7pt;">PROCESS ENGINEERING</div>
+                        <div class="box-ttd super-sig"></div>
+                        <div style="border-top:1px solid black;" class="super-name">( ... )</div>
+                        <div style="font-size:6pt;">PROCESS ENG.</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="page-container">
-        <div class="no-print page-badge">HALAMAN 2: KETERANGAN</div>
-        <div class="border-box">
-            <table class="header-table">
+    <div class="sheet">
+        <div class="outer-border">
+            <table class="header-tbl">
                 <tr>
-                    <td width="15%"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo-img"></td>
-                    <td width="55%" class="title-text">CHECKLIST MONITORING TOOLING SUPPORT<br><span style="font-size:10pt;">(CATATAN / KETERANGAN)</span></td>
-                    <td width="30%">
-                        <div class="meta-text">NO DOK : -</div>
-                        <div class="meta-text">TGL TERBIT : -</div>
-                        <div class="meta-text">HALAMAN : 2 / 2</div>
+                    <td width="15%" align="center"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo"></td>
+                    <td width="60%" align="center" class="judul-dok">CHECKLIST MONITORING TOOLING SUPPORT<br><span class="sub-judul">(CATATAN / KETERANGAN)</span></td>
+                    <td width="25%">
+                        <div class="meta-txt">NO DOK : -</div>
+                        <div class="meta-txt">TGL TERBIT : -</div>
+                        <div class="meta-txt">HALAMAN : 2 / 2</div>
                     </td>
                 </tr>
             </table>
 
-            <div class="info-box">
-                <div class="info-item"><span class="info-label">EQUIPMENT :</span><span class="info-val label-merk">-</span></div>
-                <div class="info-item"><span class="info-label">BULAN :</span><span class="info-val label-bulan">-</span></div>
-            </div>
-            <div class="info-box">
-                <div class="info-item"><span class="info-label">CAPACITY :</span><span class="info-val label-tonage">-</span></div>
-                <div class="info-item"><span class="info-label">TAHUN :</span><span class="info-val label-tahun">-</span></div>
+            <div class="info-wrapper">
+                <div class="info-col">
+                    <div class="info-row"><div class="lbl">EQUIPMENT</div>: <div class="val label-merk">-</div></div>
+                    <div class="info-row"><div class="lbl">CAPACITY</div>: <div class="val label-tonage">-</div></div>
+                </div>
+                <div class="info-col">
+                    <div class="info-row"><div class="lbl">BULAN</div>: <div class="val label-bulan">-</div></div>
+                    <div class="info-row"><div class="lbl">TAHUN</div>: <div class="val label-tahun">-</div></div>
+                </div>
             </div>
 
-            <div class="main-table-container">
-                <table class="main-table">
+            <div style="flex-grow: 1;">
+                <table class="data-tbl">
                     <thead>
                         <tr>
-                            <th class="col-no">NO</th>
-                            <th class="col-item">JENIS PENGECEKAN</th>
+                            <th class="c-no">NO</th>
+                            <th class="c-item">JENIS PENGECEKAN</th>
                             <th>KETERANGAN W1</th><th>KETERANGAN W2</th><th>KETERANGAN W3</th><th>KETERANGAN W4</th><th>KETERANGAN W5</th>
                         </tr>
                     </thead>
@@ -228,19 +221,19 @@
                 </table>
             </div>
 
-            <div class="footer-section">
-                <table class="ttd-table">
+            <div class="footer-area">
+                <table class="footer-tbl">
                     <tr>
-                        <td colspan="2" class="ttd-title" width="30%">PARAF PELAKSANA</td>
+                        <td colspan="2" class="f-head" width="20%">PARAF PELAKSANA</td>
                         <td id="sig-k-w1"></td><td id="sig-k-w2"></td><td id="sig-k-w3"></td><td id="sig-k-w4"></td><td id="sig-k-w5"></td>
                     </tr>
                 </table>
-                <div class="approve-box">
-                    <div style="width: 150px;">
+                <div class="ttd-approve">
+                    <div style="width: 100px;">
                         <div>DIKETAHUI</div>
-                        <div class="ttd-kotak super-sig"></div>
-                        <div style="border-top:1px solid black; margin-top:2px;" class="super-name">( ........................ )</div>
-                        <div style="font-size:7pt;">PROCESS ENGINEERING</div>
+                        <div class="box-ttd super-sig"></div>
+                        <div style="border-top:1px solid black;" class="super-name">( ... )</div>
+                        <div style="font-size:6pt;">PROCESS ENG.</div>
                     </div>
                 </div>
             </div>
@@ -252,39 +245,6 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        // DATA MESIN
-        const machineData = [
-            { name: "LIANXIN 80 T (TOAD)", cap: "80 TON" },
-            { name: "WIBA 270 T (NEBULA)", cap: "270 TON" },
-            { name: "WIBA 240 T (SPIDERMAN)", cap: "240 TON" },
-            { name: "WIBA 210 T (THOR)", cap: "210 TON" },
-            { name: "WIBA 350 T (IRON MAN)", cap: "350 TON" },
-            { name: "ARBURG 320 T (STAR LORD)", cap: "320 TON" },
-            { name: "WIBA 500 T (STEVE ROGERS)", cap: "500 TON" },
-            { name: "WIBA 500 T (THANOS)", cap: "500 TON" },
-            { name: "FCS 220 T (BLACKWIDOW)", cap: "220 TON" },
-            { name: "ENGEL 220 T (DEADPOOL)", cap: "220 TON" },
-            { name: "ARBURG 200 T (WOLVERINE)", cap: "200 TON" },
-            { name: "FCS 380 T (LOKI)", cap: "380 TON" },
-            { name: "ENGEL 380 T (INHUMANS)", cap: "380 TON" },
-            { name: "ENGEL 380 T (HULK)", cap: "380 TON" },
-            { name: "NPC 400 T (WANDA)", cap: "400 TON" },
-            { name: "ENGEL 280 T (DOCTOR STRANGE)", cap: "280 TON" },
-            { name: "FCS 100 T (ANTMAN)", cap: "100 TON" },
-            { name: "NPC 160 T (WASP)", cap: "160 TON" },
-            { name: "NPC 160 T (WONG)", cap: "160 TON" },
-            { name: "FCS 150 T (ROCKET)", cap: "150 TON" },
-            { name: "FCS 150 T (MANTIS)", cap: "150 TON" },
-            { name: "NPC 160 T (SHANCHI)", cap: "160 TON" },
-            { name: "NPC 260 T (VISION)", cap: "260 TON" },
-            { name: "NPC 200 T (MAGNETO)", cap: "200 TON" },
-            { name: "FCS 100 T (NICK FURRY)", cap: "100 TON" },
-            { name: "FCS 250 T (CYCLOPS)", cap: "250 TON" },
-            { name: "NPC 260 T (HAWKEYE)", cap: "260 TON" },
-            { name: "EXTRUDER", cap: "-" }
-        ];
-
-        // STRUCTURE
         const checklistStructure = [
             { header: "1. STAND LABEL", type: 'head' },
             { name: "WIRING", field: "wiring", std: "TIDAK KENDOR" },
@@ -327,7 +287,37 @@
             { name: "TUBBING", field: "dummy_tubbing", std: "TIDAK BOCOR" }
         ];
 
-        // INIT & FUNCTIONS
+        const machineData = [
+            { name: "LIANXIN 80 T (TOAD)", cap: "80 TON" },
+            { name: "WIBA 270 T (NEBULA)", cap: "270 TON" },
+            { name: "WIBA 240 T (SPIDERMAN)", cap: "240 TON" },
+            { name: "WIBA 210 T (THOR)", cap: "210 TON" },
+            { name: "WIBA 350 T (IRON MAN)", cap: "350 TON" },
+            { name: "ARBURG 320 T (STAR LORD)", cap: "320 TON" },
+            { name: "WIBA 500 T (STEVE ROGERS)", cap: "500 TON" },
+            { name: "WIBA 500 T (THANOS)", cap: "500 TON" },
+            { name: "FCS 220 T (BLACKWIDOW)", cap: "220 TON" },
+            { name: "ENGEL 220 T (DEADPOOL)", cap: "220 TON" },
+            { name: "ARBURG 200 T (WOLVERINE)", cap: "200 TON" },
+            { name: "FCS 380 T (LOKI)", cap: "380 TON" },
+            { name: "ENGEL 380 T (INHUMANS)", cap: "380 TON" },
+            { name: "ENGEL 380 T (HULK)", cap: "380 TON" },
+            { name: "NPC 400 T (WANDA)", cap: "400 TON" },
+            { name: "ENGEL 280 T (DOCTOR STRANGE)", cap: "280 TON" },
+            { name: "FCS 100 T (ANTMAN)", cap: "100 TON" },
+            { name: "NPC 160 T (WASP)", cap: "160 TON" },
+            { name: "NPC 160 T (WONG)", cap: "160 TON" },
+            { name: "FCS 150 T (ROCKET)", cap: "150 TON" },
+            { name: "FCS 150 T (MANTIS)", cap: "150 TON" },
+            { name: "NPC 160 T (SHANCHI)", cap: "160 TON" },
+            { name: "NPC 260 T (VISION)", cap: "260 TON" },
+            { name: "NPC 200 T (MAGNETO)", cap: "200 TON" },
+            { name: "FCS 100 T (NICK FURRY)", cap: "100 TON" },
+            { name: "FCS 250 T (CYCLOPS)", cap: "250 TON" },
+            { name: "NPC 260 T (HAWKEYE)", cap: "260 TON" },
+            { name: "EXTRUDER", cap: "-" }
+        ];
+
         function initMachineList() {
             const list = document.getElementById('machine-list');
             machineData.forEach(m => {
@@ -338,30 +328,26 @@
         }
 
         function autoFillCapacity() {
-            const val = document.getElementById('input-merk').value.toUpperCase();
-            const f = machineData.find(m => m.name === val);
-            if(f) document.getElementById('input-tonage').value = f.cap;
+            const inputVal = document.getElementById('input-merk').value.trim().toUpperCase();
+            const found = machineData.find(m => m.name === inputVal);
+            if(found) document.getElementById('input-tonage').value = found.cap;
         }
 
         function numToChar(num) { return String.fromCharCode(96 + num).toUpperCase(); }
 
-        // --- MAIN LOGIC ---
         async function renderReport(isSearching) {
             const thn = document.getElementById('filter-tahun').value;
             const bln = document.getElementById('filter-bulan').value;
             const tools = document.getElementById('input-merk').value.trim();
             const cap = document.getElementById('input-tonage').value.trim();
 
-            if (!isSearching || !bln || !tools) { alert("Isi Nama Mesin & Bulan!"); return; }
+            if (!isSearching || !bln || !tools) { alert("Lengkapi Data (Mesin & Bulan)"); return; }
 
-            // UPDATE LABELS
-            const blnTxt = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text;
             document.querySelectorAll('.label-tahun').forEach(e => e.innerText = thn);
-            document.querySelectorAll('.label-bulan').forEach(e => e.innerText = blnTxt);
+            document.querySelectorAll('.label-bulan').forEach(e => e.innerText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text);
             document.querySelectorAll('.label-merk').forEach(e => e.innerText = tools.toUpperCase());
             document.querySelectorAll('.label-tonage').forEach(e => e.innerText = cap || "-");
 
-            // FETCH DATA
             const dateFilter = `${thn}-${bln}`;
             const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
             
@@ -383,7 +369,6 @@
                 if(w>=1 && w<=5) dataMap[w] = item;
             });
 
-            // RENDER TABLES & SIGS
             renderTables(dataMap);
             renderSignatures(dataMap);
         }
@@ -397,22 +382,22 @@
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
                     alpha = 1;
-                    bodyStat.innerHTML += `<tr><td colspan="3" class="section-header">${item.header}</td><td colspan="5" class="section-header"></td></tr>`;
-                    bodyNote.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="5" class="section-header"></td></tr>`;
+                    bodyStat.innerHTML += `<tr><td colspan="3" class="sec-head">${item.header}</td><td colspan="5" class="sec-head"></td></tr>`;
+                    bodyNote.innerHTML += `<tr><td colspan="2" class="sec-head">${item.header}</td><td colspan="5" class="sec-head"></td></tr>`;
                 } else {
                     let char = numToChar(alpha++);
-                    let rowS = `<tr><td class="col-no font-bold">${char}</td><td class="col-item">${item.name}</td><td class="col-std">${item.std}</td>`;
-                    let rowN = `<tr><td class="col-no font-bold">${char}</td><td class="col-item">${item.name}</td>`;
+                    let rowS = `<tr><td class="c-no font-bold">${char}</td><td class="c-item">${item.name}</td><td class="c-std">${item.std}</td>`;
+                    let rowN = `<tr><td class="c-no font-bold">${char}</td><td class="c-item">${item.name}</td>`;
 
                     for(let w=1; w<=5; w++) {
-                        let st = "-", kt = "-", cls = "status-ok";
+                        let st = "-", kt = "-", cls = "st-ok";
                         if(dataMap[w]) {
                             st = dataMap[w][item.field] || "-";
-                            if(st === 'NG') { cls = "status-ng"; kt = dataMap[w][item.field+"_keterangan"] || "-"; }
-                            else if(st === 'N/A') { cls = "status-na"; }
+                            if(st === 'NG') { cls = "st-ng"; kt = dataMap[w][item.field+"_keterangan"] || "-"; }
+                            else if(st === 'N/A') { cls = "st-na"; }
                         }
                         rowS += `<td class="${cls}">${st}</td>`;
-                        rowN += `<td class="text-note">${kt}</td>`;
+                        rowN += `<td class="txt-ket">${kt}</td>`;
                     }
                     rowS += "</tr>"; rowN += "</tr>";
                     bodyStat.innerHTML += rowS;
@@ -422,18 +407,16 @@
         }
 
         function renderSignatures(dataMap) {
-            // Pelaksana
             for(let w=1; w<=5; w++) {
-                const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" class="ttd-img-small">` : "";
+                const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" class="img-ttd-sm">` : "";
                 document.getElementById(`sig-s-w${w}`).innerHTML = img;
                 document.getElementById(`sig-k-w${w}`).innerHTML = img;
             }
-            // Superintendent
             let latest = null;
             for(let w=5; w>=1; w--) { if(dataMap[w] && dataMap[w].signature) { latest=dataMap[w]; break; } }
             
-            document.querySelectorAll('.super-sig').forEach(e => e.innerHTML = latest ? `<img src="${latest.signature}" class="ttd-img-big">` : "");
-            document.querySelectorAll('.super-name').forEach(e => e.innerText = latest ? `( ${latest.nama_superintendent} )` : "( ........................ )");
+            document.querySelectorAll('.super-sig').forEach(e => e.innerHTML = latest ? `<img src="${latest.signature}" class="img-ttd-bg">` : "");
+            document.querySelectorAll('.super-name').forEach(e => e.innerText = latest ? `( ${latest.nama_superintendent} )` : "( ................. )");
         }
 
         window.onload = initMachineList;
