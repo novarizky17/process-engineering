@@ -3,215 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HISTORY CHECKLIST (CLASSIC PRINT) - TOOLING SUPPORT</title>
+    <title>CHECKLIST HISTORY (FULL PAGE)</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* --- RESET & SETUP --- */
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f3f4f6; }
+        /* RESET CSS UNTUK PRINT */
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         
-        @page { size: A4 portrait; margin: 10mm; }
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #e5e5e5; }
+
+        @page {
+            size: A4 portrait;
+            margin: 0; /* Hapus margin default browser */
+        }
 
         @media print {
-            body { background: white !important; padding: 0 !important; }
+            body { padding: 0; background: white; }
             .no-print { display: none !important; }
             
-            /* PEMISAH HALAMAN YANG KUAT */
-            .page-break { 
-                page-break-before: always !important; 
-                break-before: page !important;
-                display: block; 
-                height: 0; 
+            /* HALAMAN A4 FISIK */
+            .page-container {
+                width: 210mm;
+                height: 297mm;
+                padding: 10mm; /* Jarak aman dari tepi kertas */
+                position: relative;
+                page-break-after: always;
                 overflow: hidden;
             }
-
-            /* Container Halaman */
-            .print-page {
-                width: 100% !important;
-                height: auto !important; /* Biarkan tinggi menyesuaikan konten */
-                min-height: 95vh; /* Hampir setinggi kertas */
-                position: relative;
-                margin-bottom: 0 !important;
-                border: 2px solid black !important;
-                padding: 5px !important;
-                box-sizing: border-box;
-            }
-            
-            /* Style Tabel Print */
-            table, th, td { border: 1px solid black !important; border-collapse: collapse !important; }
+            .page-container:last-child { page-break-after: auto; }
         }
 
-        /* --- TAMPILAN LAYAR --- */
-        .print-page {
+        /* TAMPILAN DI LAYAR */
+        .page-container {
             background: white;
             width: 210mm;
-            min-height: 297mm;
-            margin: 0 auto 40px auto;
+            height: 297mm;
+            margin: 0 auto 30px auto;
             padding: 10mm;
-            border: 2px solid black;
-            box-sizing: border-box;
-            box-shadow: 0 0 15px rgba(0,0,0,0.3);
-            position: relative;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
         }
 
-        /* HEADER */
+        /* FRAME GARIS TEPI */
+        .border-box {
+            border: 2px solid black;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 5px;
+        }
+
+        /* HEADER SECTION */
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
-        .header-table td { border: 2px solid black; padding: 5px; vertical-align: middle; }
-        .logo-img { height: 60px; display: block; margin: 0 auto; }
+        .header-table td { border: 1.5px solid black; padding: 5px; vertical-align: middle; }
+        .logo-img { width: 80px; display: block; margin: 0 auto; }
         .title-text { text-align: center; font-weight: bold; font-size: 14pt; text-transform: uppercase; }
         .meta-text { font-size: 8pt; font-weight: bold; }
 
-        /* META INFO */
-        .info-container { display: flex; justify-content: space-between; font-weight: bold; font-size: 9pt; margin-bottom: 10px; text-transform: uppercase; }
-        .info-val { border-bottom: 1px solid black; padding: 0 5px; min-width: 100px; display: inline-block; }
+        /* META DATA SECTION */
+        .info-box { display: flex; justify-content: space-between; font-weight: bold; font-size: 9pt; margin-bottom: 5px; }
+        .info-item { width: 48%; display: flex; }
+        .info-label { width: 80px; }
+        .info-val { border-bottom: 1px solid black; flex-grow: 1; padding-left: 5px; }
 
-        /* TABEL UTAMA */
+        /* TABEL DATA */
+        .main-table-container { flex-grow: 1; display: flex; flex-direction: column; }
         .main-table { width: 100%; border-collapse: collapse; font-size: 7pt; table-layout: fixed; }
-        .main-table th, .main-table td { border: 1px solid black; padding: 2px; text-align: center; vertical-align: middle; }
-        .main-table th { background-color: #e5e5e5; font-weight: bold; height: 25px; }
+        .main-table th, .main-table td { border: 1px solid black; padding: 2px 3px; text-align: center; vertical-align: middle; }
+        .main-table th { background: #e5e7eb; font-weight: bold; height: 22px; }
         
         .col-no { width: 25px; }
-        .col-item { width: 120px; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
-        .col-std { width: 80px; text-align: left !important; padding-left: 5px !important; font-size: 6pt; }
-        .section-row { background-color: #d1d5db; font-weight: bold; text-align: left !important; padding-left: 5px !important; }
-        
-        .ng-cell { color: red; font-weight: bold; }
-        .na-cell { color: grey; font-style: italic; font-weight: bold; }
-        .note-cell { font-size: 6pt; text-align: left !important; padding-left: 3px !important; line-height: 1; }
+        .col-item { width: 140px; text-align: left !important; font-weight: bold; }
+        .col-std { width: 80px; text-align: left !important; }
+        .section-header { background: #d1d5db; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
 
-        /* FOOTER TTD */
-        .footer-box { margin-top: 10px; display: flex; justify-content: flex-end; }
-        .ttd-container { text-align: center; width: 150px; border: 1px solid transparent; }
-        .ttd-box { width: 100%; height: 60px; border: 1px solid black; margin-bottom: 5px; display: flex; align-items: center; justify-content: center; }
-        .ttd-img { max-height: 55px; }
-        .ttd-name { font-weight: bold; border-top: 1px solid black; display: block; font-size: 8pt; }
+        /* STATUS COLORS */
+        .status-ok { font-weight: bold; color: black; }
+        .status-ng { font-weight: bold; color: red; }
+        .status-na { font-weight: bold; color: gray; font-style: italic; }
+        .text-note { font-size: 6pt; text-align: left !important; line-height: 1.1; }
+
+        /* FOOTER TANDA TANGAN */
+        .footer-section { margin-top: auto; } /* Dorong ke bawah */
+        .ttd-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        .ttd-table td { border: 1px solid black; text-align: center; font-size: 7pt; height: 35px; vertical-align: middle; }
+        .ttd-title { background: #f3f4f6; font-weight: bold; height: 20px; }
+        
+        .approve-box { display: flex; justify-content: flex-end; margin-top: 10px; text-align: center; font-size: 8pt; font-weight: bold; }
+        .ttd-kotak { border: 1px solid black; width: 100px; height: 50px; margin: 2px auto; display: flex; align-items: center; justify-content: center; }
+        .ttd-img-small { max-height: 30px; }
+        .ttd-img-big { max-height: 45px; }
 
         /* NO PRINT UI */
-        .control-panel { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px; padding: 15px; background: white; border-radius: 8px; width: 1000px; margin: 0 auto 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .control-panel input, .control-panel select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn { padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; border: none; }
+        .control-panel { width: 800px; margin: 0 auto 20px; background: white; padding: 15px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .input-field { border: 1px solid #ccc; padding: 5px; border-radius: 4px; text-transform: uppercase; }
+        .btn-action { background: #1e3a8a; color: white; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-print { background: #1f2937; color: white; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-back { background: #4b5563; color: white; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="control-panel no-print">
-        <input type="text" id="input-merk" list="machine-list" placeholder="NAMA MESIN" oninput="autoFillCapacity()">
+        <input type="text" id="input-merk" list="machine-list" placeholder="NAMA MESIN" class="input-field" oninput="autoFillCapacity()">
         <datalist id="machine-list"></datalist>
-        <input type="text" id="input-tonage" placeholder="KAPASITAS">
-        <select id="filter-bulan">
+        <input type="text" id="input-tonage" placeholder="KAPASITAS" class="input-field">
+        <select id="filter-bulan" class="input-field">
             <option value="">PILIH BULAN</option>
             <option value="01">JANUARI</option><option value="02">FEBRUARI</option><option value="03">MARET</option>
             <option value="04">APRIL</option><option value="05">MEI</option><option value="06">JUNI</option>
             <option value="07">JULI</option><option value="08">AGUSTUS</option><option value="09">SEPTEMBER</option>
             <option value="10">OKTOBER</option><option value="11">NOVEMBER</option><option value="12">DESEMBER</option>
         </select>
-        <select id="filter-tahun">
-            <script>
-                for(let y=2024; y<=2030; y++) document.write(`<option value="${y}" ${y===2026?'selected':''}>${y}</option>`);
-            </script>
+        <select id="filter-tahun" class="input-field">
+            <script>for(let y=2024; y<=2030; y++) document.write(`<option value="${y}" ${y===2026?'selected':''}>${y}</option>`);</script>
         </select>
-        <button class="btn" style="background:#003366;" onclick="renderReport(true)">CARI DATA</button>
-        <button class="btn" style="background:#222;" onclick="window.print()">PRINT (2 HALAMAN)</button>
-        <button class="btn" style="background:#555;" onclick="window.location.href='dashboard.html'">KEMBALI</button>
+        <button onclick="renderReport(true)" class="btn-action">CARI DATA</button>
+        <button onclick="window.print()" class="btn-print">PRINT PDF</button>
+        <button onclick="window.location.href='dashboard.html'" class="btn-back">KEMBALI</button>
     </div>
 
-    <div class="print-page">
-        <table class="header-table">
-            <tr>
-                <td style="width: 15%; text-align: center;"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo-img"></td>
-                <td style="width: 55%;" class="title-text">CHECKLIST MONITORING TOOLING SUPPORT<br><span style="font-size:10pt;">(STATUS CHECKLIST)</span></td>
-                <td style="width: 30%;">
-                    <div class="meta-text">NO DOK : -</div>
-                    <div class="meta-text">TGL TERBIT : -</div>
-                    <div class="meta-text">HALAMAN : 1 / 2</div>
-                </td>
-            </tr>
-        </table>
-
-        <div class="info-container">
-            <div>EQUIPMENT : <span class="info-val label-merk">-</span></div>
-            <div>BULAN : <span class="info-val label-bulan">-</span></div>
-        </div>
-        <div class="info-container">
-            <div>CAPACITY : <span class="info-val label-tonage">-</span></div>
-            <div>TAHUN : <span class="info-val label-tahun">-</span></div>
-        </div>
-
-        <table class="main-table">
-            <thead>
+    <div class="page-container">
+        <div class="border-box">
+            <table class="header-table">
                 <tr>
-                    <th class="col-no">NO</th>
-                    <th class="col-item">JENIS PENGECEKAN</th>
-                    <th class="col-std">STANDAR</th>
-                    <th>WEEK 1</th><th>WEEK 2</th><th>WEEK 3</th><th>WEEK 4</th><th>WEEK 5</th>
+                    <td width="15%"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo-img"></td>
+                    <td width="55%" class="title-text">CHECKLIST MONITORING TOOLING SUPPORT<br><span style="font-size:10pt;">(STATUS CHECKLIST)</span></td>
+                    <td width="30%">
+                        <div class="meta-text">NO DOK : -</div>
+                        <div class="meta-text">TGL TERBIT : -</div>
+                        <div class="meta-text">HALAMAN : 1 / 2</div>
+                    </td>
                 </tr>
-            </thead>
-            <tbody id="tbody-status"></tbody>
-            <tfoot>
-                <tr style="height: 40px; background: #f3f4f6;">
-                    <td colspan="3" style="font-weight: bold;">PARAF PELAKSANA</td>
-                    <td id="sig-s-w1"></td><td id="sig-s-w2"></td><td id="sig-s-w3"></td><td id="sig-s-w4"></td><td id="sig-s-w5"></td>
-                </tr>
-            </tfoot>
-        </table>
+            </table>
 
-        <div class="footer-box">
-            <div class="ttd-container">
-                <div style="font-size:8pt; font-weight:bold; margin-bottom:5px;">DIKETAHUI</div>
-                <div class="ttd-box super-sig"></div>
-                <div class="ttd-name super-name">( ........................ )</div>
-                <div style="font-size:7pt;">PROCESS ENGINEERING</div>
+            <div class="info-box">
+                <div class="info-item"><span class="info-label">EQUIPMENT :</span><span class="info-val label-merk">-</span></div>
+                <div class="info-item"><span class="info-label">BULAN :</span><span class="info-val label-bulan">-</span></div>
+            </div>
+            <div class="info-box">
+                <div class="info-item"><span class="info-label">CAPACITY :</span><span class="info-val label-tonage">-</span></div>
+                <div class="info-item"><span class="info-label">TAHUN :</span><span class="info-val label-tahun">-</span></div>
+            </div>
+
+            <div class="main-table-container">
+                <table class="main-table">
+                    <thead>
+                        <tr>
+                            <th class="col-no">NO</th>
+                            <th class="col-item">JENIS PENGECEKAN</th>
+                            <th class="col-std">STANDAR</th>
+                            <th>WEEK 1</th><th>WEEK 2</th><th>WEEK 3</th><th>WEEK 4</th><th>WEEK 5</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-status"></tbody>
+                </table>
+            </div>
+
+            <div class="footer-section">
+                <table class="ttd-table">
+                    <tr>
+                        <td colspan="3" class="ttd-title" width="40%">PARAF PELAKSANA</td>
+                        <td id="sig-s-w1"></td><td id="sig-s-w2"></td><td id="sig-s-w3"></td><td id="sig-s-w4"></td><td id="sig-s-w5"></td>
+                    </tr>
+                </table>
+                <div class="approve-box">
+                    <div style="width: 150px;">
+                        <div>DIKETAHUI</div>
+                        <div class="ttd-kotak super-sig"></div>
+                        <div style="border-top:1px solid black; margin-top:2px;" class="super-name">( ........................ )</div>
+                        <div style="font-size:7pt;">PROCESS ENGINEERING</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="page-break"></div>
-
-    <div class="print-page">
-        <table class="header-table">
-            <tr>
-                <td style="width: 15%; text-align: center;"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo-img"></td>
-                <td style="width: 55%;" class="title-text">CHECKLIST MONITORING TOOLING SUPPORT<br><span style="font-size:10pt;">(CATATAN / KETERANGAN)</span></td>
-                <td style="width: 30%;">
-                    <div class="meta-text">NO DOK : -</div>
-                    <div class="meta-text">TGL TERBIT : -</div>
-                    <div class="meta-text">HALAMAN : 2 / 2</div>
-                </td>
-            </tr>
-        </table>
-
-        <div class="info-container">
-            <div>EQUIPMENT : <span class="info-val label-merk">-</span></div>
-            <div>BULAN : <span class="info-val label-bulan">-</span></div>
-        </div>
-        <div class="info-container">
-            <div>CAPACITY : <span class="info-val label-tonage">-</span></div>
-            <div>TAHUN : <span class="info-val label-tahun">-</span></div>
-        </div>
-
-        <table class="main-table">
-            <thead>
+    <div class="page-container">
+        <div class="border-box">
+            <table class="header-table">
                 <tr>
-                    <th class="col-no">NO</th>
-                    <th class="col-item">JENIS PENGECEKAN</th>
-                    <th>KETERANGAN W1</th><th>KETERANGAN W2</th><th>KETERANGAN W3</th><th>KETERANGAN W4</th><th>KETERANGAN W5</th>
+                    <td width="15%"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo-img"></td>
+                    <td width="55%" class="title-text">CHECKLIST MONITORING TOOLING SUPPORT<br><span style="font-size:10pt;">(CATATAN / KETERANGAN)</span></td>
+                    <td width="30%">
+                        <div class="meta-text">NO DOK : -</div>
+                        <div class="meta-text">TGL TERBIT : -</div>
+                        <div class="meta-text">HALAMAN : 2 / 2</div>
+                    </td>
                 </tr>
-            </thead>
-            <tbody id="tbody-notes"></tbody>
-            <tfoot>
-                <tr style="height: 40px; background: #f3f4f6;">
-                    <td colspan="2" style="font-weight: bold;">PARAF PELAKSANA</td>
-                    <td id="sig-k-w1"></td><td id="sig-k-w2"></td><td id="sig-k-w3"></td><td id="sig-k-w4"></td><td id="sig-k-w5"></td>
-                </tr>
-            </tfoot>
-        </table>
+            </table>
 
-        <div class="footer-box">
-            <div class="ttd-container">
-                <div style="font-size:8pt; font-weight:bold; margin-bottom:5px;">DIKETAHUI</div>
-                <div class="ttd-box super-sig"></div>
-                <div class="ttd-name super-name">( ........................ )</div>
-                <div style="font-size:7pt;">PROCESS ENGINEERING</div>
+            <div class="info-box">
+                <div class="info-item"><span class="info-label">EQUIPMENT :</span><span class="info-val label-merk">-</span></div>
+                <div class="info-item"><span class="info-label">BULAN :</span><span class="info-val label-bulan">-</span></div>
+            </div>
+            <div class="info-box">
+                <div class="info-item"><span class="info-label">CAPACITY :</span><span class="info-val label-tonage">-</span></div>
+                <div class="info-item"><span class="info-label">TAHUN :</span><span class="info-val label-tahun">-</span></div>
+            </div>
+
+            <div class="main-table-container">
+                <table class="main-table">
+                    <thead>
+                        <tr>
+                            <th class="col-no">NO</th>
+                            <th class="col-item">JENIS PENGECEKAN</th>
+                            <th>KETERANGAN WEEK 1</th><th>KETERANGAN WEEK 2</th><th>KETERANGAN WEEK 3</th><th>KETERANGAN WEEK 4</th><th>KETERANGAN WEEK 5</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-notes"></tbody>
+                </table>
+            </div>
+
+            <div class="footer-section">
+                <table class="ttd-table">
+                    <tr>
+                        <td colspan="2" class="ttd-title" width="30%">PARAF PELAKSANA</td>
+                        <td id="sig-k-w1"></td><td id="sig-k-w2"></td><td id="sig-k-w3"></td><td id="sig-k-w4"></td><td id="sig-k-w5"></td>
+                    </tr>
+                </table>
+                <div class="approve-box">
+                    <div style="width: 150px;">
+                        <div>DIKETAHUI</div>
+                        <div class="ttd-kotak super-sig"></div>
+                        <div style="border-top:1px solid black; margin-top:2px;" class="super-name">( ........................ )</div>
+                        <div style="font-size:7pt;">PROCESS ENGINEERING</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -309,6 +330,8 @@
             if(found) document.getElementById('input-tonage').value = found.cap;
         }
 
+        function numToChar(num) { return String.fromCharCode(96 + num).toUpperCase(); }
+
         async function renderReport(isSearching) {
             const thn = document.getElementById('filter-tahun').value;
             const bln = document.getElementById('filter-bulan').value;
@@ -316,19 +339,17 @@
             const capacity = document.getElementById('input-tonage').value.trim();
 
             if (!isSearching || !bln || !tools) {
-                alert("Lengkapi Data (Mesin & Bulan)");
+                alert("Mohon isi Nama Tools dan pilih Bulan!");
                 return;
             }
 
-            // Update Label
             document.querySelectorAll('.label-tahun').forEach(e => e.innerText = thn);
             document.querySelectorAll('.label-bulan').forEach(e => e.innerText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text);
             document.querySelectorAll('.label-merk').forEach(e => e.innerText = tools.toUpperCase());
-            document.querySelectorAll('.label-tonage').forEach(e => e.innerText = capacity || "-");
+            document.querySelectorAll('.label-tonage').forEach(e => e.innerText = capacity || "-";
 
             const dateFilter = `${thn}-${bln}`;
             const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
-            
             if (error) return console.error(error);
 
             const filteredData = data.filter(item => {
@@ -347,41 +368,40 @@
                 if(w >= 1 && w <= 5) dataMap[w] = item;
             });
 
-            renderTables(dataMap);
+            renderContent(dataMap);
             renderSignatures(dataMap);
         }
 
-        function renderTables(dataMap) {
+        function renderContent(dataMap) {
             const tbodyStatus = document.getElementById('tbody-status');
             const tbodyNotes = document.getElementById('tbody-notes');
             tbodyStatus.innerHTML = "";
             tbodyNotes.innerHTML = "";
 
-            let counter = 1;
+            let alphabetCounter = 1;
             checklistStructure.forEach(item => {
                 if(item.type === 'head') {
-                    counter = 1;
-                    tbodyStatus.innerHTML += `<tr><td colspan="3" class="section-row">${item.header}</td><td colspan="5"></td></tr>`;
-                    tbodyNotes.innerHTML += `<tr><td colspan="2" class="section-row">${item.header}</td><td colspan="5"></td></tr>`;
+                    alphabetCounter = 1;
+                    tbodyStatus.innerHTML += `<tr><td colspan="3" class="section-header">${item.header}</td><td colspan="5"></td></tr>`;
+                    tbodyNotes.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="5"></td></tr>`;
                 } else {
-                    let char = String.fromCharCode(64 + counter++);
-                    
-                    let rowS = `<tr><td class="col-no">${char}</td><td class="col-item">${item.name}</td><td class="col-std">${item.std}</td>`;
-                    let rowN = `<tr><td class="col-no">${char}</td><td class="col-item">${item.name}</td>`;
+                    let char = numToChar(alphabetCounter++);
+                    let rowS = `<tr><td class="font-bold">${char}</td><td class="col-item">${item.name}</td><td class="col-std">${item.std}</td>`;
+                    let rowN = `<tr><td class="font-bold">${char}</td><td class="col-item">${item.name}</td>`;
 
                     for(let w=1; w<=5; w++) {
-                        let status = "-", ket = "-", sClass = "";
+                        let statusText = "-", ketText = "-", statusClass = "status-ok";
                         if(dataMap[w]) {
-                            status = dataMap[w][item.field] || "-";
-                            if(status === 'NG') { sClass = "ng-cell"; ket = dataMap[w][item.field + "_keterangan"] || "-"; }
-                            else if(status === 'N/A') sClass = "na-cell";
+                            const st = dataMap[w][item.field];
+                            statusText = st || "-";
+                            if(st === 'NG') statusClass = "status-ng";
+                            else if(st === 'N/A') statusClass = "status-na";
+                            ketText = (st === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "-";
                         }
-                        rowS += `<td class="${sClass}">${status}</td>`;
-                        rowN += `<td class="note-cell">${ket}</td>`;
+                        rowS += `<td class="${statusClass}">${statusText}</td>`;
+                        rowN += `<td class="text-note">${ketText}</td>`;
                     }
-                    rowS += "</tr>";
-                    rowN += "</tr>";
-                    
+                    rowS += "</tr>"; rowN += "</tr>";
                     tbodyStatus.innerHTML += rowS;
                     tbodyNotes.innerHTML += rowN;
                 }
@@ -389,25 +409,22 @@
         }
 
         function renderSignatures(dataMap) {
-            const weeks = [1, 2, 3, 4, 5];
-            weeks.forEach(w => {
-                const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" style="height:35px; margin:0 auto;">` : "";
-                document.getElementById(`sig-s-w${w}`).innerHTML = img;
-                document.getElementById(`sig-k-w${w}`).innerHTML = img;
-            });
+            setTimeout(() => {
+                for(let w=1; w<=5; w++) {
+                    const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" class="ttd-img-small">` : "";
+                    document.getElementById(`sig-s-w${w}`).innerHTML = img;
+                    document.getElementById(`sig-k-w${w}`).innerHTML = img;
+                }
+            }, 100);
 
-            // Superintendent Sig
+            // SUPERINTENDENT
+            const frames = document.querySelectorAll('.super-sig');
+            const names = document.querySelectorAll('.super-name');
             let latest = null;
-            for(let w=5; w>=1; w--) {
-                if(dataMap[w] && dataMap[w].signature) { latest = dataMap[w]; break; }
-            }
+            for(let w=5; w>=1; w--) { if(dataMap[w] && dataMap[w].signature) { latest = dataMap[w]; break; } }
 
-            document.querySelectorAll('.super-sig').forEach(el => {
-                el.innerHTML = latest ? `<img src="${latest.signature}" class="ttd-img">` : "";
-            });
-            document.querySelectorAll('.super-name').forEach(el => {
-                el.innerText = latest ? `( ${latest.nama_superintendent || 'SUPERINTENDENT'} )` : "( ........................ )";
-            });
+            frames.forEach(f => f.innerHTML = latest ? `<img src="${latest.signature}" class="ttd-img-big">` : "");
+            names.forEach(n => n.innerText = latest ? `( ${latest.nama_superintendent || 'SUPERINTENDENT'} )` : "( ........................ )");
         }
 
         window.onload = initMachineList;
