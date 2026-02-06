@@ -128,10 +128,11 @@
     <div class="w-full px-8 -mt-28 pb-32 relative z-10">
         
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 w-full">
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-emerald-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-blue-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
                 <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p><h3 id="stat-active" class="text-4xl font-black text-slate-800">0</h3></div>
-                <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 text-xl"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 text-xl"><i class="fa-solid fa-spinner fa-spin"></i></div>
             </div>
+            
             <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-amber-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
                 <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p><h3 id="stat-pending" class="text-4xl font-black text-slate-800">0</h3></div>
                 <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 text-xl"><i class="fa-regular fa-clock"></i></div>
@@ -280,12 +281,14 @@
                 default: return 'bg-slate-50 text-slate-500 border-slate-200';
             }
         }
+        
+        // --- UPDATE STATUS CLASS: IN PROGRESS JADI BIRU ---
         function getStatusClass(status) {
             switch(status) {
                 case 'Pending': return 'bg-amber-100 text-amber-700 border-amber-200';
-                case 'In Progress': return 'bg-emerald-100 text-emerald-700 border-emerald-200'; /* EMERALD */
+                case 'In Progress': return 'bg-blue-100 text-blue-700 border-blue-200'; /* BIRU UNTUK IN PROGRESS */
                 case 'Hold': return 'bg-rose-100 text-rose-700 border-rose-200';
-                case 'Done': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+                case 'Done': return 'bg-emerald-100 text-emerald-700 border-emerald-200'; /* HIJAU UNTUK DONE */
                 default: return 'bg-white text-slate-500 border-slate-200';
             }
         }
@@ -330,6 +333,10 @@
                 const jobClass = getJobClass(row.job_type); 
                 const statusClass = getStatusClass(row.status);
                 
+                // PROGRESS BAR COLOR LOGIC
+                let progressColor = "bg-emerald-600";
+                if(row.status === 'In Progress') progressColor = "bg-blue-600"; // JIKA IN PROGRESS WARNA BIRU
+                
                 let mainRow = `
                     <tr class="bg-white border-b border-slate-100 hover:bg-emerald-50/30 transition-colors" data-id="${row.id}">
                         <td class="px-6 py-5 align-top border-l-4 border-emerald-500 pl-5">
@@ -348,7 +355,7 @@
                                 <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
-                            <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="bg-emerald-600 h-full transition-all duration-500" style="width:${progress}%"></div></div>
+                            <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="${progressColor} h-full transition-all duration-500" style="width:${progress}%"></div></div>
                         </td>
                         <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-center"></td>
                         <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-center"></td>
@@ -385,6 +392,8 @@
                     let badgeClass = sub.priority === 'High' ? 'badge-high' : (sub.priority === 'Mid' ? 'badge-mid' : 'badge-low');
                     let jobBadge = getJobClass(sub.job_type); 
                     let statusBadge = getStatusClass(sub.status);
+                    let subProgressColor = "bg-emerald-600";
+                    if(sub.status === 'In Progress') subProgressColor = "bg-blue-600";
                     
                     return `
                     <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white transition-colors" data-id="${sub.id}" data-type="sub">
@@ -405,7 +414,7 @@
                         <td class="px-4 py-4 text-center align-middle">
                             <div class="flex items-center gap-2 justify-center">
                                 <span class="text-slate-600 font-bold text-xs">${sub.progress_percent}%</span>
-                                <div class="w-12 bg-slate-200 h-2 rounded-full overflow-hidden"><div class="bg-emerald-600 h-full" style="width:${sub.progress_percent}%"></div></div>
+                                <div class="w-12 bg-slate-200 h-2 rounded-full overflow-hidden"><div class="${subProgressColor} h-full" style="width:${sub.progress_percent}%"></div></div>
                             </div>
                         </td>
                         <td class="px-4 py-4 text-center align-middle text-[13px] font-mono text-slate-600 font-bold">${formatTime(sub.start_date)}</td>
