@@ -3,51 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HISTORY CHECKLIST (FULL PAGE) - TOOLING SUPPORT</title>
+    <title>HISTORY CHECKLIST (SPLIT VIEW) - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* --- 1. SETTING KERTAS AGAR FULL --- */
+        /* --- PENGATURAN PRINT (FORCE PORTRAIT) --- */
         @page { 
-            size: A4 portrait; 
-            margin: 0; /* Hapus margin default printer */
+            size: A4 portrait;   
+            margin: 5mm;         
         }
 
         @media print {
+            html, body {
+                width: 210mm;    
+                height: 297mm;   
+            }
             body { 
-                margin: 0; padding: 0; 
+                padding: 0; margin: 0; 
                 background: white !important; 
                 -webkit-print-color-adjust: exact; 
+                display: block;  
             }
             .no-print { display: none !important; }
             
-            /* Container Kertas Fisik */
-            .page-container {
-                width: 210mm;
-                height: 296mm; /* Sedikit kurang dari 297 agar tidak double page kosong */
-                padding: 10mm; /* Jarak aman dari pinggir kertas ke garis tepi */
-                box-sizing: border-box;
+            .document-page { 
+                box-shadow: none !important; 
+                border: 1.5pt solid black !important;
+                width: 100% !important; 
+                max-width: 100% !important;
+                margin: 0 !important; 
+                padding: 5px !important;
                 page-break-after: always;
-                position: relative;
             }
-
-            .page-container:last-child {
-                page-break-after: auto;
-            }
-
-            /* Garis Tepi Dokumen (Full Height) */
-            .border-frame {
-                border: 2pt solid black;
-                width: 100%;
-                height: 100%;
-                padding: 10px;
-                box-sizing: border-box;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between; /* Header di atas, Footer di bawah */
-            }
-
-            /* Agar Tabel Hitam Pekat */
+            /* Mempertegas garis tabel */
             .table-official, .table-official th, .table-official td {
                 border: 1pt solid black !important;
             }
@@ -56,84 +44,80 @@
             }
         }
 
-        /* --- TAMPILAN DI LAYAR (PREVIEW) --- */
-        body { font-family: Arial, sans-serif; background-color: #525252; padding: 20px; color: #000; }
+        /* TAMPILAN DI LAYAR */
+        body { font-family: Arial, sans-serif; background-color: #f1f5f9; padding: 20px; color: #000; }
         
-        .page-container { 
+        .document-page { 
             background: white; 
             width: 210mm; 
-            height: 297mm; 
-            margin: 0 auto 30px auto; 
-            padding: 10mm; 
+            min-height: 297mm; 
+            margin: 0 auto; 
+            padding: 10px; 
+            border: 2px solid #000; 
             box-sizing: border-box; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
-
-        .border-frame {
-            border: 2px solid black;
-            width: 100%;
-            height: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* HEADER & META */
-        .top-section { flex-grow: 0; } /* Bagian atas tidak boleh melar */
+        
+        /* HEADER */
         .header-box { border: 2px solid black; margin-bottom: 5px; display: table; width: 100%; border-collapse: collapse; }
         .header-cell { display: table-cell; border-right: 2px solid black; vertical-align: middle; }
         .header-cell:last-child { border-right: none; }
-        .logo-area { width: 80px; padding: 5px; text-align: center; } 
-        .logo-area img { width: 70px; height: auto; display: block; margin: 0 auto; }
+        .logo-area { width: 100px; padding: 2px; text-align: center; } 
+        .logo-area img { width: 80px; height: auto; display: block; margin: 0 auto; }
         .title-area { text-align: center; font-size: 14pt; font-weight: bold; padding: 5px; text-transform: uppercase; color: #000; }
-        .meta-area { width: 220px; font-size: 7pt; padding: 5px; text-transform: uppercase; color: #000; font-weight: bold; }
+        
+        .meta-area { width: 250px; font-size: 8pt; padding: 2px; text-transform: uppercase; color: #000; font-weight: bold; }
         .meta-table { width: 100%; border-collapse: collapse; }
-        .meta-table td { padding: 1px 2px; vertical-align: middle; border: none !important; white-space: nowrap; }
+        .meta-table td { padding: 1px 3px; vertical-align: middle; border: none !important; white-space: nowrap; }
 
-        .meta-info { display: flex; justify-content: space-between; margin: 5px 0 10px 0; font-weight: bold; font-size: 9pt; text-transform: uppercase; color: #000; }
-        .info-label { width: 80px; display: inline-block; }
-        .info-value { border-bottom: 1px solid black; min-width: 140px; display: inline-block; padding: 0 5px; margin-left: 5px; }
+        .meta-info { display: flex; justify-content: space-between; margin: 5px 0; font-weight: bold; font-size: 9pt; align-items: flex-end; text-transform: uppercase; color: #000; }
+        .info-label { width: 90px; display: inline-block; }
+        .info-value { border-bottom: 1px solid black; min-width: 150px; display: inline-block; padding: 0 5px; margin-left: 5px; }
         
-        /* TABLE CONTENT (Supaya tabel mengisi ruang kosong) */
-        .content-section { 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-        } 
+        /* TABLE STYLING */
+        .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; margin-bottom: 15px; }
         
-        .table-official { width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid black; text-transform: uppercase; color: #000; font-size: 6.5pt; }
-        .table-official th, .table-official td { border: 1px solid black; padding: 2px; text-align: center; vertical-align: middle; }
+        /* Font size 6pt agar muat */
+        .table-official th, .table-official td { border: 1px solid black; padding: 1px 2px; font-size: 6pt; text-align: center; vertical-align: middle; color: #000; }
         .table-official th { background-color: #e5e5e5; font-weight: bold; height: 20px; }
 
-        /* Helpers */
-        .col-no { width: 20px; }
-        .col-item { width: 110px; text-align: left !important; padding-left: 3px !important; font-weight: bold; }
-        .col-standar { width: 80px; text-align: left !important; padding-left: 3px !important; } 
-        .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
-        .ng-color { color: #d32f2f; font-weight: bold; }
+        .status-text { font-weight: bold; font-size: 8pt; }
+        .ng-color { color: #d32f2f; }
         .na-color { color: #757575; font-style: italic; } 
-        .note-text { font-size: 6pt; text-align: left !important; padding: 2px 4px !important; line-height: 1.1; overflow: hidden; text-overflow: ellipsis; white-space: normal; }
+        .ket-text { font-size: 5pt; text-align: left !important; padding-left: 3px !important; line-height: 1; word-wrap: break-word; }
 
-        /* FOOTER PARAF (Menempel di bawah border) */
-        .footer-section { flex-grow: 0; margin-top: auto; } /* Dorong ke paling bawah */
+        /* Lebar Kolom */
+        .col-no { width: 18px; }
+        .col-item { width: 90px; text-align: left !important; padding-left: 3px !important; font-weight: bold; }
+        .col-standar { width: 70px; text-align: left !important; padding-left: 3px !important; font-size: 5pt; } 
         
-        .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 7pt; height: 40px; }
-        .sig-td { height: 40px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; }
-        .sig-td img { max-height: 35px; width: auto; display: block; margin: 0 auto; }
+        .section-header { background-color: #dcdcdc !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; height: 18px; font-size: 7pt !important; }
+        
+        /* Sub-Title Tabel */
+        .table-title { font-weight: bold; font-size: 8pt; margin-bottom: 2px; text-decoration: underline; }
 
-        .footer-flex { display: flex; justify-content: space-between; margin-top: 10px; text-transform: uppercase; }
-        .diketahui-box { width: 40%; text-align: center; margin-left: auto; }
-        .sig-frame { border: 1.5px solid black; width: 120px; height: 60px; margin: 2px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
-        .sig-frame img { max-height: 55px; width: auto; }
-        .name-line { border-top: none; width: 180px; margin: 0 auto; font-weight: bold; color: #000; text-align: center; font-size: 8pt; border-top: 1px solid black; padding-top: 2px; }
+        /* FOOTER PARAF */
+        .row-title-footer { background-color: #f2f2f2; font-weight: bold; text-align: center !important; font-size: 7pt; height: 50px; }
+        .sig-td { height: 50px; background-color: #fff; padding: 0 !important; vertical-align: middle !important; text-align: center !important; overflow: hidden; }
+        .sig-td img { max-height: 45px; width: auto; filter: grayscale(1) contrast(2) brightness(0.5); }
 
-        /* UI Control */
-        .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; width: 1000px; margin: 0 auto 30px auto; }
+        .no-print { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; padding: 15px; background: #fff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .no-print input, .no-print select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
         
-        .page-label {
-            position: absolute; top: -25px; left: 0; background: #333; color: white; padding: 5px 10px; font-size: 12px; font-weight: bold; border-radius: 4px;
+        .footer-flex { display: flex; justify-content: space-between; margin-top: 5px; text-transform: uppercase; }
+        .diketahui-box { width: 40%; text-align: center; margin-left: auto; }
+        .sig-frame { border: 1.5px solid black; width: 120px; height: 50px; margin: 2px auto; display: flex; align-items: center; justify-content: center; background: #fff; }
+        .sig-frame img { max-height: 45px; width: auto; filter: grayscale(1) contrast(3) brightness(0.4); }
+        
+        .name-line { 
+            border-top: none; 
+            width: 180px; 
+            margin: 0 auto; 
+            padding-top: 2px; 
+            font-weight: bold; 
+            color: #000; 
+            text-align: center; 
+            font-size: 8pt; 
         }
     </style>
 </head>
@@ -142,7 +126,9 @@
     <div class="no-print">
         <input type="text" id="input-merk" list="machine-list" placeholder="NAMA TOOLS / EQUIPMENT" oninput="autoFillCapacity()">
         <datalist id="machine-list"></datalist>
+
         <input type="text" id="input-tonage" placeholder="CAPACITY">
+        
         <select id="filter-bulan">
             <option value="">PILIH BULAN</option>
             <option value="01">JANUARI</option><option value="02">FEBRUARI</option><option value="03">MARET</option>
@@ -163,135 +149,79 @@
         <button onclick="window.location.href='dashboard.html'" style="background: #555; color: white; padding: 8px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">KEMBALI</button>
     </div>
 
-    <div class="page-container">
-        <div class="no-print page-label">HALAMAN 1: STATUS</div>
-        <div class="border-frame">
-            
-            <div class="top-section">
-                <div class="header-box">
-                    <div class="header-cell logo-area"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO AKG"></div>
-                    <div class="header-cell title-area">CHECKLIST MONITORING TOOLING SUPPORT<br><span style="font-size: 10pt; font-weight: normal;">(STATUS CHECKLIST)</span></div>
-                    <div class="header-cell meta-area">
-                        <table class="meta-table">
-                            <tr><td style="width: 80px;">NO DOK</td><td>: -</td></tr>
-                            <tr><td>TGL TERBIT</td><td>: -</td></tr>
-                            <tr><td>HALAMAN</td><td>: 1 / 2</td></tr>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="meta-info">
-                    <div class="meta-info-left">
-                        <div class="info-row"><span class="info-label">EQUIPMENT</span> : <span class="info-value label-merk">-</span></div>
-                        <div class="info-row"><span class="info-label">CAPACITY</span> : <span class="info-value label-tonage">-</span></div>
-                    </div>
-                    <div class="meta-info-right">
-                        <div class="info-row"><span class="info-label">BULAN</span> : <span class="info-value label-bulan">-</span></div>
-                        <div class="info-row"><span class="info-label">TAHUN</span> : <span class="info-value label-tahun">-</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="content-section">
-                <table class="table-official">
-                    <thead>
-                        <tr>
-                            <th class="col-no">NO</th>
-                            <th class="col-item">JENIS PENGECEKAN</th>
-                            <th class="col-standar">STANDAR</th>
-                            <th>WEEK 1</th>
-                            <th>WEEK 2</th>
-                            <th>WEEK 3</th>
-                            <th>WEEK 4</th>
-                            <th>WEEK 5</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-status"></tbody>
+    <div class="document-page">
+        <div class="header-box">
+            <div class="header-cell logo-area"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO AKG"></div>
+            <div class="header-cell title-area">CHECKLIST MONITORING TOOLING SUPPORT</div>
+            <div class="header-cell meta-area">
+                <table class="meta-table">
+                    <tr><td style="width: 100px;">NO DOKUMEN</td><td>: </td></tr>
+                    <tr><td>TANGGAL TERBIT</td><td>: </td></tr>
+                    <tr><td>HALAMAN</td><td>: </td></tr>
                 </table>
             </div>
-
-            <div class="footer-section">
-                <table class="table-official" style="border-top: none;">
-                    <tfoot>
-                        <tr class="row-paraf-pelaksana">
-                            <td colspan="3" class="row-title-footer" style="width: 210px;">PARAF PELAKSANA</td>
-                            <td class="sig-td" id="sig-w1"></td>
-                            <td class="sig-td" id="sig-w2"></td>
-                            <td class="sig-td" id="sig-w3"></td>
-                            <td class="sig-td" id="sig-w4"></td>
-                            <td class="sig-td" id="sig-w5"></td>
-                        </tr>
-                    </tfoot>
-                </table>
-
-                <div class="footer-flex">
-                    <div class="diketahui-box">
-                        <p style="font-weight: bold; margin-bottom: 2px; font-size: 8pt;">DIKETAHUI</p>
-                        <div class="sig-frame super-sig"></div>
-                        <div class="name-line super-name">( ........................ )</div>
-                        <p style="font-size: 7pt; margin-top: 2px;">PROCESS ENGINEERING</p>
-                    </div>
-                </div>
-            </div>
-
         </div>
-    </div>
 
-    <div class="page-container">
-        <div class="no-print page-label">HALAMAN 2: KETERANGAN</div>
-        <div class="border-frame">
-            
-            <div class="top-section">
-                <div class="header-box">
-                    <div class="header-cell logo-area"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="LOGO AKG"></div>
-                    <div class="header-cell title-area">CHECKLIST MONITORING TOOLING SUPPORT<br><span style="font-size: 10pt; font-weight: normal;">(CATATAN / KETERANGAN)</span></div>
-                    <div class="header-cell meta-area">
-                        <table class="meta-table">
-                            <tr><td style="width: 80px;">NO DOK</td><td>: -</td></tr>
-                            <tr><td>TGL TERBIT</td><td>: -</td></tr>
-                            <tr><td>HALAMAN</td><td>: 2 / 2</td></tr>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="meta-info">
-                    <div class="meta-info-left">
-                        <div class="info-row"><span class="info-label">EQUIPMENT</span> : <span class="info-value label-merk">-</span></div>
-                        <div class="info-row"><span class="info-label">CAPACITY</span> : <span class="info-value label-tonage">-</span></div>
-                    </div>
-                    <div class="meta-info-right">
-                        <div class="info-row"><span class="info-label">BULAN</span> : <span class="info-value label-bulan">-</span></div>
-                        <div class="info-row"><span class="info-label">TAHUN</span> : <span class="info-value label-tahun">-</span></div>
-                    </div>
-                </div>
+        <div class="meta-info">
+            <div class="meta-info-left">
+                <div class="info-row"><span class="info-label">EQUIPMENT</span> : <span class="info-value" id="label-merk">-</span></div>
+                <div class="info-row"><span class="info-label">CAPACITY</span> : <span class="info-value" id="label-tonage">-</span></div>
             </div>
-
-            <div class="content-section">
-                <table class="table-official">
-                    <thead>
-                        <tr>
-                            <th class="col-no">NO</th>
-                            <th class="col-item">JENIS PENGECEKAN</th>
-                            <th>KETERANGAN WEEK 1</th>
-                            <th>KETERANGAN WEEK 2</th>
-                            <th>KETERANGAN WEEK 3</th>
-                            <th>KETERANGAN WEEK 4</th>
-                            <th>KETERANGAN WEEK 5</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-notes"></tbody>
-                </table>
+            <div class="meta-info-right">
+                <div class="info-row"><span class="info-label">BULAN</span> : <span class="info-value" id="label-bulan">-</span></div>
+                <div class="info-row"><span class="info-label">TAHUN</span> : <span class="info-value" id="label-tahun">-</span></div>
             </div>
+        </div>
 
-            <div class="footer-section">
-                <div class="footer-flex">
-                    <div class="diketahui-box">
-                        <p style="font-weight: bold; margin-bottom: 2px; font-size: 8pt;">DIKETAHUI</p>
-                        <div class="sig-frame super-sig"></div>
-                        <div class="name-line super-name">( ........................ )</div>
-                        <p style="font-size: 7pt; margin-top: 2px;">PROCESS ENGINEERING</p>
-                    </div>
-                </div>
+        <div class="table-title">A. STATUS CHECKLIST (OK / NG)</div>
+        <table class="table-official">
+            <thead>
+                <tr>
+                    <th class="col-no">NO</th>
+                    <th class="col-item">JENIS PENGECEKAN</th>
+                    <th class="col-standar">STANDAR</th>
+                    <th>WEEK 1</th>
+                    <th>WEEK 2</th>
+                    <th>WEEK 3</th>
+                    <th>WEEK 4</th>
+                    <th>WEEK 5</th>
+                </tr>
+            </thead>
+            <tbody id="table-content-status"></tbody>
+        </table>
+
+        <div class="table-title">B. CATATAN / KETERANGAN</div>
+        <table class="table-official">
+            <thead>
+                <tr>
+                    <th class="col-no">NO</th>
+                    <th class="col-item">JENIS PENGECEKAN</th>
+                    <th>KETERANGAN W1</th>
+                    <th>KETERANGAN W2</th>
+                    <th>KETERANGAN W3</th>
+                    <th>KETERANGAN W4</th>
+                    <th>KETERANGAN W5</th>
+                </tr>
+            </thead>
+            <tbody id="table-content-ket"></tbody>
+            <tfoot>
+                <tr id="row-paraf-pelaksana">
+                    <td colspan="2" class="row-title-footer">PARAF PELAKSANA</td>
+                    <td class="sig-td" id="sig-w1"></td>
+                    <td class="sig-td" id="sig-w2"></td>
+                    <td class="sig-td" id="sig-w3"></td>
+                    <td class="sig-td" id="sig-w4"></td>
+                    <td class="sig-td" id="sig-w5"></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="footer-flex">
+            <div class="diketahui-box">
+                <p style="font-weight: bold; margin-bottom: 5px; font-size: 8pt;">DIKETAHUI</p>
+                <div class="sig-frame" id="super-sig"></div>
+                <div id="super-name" class="name-line">( ........................ )</div>
+                <p style="font-size: 7pt; margin-top: 2px;">PROCESS ENGINEERING</p>
             </div>
         </div>
     </div>
@@ -351,7 +281,7 @@
 
         const checklistStructure = [
             { header: "1. STAND LABEL", type: 'head' },
-            { name: "WIRING", field: "wiring", standar: "TIDAK KENDOR" },
+            { name: "WIRING", field: "wiring", standar: "TIDAK KENDOR / LEPAS" },
             { name: "KOMPONEN", field: "komponen", standar: "LENGKAP" },
             { name: "KERAPIHAN", field: "kerapihan", standar: "BERSIH" },
             { name: "SENSOR", field: "sensor", standar: "BERFUNGSI" },
@@ -404,16 +334,10 @@
                 return;
             }
 
-            const labelIds = ['label-tahun', 'label-bulan', 'label-merk', 'label-tonage'];
-            labelIds.forEach(id => {
-                const els = document.getElementsByClassName(id);
-                for(let el of els) {
-                    if(id === 'label-tahun') el.innerText = thn;
-                    if(id === 'label-bulan') el.innerText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text;
-                    if(id === 'label-merk') el.innerText = tools.toUpperCase();
-                    if(id === 'label-tonage') el.innerText = capacity || "-";
-                }
-            });
+            document.getElementById('label-tahun').innerText = thn;
+            document.getElementById('label-bulan').innerText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text;
+            document.getElementById('label-merk').innerText = tools.toUpperCase();
+            document.getElementById('label-tonage').innerText = capacity || "-";
 
             const dateFilter = `${thn}-${bln}`;
             const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
@@ -428,7 +352,9 @@
                 return dMatch && mMatch;
             });
 
-            if (filteredData.length === 0) alert("Data tidak ditemukan.");
+            if (filteredData.length === 0) {
+                alert("Data tidak ditemukan! Pastikan Nama Mesin dan Bulan sudah benar.");
+            }
 
             const dataMap = {};
             filteredData.forEach(item => {
@@ -436,50 +362,59 @@
                 if(w >= 1 && w <= 5) dataMap[w] = item;
             });
 
-            renderTableContent(dataMap);
+            renderRows(dataMap);
             renderParaf(dataMap);
             renderSuper(dataMap);
         }
 
-        function renderTableContent(dataMap) {
-            const tbodyStatus = document.getElementById('tbody-status');
-            const tbodyNotes = document.getElementById('tbody-notes');
+        function renderRows(dataMap) {
+            const tbodyStatus = document.getElementById('table-content-status');
+            const tbodyKet = document.getElementById('table-content-ket');
             tbodyStatus.innerHTML = "";
-            tbodyNotes.innerHTML = "";
-
+            tbodyKet.innerHTML = "";
+            
             let alphabetCounter = 1;
+            
             checklistStructure.forEach(item => {
                 if (item.type === 'head') {
                     alphabetCounter = 1;
+                    // Tulis Header di Kedua Tabel
                     tbodyStatus.innerHTML += `<tr><td colspan="3" class="section-header">${item.header}</td><td colspan="5"></td></tr>`;
-                    tbodyNotes.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="5"></td></tr>`;
+                    tbodyKet.innerHTML += `<tr><td colspan="2" class="section-header">${item.header}</td><td colspan="5"></td></tr>`;
                 } else {
                     let char = numToChar(alphabetCounter++);
                     
+                    // Baris untuk Tabel 1 (STATUS)
                     let rowStatus = `<tr><td class="font-bold">${char}</td><td class="col-item">${item.name}</td><td class="col-standar">${item.standar}</td>`;
-                    let rowNotes = `<tr><td class="font-bold">${char}</td><td class="col-item">${item.name}</td>`;
+                    
+                    // Baris untuk Tabel 2 (KETERANGAN) - Kolom standar dihapus agar lebih lebar
+                    let rowKet = `<tr><td class="font-bold">${char}</td><td class="col-item">${item.name}</td>`;
 
                     for(let w=1; w<=5; w++) {
-                        let statusText = "-", ketText = "-", statusClass = "";
-
+                        let statusText = "", ketText = "", statusClass = "";
+                        
                         if(dataMap[w]) {
                             const status = dataMap[w][item.field];
-                            const ket = dataMap[w][item.field + "_keterangan"];
-                            statusText = status || "-";
+                            statusText = status || "";
+                            
                             if (status === 'NG') statusClass = "ng-color";
                             else if (status === 'N/A') statusClass = "na-color";
-                            ketText = ket || "-";
+                            
+                            ketText = (status === 'NG') ? (dataMap[w][item.field + "_keterangan"] || "") : "";
                         }
                         
-                        rowStatus += `<td class="${statusClass} font-bold">${statusText}</td>`;
-                        rowNotes += `<td class="note-text">${ketText}</td>`;
+                        // Isi Tabel 1 (Hanya OK/NG)
+                        rowStatus += `<td class="col-status font-bold ${statusClass}">${statusText}</td>`;
+                        
+                        // Isi Tabel 2 (Hanya Keterangan)
+                        rowKet += `<td class="col-ket note-text">${ketText}</td>`;
                     }
                     
                     rowStatus += `</tr>`;
-                    rowNotes += `</tr>`;
+                    rowKet += `</tr>`;
 
                     tbodyStatus.innerHTML += rowStatus;
-                    tbodyNotes.innerHTML += rowNotes;
+                    tbodyKet.innerHTML += rowKet;
                 }
             });
         }
@@ -488,7 +423,7 @@
             setTimeout(() => {
                 for(let w=1; w<=5; w++) {
                     const cell = document.getElementById(`sig-w${w}`);
-                    if (cell) {
+                    if(cell) {
                         cell.innerHTML = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}">` : "";
                     }
                 }
@@ -496,8 +431,8 @@
         }
 
         function renderSuper(dataMap) {
-            const sigFrames = document.getElementsByClassName('super-sig');
-            const nameLabels = document.getElementsByClassName('super-name');
+            const sigFrame = document.getElementById('super-sig');
+            const nameLabel = document.getElementById('super-name');
             const weeks = [5, 4, 3, 2, 1];
             let latestData = null;
             for(let w of weeks) {
@@ -506,21 +441,18 @@
                     break;
                 }
             }
-
-            for (let i = 0; i < sigFrames.length; i++) {
-                if (latestData) {
-                    sigFrames[i].innerHTML = `<img src="${latestData.signature}">`;
-                    nameLabels[i].innerText = `( ${latestData.nama_superintendent || 'SUPERINTENDENT'} )`;
-                } else {
-                    sigFrames[i].innerHTML = "";
-                    nameLabels[i].innerText = "( ........................ )";
-                }
+            if (latestData) {
+                sigFrame.innerHTML = `<img src="${latestData.signature}">`;
+                nameLabel.innerText = `( ${latestData.nama_superintendent || 'SUPERINTENDENT'} )`;
+            } else {
+                sigFrame.innerHTML = "";
+                nameLabel.innerText = "( ........................ )";
             }
         }
 
         window.onload = function() {
             initMachineList();
-            renderTableContent({});
+            renderRows({});
         };
     </script>
 </body>
