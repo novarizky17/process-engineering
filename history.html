@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HISTORY CHECKLIST (COMPACT) - TOOLING SUPPORT</title>
+    <title>HISTORY CHECKLIST (FIXED LAYOUT) - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -17,18 +17,16 @@
             body { padding: 0; background: white; }
             .no-print { display: none !important; }
             
-            /* HALAMAN CETAK */
             .sheet {
                 width: 210mm;
-                height: 296mm; /* Pas A4 */
-                padding: 5mm 8mm; /* Margin Kiri Kanan agak lebar dikit, Atas Bawah tipis */
+                height: 296mm; /* A4 Pas */
+                padding: 10mm;
                 page-break-after: always;
                 position: relative;
                 overflow: hidden;
             }
             .sheet:last-child { page-break-after: auto; }
             
-            /* BORDER TEBAL SAAT PRINT */
             .outer-border { border: 2pt solid black !important; height: 100%; }
         }
 
@@ -38,7 +36,7 @@
             width: 210mm;
             height: 297mm;
             margin: 0 auto 30px auto;
-            padding: 5mm 8mm;
+            padding: 10mm;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
@@ -53,50 +51,47 @@
             padding: 5px;
         }
 
-        /* --- ELEMEN DALAM --- */
-        
         /* HEADER */
         .header-tbl { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
         .header-tbl td { border: 1px solid black; padding: 3px; vertical-align: middle; }
-        .logo { width: 60px; display: block; margin: 0 auto; }
-        .judul-dok { text-align: center; font-weight: bold; font-size: 12pt; text-transform: uppercase; }
-        .sub-judul { font-size: 8pt; font-weight: normal; }
-        .meta-txt { font-size: 6pt; font-weight: bold; }
+        .logo { width: 70px; display: block; margin: 0 auto; }
+        .judul-dok { text-align: center; font-weight: bold; font-size: 14pt; text-transform: uppercase; }
+        .sub-judul { font-size: 10pt; font-weight: normal; }
+        .meta-txt { font-size: 7pt; font-weight: bold; }
 
         /* INFO BOX */
-        .info-wrapper { display: flex; justify-content: space-between; font-size: 7pt; font-weight: bold; margin: 3px 0; text-transform: uppercase; }
+        .info-wrapper { display: flex; justify-content: space-between; font-size: 8pt; font-weight: bold; margin: 5px 0; text-transform: uppercase; }
         .info-col { width: 48%; }
-        .info-row { display: flex; margin-bottom: 1px; }
-        .lbl { width: 70px; }
+        .info-row { display: flex; margin-bottom: 2px; }
+        .lbl { width: 80px; }
         .val { border-bottom: 1px solid black; flex-grow: 1; padding-left: 3px; }
 
-        /* TABEL DATA (YANG DIPERKECIL) */
-        .data-tbl { width: 100%; border-collapse: collapse; font-size: 6pt; table-layout: fixed; }
-        .data-tbl th, .data-tbl td { border: 1px solid black; padding: 1px 2px; text-align: center; vertical-align: middle; height: 13px; /* TINGGI BARIS DIPERKECIL */ }
-        .data-tbl th { background: #e5e5e5; font-weight: bold; height: 18px; }
+        /* TABEL DATA */
+        .data-tbl { width: 100%; border-collapse: collapse; font-size: 7pt; table-layout: fixed; margin-top: 5px; }
+        .data-tbl th, .data-tbl td { border: 1px solid black; padding: 1px 2px; text-align: center; vertical-align: middle; height: 14px; }
+        .data-tbl th { background: #e5e5e5; font-weight: bold; height: 20px; }
         
         /* Kolom */
-        .c-no { width: 15px; }
-        .c-item { width: 100px; text-align: left !important; padding-left: 3px !important; font-weight: bold; }
-        .c-std { width: 60px; text-align: left !important; padding-left: 3px !important; font-size: 5pt; }
-        .sec-head { background: #d4d4d4 !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; }
+        .c-no { width: 20px; }
+        .c-item { width: 120px; text-align: left !important; padding-left: 3px !important; font-weight: bold; }
+        .c-std { width: 70px; text-align: left !important; padding-left: 3px !important; font-size: 6pt; }
+        .sec-head { background: #d4d4d4 !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; height: 16px; }
 
         /* Status & Text */
         .st-ok { color: black; font-weight: bold; }
         .st-ng { color: red; font-weight: bold; }
         .st-na { color: gray; font-style: italic; font-weight: bold; }
-        .txt-ket { font-size: 5pt; text-align: left !important; padding-left: 2px !important; line-height: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .txt-ket { font-size: 6pt; text-align: left !important; padding-left: 2px !important; line-height: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
-        /* FOOTER AREA */
-        .footer-area { margin-top: auto; border-top: none; } /* Dorong ke paling bawah */
-        .footer-tbl { width: 100%; border-collapse: collapse; margin-top: 2px; }
-        .footer-tbl td { border: 1px solid black; text-align: center; font-size: 6pt; height: 35px; vertical-align: middle; }
-        .f-head { background: #f3f4f6; font-weight: bold; height: 15px !important; }
-        
-        .ttd-approve { display: flex; justify-content: flex-end; margin-top: 5px; text-align: center; font-size: 7pt; font-weight: bold; }
-        .box-ttd { border: 1px solid black; width: 80px; height: 40px; margin: 2px auto; display: flex; align-items: center; justify-content: center; }
-        .img-ttd-sm { max-height: 28px; margin: 0 auto; }
-        .img-ttd-bg { max-height: 38px; margin: 0 auto; }
+        /* FOOTER (PARAF & SUPERINTENDENT) */
+        .footer-row { height: 40px; background-color: #f3f4f6; font-weight: bold; }
+        .footer-label { text-align: center; font-size: 7pt; }
+        .sig-img { max-height: 35px; margin: 0 auto; display: block; }
+
+        .super-area { margin-top: 5px; display: flex; justify-content: flex-end; }
+        .super-box { width: 120px; text-align: center; font-size: 7pt; font-weight: bold; }
+        .super-sig-box { border: 1px solid black; height: 50px; margin: 2px auto; display: flex; align-items: center; justify-content: center; }
+        .super-img { max-height: 45px; }
 
         /* UI CONTROLLER */
         .ctl-pnl { width: 800px; margin: 0 auto 20px; background: white; padding: 10px; border-radius: 8px; display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
@@ -161,23 +156,25 @@
                         </tr>
                     </thead>
                     <tbody id="tbody-status"></tbody>
+                    <tfoot>
+                        <tr class="footer-row">
+                            <td colspan="3" class="footer-label">PARAF PELAKSANA</td>
+                            <td id="sig-s-w1"></td>
+                            <td id="sig-s-w2"></td>
+                            <td id="sig-s-w3"></td>
+                            <td id="sig-s-w4"></td>
+                            <td id="sig-s-w5"></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
 
-            <div class="footer-area">
-                <table class="footer-tbl">
-                    <tr>
-                        <td colspan="3" class="f-head" width="30%">PARAF PELAKSANA</td>
-                        <td id="sig-s-w1"></td><td id="sig-s-w2"></td><td id="sig-s-w3"></td><td id="sig-s-w4"></td><td id="sig-s-w5"></td>
-                    </tr>
-                </table>
-                <div class="ttd-approve">
-                    <div style="width: 100px;">
-                        <div>DIKETAHUI</div>
-                        <div class="box-ttd super-sig"></div>
-                        <div style="border-top:1px solid black;" class="super-name">( ... )</div>
-                        <div style="font-size:6pt;">PROCESS ENG.</div>
-                    </div>
+            <div class="super-area">
+                <div class="super-box">
+                    <div>DIKETAHUI</div>
+                    <div class="super-sig-box super-sig"></div>
+                    <div style="border-top:1px solid black;" class="super-name">( ... )</div>
+                    <div>PROCESS ENG.</div>
                 </div>
             </div>
         </div>
@@ -218,23 +215,25 @@
                         </tr>
                     </thead>
                     <tbody id="tbody-notes"></tbody>
+                    <tfoot>
+                        <tr class="footer-row">
+                            <td colspan="2" class="footer-label">PARAF PELAKSANA</td>
+                            <td id="sig-k-w1"></td>
+                            <td id="sig-k-w2"></td>
+                            <td id="sig-k-w3"></td>
+                            <td id="sig-k-w4"></td>
+                            <td id="sig-k-w5"></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
 
-            <div class="footer-area">
-                <table class="footer-tbl">
-                    <tr>
-                        <td colspan="2" class="f-head" width="20%">PARAF PELAKSANA</td>
-                        <td id="sig-k-w1"></td><td id="sig-k-w2"></td><td id="sig-k-w3"></td><td id="sig-k-w4"></td><td id="sig-k-w5"></td>
-                    </tr>
-                </table>
-                <div class="ttd-approve">
-                    <div style="width: 100px;">
-                        <div>DIKETAHUI</div>
-                        <div class="box-ttd super-sig"></div>
-                        <div style="border-top:1px solid black;" class="super-name">( ... )</div>
-                        <div style="font-size:6pt;">PROCESS ENG.</div>
-                    </div>
+            <div class="super-area">
+                <div class="super-box">
+                    <div>DIKETAHUI</div>
+                    <div class="super-sig-box super-sig"></div>
+                    <div style="border-top:1px solid black;" class="super-name">( ... )</div>
+                    <div>PROCESS ENG.</div>
                 </div>
             </div>
         </div>
@@ -339,14 +338,14 @@
             const thn = document.getElementById('filter-tahun').value;
             const bln = document.getElementById('filter-bulan').value;
             const tools = document.getElementById('input-merk').value.trim();
-            const cap = document.getElementById('input-tonage').value.trim();
+            const capacity = document.getElementById('input-tonage').value.trim();
 
-            if (!isSearching || !bln || !tools) { alert("Lengkapi Data (Mesin & Bulan)"); return; }
+            if (!isSearching || !bln || !tools) { alert("Isi Nama Mesin & Bulan!"); return; }
 
             document.querySelectorAll('.label-tahun').forEach(e => e.innerText = thn);
             document.querySelectorAll('.label-bulan').forEach(e => e.innerText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text);
             document.querySelectorAll('.label-merk').forEach(e => e.innerText = tools.toUpperCase());
-            document.querySelectorAll('.label-tonage').forEach(e => e.innerText = cap || "-");
+            document.querySelectorAll('.label-tonage').forEach(e => e.innerText = capacity || "-");
 
             const dateFilter = `${thn}-${bln}`;
             const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
@@ -408,14 +407,14 @@
 
         function renderSignatures(dataMap) {
             for(let w=1; w<=5; w++) {
-                const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" class="img-ttd-sm">` : "";
+                const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" class="sig-img">` : "";
                 document.getElementById(`sig-s-w${w}`).innerHTML = img;
                 document.getElementById(`sig-k-w${w}`).innerHTML = img;
             }
             let latest = null;
             for(let w=5; w>=1; w--) { if(dataMap[w] && dataMap[w].signature) { latest=dataMap[w]; break; } }
             
-            document.querySelectorAll('.super-sig').forEach(e => e.innerHTML = latest ? `<img src="${latest.signature}" class="img-ttd-bg">` : "");
+            document.querySelectorAll('.super-sig').forEach(e => e.innerHTML = latest ? `<img src="${latest.signature}" class="super-img">` : "");
             document.querySelectorAll('.super-name').forEach(e => e.innerText = latest ? `( ${latest.nama_superintendent} )` : "( ................. )");
         }
 
