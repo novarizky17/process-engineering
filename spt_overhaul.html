@@ -16,6 +16,12 @@
         .approved { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .pending { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
         .rejected { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        /* CSS Khusus agar panah datalist tidak dobel di beberapa browser */
+        input::-webkit-calendar-picker-indicator {
+            opacity: 100;
+            color: #003366;
+        }
     </style>
 </head>
 <body>
@@ -59,10 +65,17 @@
 
         <div id="approvalPanel" class="p-8 bg-slate-50 border-t shadow-inner" style="display: none;">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                
                 <div>
                     <label class="block text-[10px] font-black text-[#003366] uppercase mb-1">Nama Pemeriksa (Superintendent)</label>
-                    <input type="text" id="spt_name" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm focus:border-blue-500 outline-none uppercase font-bold" placeholder="NAMA LENGKAP ANDA">
+                    <input type="text" id="spt_name" list="nama_opsi" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm focus:border-blue-500 outline-none uppercase font-bold" placeholder="PILIH ATAU KETIK NAMA..." autocomplete="off">
+                    
+                    <datalist id="nama_opsi">
+                        <option value="A. RIZKI MUBAROK KULJAMIL">
+                        <option value="SUPERINTENDENT LAIN">
+                    </datalist>
                 </div>
+
                 <div>
                     <label class="block text-[10px] font-black text-[#003366] uppercase mb-1">Catatan / Rekomendasi (Wajib jika Reject)</label>
                     <textarea id="spt_notes" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm focus:border-blue-500 outline-none transition-all resize-none" rows="2" placeholder="Hasil evaluasi teknis..."></textarea>
@@ -176,7 +189,6 @@
             </div>
         `;
         
-        // --- LOGIKA PERBAIKAN TOTAL ---
         const st = row.status ? row.status.toLowerCase().trim() : 'pending';
         const isActuallyProcessed = st.includes('approve') || st.includes('reject');
 
@@ -196,7 +208,6 @@
             document.getElementById('view_spt_notes').innerText = row.spt_notes || "Tidak ada catatan.";
             document.getElementById('view-sig-spt').src = row.signature_superintendent || "";
         } else {
-            // Bersihkan input jika data benar-benar baru
             document.getElementById('spt_name').value = "";
             document.getElementById('spt_notes').value = "";
         }
