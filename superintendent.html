@@ -183,8 +183,10 @@
     function refreshData() { loadData(); }
 
     async function loadData() {
+        // --- LOGIKA PEMILIHAN TABEL BERDASARKAN TAB ---
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
+        
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
         if(error) return console.error(error);
         
@@ -476,8 +478,13 @@
         if(!isReviewable) {
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
-            const sigUrl = currentTab === 'rutin' ? (row.signature_superintendent || row.signature) : row.signature_superintendent;
+            
+            // --- LOGIKA TAMPILKAN TTD DI MODAL ---
+            // Karena Rutin belum ada kolom TTD, kita kasih default kosong atau null
+            const sigUrl = currentTab === 'rutin' ? null : row.signature_superintendent;
+            
             document.getElementById('historySigImg').src = sigUrl || '';
+            document.getElementById('historySigImg').style.display = sigUrl ? 'block' : 'none'; // Sembunyikan kalau gak ada gambar
         }
         document.getElementById('modal').style.display = 'block';
         clearSig();
@@ -486,22 +493,46 @@
     async function processStatus(st) {
         const namaSuper = document.getElementById('namaSuperintendent').value;
         const ketInput = document.getElementById('keteranganSuper').value; 
+        
         if(!namaSuper) return alert("Isi nama superintendent!");
 
-        let update = { status: st, approved_at: new Date().toISOString(), nama_superintendent: namaSuper };
-        if (currentTab === 'rutin') update.keterangan = ketInput; 
-        else update.keterangan_superintendent = ketInput; 
+        // 1. SIAPKAN DATA UPDATE DASAR
+        let update = { 
+            status: st, 
+            approved_at: new Date().toISOString(), 
+            nama_superintendent: namaSuper 
+        };
 
+        // 2. MASUKKAN KETERANGAN
+        if (currentTab === 'rutin') {
+            update.keterangan = ketInput; 
+        } else {
+            update.keterangan_superintendent = ketInput; 
+        }
+
+        // --- UPDATE PENTING: LOGIKA PENYIMPANAN TANDA TANGAN ---
         if(st === 'Approved') {
             const dataURL = canvas.toDataURL();
-            if (currentTab === 'rutin') update.signature_superintendent = dataURL; 
-            else update.signature_superintendent = dataURL; 
+            
+            if (currentTab === 'trial') {
+                // HANYA TAB TRIAL YANG MENCOBA SIMPAN GAMBAR TTD
+                // (Asumsi kolom 'signature_superintendent' ada di tabel checklist_trial)
+                update.signature_superintendent = dataURL; 
+            }
+            // TAB RUTIN TIDAK MENYIMPAN TTD (Karena kolomnya belum ada di tabel 'checklist')
         }
 
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
+        
         const { error } = await _supabase.from(tableName).update(update).eq('id', activeId);
-        if(!error) { alert("Berhasil disimpan!"); closeModal(); loadData(); } 
-        else { alert("Error: " + error.message); }
+
+        if(!error) { 
+            alert("Berhasil disimpan!"); 
+            closeModal(); 
+            loadData(); 
+        } else { 
+            alert("Error: " + error.message); 
+        }
     }
 
     function closeModal() { document.getElementById('modal').style.display = 'none'; }
