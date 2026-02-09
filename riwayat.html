@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KARTU RIWAYAT (PORTRAIT) - PT. AKG</title>
+    <title>KARTU RIWAYAT - PT. AMARILYS KARISMA GEMILANG</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* SETUP HALAMAN A4 PORTRAIT */
         @page {
-            size: A4 portrait;
-            margin: 10mm; /* Margin sedikit lebih lebar biar aman saat diprint */
+            size: A4 landscape;
+            margin: 8mm;
         }
 
         body {
@@ -18,146 +17,169 @@
             padding: 0;
             background: #f1f5f9;
             color: #000;
-            font-size: 10pt; /* Font dasar diperkecil sedikit */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
 
         .container {
-            width: 190mm; /* Lebar area cetak A4 portrait (210mm - margin) */
+            width: 277mm;
+            height: auto;
             background: white;
-            padding: 5mm;
-            margin: 0 auto;
+            padding: 8mm 12mm;
             box-sizing: border-box;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            min-height: 277mm; /* Tinggi A4 */
-            position: relative;
         }
 
-        /* INPUT TITIK-TITIK */
         .input-dot {
             border: none;
             border-bottom: 1px dotted black;
-            width: 200px; /* Lebar input disesuaikan */
+            width: 380px; 
             font-family: Arial;
-            font-size: 10pt;
-            background: transparent;
-            color: #000;
+            font-size: 10.5pt;
             outline: none;
+            background: transparent;
+            font-weight: normal !important; 
+            color: #000;
         }
 
-        /* SELECT DALAM TABEL */
         .table-select {
             border: none;
             width: 100%;
+            height: 100%;
             font-family: Arial;
-            font-size: 8pt;
+            font-size: 9pt;
             text-align: center;
             text-align-last: center;
+            outline: none;
             background: transparent;
+            cursor: pointer;
             appearance: none;
-            -webkit-appearance: none;
         }
 
-        /* AREA PENCARIAN (NO PRINT) */
         .search-area {
             background: #1e293b;
-            padding: 10px;
-            margin-bottom: 20px;
+            padding: 15px;
+            margin-bottom: 25px;
             display: flex;
-            gap: 10px;
-            justify-content: center;
+            gap: 12px;
+            align-items: center;
             border-radius: 6px;
+            justify-content: center;
         }
+
         .search-area input, .search-area select {
-            padding: 8px;
+            padding: 10px;
             border-radius: 4px;
             border: 1px solid #cbd5e1;
-        }
-        .btn-action {
-            padding: 8px 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 4px;
-            color: white;
             font-weight: bold;
-            background: #3b82f6;
         }
 
-        /* HEADER */
+        .btn-action {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
         .header {
+            position: relative;
+            margin-bottom: 0;
+            height: 80px; 
+        }
+
+        .logo-area {
             display: flex;
             align-items: center;
-            border-bottom: 2px solid black;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-        .logo { width: 60px; height: auto; margin-right: 15px; }
-        .company-info { flex-grow: 1; }
-        .company-name { font-size: 12pt; font-weight: bold; }
-        .title { 
-            font-size: 16pt; 
-            font-weight: bold; 
-            text-align: center; 
-            text-transform: uppercase;
-            margin-top: 5px;
+            gap: 12px;
+            position: absolute;
+            left: 0;
+            top: 30px; 
         }
 
-        /* INFORMASI DOKUMEN & MESIN */
+        .logo { width: 95px; height: auto; }
+        .company-name { font-size: 14px; font-weight: bold; }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold; 
+            text-align: center;
+            width: 100%;
+            margin: 0;
+            padding-top: 30px; 
+        }
+
         .meta-section {
             display: flex;
             justify-content: space-between;
-            font-size: 9pt;
-            margin-bottom: 10px;
+            align-items: flex-end; 
+            margin-bottom: 5px; 
+            margin-top: 25px;
         }
-        .meta-col { width: 48%; }
-        .meta-row { display: flex; margin-bottom: 4px; }
-        .label { width: 110px; font-weight: bold; }
-        .val { flex: 1; border-bottom: 1px dotted #ccc; }
 
-        /* TABEL UTAMA */
+        .machine-info div { 
+            margin-bottom: 4px; 
+            font-size: 10.5pt; 
+            font-weight: normal !important; 
+        }
+        
+        .label { 
+            font-weight: normal !important; 
+            display: inline-block; 
+            width: 165px; 
+        }
+
+        .doc-info { text-align: left; font-size: 10.5pt; font-weight: normal !important; }
+        .doc-info div { margin-bottom: 2px; }
+        .doc-label { font-weight: normal !important; display: inline-block; width: 140px; }
+
         .main-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
-            font-size: 8pt; /* Font tabel diperkecil agar muat */
+            margin-bottom: 25px;
         }
+
         .main-table th {
             border: 1px solid black;
-            padding: 5px 2px;
-            background: #eee;
+            padding: 6px;
+            font-size: 9.5pt;
             text-align: center;
+            background-color: #f8fafc;
+            font-weight: bold;
         }
+
         .main-table td {
             border: 1px solid black;
-            padding: 2px;
+            padding: 4px;
+            font-size: 9.5pt;
+            text-align: center;
             vertical-align: middle;
-            height: 22px; /* Tinggi baris dipadatkan */
+            height: 25px;
+            font-weight: normal;
         }
-        
-        /* PENGATURAN KOLOM AGAR MUAT DI PORTRAIT */
-        .col-tgl { width: 10%; text-align: center; }
-        .col-masalah { width: 22%; }
-        .col-tindakan { width: 22%; }
-        .col-part { width: 20%; }
-        .col-ket { width: 12%; text-align: center; }
-        .col-pic { width: 14%; text-align: center; }
 
-        /* TANDA TANGAN */
-        .signature-section {
-            margin-top: 20px;
+        .signature-section { margin-top: 20px; }
+        .signature-row {
             display: flex;
-            justify-content: space-around; /* Jarak antar TTD */
+            justify-content: space-between;
+            gap: 50px;
         }
-        .sig-box { text-align: center; width: 100px; }
-        .sig-title { font-weight: bold; font-size: 9pt; margin-bottom: 50px; }
-        .sig-line { border-bottom: 1px solid black; margin-bottom: 5px; }
-        .sig-label { font-size: 9pt; }
 
-        /* PRINT MODE */
+        .sig-box { flex: 1; text-align: center; max-width: 300px; }
+        .sig-title { font-weight: bold; font-size: 12.5pt; margin-bottom: 70px; text-transform: uppercase; }
+        .sig-line { border-bottom: 1.5px solid black; width: 90%; margin: 0 auto 10px; }
+        .sig-label { font-size: 11.5pt; font-weight: bold; }
+
         @media print {
-            body { background: white; margin: 0; }
-            .container { width: 100%; box-shadow: none; padding: 0; margin: 0; min-height: auto; }
-            .no-print { display: none !important; }
+            body { background: white; display: block; }
+            .no-print, .search-area { display: none !important; }
+            .container { width: 100%; box-shadow: none; padding: 0; }
             .input-dot { border-bottom: none; }
+            .table-select { appearance: none; -webkit-appearance: none; border: none; }
         }
     </style>
 </head>
@@ -168,53 +190,59 @@
         <input type="text" id="mesin_search" placeholder="NAMA MESIN...">
         <select id="bulan_search">
             <option value="">- Semua Bulan -</option>
-            <option value="01">Jan</option><option value="02">Feb</option>
-            <option value="03">Mar</option><option value="04">Apr</option>
-            <option value="05">Mei</option><option value="06">Jun</option>
-            <option value="07">Jul</option><option value="08">Agu</option>
-            <option value="09">Sep</option><option value="10">Okt</option>
-            <option value="11">Nov</option><option value="12">Des</option>
+            <option value="01">Januari</option><option value="02">Februari</option>
+            <option value="03">Maret</option><option value="04">April</option>
+            <option value="05">Mei</option><option value="06">Juni</option>
+            <option value="07">Juli</option><option value="08">Agustus</option>
+            <option value="09">September</option><option value="10">Oktober</option>
+            <option value="11">November</option><option value="12">Desember</option>
         </select>
         <select id="tahun_search">
-            <script>
-                for(let i=2024; i<=2030; i++) document.write(`<option value="${i}" ${i==2025?'selected':''}>${i}</option>`);
-            </script>
+            <option value="2024">2024</option>
+            <option value="2025" selected>2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+            <option value="2029">2029</option>
+            <option value="2030">2030</option>
         </select>
-        <button onclick="fetchData()" class="btn-action">CARI</button>
-        <button onclick="window.print()" class="btn-action" style="background:#10b981">PRINT</button>
-        <button onclick="window.location.href='center.html'" class="btn-action" style="background:#64748b">BACK</button>
+        <button onclick="fetchData()" class="btn-action">CARI DATA</button>
+        <button onclick="window.print()" class="btn-action" style="background:#10b981">CETAK</button>
+        <button onclick="window.location.href='center.html'" class="btn-action" style="background:#64748b">KEMBALI</button>
     </div>
 
     <div class="header">
-        <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo" class="logo">
-        <div class="company-info">
+        <div class="logo-area">
+            <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo AKG" class="logo">
             <div class="company-name">PT. AMARILYS KARISMA GEMILANG</div>
-            <div class="title">KARTU RIWAYAT MESIN</div>
         </div>
+        <div class="title">KARTU RIWAYAT</div>
     </div>
 
     <div class="meta-section">
-        <div class="meta-col">
-            <div class="meta-row"><span class="label">NAMA MESIN</span>: <span id="d_mesin" style="font-weight:bold; margin-left:5px">-</span></div>
-            <div class="meta-row"><span class="label">NO. MESIN</span>: <input class="input-dot" placeholder="..."></div>
-            <div class="meta-row"><span class="label">LOKASI</span>: <input class="input-dot" placeholder="..."></div>
+        <div class="machine-info">
+            <div><span class="label">NAMA MESIN</span>: <span id="d_mesin">-</span></div>
+            <div><span class="label">NO. MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
+            <div><span class="label">TAHUN PEMBUATAN</span>: <input type="text" class="input-dot" placeholder="..."></div>
+            <div><span class="label">LOKASI MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
         </div>
-        <div class="meta-col">
-            <div class="meta-row"><span class="label">No Dokumen</span>: AF.SP 05.18.Rev-00</div>
-            <div class="meta-row"><span class="label">Tgl Terbit</span>: 02 Agustus 2024</div>
-            <div class="meta-row"><span class="label">Halaman</span>: 1 dari 1</div>
+        <div class="doc-info">
+            <div><span class="doc-label">No Dokumen</span>: AF.SP 05.18.Rev-00</div>
+            <div><span class="doc-label">Tanggal Terbit</span>: 02 Agustus 2024</div>
+            <div><span class="doc-label">Halaman</span>: 1/1</div>
+            <div><span class="doc-label">Tanggal Revisi</span>: -</div>
         </div>
     </div>
 
     <table class="main-table">
         <thead>
             <tr>
-                <th class="col-tgl">TANGGAL</th>
-                <th class="col-masalah">PERMASALAHAN</th>
-                <th class="col-tindakan">TINDAKAN</th>
-                <th class="col-part">SPARE PART</th>
-                <th class="col-ket">STATUS</th>
-                <th class="col-pic">PIC</th>
+                <th style="width: 12%">Tanggal</th>
+                <th style="width: 20%">Permasalahan</th>
+                <th style="width: 20%">Tindakan</th>
+                <th style="width: 20%">Spare Part</th>
+                <th style="width: 16%">Keterangan</th>
+                <th style="width: 12%">PIC</th>
             </tr>
         </thead>
         <tbody id="table_content">
@@ -222,20 +250,22 @@
     </table>
 
     <div class="signature-section">
-        <div class="sig-box">
-            <div class="sig-title">DIBUAT</div>
-            <div class="sig-line"></div>
-            <div class="sig-label">Teknisi</div>
-        </div>
-        <div class="sig-box">
-            <div class="sig-title">DIKETAHUI</div>
-            <div class="sig-line"></div>
-            <div class="sig-label">Supervisor</div>
-        </div>
-        <div class="sig-box">
-            <div class="sig-title">DISETUJUI</div>
-            <div class="sig-line"></div>
-            <div class="sig-label">Superintendent</div>
+        <div class="signature-row">
+            <div class="sig-box">
+                <div class="sig-title">DIBUAT</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">PIC</div>
+            </div>
+            <div class="sig-box">
+                <div class="sig-title">DIKETAHUI</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Spv</div>
+            </div>
+            <div class="sig-box">
+                <div class="sig-title">DISETUJUI</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Superintendent</div>
+            </div>
         </div>
     </div>
 </div>
@@ -256,52 +286,39 @@
     function formatTgl(isoString) {
         if (!isoString) return "-";
         const d = new Date(isoString);
-        return d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: '2-digit' }); // Format pendek dd/mm/yy
-    }
-
-    // Fungsi Render Baris Kosong
-    function renderEmptyRows(count, tbody) {
-        for (let i = 0; i < count; i++) {
-            tbody.innerHTML += `<tr>
-                <td style="height:22px">&nbsp;</td>
-                <td></td><td></td><td></td>
-                <td>${selectHTML}</td>
-                <td></td>
-            </tr>`;
-        }
+        return d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
     async function fetchData() {
         const mesin = document.getElementById('mesin_search').value.trim().toUpperCase();
         const bulan = document.getElementById('bulan_search').value;
         const tahun = document.getElementById('tahun_search').value;
-        const tbody = document.getElementById('table_content');
 
         if(!mesin) return alert("Masukkan Nama Mesin!");
 
         let query = _sb.from('laporan_maintenance').select(`
-            id, jam_mulai, created_at, nama_mesin, engineer_name,
-            maintenance_problems(description),
-            maintenance_actions(description),
-            maintenance_parts(nama_part, qty)
-        `).eq('nama_mesin', mesin);
+                id, jam_mulai, created_at, nama_mesin, engineer_name,
+                maintenance_problems(description),
+                maintenance_actions(description),
+                maintenance_parts(nama_part, qty)
+            `).eq('nama_mesin', mesin);
 
         if(bulan) {
             const lastDay = new Date(tahun, bulan, 0).getDate();
             query = query.gte('jam_mulai', `${tahun}-${bulan}-01T00:00:00Z`)
-                     .lte('jam_mulai', `${tahun}-${bulan}-${lastDay}T23:59:59Z`);
+                         .lte('jam_mulai', `${tahun}-${bulan}-${lastDay}T23:59:59Z`);
         } else {
             query = query.gte('jam_mulai', `${tahun}-01-01T00:00:00Z`)
-                     .lte('jam_mulai', `${tahun}-12-31T23:59:59Z`);
+                         .lte('jam_mulai', `${tahun}-12-31T23:59:59Z`);
         }
 
         const { data: reports, error } = await query.order('jam_mulai', { ascending: false });
 
         if (error) return alert("Error: " + error.message);
         
+        const tbody = document.getElementById('table_content');
         tbody.innerHTML = '';
-        const TARGET_ROW_COUNT = 25; // Target baris agar pas 1 halaman A4
-
+        
         if (reports && reports.length > 0) {
             document.getElementById('d_mesin').innerText = reports[0].nama_mesin;
             
@@ -309,37 +326,38 @@
                 const tr = document.createElement('tr');
                 const masalah = row.maintenance_problems.map(p => p.description).join(', ');
                 const tindakan = row.maintenance_actions.map(a => a.description).join(', ');
-                const parts = row.maintenance_parts.map(pt => `${pt.nama_part}(${pt.qty})`).join(', ');
+                const parts = row.maintenance_parts.map(pt => `${pt.nama_part} (${pt.qty})`).join(', ');
 
                 tr.innerHTML = `
-                    <td class="col-tgl">${formatTgl(row.jam_mulai || row.created_at)}</td>
-                    <td style="text-align:left; padding-left:4px;">${masalah}</td>
-                    <td style="text-align:left; padding-left:4px;">${tindakan}</td>
-                    <td style="text-align:left; padding-left:4px;">${parts}</td>
+                    <td>${formatTgl(row.jam_mulai || row.created_at)}</td>
+                    <td style="text-align:left">${masalah}</td>
+                    <td style="text-align:left">${tindakan}</td>
+                    <td style="text-align:left">${parts}</td>
                     <td>${selectHTML}</td>
                     <td>${row.engineer_name}</td>
                 `;
                 tbody.appendChild(tr);
             });
-        } else {
-            document.getElementById('d_mesin').innerText = mesin;
         }
 
-        // Isi sisa baris agar tampilan penuh satu halaman
-        const existingRows = reports ? reports.length : 0;
-        const remaining = TARGET_ROW_COUNT - existingRows;
-        
-        if (remaining > 0) {
-            renderEmptyRows(remaining, tbody);
+        const remaining = 20 - (reports ? reports.length : 0);
+        for (let i = 0; i < (remaining < 0 ? 0 : remaining); i++) {
+            tbody.innerHTML += `<tr>
+                <td>&nbsp;</td><td></td><td></td><td></td>
+                <td>${selectHTML}</td><td></td>
+            </tr>`;
         }
     }
 
-    // Load awal kosong 25 baris
     window.onload = () => {
         const tbody = document.getElementById('table_content');
-        renderEmptyRows(25, tbody);
+        for(let i=0; i<20; i++) {
+            tbody.innerHTML += `<tr>
+                <td>&nbsp;</td><td></td><td></td><td></td>
+                <td>${selectHTML}</td><td></td>
+            </tr>`;
+        }
     };
 </script>
-
 </body>
 </html>
