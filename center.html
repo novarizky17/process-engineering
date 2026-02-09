@@ -18,6 +18,8 @@
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: #f8fafc; 
+            /* Fix tambahan agar tidak goyang */
+            overflow-y: scroll; 
         }
 
         .gradient-bg {
@@ -72,6 +74,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            z-index: 50; /* Pastikan di atas elemen lain */
         }
         .btn-logout:hover {
             background: #ef4444; /* Merah */
@@ -165,36 +168,45 @@
         let listJadwal = [];
         let currentIndex = 0;
 
-        // --- FUNGSI LOGOUT DENGAN POPUP KEREN ---
+        // --- FUNGSI LOGOUT FIX LAYOUT ---
         function handleLogout() {
             Swal.fire({
                 title: 'Konfirmasi Logout',
                 text: "Apakah Anda yakin ingin keluar dari sistem?",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#ef4444', // Warna Merah
-                cancelButtonColor: '#3b82f6', // Warna Biru
+                confirmButtonColor: '#ef4444', 
+                cancelButtonColor: '#3b82f6', 
                 confirmButtonText: 'YA, KELUAR',
                 cancelButtonText: 'BATAL',
                 reverseButtons: true,
                 background: '#fff',
                 color: '#1e293b',
+                
+                // --- FIX LAYOUT AGAR TIDAK GESER ---
+                heightAuto: false,       
+                scrollbarPadding: false,
+                backdrop: `rgba(0,0,0,0.6)`,
+                // -----------------------------------
+
                 customClass: {
                     title: 'font-bold uppercase',
                     popup: 'rounded-2xl shadow-xl'
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Tampilkan pesan sukses sebentar sebelum redirect
                     Swal.fire({
                         title: 'Logout Berhasil!',
                         text: 'Sampai jumpa lagi.',
                         icon: 'success',
                         timer: 1500,
-                        showConfirmButton: false
+                        showConfirmButton: false,
+                        // Pastikan fix juga ada di popup sukses
+                        heightAuto: false, 
+                        scrollbarPadding: false
                     }).then(() => {
-                        localStorage.removeItem("activeUser"); // Hapus sesi
-                        window.location.href = "index.html";   // Kembali ke login
+                        localStorage.removeItem("activeUser"); 
+                        window.location.href = "index.html";   
                     });
                 }
             })
@@ -204,7 +216,6 @@
         function checkSession() {
             const user = localStorage.getItem("activeUser");
             if (!user) {
-                // Jangan pakai alert biasa, langsung lempar aja biar cepat
                 window.location.href = "index.html";
             }
         }
@@ -214,7 +225,6 @@
             const content = document.getElementById('notif-content');
 
             try {
-                // Ambil semua data jadwal
                 const { data, error } = await _sb
                     .from('jadwal_mingguan')
                     .select('minggu, nama_personil')
@@ -222,27 +232,23 @@
 
                 if (error) throw error;
 
-                // Filter hanya yang ada namanya
                 listJadwal = data.filter(item => item.nama_personil && item.nama_personil.trim() !== "");
 
                 if (listJadwal.length > 0) {
                     container.style.display = 'block';
                     
-                    // Jalankan fungsi ganti teks setiap 3 detik
+                    // Set konten pertama
+                    content.innerText = `${listJadwal[0].minggu}: ${listJadwal[0].nama_personil.toUpperCase()}`;
+
                     setInterval(() => {
-                        content.style.opacity = 0; // Efek fade out
-                        
+                        content.style.opacity = 0; 
                         setTimeout(() => {
                             currentIndex = (currentIndex + 1) % listJadwal.length;
                             const item = listJadwal[currentIndex];
                             content.innerText = `${item.minggu}: ${item.nama_personil.toUpperCase()}`;
-                            content.style.opacity = 1; // Efek fade in
+                            content.style.opacity = 1; 
                         }, 500);
-                        
                     }, 3000);
-
-                    // Tampilkan data pertama segera
-                    content.innerText = `${listJadwal[0].minggu}: ${listJadwal[0].nama_personil.toUpperCase()}`;
                 }
             } catch (e) {
                 console.error("Gagal memuat looping notif");
