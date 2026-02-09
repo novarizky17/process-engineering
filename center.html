@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tooling Support - Control Center</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         
@@ -142,7 +147,7 @@
                 <p class="text-slate-400 text-xs font-medium leading-relaxed">Data statistik dan ringkasan checklist kondisi aset tooling.</p>
             </a>
             
-            </div>
+        </div>
     </main>
 
     <footer class="mt-auto p-10 text-center">
@@ -160,19 +165,46 @@
         let listJadwal = [];
         let currentIndex = 0;
 
-        // FUNGSI LOGOUT
+        // --- FUNGSI LOGOUT DENGAN POPUP KEREN ---
         function handleLogout() {
-            if(confirm("Apakah Anda yakin ingin keluar?")) {
-                localStorage.removeItem("activeUser"); // Hapus sesi
-                window.location.href = "index.html";   // Kembali ke login
-            }
+            Swal.fire({
+                title: 'Konfirmasi Logout',
+                text: "Apakah Anda yakin ingin keluar dari sistem?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444', // Warna Merah
+                cancelButtonColor: '#3b82f6', // Warna Biru
+                confirmButtonText: 'YA, KELUAR',
+                cancelButtonText: 'BATAL',
+                reverseButtons: true,
+                background: '#fff',
+                color: '#1e293b',
+                customClass: {
+                    title: 'font-bold uppercase',
+                    popup: 'rounded-2xl shadow-xl'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Tampilkan pesan sukses sebentar sebelum redirect
+                    Swal.fire({
+                        title: 'Logout Berhasil!',
+                        text: 'Sampai jumpa lagi.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        localStorage.removeItem("activeUser"); // Hapus sesi
+                        window.location.href = "index.html";   // Kembali ke login
+                    });
+                }
+            })
         }
 
-        // FUNGSI CEK SESI (OPSIONAL, AGAR TIDAK BISA AKSES JIKA BELUM LOGIN)
+        // FUNGSI CEK SESI
         function checkSession() {
             const user = localStorage.getItem("activeUser");
             if (!user) {
-                // Jika tidak ada user aktif, tendang ke login
+                // Jangan pakai alert biasa, langsung lempar aja biar cepat
                 window.location.href = "index.html";
             }
         }
@@ -218,8 +250,8 @@
         }
 
         window.onload = function() {
-            checkSession(); // Cek dulu boleh masuk atau tidak
-            startNotificationLoop(); // Baru jalankan notif
+            checkSession(); 
+            startNotificationLoop(); 
         };
     </script>
 
