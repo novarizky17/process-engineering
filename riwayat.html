@@ -3,374 +3,368 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KARTU RIWAYAT - PT. AKG</title>
+    <title>KARTU RIWAYAT - PT. AMARILYS KARISMA GEMILANG</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* --- SETUP KERTAS A4 LANDSCAPE --- */
+        /* --- SETUP AGAR PAS 1 HALAMAN --- */
         @page {
             size: A4 landscape;
-            margin: 5mm; /* Margin tipis biar muat banyak */
+            margin: 5mm; /* Margin diperkecil dari 8mm jadi 5mm biar muat */
         }
 
         body {
             font-family: Arial, Helvetica, sans-serif;
             margin: 0;
-            padding: 20px;
-            background: #e2e8f0; /* Background abu biar kertasnya kelihatan */
+            padding: 0;
+            background: #f1f5f9;
             color: #000;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
 
-        /* --- KOTAK KERTAS (CONTAINER) --- */
-        .sheet {
+        .container {
+            width: 285mm; /* Lebar dimaksimalkan */
+            height: auto; /* Tinggi otomatis */
             background: white;
-            width: 285mm; /* Lebar A4 Landscape */
-            min-height: 195mm; /* Tinggi A4 Landscape dikurang margin */
-            padding: 10mm 15mm;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            padding: 5mm 10mm; /* Padding diperkecil sedikit */
             box-sizing: border-box;
-            position: relative;
-            margin-top: 60px; /* Ruang untuk Search Bar */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        /* --- SEARCH BAR (MELAYANG) --- */
-        .search-bar-container {
-            position: fixed;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1e293b; /* Warna Biru Gelap sesuai gambar */
-            padding: 8px 15px;
-            border-radius: 6px;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 9999;
-            font-size: 12px;
-            white-space: nowrap;
+        /* --- INPUT DOT (TITIK-TITIK) --- */
+        .input-dot {
+            border: none;
+            border-bottom: 1px dotted black;
+            width: 380px; 
+            font-family: Arial;
+            font-size: 10pt; /* Ukuran font disesuaikan */
+            outline: none;
+            background: transparent;
+            font-weight: normal !important; 
+            color: #000;
         }
-        
-        .search-input {
-            padding: 6px 10px;
+
+        .table-select {
+            border: none;
+            width: 100%;
+            height: 100%;
+            font-family: Arial;
+            font-size: 9pt;
+            text-align: center;
+            text-align-last: center;
+            outline: none;
+            background: transparent;
+            cursor: pointer;
+            appearance: none;
+        }
+
+        /* --- SEARCH AREA (TIDAK DIUBAH POSISINYA) --- */
+        .search-area {
+            background: #1e293b;
+            padding: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            border-radius: 6px;
+            justify-content: center;
+        }
+
+        .search-area input, .search-area select {
+            padding: 10px;
             border-radius: 4px;
             border: 1px solid #cbd5e1;
             font-weight: bold;
-            text-transform: uppercase;
-            outline: none;
-            font-size: 11px;
         }
 
-        .btn {
-            padding: 6px 12px;
-            border-radius: 4px;
-            border: none;
+        .btn-action {
+            background: #3b82f6;
             color: white;
-            font-weight: bold;
+            border: none;
+            padding: 10px 24px;
             cursor: pointer;
-            font-size: 11px;
-            text-transform: uppercase;
-        }
-        .btn-blue { background: #3b82f6; }
-        .btn-green { background: #10b981; }
-        .btn-gray { background: #64748b; }
-
-        /* --- HEADER LAYOUT --- */
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 2px solid black;
-            padding-bottom: 5px;
-            margin-bottom: 10px;
+            font-weight: bold;
+            border-radius: 4px;
         }
 
-        .header-left {
+        /* --- HEADER (STRUKTUR TETAP) --- */
+        .header {
+            position: relative;
+            margin-bottom: 0;
+            height: 70px; /* Tinggi header dipadatkan dikit */
+        }
+
+        .logo-area {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
+            position: absolute;
+            left: 0;
+            top: 20px; 
         }
-        .logo { width: 80px; height: auto; }
-        .company-name { font-size: 14pt; font-weight: bold; }
 
-        .header-right {
-            font-size: 9pt;
-            text-align: left;
-            line-height: 1.4;
-        }
-        .header-right div { display: flex; }
-        .doc-label { width: 100px; font-weight: bold; }
+        .logo { width: 90px; height: auto; }
+        .company-name { font-size: 13px; font-weight: bold; }
 
-        /* --- INFO MESIN (INPUT DOT) --- */
-        .info-section {
-            font-size: 10pt;
-            margin-bottom: 15px;
-            width: 60%; /* Biar tidak nabrak kanan */
+        .title {
+            font-size: 22px; /* Font judul pas */
+            font-weight: bold; 
+            text-align: center;
+            width: 100%;
+            margin: 0;
+            padding-top: 25px; 
         }
-        .info-row { display: flex; align-items: flex-end; margin-bottom: 4px; }
-        .info-label { width: 140px; font-weight: bold; }
-        .input-dotted {
-            border: none;
-            border-bottom: 1px dotted black;
-            flex-grow: 1;
-            font-family: Arial;
-            font-size: 10pt;
-            outline: none;
-            background: transparent;
+
+        /* --- META SECTION (INFO MESIN) --- */
+        .meta-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end; 
+            margin-bottom: 5px; 
+            margin-top: 15px;
         }
+
+        .machine-info div { 
+            margin-bottom: 3px; /* Jarak antar baris diperkecil */
+            font-size: 10pt; 
+            font-weight: normal !important; 
+        }
+        
+        .label { 
+            font-weight: normal !important; 
+            display: inline-block; 
+            width: 165px; 
+        }
+
+        .doc-info { text-align: left; font-size: 10pt; font-weight: normal !important; }
+        .doc-info div { margin-bottom: 2px; }
+        .doc-label { font-weight: normal !important; display: inline-block; width: 140px; }
 
         /* --- TABEL UTAMA --- */
-        .data-table {
+        .main-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 9pt;
-            margin-bottom: 20px;
-        }
-        .data-table th {
-            border: 1px solid black;
-            padding: 8px 5px;
-            text-align: center;
-            font-weight: bold;
-            background-color: white; /* Header putih bersih */
-            text-transform: uppercase;
-        }
-        .data-table td {
-            border: 1px solid black;
-            padding: 4px;
-            height: 22px; /* Tinggi baris fixed agar rapi */
-            vertical-align: middle;
+            margin-bottom: 15px; /* Jarak bawah tabel dikurangi */
         }
 
-        /* SELECT STATUS */
-        .status-select {
-            border: none;
-            width: 100%;
-            text-align: center;
-            text-align-last: center;
+        .main-table th {
+            border: 1px solid black;
+            padding: 5px; /* Padding header diperkecil */
             font-size: 9pt;
-            background: transparent;
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
+            text-align: center;
+            background-color: #f8fafc;
+            font-weight: bold;
+        }
+
+        .main-table td {
+            border: 1px solid black;
+            padding: 3px; /* Padding isi tabel diperkecil */
+            font-size: 9pt;
+            text-align: center;
+            vertical-align: middle;
+            height: 24px; /* Tinggi baris dikunci biar pas */
+            font-weight: normal;
         }
 
         /* --- TANDA TANGAN --- */
-        .footer-sign {
+        .signature-section { margin-top: 10px; }
+        .signature-row {
             display: flex;
             justify-content: space-between;
-            margin-top: 10px;
-            padding: 0 50px;
+            gap: 50px;
         }
-        .sign-box {
-            text-align: center;
-            width: 200px;
-        }
-        .sign-title { font-weight: bold; font-size: 10pt; margin-bottom: 60px; text-transform: uppercase; }
-        .sign-line { border-top: 1px solid black; margin-top: 5px; font-size: 10pt; padding-top: 5px; }
 
-        /* --- MODE PRINT --- */
+        .sig-box { flex: 1; text-align: center; max-width: 300px; }
+        .sig-title { font-weight: bold; font-size: 11pt; margin-bottom: 50px; text-transform: uppercase; } /* Jarak TTD diperkecil dikit */
+        .sig-line { border-bottom: 1.5px solid black; width: 90%; margin: 0 auto 5px; }
+        .sig-label { font-size: 11pt; font-weight: bold; }
+
         @media print {
-            body { background: white; margin: 0; padding: 0; display: block; }
-            .sheet { width: 100%; box-shadow: none; margin: 0; padding: 0; }
-            .search-bar-container { display: none !important; }
-            .input-dotted { border-bottom: none; } /* Hilangkan titik saat print jika mau bersih */
-            @page { margin: 5mm; }
+            body { background: white; display: block; }
+            .no-print, .search-area { display: none !important; }
+            .container { width: 100%; box-shadow: none; padding: 0; }
+            .input-dot { border-bottom: none; }
+            .table-select { appearance: none; -webkit-appearance: none; border: none; }
         }
     </style>
 </head>
 <body>
 
-    <div class="search-bar-container">
-        <input type="text" id="mesin_search" class="search-input" placeholder="CARI MESIN..." style="width: 150px;">
-        <select id="bulan_search" class="search-input">
-            <option value="">- SEMUA BULAN -</option>
-            <option value="01">JANUARI</option><option value="02">FEBRUARI</option>
-            <option value="03">MARET</option><option value="04">APRIL</option>
-            <option value="05">MEI</option><option value="06">JUNI</option>
-            <option value="07">JULI</option><option value="08">AGUSTUS</option>
-            <option value="09">SEPTEMBER</option><option value="10">OKTOBER</option>
-            <option value="11">NOVEMBER</option><option value="12">DESEMBER</option>
+<div class="container">
+    <div class="search-area no-print">
+        <input type="text" id="mesin_search" placeholder="NAMA MESIN..." style="text-transform:uppercase;">
+        <select id="bulan_search">
+            <option value="">- Semua Bulan -</option>
+            <option value="01">Januari</option><option value="02">Februari</option>
+            <option value="03">Maret</option><option value="04">April</option>
+            <option value="05">Mei</option><option value="06">Juni</option>
+            <option value="07">Juli</option><option value="08">Agustus</option>
+            <option value="09">September</option><option value="10">Oktober</option>
+            <option value="11">November</option><option value="12">Desember</option>
         </select>
-        <select id="tahun_search" class="search-input">
+        <select id="tahun_search">
             <script>for(let i=2024; i<=2030; i++) document.write(`<option value="${i}" ${i==2025?'selected':''}>${i}</option>`);</script>
         </select>
-        <button onclick="fetchData()" class="btn btn-blue">CARI</button>
-        <button onclick="window.print()" class="btn btn-green">PRINT</button>
-        <button onclick="window.location.href='center.html'" class="btn btn-gray">KEMBALI</button>
+        <button onclick="fetchData()" class="btn-action">CARI DATA</button>
+        <button onclick="window.print()" class="btn-action" style="background:#10b981">CETAK</button>
+        <button onclick="window.location.href='center.html'" class="btn-action" style="background:#64748b">KEMBALI</button>
     </div>
 
-    <div class="sheet">
-        
-        <div class="header-top">
-            <div class="header-left">
-                <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo">
-                <div class="company-name">PT. AMARILYS KARISMA GEMILANG</div>
-            </div>
-            <div class="header-right">
-                <div><span class="doc-label">No Dokumen</span>: AF.SP 05.18.Rev-00</div>
-                <div><span class="doc-label">Tanggal Terbit</span>: 02 Agustus 2024</div>
-                <div><span class="doc-label">Halaman</span>: 1 dari 1</div>
-            </div>
+    <div class="header">
+        <div class="logo-area">
+            <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo AKG" class="logo">
+            <div class="company-name">PT. AMARILYS KARISMA GEMILANG</div>
         </div>
-
-        <div class="info-section">
-            <div class="info-row">
-                <div class="info-label">NAMA MESIN</div>
-                : <span id="d_mesin" style="font-weight:bold; margin-left: 5px; flex-grow:1;">-</span>
-            </div>
-            <div class="info-row">
-                <div class="info-label">NO. MESIN</div>
-                : <input class="input-dotted" type="text" placeholder="...">
-            </div>
-            <div class="info-row">
-                <div class="info-label">THN PEMBUATAN</div>
-                : <input class="input-dotted" type="text" placeholder="...">
-            </div>
-            <div class="info-row">
-                <div class="info-label">LOKASI MESIN</div>
-                : <input class="input-dotted" type="text" placeholder="...">
-            </div>
-        </div>
-
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th style="width: 12%;">TANGGAL</th>
-                    <th style="width: 22%;">PERMASALAHAN</th>
-                    <th style="width: 22%;">TINDAKAN</th>
-                    <th style="width: 20%;">SPARE PART</th>
-                    <th style="width: 12%;">STATUS</th>
-                    <th style="width: 12%;">PIC</th>
-                </tr>
-            </thead>
-            <tbody id="table_content">
-                </tbody>
-        </table>
-
-        <div class="footer-sign">
-            <div class="sign-box">
-                <div class="sign-title">DIBUAT</div>
-                <div class="sign-line">PIC</div>
-            </div>
-            <div class="sign-box">
-                <div class="sign-title">DIKETAHUI</div>
-                <div class="sign-line">Supervisor</div>
-            </div>
-            <div class="sign-box">
-                <div class="sign-title">DISETUJUI</div>
-                <div class="sign-line">Superintendent</div>
-            </div>
-        </div>
-
+        <div class="title">KARTU RIWAYAT</div>
     </div>
 
-    <script>
-        const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
-        const _sb = supabase.createClient(SB_URL, SB_KEY);
+    <div class="meta-section">
+        <div class="machine-info">
+            <div><span class="label">NAMA MESIN</span>: <span id="d_mesin" style="font-weight:bold">-</span></div>
+            <div><span class="label">NO. MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
+            <div><span class="label">TAHUN PEMBUATAN</span>: <input type="text" class="input-dot" placeholder="..."></div>
+            <div><span class="label">LOKASI MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
+        </div>
+        <div class="doc-info">
+            <div><span class="doc-label">No Dokumen</span>: AF.SP 05.18.Rev-00</div>
+            <div><span class="doc-label">Tanggal Terbit</span>: 02 Agustus 2024</div>
+            <div><span class="doc-label">Halaman</span>: 1/1</div>
+            <div><span class="doc-label">Tanggal Revisi</span>: -</div>
+        </div>
+    </div>
 
-        const selectHTML = `
-            <select class="status-select">
-                <option value=""></option>
-                <option value="OK">OK</option>
-                <option value="NG">NG</option>
-            </select>
-        `;
+    <table class="main-table">
+        <thead>
+            <tr>
+                <th style="width: 12%">Tanggal</th>
+                <th style="width: 20%">Permasalahan</th>
+                <th style="width: 20%">Tindakan</th>
+                <th style="width: 20%">Spare Part</th>
+                <th style="width: 16%">Keterangan</th>
+                <th style="width: 12%">PIC</th>
+            </tr>
+        </thead>
+        <tbody id="table_content">
+        </tbody>
+    </table>
 
-        function formatTgl(isoString) {
-            if (!isoString) return "-";
-            const d = new Date(isoString);
-            return d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        }
+    <div class="signature-section">
+        <div class="signature-row">
+            <div class="sig-box">
+                <div class="sig-title">DIBUAT</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">PIC</div>
+            </div>
+            <div class="sig-box">
+                <div class="sig-title">DIKETAHUI</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Spv</div>
+            </div>
+            <div class="sig-box">
+                <div class="sig-title">DISETUJUI</div>
+                <div class="sig-line"></div>
+                <div class="sig-label">Superintendent</div>
+            </div>
+        </div>
+    </div>
+</div>
 
-        // FUNGSI BUAT BARIS KOSONG
-        function renderEmptyRows(count, tbody) {
-            for(let i=0; i<count; i++) {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>${selectHTML}</td>
-                        <td></td>
-                    </tr>
-                `;
-            }
-        }
+<script>
+    const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
+    const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
+    const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-        async function fetchData() {
-            const mesin = document.getElementById('mesin_search').value.trim().toUpperCase();
-            const bulan = document.getElementById('bulan_search').value;
-            const tahun = document.getElementById('tahun_search').value;
-            const tbody = document.getElementById('table_content');
+    const selectHTML = `
+        <select class="table-select">
+            <option value=""></option>
+            <option value="OK">OK</option>
+            <option value="NG">NG</option>
+        </select>
+    `;
 
-            if(!mesin) return alert("Masukkan Nama Mesin!");
+    function formatTgl(isoString) {
+        if (!isoString) return "-";
+        const d = new Date(isoString);
+        return d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
 
-            let query = _sb.from('laporan_maintenance').select(`
+    async function fetchData() {
+        const mesin = document.getElementById('mesin_search').value.trim().toUpperCase();
+        const bulan = document.getElementById('bulan_search').value;
+        const tahun = document.getElementById('tahun_search').value;
+
+        if(!mesin) return alert("Masukkan Nama Mesin!");
+
+        let query = _sb.from('laporan_maintenance').select(`
                 id, jam_mulai, created_at, nama_mesin, engineer_name,
                 maintenance_problems(description),
                 maintenance_actions(description),
                 maintenance_parts(nama_part, qty)
             `).eq('nama_mesin', mesin);
 
-            if(bulan) {
-                const lastDay = new Date(tahun, bulan, 0).getDate();
-                query = query.gte('jam_mulai', `${tahun}-${bulan}-01T00:00:00Z`)
-                             .lte('jam_mulai', `${tahun}-${bulan}-${lastDay}T23:59:59Z`);
-            } else {
-                query = query.gte('jam_mulai', `${tahun}-01-01T00:00:00Z`)
-                             .lte('jam_mulai', `${tahun}-12-31T23:59:59Z`);
-            }
-
-            const { data: reports, error } = await query.order('jam_mulai', { ascending: false });
-
-            if (error) return alert("Error: " + error.message);
-            
-            tbody.innerHTML = '';
-            
-            // TARGET TOTAL BARIS AGAR TAMPILAN PENUH (GRID SEPERTI GAMBAR)
-            const TARGET_TOTAL_ROWS = 18;
-
-            if (reports && reports.length > 0) {
-                document.getElementById('d_mesin').innerText = reports[0].nama_mesin;
-                
-                reports.forEach(row => {
-                    const tr = document.createElement('tr');
-                    const masalah = row.maintenance_problems.map(p => p.description).join(', ');
-                    const tindakan = row.maintenance_actions.map(a => a.description).join(', ');
-                    const parts = row.maintenance_parts.map(pt => `${pt.nama_part}(${pt.qty})`).join(', ');
-
-                    tr.innerHTML = `
-                        <td style="text-align:center">${formatTgl(row.jam_mulai || row.created_at)}</td>
-                        <td style="text-align:left">${masalah}</td>
-                        <td style="text-align:left">${tindakan}</td>
-                        <td style="text-align:left">${parts}</td>
-                        <td>${selectHTML}</td>
-                        <td style="text-align:center">${row.engineer_name}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } else {
-                document.getElementById('d_mesin').innerText = mesin;
-            }
-
-            // ISI SISA GRID KOSONG
-            const currentRows = reports ? reports.length : 0;
-            const remaining = TARGET_TOTAL_ROWS - currentRows;
-            if(remaining > 0) {
-                renderEmptyRows(remaining, tbody);
-            }
+        if(bulan) {
+            const lastDay = new Date(tahun, bulan, 0).getDate();
+            query = query.gte('jam_mulai', `${tahun}-${bulan}-01T00:00:00Z`)
+                         .lte('jam_mulai', `${tahun}-${bulan}-${lastDay}T23:59:59Z`);
+        } else {
+            query = query.gte('jam_mulai', `${tahun}-01-01T00:00:00Z`)
+                         .lte('jam_mulai', `${tahun}-12-31T23:59:59Z`);
         }
 
-        // LOAD AWAL (GRID KOSONG)
-        window.onload = () => {
-            const tbody = document.getElementById('table_content');
-            renderEmptyRows(18, tbody);
-        };
-    </script>
+        const { data: reports, error } = await query.order('jam_mulai', { ascending: false });
+
+        if (error) return alert("Error: " + error.message);
+        
+        const tbody = document.getElementById('table_content');
+        tbody.innerHTML = '';
+        
+        if (reports && reports.length > 0) {
+            document.getElementById('d_mesin').innerText = reports[0].nama_mesin;
+            
+            reports.forEach(row => {
+                const tr = document.createElement('tr');
+                const masalah = row.maintenance_problems.map(p => p.description).join(', ');
+                const tindakan = row.maintenance_actions.map(a => a.description).join(', ');
+                const parts = row.maintenance_parts.map(pt => `${pt.nama_part} (${pt.qty})`).join(', ');
+
+                tr.innerHTML = `
+                    <td>${formatTgl(row.jam_mulai || row.created_at)}</td>
+                    <td style="text-align:left">${masalah}</td>
+                    <td style="text-align:left">${tindakan}</td>
+                    <td style="text-align:left">${parts}</td>
+                    <td>${selectHTML}</td>
+                    <td>${row.engineer_name}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- PENGATURAN BARIS AGAR PAS 1 HALAMAN ---
+        // Saya ubah jadi 16 Baris (tadi 20) supaya aman tidak lompat halaman
+        const existing = reports ? reports.length : 0;
+        const target = 16; 
+        const remaining = target - existing;
+
+        for (let i = 0; i < (remaining < 0 ? 0 : remaining); i++) {
+            tbody.innerHTML += `<tr>
+                <td>&nbsp;</td><td></td><td></td><td></td>
+                <td>${selectHTML}</td><td></td>
+            </tr>`;
+        }
+    }
+
+    window.onload = () => {
+        const tbody = document.getElementById('table_content');
+        // Loop 16 baris kosong saat awal buka
+        for(let i=0; i<16; i++) {
+            tbody.innerHTML += `<tr>
+                <td>&nbsp;</td><td></td><td></td><td></td>
+                <td>${selectHTML}</td><td></td>
+            </tr>`;
+        }
+    };
+</script>
 </body>
 </html>
