@@ -19,7 +19,6 @@
         .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
 
-        /* TAMPILAN TABEL NORMAL */
         .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; }
         th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
@@ -30,6 +29,9 @@
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
         .status-completed { background: #d1ecf1; color: #0c5460; }
+
+        .row-ng { background-color: #fff5f5; }
+        .row-ng td { border-top: 1px solid #fed7d7; }
 
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
         .btn-primary { background: #007bff; color: white; }
@@ -104,26 +106,25 @@
     <div>
         <span id="autoProcessStatus"><span class="spinner"></span> Processing Auto-Approve...</span>
         <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
-        <button class="btn btn-primary" onclick="refreshData()">Refresh Data</button>
+        <button class="btn btn-primary" onclick="window.refreshData()">Refresh Data</button>
     </div>
 </header>
 
 <div class="container">
     <div class="tab-menu">
-        <button id="tabRutin" class="tab-btn active" onclick="switchTab('rutin')">📋 Checklist Rutin</button>
-        <button id="tabTrial" class="tab-btn" onclick="switchTab('trial')">🧪 Checklist Trial Mold</button>
+        <button id="tabRutin" class="tab-btn active" onclick="window.switchTab('rutin')">📋 Checklist Rutin</button>
+        <button id="tabTrial" class="tab-btn" onclick="window.switchTab('trial')">🧪 Checklist Trial Mold</button>
     </div>
 
     <div class="search-section">
-        <strong id="filterLabel">Cari Tanggal:</strong>
-        <input type="date" id="searchDate" class="input-search" onchange="filterDataByDate()">
-        <button class="btn btn-back" onclick="resetFilter()">Reset</button>
-        
-        <button class="btn btn-excel" onclick="downloadExcel()">📥 Download Excel</button>
+        <strong id="filterLabel">Cari Tanggal (History):</strong>
+        <input type="date" id="searchDate" class="input-search" onchange="window.filterDataByDate()">
+        <button class="btn btn-back" onclick="window.resetFilter()">Reset / To Do List</button>
+        <button class="btn btn-excel" onclick="window.downloadExcel()">📥 Download Excel</button>
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Data <strong>AMAN (OK)</strong> otomatis Approved dan terisi nama Superintendent (Tanpa TTD Otomatis).
+        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Gunakan filter tanggal untuk melihat data yang sudah Approved.
     </div>
 
     <div class="card">
@@ -136,11 +137,10 @@
 
 <div id="modal" class="modal">
     <div class="modal-content">
-        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
+        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="window.closeModal()">&times;</span>
         <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 15px;">Review Checklist</h2>
         
         <div id="infoBox" class="info-grid"></div>
-        
         <div id="superNoteArea"></div>
         <div id="modalBody"></div>
 
@@ -157,11 +157,11 @@
 
                 <p><strong>Tanda Tangan Superintendent:</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
-                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
+                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
                 
                 <div style="display: flex; justify-content: space-around;">
-                    <button class="btn btn-success" style="width: 45%;" onclick="processStatus('Approved')">APPROVE</button>
-                    <button class="btn btn-danger" style="width: 45%;" onclick="processStatus('Rejected')">REJECT</button>
+                    <button class="btn btn-success" style="width: 45%;" onclick="window.processStatus('Approved')">APPROVE</button>
+                    <button class="btn btn-danger" style="width: 45%;" onclick="window.processStatus('Rejected')">REJECT</button>
                 </div>
             </div>
 
@@ -301,21 +301,22 @@
         }
 
         rawData = data;
-        filterDataByDate();
+        window.filterDataByDate();
     }
 
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
         if (selectedDate) {
+            // MODE HISTORY: Tampilkan SEMUA (termasuk Approved/Rejected) berdasarkan tanggal
             filteredData = rawData.filter(row => {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
             });
         } else {
-            // Default: Tampilkan Pending atau NG
+            // MODE DEFAULT (TO-DO LIST): Sembunyikan Approved/Rejected, Hanya Tampilkan Pending/NG
             filteredData = rawData.filter(row => {
                 const status = (row.status || '').toLowerCase();
-                return (status !== 'approved' && status !== 'rejected') || isRowNG(row);
+                return status !== 'approved' && status !== 'rejected';
             });
         }
         renderTable(filteredData);
@@ -355,7 +356,9 @@
         }
 
         if (!dataList || dataList.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Tidak ada data ditemukan.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">
+                ${document.getElementById('searchDate').value ? 'Tidak ada data pada tanggal ini.' : 'Semua pekerjaan sudah selesai (Clean).'}
+            </td></tr>`;
             return;
         }
 
