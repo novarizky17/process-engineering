@@ -36,10 +36,15 @@
         .info-item label { font-size: 11px; color: #666; display: block; margin-bottom: 3px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
         .info-item span { font-size: 14px; font-weight: bold; color: #333; }
         .section-header { background: #f1f4f8; padding: 10px 15px; margin: 20px 0 0 0; font-weight: bold; color: #003366; border-left: 5px solid #003366; font-size: 15px; border-top-left-radius: 4px; border-top-right-radius: 4px; }
-        .sub-header { background: #e9ecef; padding: 8px 15px; font-weight: bold; color: #495057; font-size: 13px; border-bottom: 1px solid #dee2e6; }
         .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
         canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
         textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
+        #historySection { display: none; text-align: center; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+        #historySigArea { margin-top: 10px; display: flex; justify-content: center; align-items: center; width: 100%; }
+        #historySigImg { max-width: 300px; border: 1px solid #ddd; padding: 5px; background: white; display: block; }
+        #autoProcessStatus { margin-left: 15px; font-size: 13px; font-weight: bold; color: #003366; display: none; }
+        .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #003366; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 5px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; margin-bottom: 15px; }
         .json-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px; }
         .json-table th { background: #eee; text-align: left; padding: 12px 15px; border-bottom: 2px solid #ddd; }
@@ -47,17 +52,9 @@
         .col-item { width: 35%; } .col-status { width: 10%; text-align: center; } .col-ket { width: 55%; }
         .status-ng { color: red; font-weight: bold; } .status-ok { color: green; font-weight: bold; } .status-na { color: #666; font-style: italic; font-weight: bold; }
         .all-ok-msg { padding: 15px; background: #d4edda; color: #155724; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px; }
-        #autoProcessStatus { margin-left: 15px; font-size: 13px; font-weight: bold; color: #003366; display: none; }
-        .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #003366; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 5px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        #historySection { display: none; text-align: center; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
-        #historySigArea { margin-top: 10px; display: flex; justify-content: center; align-items: center; width: 100%; }
-        #historySigImg { max-width: 300px; border: 1px solid #ddd; padding: 5px; background: white; display: block; }
     </style>
 </head>
 <body>
-
-
 
 <header>
     <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
@@ -82,7 +79,7 @@
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Default: Hanya menampilkan data <strong>PENDING/NG</strong>. Data OK otomatis di-approve & ditandatangani sistem.
+        * Menampilkan data <strong>PENDING / NG</strong>. Data yang <strong>AMAN (OK)</strong> akan otomatis di-approve sistem beberapa saat setelah dimuat.
     </div>
 
     <div class="card">
@@ -113,7 +110,7 @@
                     <textarea id="keteranganSuper" placeholder="Tuliskan komentar, instruksi, atau alasan reject di sini..."></textarea>
                 </div>
 
-                <p><strong>Tanda Tangan Superintendent:</strong></p>
+                <p><strong>Tanda Tangan Superintendent (Manual):</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
                 <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
                 
@@ -139,8 +136,7 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // TANDA TANGAN OTOMATIS (A. RIZKI MUBAROK K)
-    const TTD_OTOMATIS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABkCAYAAAAAd623AAAACXBIWXMAAAsTAAALEwEAmpwYAAADsElEQVR4nO3cwW0CQRRF0Z8Z7IAl2AF7YAdsQAtYgh0kgI8E6IDpIAtYgh20AxY7YAl2kAB78G9K06DAn0B0fV9660iWrfLMc6YvY845AACv8mUBAODfCCsAIAgrACAUKwAgFCsAIAn/WJ6YpkkvLy9v77uua7quu7u7e3t/fX2988XhcDj88f7z+fzzuXq9Xv28Xq8Xh8Ph7efD4fD2v6urq4vP9f37+Xy+mGfN6vV69fvLy8u7v1tVn8/ni+f6vn69Xv3v7u6uv+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz+W885/rS9X39fD6fP9f37/v3/fsD6E9Yf9r7+9t+Xp9vAQBAWEEAoVgBAKFYAUAyvwAgv8+430fW/v7+Xh9Af7v9AgCCsAIAgrACAUKxAgBCsQIA+Asvj2pCHmY66gAAAABJRU5ErkJggg==";
+    const TTD_OTOMATIS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABkCAYAAAAAd623AAAACXBIWXMAAAsTAAALEwEAmpwYAAADsElEQVR4nO3cwW0CQRRF0Z8Z7IAl2AF7YAdsQAtYgh0kgI8E6IDpIAtYgh20AxY7YAl2kAB78G9K06DAn0B0fV9660iWrfLMc6YvY845AACv8mUBAODfCCsAIAgrACAUKwAgFCsAIAn/WJ6YpkkvLy9v77uua7quu7u7e3t/fX2988XhcDj88f7z+fzzuXq9Xv28Xq8Xh8Ph7efD4fD2v6urq4vP9f37+Xy+mGfN6vV69fvLy8u7v1tVn8/ni+f6vn69Xv3v7u6uv+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz+W885/rS9X39fD6fP9f37/v3/fsD6E9Yf9r7+9t+Xp9vAQBAWEEAoVgBAKFYAUAyvwAgv8+430fW/v7+Xh9Af7v9AgCCsAIAgrACAUKxAgBCsQIA+Asvj2pCHmY66gAAAABJRU5ErkJggg==";
 
     const rutinGroups = [
         { title: "1. STAND LABEL", subs: [ { sub: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] }, { sub: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] }, { sub: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] }, { sub: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] } ] },
@@ -155,7 +151,7 @@
     let filteredData = [];
     let currentRenderedData = []; 
     let currentTab = 'rutin'; 
-    let isProcessingAuto = false; // FLAG PENTING UNTUK MENCEGAH LOOPING
+    let isAutoApproving = false; // Flag untuk mencegah looping
     
     const canvas = document.getElementById('sig-canvas');
     const ctx = canvas.getContext('2d');
@@ -193,26 +189,25 @@
         }
     }
 
-    // --- FUNGSI AUTO APPROVE (Logika Diperbaiki) ---
-    async function autoApproveSafeItems(safeRows) {
-        if (safeRows.length === 0 || isProcessingAuto) return;
+    // --- LOGIKA UTAMA AUTO APPROVE ---
+    async function executeAutoApprove(safeRows) {
+        if (safeRows.length === 0 || isAutoApproving) return;
         
-        isProcessingAuto = true; // Kunci proses agar tidak dipanggil lagi
+        isAutoApproving = true;
         document.getElementById('autoProcessStatus').style.display = 'inline-block';
         
         const autoName = "A. Rizki Mubarok K"; 
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
-        // Lakukan update semua data sekaligus (Parallel)
+        // Update semua data yang aman sekaligus
         const updates = safeRows.map(async (row) => {
             const updateData = { 
                 status: 'Approved', 
                 approved_at: now, 
                 nama_superintendent: autoName,
-                signature_superintendent: TTD_OTOMATIS // TTD MASUK OTOMATIS
+                signature_superintendent: TTD_OTOMATIS 
             };
-            
             if(currentTab === 'rutin') updateData.keterangan = "Approved Automatically (No Issues Found)";
             else updateData.keterangan_superintendent = "Approved Automatically (No Issues Found)";
             
@@ -222,41 +217,42 @@
         await Promise.all(updates);
         
         document.getElementById('autoProcessStatus').style.display = 'none';
-        isProcessingAuto = false; // Buka kunci
+        isAutoApproving = false;
         
-        // Panggil refresh data khusus (tanpa cek auto approve lagi)
-        loadDataWithoutAutoCheck(); 
+        // Refresh data setelah update selesai (tanpa trigger loop)
+        reloadDataOnly(); 
     }
 
+    // Load data awal
     async function loadData() {
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
-        
         if(error) return console.error(error);
         
-        // Cari data yang PENDING dan AMAN (Tidak NG)
+        // Pisahkan data yang PENDING dan AMAN (OK)
         const safePendingRows = [];
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
+            // Syarat Auto Approve: Tidak ada NG DAN statusnya belum diapa-apain (Pending/Null)
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 safePendingRows.push(row);
             }
         });
 
-        // Jika ada data aman yang pending, Auto Approve dulu, JANGAN render tabel dulu
+        // Jika ada data yang perlu di-auto approve, jalankan fungsinya
         if (safePendingRows.length > 0) {
-            await autoApproveSafeItems(safePendingRows);
+            await executeAutoApprove(safePendingRows);
         } else {
-            // Jika tidak ada yang perlu di-auto approve, langsung render
+            // Jika tidak ada, langsung tampilkan
             rawData = data;
             window.filterDataByDate();
         }
     }
 
-    // Fungsi Pembantu: Load Data tanpa memicu Auto Approve (untuk mencegah Loop)
-    async function loadDataWithoutAutoCheck() {
+    // Fungsi khusus reload data setelah update (biar ga cek auto approve lagi)
+    async function reloadDataOnly() {
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
@@ -269,17 +265,18 @@
     window.filterDataByDate = function() {
         const selectedDate = document.getElementById('searchDate').value;
         filteredData = rawData.filter(row => {
+            const hasIssue = isRowNG(row);
             const status = (row.status || '').toLowerCase();
             const isPending = status !== 'approved' && status !== 'rejected';
             
-            // JIKA FILTER TANGGAL AKTIF -> TAMPILKAN SEMUA (History)
+            // JIKA FILTER TANGGAL DIPILIH: Tampilkan semua (termasuk yang approved)
             if (selectedDate) {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
             } 
             
-            // JIKA TIDAK ADA TANGGAL -> HANYA TAMPILKAN PENDING / NG
-            return isPending;
+            // JIKA TIDAK ADA TANGGAL: Hanya tampilkan PENDING atau NG (yg butuh perhatian)
+            return isPending || hasIssue;
         });
         renderTable(filteredData);
     }
@@ -298,7 +295,7 @@
         if (!dataList || dataList.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px;">
                 <strong>Tidak ada data yang perlu direview.</strong><br>
-                <small>Semua data aman sudah disetujui otomatis. Pilih tanggal untuk melihat riwayat.</small>
+                <small>Semua data aman telah disetujui otomatis. Gunakan filter tanggal untuk melihat history.</small>
             </td></tr>`;
             return;
         }
@@ -312,7 +309,7 @@
             const isNG = isRowNG(row);
             const rowClass = isNG ? 'row-ng' : '';
 
-            // --- TOMBOL REVIEW PAKAI INDEX & FUNGSI GLOBAL (ANTI MACET) ---
+            // Tombol Review
             const actionButtons = `
                 <div style="display:flex; gap:5px; justify-content:center;">
                     <button class="btn btn-primary" onclick="window.openModalByIndex(${index})">REVIEW</button>
@@ -378,7 +375,6 @@
         else { alert("Terhapus."); loadData(); }
     }
 
-    // --- FUNGSI MODAL VIA INDEX ---
     window.openModalByIndex = function(index) {
         const row = currentRenderedData[index];
         if (!row) return alert("Data error. Refresh halaman.");
@@ -402,16 +398,14 @@
             `;
         }
 
-        if (row.status === 'Approved' || row.status === 'Rejected') {
-            const noteText = currentTab === 'rutin' ? row.keterangan : (row.keterangan_superintendent || '-');
-            document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan:</strong> ${noteText}</div>`;
-        } else {
-            document.getElementById('superNoteArea').innerHTML = '';
-        }
-
+        // Cek Status Review
+        const isReviewable = row.status !== 'Approved' && row.status !== 'Rejected';
+        document.getElementById('pendingSection').style.display = isReviewable ? 'block' : 'none';
+        document.getElementById('historySection').style.display = isReviewable ? 'none' : 'flex'; 
+        
+        // Tampilkan Isi Checklist
         const body = document.getElementById('modalBody');
         body.innerHTML = '';
-
         if (currentTab === 'rutin') {
             body.innerHTML = renderRutinChecklist(row); 
         } else {
@@ -422,19 +416,15 @@
             checksHtml += renderJsonCheck("4. MATERIAL", row.check_material);
             checksHtml += renderJsonCheck("5. QC TOOLS", row.check_qc);
             checksHtml += renderJsonCheck("6. SAFETY", row.check_safety);
-            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Tidak ada Item NG pada laporan ini.</div>`;
+            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Item OK (Aman)</div>`;
             body.innerHTML = checksHtml;
         }
 
-        const isReviewable = row.status !== 'Approved' && row.status !== 'Rejected';
-        document.getElementById('pendingSection').style.display = isReviewable ? 'block' : 'none';
-        document.getElementById('historySection').style.display = isReviewable ? 'none' : 'flex'; 
-        
+        // Tampilkan Tanda Tangan jika sudah Approved
         if(!isReviewable) {
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
             
-            // --- AMBIL TTD DARI DATABASE (BAIK ITU DARI AUTO MAUPUN MANUAL) ---
             const sigUrl = row.signature_superintendent;
             const imgEl = document.getElementById('historySigImg');
             
@@ -444,7 +434,10 @@
             } else {
                 imgEl.style.display = 'none';
             }
+        } else {
+            document.getElementById('namaSuperintendent').value = "A. Rizki Mubarok K";
         }
+        
         document.getElementById('modal').style.display = 'block';
         window.clearSig();
     }
@@ -458,7 +451,7 @@
         if (currentTab === 'rutin') update.keterangan = ketInput; 
         else update.keterangan_superintendent = ketInput; 
 
-        // JIKA MANUAL APPROVE (NG), AMBIL TTD DARI CANVAS
+        // Kalau Review Manual (Data NG) lalu di Approve, ambil TTD dari canvas
         if(st === 'Approved') {
             update.signature_superintendent = canvas.toDataURL(); 
         }
@@ -484,10 +477,7 @@
             }
         }
         if (!hasIssues) return ''; 
-        return `<div class="section-header">${title}</div>
-                <div class="table-wrapper">
-                    <table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Note</th></tr>${rows}</table>
-                </div>`;
+        return `<div class="section-header">${title}</div><div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Note</th></tr>${rows}</table></div>`;
     }
 
     function renderRutinChecklist(row) {
@@ -512,8 +502,7 @@
                 }
             });
             if (groupRows) {
-                htmlContent += `<div class="section-header">${group.title}</div>
-                                <div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>${groupRows}</table></div>`;
+                htmlContent += `<div class="section-header">${group.title}</div><div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>${groupRows}</table></div>`;
             }
         });
         if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>`;
@@ -533,9 +522,7 @@
                 "Superintendent": row.nama_superintendent || '-',
                 "Equipment": row.pelaksana?.nama_tools || '-',
                 "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
-                "Status NG?": isRowNG(row) ? "YA (Ada Masalah)" : "AMAN",
-                "Keterangan": row.keterangan || '-', 
-                "Status Approval": row.status
+                "Status": (row.status || 'Pending')
             }));
         } else {
             dataToExport = exportData.map(row => ({
@@ -543,8 +530,7 @@
                 "Superintendent": row.nama_superintendent || '-',
                 "Mesin": row.machine_name || '-',
                 "Tanggal": formatDate(row.trial_date),
-                "Status NG?": isRowNG(row) ? "YA (Ada Masalah)" : "AMAN",
-                "Status Approval": row.status
+                "Status": (row.status || 'Pending')
             }));
         }
         const ws = XLSX.utils.json_to_sheet(dataToExport);
