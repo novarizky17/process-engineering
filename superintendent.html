@@ -19,6 +19,7 @@
         .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
 
+        /* TAMPILAN TABEL NORMAL */
         .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; }
         th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
@@ -29,9 +30,6 @@
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
         .status-completed { background: #d1ecf1; color: #0c5460; }
-
-        .row-ng { background-color: #fff5f5; }
-        .row-ng td { border-top: 1px solid #fed7d7; }
 
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
         .btn-primary { background: #007bff; color: white; }
@@ -70,34 +68,6 @@
         .status-na { color: #666; font-style: italic; font-weight: bold; }
         
         .all-ok-msg { padding: 15px; background: #d4edda; color: #155724; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px; }
-        
-        #autoProcessStatus { margin-left: 15px; font-size: 13px; font-weight: bold; color: #003366; display: none; }
-        .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #003366; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 5px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        #historySection {
-            display: none; 
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-        }
-        #historySigArea {
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-        #historySigImg {
-            max-width: 300px;
-            border: 1px solid #ddd;
-            padding: 5px;
-            background: white;
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -105,27 +75,23 @@
 <header>
     <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
     <div>
-        <span id="autoProcessStatus"><span class="spinner"></span> Memproses data aman...</span>
         <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
-        <button class="btn btn-primary" onclick="window.refreshData()">Refresh Data</button>
+        <button class="btn btn-primary" onclick="refreshData()">Refresh Data</button>
     </div>
 </header>
 
 <div class="container">
     <div class="tab-menu">
-        <button id="tabRutin" class="tab-btn active" onclick="window.switchTab('rutin')">📋 Checklist Rutin</button>
-        <button id="tabTrial" class="tab-btn" onclick="window.switchTab('trial')">🧪 Checklist Trial Mold</button>
+        <button id="tabRutin" class="tab-btn active" onclick="switchTab('rutin')">📋 Checklist Rutin</button>
+        <button id="tabTrial" class="tab-btn" onclick="switchTab('trial')">🧪 Checklist Trial Mold</button>
     </div>
 
     <div class="search-section">
         <strong id="filterLabel">Cari Tanggal:</strong>
-        <input type="date" id="searchDate" class="input-search" onchange="window.filterDataByDate()">
-        <button class="btn btn-back" onclick="window.resetFilter()">Reset</button>
-        <button class="btn btn-excel" onclick="window.downloadExcel()">📥 Download Excel</button>
-    </div>
-
-    <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Menampilkan hanya data dengan temuan <strong>NG</strong> atau yang statusnya <strong>Rejected/Pending</strong>. Data yang <strong>AMAN (OK)</strong> otomatis di-approve sistem.
+        <input type="date" id="searchDate" class="input-search" onchange="filterDataByDate()">
+        <button class="btn btn-back" onclick="resetFilter()">Reset</button>
+        
+        <button class="btn btn-excel" onclick="downloadExcel()">📥 Download Excel</button>
     </div>
 
     <div class="card">
@@ -138,10 +104,11 @@
 
 <div id="modal" class="modal">
     <div class="modal-content">
-        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="window.closeModal()">&times;</span>
+        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
         <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 15px;">Review Checklist</h2>
         
         <div id="infoBox" class="info-grid"></div>
+        
         <div id="superNoteArea"></div>
         <div id="modalBody"></div>
 
@@ -158,21 +125,18 @@
 
                 <p><strong>Tanda Tangan Superintendent:</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
-                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
+                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
                 
                 <div style="display: flex; justify-content: space-around;">
-                    <button class="btn btn-success" style="width: 45%;" onclick="window.processStatus('Approved')">APPROVE</button>
-                    <button class="btn btn-danger" style="width: 45%;" onclick="window.processStatus('Rejected')">REJECT</button>
+                    <button class="btn btn-success" style="width: 45%;" onclick="processStatus('Approved')">APPROVE</button>
+                    <button class="btn btn-danger" style="width: 45%;" onclick="processStatus('Rejected')">REJECT</button>
                 </div>
             </div>
 
-            <div id="historySection" style="display:none;">
-                <h3 id="historyLabel" style="margin-bottom:10px;"></h3>
-                <p style="margin-bottom:10px;"><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
-                <div id="historySigArea">
-                    <img id="historySigImg" alt="Tanda Tangan" style="display:none;">
-                    <span id="historyNoSig" style="display:none; font-style:italic; color:#888;">(Disetujui Otomatis oleh Sistem)</span>
-                </div>
+            <div id="historySection" style="display:none; text-align:center;">
+                <h3 id="historyLabel"></h3>
+                <p><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
+                <div id="historySigArea"><img id="historySigImg" style="max-width:300px; border:1px solid #ddd; padding:5px; background:white;"></div>
             </div>
         </div>
     </div>
@@ -183,9 +147,6 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // DATA TANDA TANGAN BOS (BASE64)
-    const TTD_OTOMATIS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABkCAYAAAAAd623AAAACXBIWXMAAAsTAAALEwEAmpwYAAADsElEQVR4nO3cwW0CQRRF0Z8Z7IAl2AF7YAdsQAtYgh0kgI8E6IDpIAtYgh20AxY7YAl2kAB78G9K06DAn0B0fV9660iWrfLMc6YvY845AACv8mUBAODfCCsAIAgrACAUKwAgFCsAIAn/WJ6YpkkvLy9v77uua7quu7u7e3t/fX2988XhcDj88f7z+fzzuXq9Xv28Xq8Xh8Ph7efD4fD2v6urq4vP9f37+Xy+mGfN6vV69fvLy8u7v1tVn8/ni+f6vn69Xv3v7u6uv+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fzuW885/rS9X39fD6fP9f37/v3/fsD6E9Yf9r7+9t+Xp9vAQBAWEEAoVgBAKFYAUAyvwAgv8+430fW/v7+Xh9Af7v9AgCCsAIAgrACAUKxAgBCsQIA+Asvj2pCHmY66gAAAABJRU5ErkJggg==";
-
     const rutinGroups = [
         { title: "1. STAND LABEL", subs: [ { sub: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] }, { sub: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] }, { sub: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] }, { sub: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] } ] },
         { title: "2. STACKING", subs: [ { sub: "ELECTRICAL", items: ["stacking_wiring", "stacking_sensor"] }, { sub: "MOTION", items: ["stacking_linier", "stacking_mechanical_part"] }, { sub: "PNEUMATIC", items: ["stacking_cylinder", "stacking_pneumatic"] } ] },
@@ -194,11 +155,12 @@
         { title: "5. DUMMY", subs: [{ sub: "", items: ["dummy_vacuum", "dummy_condition", "dummy_flange", "dummy_instalasi", "dummy_tubbing"] }] }
     ];
 
-    let activeId = null, rawData = [], filteredData = [], currentRenderedData = [], currentTab = 'rutin'; 
-    const canvas = document.getElementById('sig-canvas'), ctx = canvas.getContext('2d');
+    let activeId = null, rawData = [], filteredData = [], currentTab = 'rutin'; 
+    const canvas = document.getElementById('sig-canvas');
+    const ctx = canvas.getContext('2d');
     canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
 
-    window.switchTab = function(tab) {
+    function switchTab(tab) {
         currentTab = tab;
         document.getElementById('tabRutin').classList.toggle('active', tab === 'rutin');
         document.getElementById('tabTrial').classList.toggle('active', tab === 'trial');
@@ -207,93 +169,73 @@
         loadData();
     }
 
-    function isRowNG(row) {
-        if (currentTab === 'rutin') {
-            for (const group of rutinGroups) {
-                for (const sub of group.subs) {
-                    for (const item of sub.items) {
-                        if (row[item] === 'NG') return true;
-                    }
-                }
-            }
-            return false;
-        } else {
-            const checks = [row.check_machine, row.check_mold, row.check_aux, row.check_material, row.check_qc, row.check_safety];
-            for (const check of checks) {
-                if (check) {
-                    for (const key in check) {
-                        if (check[key].status === 'NG') return true;
-                    }
-                }
-            }
-            return false;
-        }
+    let drawing = false;
+    function getP(e) {
+        const r = canvas.getBoundingClientRect();
+        return { x: ((e.clientX||e.touches[0].clientX)-r.left)*(canvas.width/r.width), y: ((e.clientY||e.touches[0].clientY)-r.top)*(canvas.height/r.height) };
     }
-
-    async function autoApproveSafeItems(safeRows) {
-        if (safeRows.length === 0) return;
-        document.getElementById('autoProcessStatus').style.display = 'inline-block';
-        const autoName = "A. Rizki Mubarok K"; 
-        const now = new Date().toISOString();
-
-        const updates = safeRows.map(async (row) => {
-            const updateData = { 
-                status: 'Approved', 
-                approved_at: now, 
-                nama_superintendent: autoName,
-                signature_superintendent: TTD_OTOMATIS // MASUKKAN TTD OTOMATIS DI SINI
-            };
-            if(currentTab === 'rutin') updateData.keterangan = "Approved Automatically (No Issues Found)";
-            else updateData.keterangan_superintendent = "Approved Automatically (No Issues Found)";
-            const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
-            return _supabase.from(tableName).update(updateData).eq('id', row.id);
-        });
-
-        await Promise.all(updates);
-        document.getElementById('autoProcessStatus').style.display = 'none';
-        loadData(); 
-    }
+    canvas.onmousedown = (e) => { drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
+    canvas.onmousemove = (e) => { if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
+    window.onmouseup = () => drawing=false;
+    canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
+    canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
+    function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+    function refreshData() { loadData(); }
 
     async function loadData() {
+        // --- LOGIKA PEMILIHAN TABEL BERDASARKAN TAB ---
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
+        
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
         if(error) return console.error(error);
         
-        const safePendingRows = [];
-        data.forEach(row => {
-            const isNG = isRowNG(row);
-            const status = (row.status || '').toLowerCase();
-            if (!isNG && status !== 'approved' && status !== 'rejected') {
-                safePendingRows.push(row);
-            }
-        });
-
-        if (safePendingRows.length > 0) {
-            await autoApproveSafeItems(safePendingRows);
-            return; 
-        }
-
         rawData = data;
-        window.filterDataByDate();
+        filterDataByDate();
     }
 
-    window.filterDataByDate = function() {
+    function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
-        filteredData = rawData.filter(row => {
-            const status = (row.status || '').toLowerCase();
-            const isPending = status !== 'approved' && status !== 'rejected';
-            if (selectedDate) {
+        if (selectedDate) {
+            filteredData = rawData.filter(row => {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
-            } 
-            return isPending;
-        });
+            });
+        } else {
+            // LOGIKA FILTER: YANG BELUM APPROVE/REJECT MUNCUL
+            filteredData = rawData.filter(row => {
+                const status = (row.status || '').toLowerCase();
+                return status !== 'approved' && status !== 'rejected';
+            });
+        }
         renderTable(filteredData);
     }
 
+    function formatDate(dateString) {
+        if (!dateString) return '-';
+        const parts = dateString.split('-');
+        if (parts.length === 3) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`; 
+        }
+        return dateString;
+    }
+
+    // FUNGSI HAPUS
+    async function deleteItem(id) {
+        if (!confirm("Apakah Anda yakin ingin menghapus data ini? Data yang dihapus tidak dapat dikembalikan.")) {
+            return;
+        }
+        const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
+        const { error } = await _supabase.from(tableName).delete().eq('id', id);
+        if (error) {
+            alert("Gagal menghapus data: " + error.message);
+        } else {
+            alert("Data berhasil dihapus.");
+            loadData(); 
+        }
+    }
+
     function renderTable(dataList) {
-        currentRenderedData = dataList;
         const header = document.getElementById('tableHeader');
         const tableBody = document.getElementById('mainTable');
 
@@ -304,30 +246,30 @@
         }
 
         if (!dataList || dataList.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px;">
-                <strong>Tidak ada data yang perlu direview.</strong><br>
-                <small>Gunakan filter tanggal untuk melihat history data yang sudah selesai.</small>
-            </td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Tidak ada data ditemukan.</td></tr>`;
             return;
         }
 
-        tableBody.innerHTML = dataList.map((row, index) => {
+        tableBody.innerHTML = dataList.map(row => {
             let statusText = row.status || 'Pending';
+            
+            // PAKSA PENDING DI TAMPILAN WEB JIKA BELUM FINAL
+            if (statusText !== 'Approved' && statusText !== 'Rejected') {
+                statusText = 'Pending';
+            }
+
             let statusClass = 'status-pending';
             if (statusText === 'Approved') statusClass = 'status-approved';
             else if (statusText === 'Rejected') statusClass = 'status-rejected';
 
-            const isNG = isRowNG(row);
-            const rowClass = isNG ? 'row-ng' : '';
-
             const actionButtons = `
                 <div style="display:flex; gap:5px; justify-content:center;">
-                    <button class="btn btn-primary" onclick="window.openModalByIndex(${index})">REVIEW</button>
-                    <button class="btn btn-danger" onclick="window.deleteItemByIndex(${index})">HAPUS</button>
+                    <button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button>
+                    <button class="btn btn-danger" onclick="deleteItem('${row.id}')">HAPUS</button>
                 </div>`;
 
             if (currentTab === 'rutin') {
-                return `<tr class="${rowClass}">
+                return `<tr>
                     <td><strong>${row.pelaksana?.nama_pelaksana || '-'}</strong></td>
                     <td>${row.nama_superintendent || '-'}</td>
                     <td>${row.pelaksana?.nama_tools || '-'}</td>
@@ -338,7 +280,7 @@
                     <td style="text-align: center;">${actionButtons}</td>
                 </tr>`;
             } else {
-                return `<tr class="${rowClass}">
+                return `<tr>
                     <td><strong>${row.pic_trial || '-'}</strong></td>
                     <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
                     <td>${row.machine_name || '-'}</td>
@@ -352,43 +294,135 @@
         }).join('');
     }
 
-    let drawing = false;
-    function getP(e) {
-        const r = canvas.getBoundingClientRect();
-        return { x: ((e.clientX||e.touches[0].clientX)-r.left)*(canvas.width/r.width), y: ((e.clientY||e.touches[0].clientY)-r.top)*(canvas.height/r.height) };
+    function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
+
+    // === DOWNLOAD EXCEL DENGAN AUTO-FIT WIDTH ===
+    function downloadExcel() {
+        if (!filteredData || filteredData.length === 0) {
+            alert("Tidak ada data untuk diunduh!");
+            return;
+        }
+        let dataToExport = [];
+        
+        if (currentTab === 'rutin') {
+            dataToExport = filteredData.map(row => ({
+                "Pelaksana": row.pelaksana?.nama_pelaksana || '-',
+                "Superintendent": row.nama_superintendent || '-',
+                "Equipment": row.pelaksana?.nama_tools || '-',
+                "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
+                "Week": row.pelaksana?.week || '-',
+                "Keterangan": row.keterangan || '-', 
+                "Status": (row.status !== 'Approved' && row.status !== 'Rejected') ? 'Pending' : row.status
+            }));
+        } else {
+            dataToExport = filteredData.map(row => ({
+                "PIC Trial": row.pic_trial || '-',
+                "Superintendent": row.nama_superintendent || '-',
+                "Mesin": row.machine_name || '-',
+                "Project": row.project_name || '-',
+                "Kode Mold": row.mold_code || '-',
+                "Nama Mold": row.mold_name || '-',
+                "Tanggal Trial": formatDate(row.trial_date),
+                "Status": (row.status !== 'Approved' && row.status !== 'Rejected') ? 'Pending' : row.status
+            }));
+        }
+        
+        const ws = XLSX.utils.json_to_sheet(dataToExport);
+        
+        // --- LOGIKA AUTO-FIT LEBAR KOLOM ---
+        const columnWidths = [];
+        const keys = Object.keys(dataToExport[0]);
+
+        keys.forEach((key) => {
+            let maxLength = key.length; 
+            dataToExport.forEach(row => {
+                let cellValue = row[key] ? String(row[key]) : "";
+                if (cellValue.length > maxLength) {
+                    maxLength = cellValue.length;
+                }
+            });
+            // Batasi max width agar tidak terlalu lebar (misal 100)
+            if (maxLength > 100) maxLength = 100;
+            columnWidths.push({ wch: maxLength + 2 }); 
+        });
+
+        ws['!cols'] = columnWidths;
+        // ----------------------------------
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Data");
+        const fileName = `Report_${currentTab}_${new Date().toISOString().slice(0,10)}.xlsx`;
+        XLSX.writeFile(wb, fileName);
     }
-    canvas.onmousedown = (e) => { drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
-    canvas.onmousemove = (e) => { if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
-    window.onmouseup = () => drawing=false;
-    canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
-    canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
-    
-    window.clearSig = function() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-    window.refreshData = function() { loadData(); }
-    window.resetFilter = function() { document.getElementById('searchDate').value = ''; window.filterDataByDate(); }
-    window.closeModal = function() { document.getElementById('modal').style.display = 'none'; }
 
-    function formatDate(dateString) {
-        if (!dateString) return '-';
-        const parts = dateString.split('-');
-        if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`; 
-        return dateString;
+    function renderJsonCheck(title, jsonData) {
+        if (!jsonData || Object.keys(jsonData).length === 0) return '';
+        let rows = '';
+        let hasIssues = false;
+        for (const [key, val] of Object.entries(jsonData)) {
+            let status = val.status || '-';
+            let note = val.note || '-';
+            
+            if (status === 'NG') {
+                hasIssues = true;
+                let colorClass = 'status-ng';
+                rows += `<tr>
+                            <td class="col-item">${key}</td>
+                            <td class="col-status ${colorClass}">${status}</td>
+                            <td class="col-ket">${note}</td>
+                        </tr>`;
+            }
+        }
+        if (!hasIssues) return ''; 
+        return `<div class="section-header">${title}</div>
+                <div class="table-wrapper">
+                    <table class="json-table">
+                        <tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Note</th></tr>
+                        ${rows}
+                    </table>
+                </div>`;
     }
 
-    window.deleteItemByIndex = async function(index) {
-        const row = currentRenderedData[index];
-        if (!row) return;
-        if (!confirm("Hapus data ini?")) return;
-        const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
-        const { error } = await _supabase.from(tableName).delete().eq('id', row.id);
-        if (error) alert("Gagal: " + error.message);
-        else { alert("Terhapus."); loadData(); }
+    function renderRutinChecklist(row) {
+        let htmlContent = '';
+        let totalIssues = 0;
+        rutinGroups.forEach(group => {
+            let groupRows = '';
+            group.subs.forEach(sub => {
+                let subRows = '';
+                sub.items.forEach(item => {
+                    const status = row[item];
+                    if (status === 'NG' || status === 'NA') { 
+                        totalIssues++;
+                        const note = row[item + '_keterangan'] || '-';
+                        const colorClass = status === 'NG' ? 'status-ng' : 'status-na';
+                        subRows += `<tr>
+                            <td class="col-item">${item.replace(/stacking_|conveyor_|dosing_|dummy_|_/g, ' ').toUpperCase()}</td>
+                            <td class="col-status ${colorClass}">${status}</td>
+                            <td class="col-ket">${note}</td>
+                        </tr>`;
+                    }
+                });
+                if (subRows) {
+                    if (sub.sub) groupRows += `<tr><td colspan="3" class="sub-header">${sub.sub}</td></tr>`;
+                    groupRows += subRows;
+                }
+            });
+            if (groupRows) {
+                htmlContent += `<div class="section-header">${group.title}</div>
+                                <div class="table-wrapper">
+                                    <table class="json-table">
+                                        <tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>
+                                        ${groupRows}
+                                    </table>
+                                </div>`;
+            }
+        });
+        if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>`;
+        return htmlContent;
     }
 
-    window.openModalByIndex = function(index) {
-        const row = currentRenderedData[index];
-        if (!row) return alert("Data error. Refresh halaman.");
-
+    function openModal(row) {
         activeId = row.id;
         document.getElementById('modalTitle').innerText = currentTab === 'rutin' ? "Review Checklist Rutin" : "Review Checklist Trial Mold";
         document.getElementById('keteranganSuper').value = '';
@@ -397,20 +431,25 @@
         if (currentTab === 'rutin') {
             infoBox.innerHTML = `
                 <div class="info-item"><label>Pelaksana</label><span>${row.pelaksana?.nama_pelaksana || '-'}</span></div>
-                <div class="info-item"><label>Mesin</label><span>${row.pelaksana?.nama_tools || '-'}</span></div>
-                <div class="info-item"><label>Tanggal</label><span>${formatDate(row.pelaksana?.tanggal_checklist)}</span></div>
+                <div class="info-item"><label>Nama Mesin</label><span>${row.pelaksana?.nama_tools || '-'}</span></div>
+                <div class="info-item"><label>Tanggal Checklist</label><span>${formatDate(row.pelaksana?.tanggal_checklist)}</span></div>
+                <div class="info-item"><label>Week</label><span>${row.pelaksana?.week || '-'}</span></div>
+                <div class="info-item"><label>Capacity</label><span>${row.pelaksana?.capacity || '-'}</span></div>
             `;
         } else {
             infoBox.innerHTML = `
                 <div class="info-item"><label>PIC Trial</label><span>${row.pic_trial || '-'}</span></div>
-                <div class="info-item"><label>Mesin</label><span>${row.machine_name || '-'}</span></div>
-                <div class="info-item"><label>Tanggal</label><span>${formatDate(row.trial_date)}</span></div>
+                <div class="info-item"><label>Nama Mesin</label><span>${row.machine_name || '-'}</span></div>
+                <div class="info-item"><label>Nama Mold</label><span>${row.mold_name || '-'}</span></div>
+                <div class="info-item"><label>Mold Code</label><span>${row.mold_code || '-'}</span></div>
+                <div class="info-item"><label>Project</label><span>${row.project_name || '-'}</span></div>
+                <div class="info-item"><label>Tanggal Trial</label><span>${formatDate(row.trial_date)}</span></div>
             `;
         }
 
         if (row.status === 'Approved' || row.status === 'Rejected') {
             const noteText = currentTab === 'rutin' ? row.keterangan : (row.keterangan_superintendent || '-');
-            document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan:</strong> ${noteText}</div>`;
+            document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan Superintendent Sebelumnya:</strong> ${noteText}</div>`;
         } else {
             document.getElementById('superNoteArea').innerHTML = '';
         }
@@ -428,133 +467,75 @@
             checksHtml += renderJsonCheck("4. MATERIAL", row.check_material);
             checksHtml += renderJsonCheck("5. QC TOOLS", row.check_qc);
             checksHtml += renderJsonCheck("6. SAFETY", row.check_safety);
-            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Tidak ada Item NG pada laporan ini.</div>`;
+            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Item Check Berstatus OK (Tidak ada temuan NG)</div>`;
             body.innerHTML = checksHtml;
         }
 
         const isReviewable = row.status !== 'Approved' && row.status !== 'Rejected';
         document.getElementById('pendingSection').style.display = isReviewable ? 'block' : 'none';
-        document.getElementById('historySection').style.display = isReviewable ? 'none' : 'flex'; 
+        document.getElementById('historySection').style.display = isReviewable ? 'none' : 'block';
         
         if(!isReviewable) {
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
-            const sigUrl = row.signature_superintendent;
-            const imgEl = document.getElementById('historySigImg');
-            if(sigUrl) {
-                imgEl.src = sigUrl;
-                imgEl.style.display = 'block';
-            } else {
-                imgEl.style.display = 'none';
-            }
-        } else {
-            document.getElementById('namaSuperintendent').value = "A. Rizki Mubarok K";
+            
+            // --- LOGIKA TAMPILKAN TTD DI MODAL ---
+            // Karena Rutin belum ada kolom TTD, kita kasih default kosong atau null
+            const sigUrl = currentTab === 'rutin' ? null : row.signature_superintendent;
+            
+            document.getElementById('historySigImg').src = sigUrl || '';
+            document.getElementById('historySigImg').style.display = sigUrl ? 'block' : 'none'; // Sembunyikan kalau gak ada gambar
         }
         document.getElementById('modal').style.display = 'block';
-        window.clearSig();
+        clearSig();
     }
 
-    window.processStatus = async function(st) {
+    async function processStatus(st) {
         const namaSuper = document.getElementById('namaSuperintendent').value;
         const ketInput = document.getElementById('keteranganSuper').value; 
+        
         if(!namaSuper) return alert("Isi nama superintendent!");
 
-        let update = { status: st, approved_at: new Date().toISOString(), nama_superintendent: namaSuper };
-        if (currentTab === 'rutin') update.keterangan = ketInput; 
-        else update.keterangan_superintendent = ketInput; 
+        // 1. SIAPKAN DATA UPDATE DASAR
+        let update = { 
+            status: st, 
+            approved_at: new Date().toISOString(), 
+            nama_superintendent: namaSuper 
+        };
 
+        // 2. MASUKKAN KETERANGAN
+        if (currentTab === 'rutin') {
+            update.keterangan = ketInput; 
+        } else {
+            update.keterangan_superintendent = ketInput; 
+        }
+
+        // --- UPDATE PENTING: LOGIKA PENYIMPANAN TANDA TANGAN ---
         if(st === 'Approved') {
-            update.signature_superintendent = canvas.toDataURL(); 
+            const dataURL = canvas.toDataURL();
+            
+            if (currentTab === 'trial') {
+                // HANYA TAB TRIAL YANG MENCOBA SIMPAN GAMBAR TTD
+                // (Asumsi kolom 'signature_superintendent' ada di tabel checklist_trial)
+                update.signature_superintendent = dataURL; 
+            }
+            // TAB RUTIN TIDAK MENYIMPAN TTD (Karena kolomnya belum ada di tabel 'checklist')
         }
 
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
+        
         const { error } = await _supabase.from(tableName).update(update).eq('id', activeId);
 
-        if(!error) { alert("Berhasil disimpan!"); window.closeModal(); loadData(); } 
-        else { alert("Error: " + error.message); }
-    }
-
-    function renderJsonCheck(title, jsonData) {
-        if (!jsonData || Object.keys(jsonData).length === 0) return '';
-        let rows = '';
-        let hasIssues = false;
-        for (const [key, val] of Object.entries(jsonData)) {
-            let status = val.status || '-';
-            let note = val.note || '-';
-            if (status === 'NG') {
-                hasIssues = true;
-                let colorClass = 'status-ng';
-                rows += `<tr><td class="col-item">${key}</td><td class="col-status ${colorClass}">${status}</td><td class="col-ket">${note}</td></tr>`;
-            }
+        if(!error) { 
+            alert("Berhasil disimpan!"); 
+            closeModal(); 
+            loadData(); 
+        } else { 
+            alert("Error: " + error.message); 
         }
-        if (!hasIssues) return ''; 
-        return `<div class="section-header">${title}</div>
-                <div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Note</th></tr>${rows}</table></div>`;
     }
 
-    function renderRutinChecklist(row) {
-        let htmlContent = '';
-        let totalIssues = 0;
-        rutinGroups.forEach(group => {
-            let groupRows = '';
-            group.subs.forEach(sub => {
-                let subRows = '';
-                sub.items.forEach(item => {
-                    const status = row[item];
-                    if (status === 'NG' || status === 'NA') { 
-                        totalIssues++;
-                        const note = row[item + '_keterangan'] || '-';
-                        const colorClass = status === 'NG' ? 'status-ng' : 'status-na';
-                        subRows += `<tr><td class="col-item">${item.replace(/stacking_|conveyor_|dosing_|dummy_|_/g, ' ').toUpperCase()}</td><td class="col-status ${colorClass}">${status}</td><td class="col-ket">${note}</td></tr>`;
-                    }
-                });
-                if (subRows) {
-                    if (sub.sub) groupRows += `<tr><td colspan="3" class="sub-header">${sub.sub}</td></tr>`;
-                    groupRows += subRows;
-                }
-            });
-            if (groupRows) {
-                htmlContent += `<div class="section-header">${group.title}</div>
-                                <div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>${groupRows}</table></div>`;
-            }
-        });
-        if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>`;
-        return htmlContent;
-    }
-
-    window.downloadExcel = function() {
-        if (!rawData || rawData.length === 0) {
-            alert("Tidak ada data untuk diunduh!");
-            return;
-        }
-        let exportData = filteredData.length > 0 ? filteredData : rawData;
-        let dataToExport = [];
-        if (currentTab === 'rutin') {
-            dataToExport = exportData.map(row => ({
-                "Pelaksana": row.pelaksana?.nama_pelaksana || '-',
-                "Superintendent": row.nama_superintendent || '-',
-                "Equipment": row.pelaksana?.nama_tools || '-',
-                "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
-                "Status NG?": isRowNG(row) ? "YA (Ada Masalah)" : "AMAN",
-                "Keterangan": row.keterangan || '-', 
-                "Status Approval": row.status
-            }));
-        } else {
-            dataToExport = exportData.map(row => ({
-                "PIC Trial": row.pic_trial || '-',
-                "Superintendent": row.nama_superintendent || '-',
-                "Mesin": row.machine_name || '-',
-                "Tanggal": formatDate(row.trial_date),
-                "Status NG?": isRowNG(row) ? "YA (Ada Masalah)" : "AMAN",
-                "Status Approval": row.status
-            }));
-        }
-        const ws = XLSX.utils.json_to_sheet(dataToExport);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Data");
-        XLSX.writeFile(wb, `Report_Filter_NG_${currentTab}.xlsx`);
-    }
-
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
     window.onload = loadData;
 </script>
 </body>
