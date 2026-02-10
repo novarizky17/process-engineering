@@ -28,19 +28,22 @@
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
+        .status-completed { background: #d1ecf1; color: #0c5460; }
+
         .row-ng { background-color: #fff5f5; }
         .row-ng td { border-top: 1px solid #fed7d7; }
 
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
         .btn-primary { background: #007bff; color: white; }
         .btn-success { background: #28a745; color: white; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; }
         .btn-danger { background: #dc3545; color: white; }
         .btn-excel { background: #198754; color: white; margin-left: auto; }
 
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
         .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 1200px; }
         
-        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #003366; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #003366; }
         .info-item label { font-size: 11px; color: #666; display: block; margin-bottom: 3px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
         .info-item span { font-size: 14px; font-weight: bold; color: #333; }
 
@@ -121,7 +124,7 @@
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN</strong> otomatis di-approve & hilang dari daftar (bisa dicari via tanggal).
+        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN</strong> otomatis di-approve & disembunyikan (Bisa dicari via tanggal).
     </div>
 
     <div class="card">
@@ -239,7 +242,7 @@
         }
     }
 
-    // --- AUTO APPROVE: JALAN OTOMATIS JIKA DATA BERSIH ---
+    // --- AUTO APPROVE LOGIC ---
     async function executeAutoApprove(safeRows) {
         if (safeRows.length === 0 || isProcessingAuto) return;
         
@@ -250,8 +253,8 @@
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
-        // PROSES AUTO APPROVE SATU PER SATU
-        for (const row of safeRows) {
+        // UPDATE HANYA STATUS & NAMA
+        const updates = safeRows.map(async (row) => {
             const updateData = { 
                 status: 'Approved', 
                 approved_at: now, 
@@ -264,16 +267,25 @@
                 updateData.keterangan_superintendent = "Approved Automatically (OK)";
             }
             
+            // JALANKAN UPDATE
             const { error } = await _supabase.from(tableName).update(updateData).eq('id', row.id);
             if (error) {
-                console.error("Auto Approve Gagal untuk ID: " + row.id, error);
+                console.error("Gagal Auto Approve ID: " + row.id, error);
+                // JIKA ERROR KARENA RLS, ALERT USER SEKALI SAJA
+                if (!window.hasAlertedRLS) {
+                    alert("Gagal Auto-Approve! Database menolak update.\nMohon cek permission Database (Disable RLS).");
+                    window.hasAlertedRLS = true;
+                }
             }
-        }
+            return error;
+        });
+
+        await Promise.all(updates);
         
         document.getElementById('autoProcessStatus').style.display = 'none';
         isProcessingAuto = false;
         
-        loadData(true); 
+        loadData(true); // Refresh data agar item yg sudah diapprove hilang dari list pending
     }
 
     async function loadData(skipAutoCheck = false) {
@@ -282,18 +294,18 @@
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
         if(error) return console.error(error);
         
-        // PISAHKAN DATA: YANG PENDING & AMAN UNTUK DI AUTO-APPROVE
+        // PISAHKAN DATA UNTUK AUTO APPROVE
         const safePendingRows = [];
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
-            // Syarat: Status Pending, Tidak Ada NG
+            // SYARAT: Belum diproses (Pending) DAN Tidak ada NG
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 safePendingRows.push(row);
             }
         });
 
-        // JALANKAN AUTO APPROVE JIKA ADA KANDIDAT
+        // JIKA ADA DATA AMAN, JALANKAN AUTO APPROVE
         if (safePendingRows.length > 0 && !isProcessingAuto && !skipAutoCheck) {
             await executeAutoApprove(safePendingRows);
             return; 
@@ -306,13 +318,13 @@
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
         if (selectedDate) {
-            // MODE PENCARIAN TANGGAL: TAMPILKAN SEMUA (HISTORY)
+            // MODE HISTORY: TAMPILKAN SEMUA
             filteredData = rawData.filter(row => {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
             });
         } else {
-            // MODE DEFAULT (TO-DO LIST): SEMBUNYIKAN YANG SUDAH APPROVED
+            // MODE TO-DO: SEMBUNYIKAN YANG SUDAH APPROVED
             filteredData = rawData.filter(row => {
                 const status = (row.status || '').toLowerCase();
                 return status !== 'approved' && status !== 'rejected';
@@ -350,7 +362,7 @@
 
         if (!dataList || dataList.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">
-                ${document.getElementById('searchDate').value ? 'Tidak ada data pada tanggal ini.' : '<strong>Semua pekerjaan sudah beres (Clean)!</strong><br><small>Gunakan filter tanggal untuk melihat history.</small>'}
+                ${document.getElementById('searchDate').value ? 'Tidak ada data pada tanggal ini.' : '<strong>Semua Beres (Clean)!</strong><br><small>Data OK sudah di-approve otomatis. Gunakan filter tanggal untuk melihat history.</small>'}
             </td></tr>`;
             return;
         }
@@ -363,7 +375,6 @@
             if (statusText === 'Approved') statusClass = 'status-approved';
             else if (statusText === 'Rejected') statusClass = 'status-rejected';
 
-            // BARIS MERAH JIKA NG
             const isNG = isRowNG(row);
             const rowClass = isNG ? 'row-ng' : '';
 
@@ -476,7 +487,7 @@
                 htmlContent += `<div class="section-header">${group.title}</div><div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>${groupRows}</table></div>`;
             }
         });
-        if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>`;
+        if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Item Check Berstatus OK (Tidak ada temuan NG)</div>`;
         return htmlContent;
     }
 
@@ -543,6 +554,9 @@
             document.getElementById('historySigImg').src = sigUrl || '';
             document.getElementById('historySigImg').style.display = sigUrl ? 'block' : 'none';
             document.getElementById('historyNoSig').style.display = sigUrl ? 'none' : 'block';
+        } else {
+            // Jika Pending, isi default
+            document.getElementById('namaSuperintendent').value = "A. Rizki Mubarok K";
         }
         document.getElementById('modal').style.display = 'block';
         clearSig();
