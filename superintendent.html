@@ -33,7 +33,7 @@
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
         .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 1200px; }
         .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #003366; }
-        .section-header { background: #f1f4f8; padding: 10px 15px; margin: 20px 0 0 0; font-weight: bold; color: #003366; border-left: 5px solid #003366; }
+        .section-header { background: #f1f4f8; padding: 10px 15px; margin: 20px 0 0 0; font-weight: bold; color: #003366; border-left: 5px solid #003366; font-size: 15px; border-top-left-radius: 4px; border-top-right-radius: 4px; }
         .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
         canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
         #autoProcessStatus { margin-left: 15px; font-size: 13px; font-weight: bold; color: #003366; display: none; }
@@ -66,9 +66,9 @@
 
     <div class="search-section">
         <strong id="filterLabel">Cari Tanggal:</strong>
-        <input type="date" id="searchDate" class="input-search" onchange="window.filterDataByDate()">
-        <button class="btn btn-back" onclick="window.resetFilter()">Reset</button>
-        <button class="btn btn-excel" onclick="window.downloadExcel()">📥 Download Excel</button>
+        <input type="date" id="searchDate" class="input-search" onchange="filterDataByDate()">
+        <button class="btn btn-back" onclick="resetFilter()">Reset</button>
+        <button class="btn btn-excel" onclick="downloadExcel()">📥 Download Excel</button>
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
@@ -78,7 +78,7 @@
     <div class="card">
         <table>
             <thead><tr id="tableHeader"></tr></thead>
-            <tbody id="mainTable"><tr><td colspan="8" style="text-align:center; padding: 50px;">Memuat data...</td></tr></tbody>
+            <tbody id="mainTable"><tr><td colspan="8" style="text-align:center;">Memuat data...</td></tr></tbody>
         </table>
     </div>
 </div>
@@ -103,7 +103,7 @@
                     <textarea id="keteranganSuper" placeholder="Tuliskan komentar, instruksi, atau alasan reject di sini..."></textarea>
                 </div>
 
-                <p><strong>Tanda Tangan Superintendent:</strong></p>
+                <p><strong>Tanda Tangan Superintendent (Manual):</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
                 <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
                 
@@ -129,7 +129,7 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    const TTD_OTOMATIS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABkCAYAAAAAd623AAAACXBIWXMAAAsTAAALEwEAmpwYAAADsElEQVR4nO3cwW0CQRRF0Z8Z7IAl2AF7YAdsQAtYgh0kgI8E6IDpIAtYgh20AxY7YAl2kAB78G9K06DAn0B0fV9660iWrfLMc6YvY845AACv8mUBAODfCCsAIAgrACAUKwAgFCsAIAn/WJ6YpkkvLy9v77uua7quu7u7e3t/fX2988XhcDj88f7z+fzzuXq9Xv28Xq8Xh8Ph7efD4fD2v6urq4vP9f37+Xy+mGfN6vV69fvLy8u7v1tVn8/ni+f6vn69Xv3v7u6uv+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz+W885/rS9X39fD6fP9f37/v3/fsD6E9Yf9r7+9t+Xp9vAQBAWEEAoVgBAKFYAUAyvwAgv8+430fW/v7+Xh9Af7v9AgCCsAIAgrACAUKxAgBCsQIA+Asvj2pCHmY66gAAAABJRU5ErkJggg==";
+    const TTD_OTOMATIS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABkCAYAAAAAd623AAAACXBIWXMAAAsTAAALEwEAmpwYAAADsElEQVR4nO3cwW0CQRRF0Z8Z7IAl2AF7YAdsQAtYgh0kgI8E6IDpIAtYgh20AxY7YAl2kAB78G9K06DAn0B0fV9660iWrfLMc6YvY845AACv8mUBAODfCCsAIAgrACAUKwAgFCsAIAn/WJ6YpkkvLy9v77uua7quu7u7e3t/fX2988XhcDj88f7z+fzzuXq9Xv28Xq8Xh8Ph7efD4fD2v6urq4vP9f37+f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz+W885/rS9X39fD6fP9f37/v3/fsD6E9Yf9r7+9t+Xp9vAQBAWEEAoVgBAKFYAUAyvwAgv8+430fW/v7+Xh9Af7v9AgCCsAIAgrACAUKxAgBCsQIA+Asvj2pCHmY66gAAAABJRU5ErkJggg==";
 
     const rutinGroups = [
         { title: "1. STAND LABEL", subs: [ { sub: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] }, { sub: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] }, { sub: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] }, { sub: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] } ] },
@@ -144,7 +144,7 @@
     let filteredData = [];
     let currentRenderedData = []; 
     let currentTab = 'rutin'; 
-    let hasTriedAutoApprove = false; // FLAG PENTING!
+    let hasTriedAutoApprove = false; 
     
     const canvas = document.getElementById('sig-canvas');
     const ctx = canvas.getContext('2d');
@@ -152,7 +152,7 @@
 
     window.switchTab = function(tab) {
         currentTab = tab;
-        hasTriedAutoApprove = false; // Reset agar auto approve jalan lagi saat ganti tab
+        hasTriedAutoApprove = false;
         document.getElementById('tabRutin').classList.toggle('active', tab === 'rutin');
         document.getElementById('tabTrial').classList.toggle('active', tab === 'trial');
         document.getElementById('filterLabel').innerText = tab === 'rutin' ? 'Cari Tanggal Checklist:' : 'Cari Tanggal Trial:';
@@ -183,7 +183,7 @@
         }
     }
 
-    // --- FUNGSI AUTO APPROVE DENGAN ERROR ALERT ---
+    // --- FUNGSI AUTO APPROVE ---
     async function executeAutoApprove(safeRows) {
         if (safeRows.length === 0) return;
         
@@ -192,17 +192,23 @@
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
-        // Lakukan update
+        // Update satu per satu
         let errorCount = 0;
         const updates = safeRows.map(async (row) => {
             const updateData = { 
                 status: 'Approved', 
                 approved_at: now, 
-                nama_superintendent: autoName,
-                signature_superintendent: TTD_OTOMATIS 
+                nama_superintendent: autoName
             };
-            if(currentTab === 'rutin') updateData.keterangan = "Approved Automatically (No Issues Found)";
-            else updateData.keterangan_superintendent = "Approved Automatically (No Issues Found)";
+
+            // BEDAKAN KOLOM TANDA TANGAN & KETERANGAN
+            if (currentTab === 'rutin') {
+                updateData.keterangan = "Approved Automatically (No Issues Found)";
+                updateData.signature = TTD_OTOMATIS; // KOLOM KHUSUS RUTIN
+            } else {
+                updateData.keterangan_superintendent = "Approved Automatically (No Issues Found)";
+                updateData.signature_superintendent = TTD_OTOMATIS; // KOLOM KHUSUS TRIAL
+            }
             
             const { error } = await _supabase.from(tableName).update(updateData).eq('id', row.id);
             if(error) {
@@ -215,14 +221,12 @@
         document.getElementById('autoProcessStatus').style.display = 'none';
 
         if (errorCount > 0) {
-            alert(`GAGAL melakukan Auto-Approve pada ${errorCount} data! \nKemungkinan Database Supabase Anda memblokir UPDATE.\n\nSOLUSI: Masuk ke Supabase > SQL Editor > Jalankan script Policy yang saya berikan.`);
+            alert(`GAGAL AUTO APPROVE pada ${errorCount} data! Cek apakah kolom 'signature' (Rutin) atau 'signature_superintendent' (Trial) sudah ada di Supabase.`);
         } else {
-            // Jika sukses, reload data sekali saja
             loadData(true); 
         }
     }
 
-    // --- LOAD DATA (DENGAN PENGUNCI LOOPING) ---
     async function loadData(skipAutoCheck = false) {
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
@@ -230,7 +234,6 @@
         
         if(error) return console.error(error);
         
-        // Cari data yang Aman & Pending
         const safePendingRows = [];
         data.forEach(row => {
             const isNG = isRowNG(row);
@@ -240,9 +243,8 @@
             }
         });
 
-        // JIKA ADA DATA AMAN, BELUM PERNAH CEK, DAN TIDAK DISKIP -> JALANKAN AUTO APPROVE
         if (safePendingRows.length > 0 && !hasTriedAutoApprove && !skipAutoCheck) {
-            hasTriedAutoApprove = true; // Kunci supaya tidak loop selamanya
+            hasTriedAutoApprove = true;
             await executeAutoApprove(safePendingRows);
         } else {
             rawData = data;
@@ -253,17 +255,15 @@
     window.filterDataByDate = function() {
         const selectedDate = document.getElementById('searchDate').value;
         filteredData = rawData.filter(row => {
+            const hasIssue = isRowNG(row);
             const status = (row.status || '').toLowerCase();
             const isPending = status !== 'approved' && status !== 'rejected';
             
-            // JIKA FILTER TANGGAL: Tampilkan semua
             if (selectedDate) {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
             } 
-            // JIKA TIDAK: Hanya tampilkan PENDING / NG
-            const isNG = isRowNG(row);
-            return isPending || isNG;
+            return isPending || hasIssue;
         });
         renderTable(filteredData);
     }
@@ -281,8 +281,8 @@
 
         if (!dataList || dataList.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px;">
-                <strong>Tidak ada data yang perlu direview.</strong><br>
-                <small>Semua data aman sudah disetujui otomatis. Pilih tanggal untuk history.</small>
+                <strong>Tidak ada data pending/NG.</strong><br>
+                <small>Semua data aman sudah disetujui otomatis. Pilih tanggal untuk melihat history.</small>
             </td></tr>`;
             return;
         }
@@ -404,7 +404,7 @@
             checksHtml += renderJsonCheck("4. MATERIAL", row.check_material);
             checksHtml += renderJsonCheck("5. QC TOOLS", row.check_qc);
             checksHtml += renderJsonCheck("6. SAFETY", row.check_safety);
-            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Checklist Aman (Tidak ada NG)</div>`;
+            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Tidak ada Item NG pada laporan ini.</div>`;
             body.innerHTML = checksHtml;
         }
 
@@ -416,7 +416,8 @@
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
             
-            const sigUrl = row.signature_superintendent;
+            // --- AMBIL GAMBAR DARI KOLOM YANG SESUAI ---
+            const sigUrl = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
             const imgEl = document.getElementById('historySigImg');
             
             if(sigUrl) {
@@ -439,11 +440,20 @@
         if(!namaSuper) return alert("Isi nama superintendent!");
 
         let update = { status: st, approved_at: new Date().toISOString(), nama_superintendent: namaSuper };
-        if (currentTab === 'rutin') update.keterangan = ketInput; 
-        else update.keterangan_superintendent = ketInput; 
-
+        
+        // Manual Review Update Logic
         if(st === 'Approved') {
-            update.signature_superintendent = canvas.toDataURL(); 
+            const manualSig = canvas.toDataURL();
+            if (currentTab === 'rutin') {
+                update.keterangan = ketInput;
+                update.signature = manualSig;
+            } else {
+                update.keterangan_superintendent = ketInput;
+                update.signature_superintendent = manualSig;
+            }
+        } else {
+            if (currentTab === 'rutin') update.keterangan = ketInput;
+            else update.keterangan_superintendent = ketInput;
         }
 
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
