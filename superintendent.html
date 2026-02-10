@@ -19,7 +19,6 @@
         .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
 
-        /* TAMPILAN TABEL NORMAL */
         .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; }
         th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
@@ -29,19 +28,19 @@
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
-        .status-completed { background: #d1ecf1; color: #0c5460; }
+        .row-ng { background-color: #fff5f5; }
+        .row-ng td { border-top: 1px solid #fed7d7; }
 
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
         .btn-primary { background: #007bff; color: white; }
         .btn-success { background: #28a745; color: white; }
-        .btn-back { background: #6c757d; color: white; text-decoration: none; }
         .btn-danger { background: #dc3545; color: white; }
         .btn-excel { background: #198754; color: white; margin-left: auto; }
 
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
         .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 1200px; }
         
-        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #003366; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #003366; }
         .info-item label { font-size: 11px; color: #666; display: block; margin-bottom: 3px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
         .info-item span { font-size: 14px; font-weight: bold; color: #333; }
 
@@ -104,26 +103,25 @@
     <div>
         <span id="autoProcessStatus"><span class="spinner"></span> Processing Auto-Approve...</span>
         <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
-        <button class="btn btn-primary" onclick="refreshData()">Refresh Data</button>
+        <button class="btn btn-primary" onclick="window.refreshData()">Refresh Data</button>
     </div>
 </header>
 
 <div class="container">
     <div class="tab-menu">
-        <button id="tabRutin" class="tab-btn active" onclick="switchTab('rutin')">📋 Checklist Rutin</button>
-        <button id="tabTrial" class="tab-btn" onclick="switchTab('trial')">🧪 Checklist Trial Mold</button>
+        <button id="tabRutin" class="tab-btn active" onclick="window.switchTab('rutin')">📋 Checklist Rutin</button>
+        <button id="tabTrial" class="tab-btn" onclick="window.switchTab('trial')">🧪 Checklist Trial Mold</button>
     </div>
 
     <div class="search-section">
-        <strong id="filterLabel">Cari Tanggal:</strong>
-        <input type="date" id="searchDate" class="input-search" onchange="filterDataByDate()">
-        <button class="btn btn-back" onclick="resetFilter()">Reset</button>
-        
-        <button class="btn btn-excel" onclick="downloadExcel()">📥 Download Excel</button>
+        <strong id="filterLabel">Cari Tanggal (History):</strong>
+        <input type="date" id="searchDate" class="input-search" onchange="window.filterDataByDate()">
+        <button class="btn btn-back" onclick="window.resetFilter()">Reset / To Do List</button>
+        <button class="btn btn-excel" onclick="window.downloadExcel()">📥 Download Excel</button>
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Data <strong>AMAN (OK)</strong> otomatis Approved dan terisi nama Superintendent (Tanpa TTD Otomatis).
+        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN</strong> otomatis di-approve & hilang dari daftar (bisa dicari via tanggal).
     </div>
 
     <div class="card">
@@ -136,11 +134,10 @@
 
 <div id="modal" class="modal">
     <div class="modal-content">
-        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="closeModal()">&times;</span>
+        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="window.closeModal()">&times;</span>
         <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 15px;">Review Checklist</h2>
         
         <div id="infoBox" class="info-grid"></div>
-        
         <div id="superNoteArea"></div>
         <div id="modalBody"></div>
 
@@ -157,11 +154,11 @@
 
                 <p><strong>Tanda Tangan Superintendent:</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
-                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="clearSig()">Hapus TTD</button>
+                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
                 
                 <div style="display: flex; justify-content: space-around;">
-                    <button class="btn btn-success" style="width: 45%;" onclick="processStatus('Approved')">APPROVE</button>
-                    <button class="btn btn-danger" style="width: 45%;" onclick="processStatus('Rejected')">REJECT</button>
+                    <button class="btn btn-success" style="width: 45%;" onclick="window.processStatus('Approved')">APPROVE</button>
+                    <button class="btn btn-danger" style="width: 45%;" onclick="window.processStatus('Rejected')">REJECT</button>
                 </div>
             </div>
 
@@ -242,7 +239,7 @@
         }
     }
 
-    // --- AUTO APPROVE: NAMA SAJA, NO TTD ---
+    // --- AUTO APPROVE: JALAN OTOMATIS JIKA DATA BERSIH ---
     async function executeAutoApprove(safeRows) {
         if (safeRows.length === 0 || isProcessingAuto) return;
         
@@ -253,8 +250,8 @@
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
-        // Kita update status dan nama saja. Signature dibiarkan null.
-        const updates = safeRows.map(async (row) => {
+        // PROSES AUTO APPROVE SATU PER SATU
+        for (const row of safeRows) {
             const updateData = { 
                 status: 'Approved', 
                 approved_at: now, 
@@ -267,10 +264,11 @@
                 updateData.keterangan_superintendent = "Approved Automatically (OK)";
             }
             
-            return _supabase.from(tableName).update(updateData).eq('id', row.id);
-        });
-
-        await Promise.all(updates);
+            const { error } = await _supabase.from(tableName).update(updateData).eq('id', row.id);
+            if (error) {
+                console.error("Auto Approve Gagal untuk ID: " + row.id, error);
+            }
+        }
         
         document.getElementById('autoProcessStatus').style.display = 'none';
         isProcessingAuto = false;
@@ -284,38 +282,40 @@
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
         if(error) return console.error(error);
         
-        // Cek kandidat Auto Approve
+        // PISAHKAN DATA: YANG PENDING & AMAN UNTUK DI AUTO-APPROVE
         const safePendingRows = [];
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
+            // Syarat: Status Pending, Tidak Ada NG
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 safePendingRows.push(row);
             }
         });
 
-        // JIKA ADA DATA AMAN, JALANKAN AUTO APPROVE
+        // JALANKAN AUTO APPROVE JIKA ADA KANDIDAT
         if (safePendingRows.length > 0 && !isProcessingAuto && !skipAutoCheck) {
             await executeAutoApprove(safePendingRows);
             return; 
         }
 
         rawData = data;
-        filterDataByDate();
+        window.filterDataByDate();
     }
 
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
         if (selectedDate) {
+            // MODE PENCARIAN TANGGAL: TAMPILKAN SEMUA (HISTORY)
             filteredData = rawData.filter(row => {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
             });
         } else {
-            // Default: Tampilkan Pending atau NG
+            // MODE DEFAULT (TO-DO LIST): SEMBUNYIKAN YANG SUDAH APPROVED
             filteredData = rawData.filter(row => {
                 const status = (row.status || '').toLowerCase();
-                return (status !== 'approved' && status !== 'rejected') || isRowNG(row);
+                return status !== 'approved' && status !== 'rejected';
             });
         }
         renderTable(filteredData);
@@ -331,17 +331,11 @@
     }
 
     async function deleteItem(id) {
-        if (!confirm("Apakah Anda yakin ingin menghapus data ini? Data yang dihapus tidak dapat dikembalikan.")) {
-            return;
-        }
+        if (!confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const { error } = await _supabase.from(tableName).delete().eq('id', id);
-        if (error) {
-            alert("Gagal menghapus data: " + error.message);
-        } else {
-            alert("Data berhasil dihapus.");
-            loadData(); 
-        }
+        if (error) alert("Gagal menghapus data: " + error.message);
+        else { alert("Data berhasil dihapus."); loadData(); }
     }
 
     function renderTable(dataList) {
@@ -355,20 +349,23 @@
         }
 
         if (!dataList || dataList.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Tidak ada data ditemukan.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">
+                ${document.getElementById('searchDate').value ? 'Tidak ada data pada tanggal ini.' : '<strong>Semua pekerjaan sudah beres (Clean)!</strong><br><small>Gunakan filter tanggal untuk melihat history.</small>'}
+            </td></tr>`;
             return;
         }
 
         tableBody.innerHTML = dataList.map(row => {
             let statusText = row.status || 'Pending';
-            
-            if (statusText !== 'Approved' && statusText !== 'Rejected') {
-                statusText = 'Pending';
-            }
+            if (statusText !== 'Approved' && statusText !== 'Rejected') statusText = 'Pending';
 
             let statusClass = 'status-pending';
             if (statusText === 'Approved') statusClass = 'status-approved';
             else if (statusText === 'Rejected') statusClass = 'status-rejected';
+
+            // BARIS MERAH JIKA NG
+            const isNG = isRowNG(row);
+            const rowClass = isNG ? 'row-ng' : '';
 
             const actionButtons = `
                 <div style="display:flex; gap:5px; justify-content:center;">
@@ -377,7 +374,7 @@
                 </div>`;
 
             if (currentTab === 'rutin') {
-                return `<tr>
+                return `<tr class="${rowClass}">
                     <td><strong>${row.pelaksana?.nama_pelaksana || '-'}</strong></td>
                     <td>${row.nama_superintendent || '-'}</td>
                     <td>${row.pelaksana?.nama_tools || '-'}</td>
@@ -388,7 +385,7 @@
                     <td style="text-align: center;">${actionButtons}</td>
                 </tr>`;
             } else {
-                return `<tr>
+                return `<tr class="${rowClass}">
                     <td><strong>${row.pic_trial || '-'}</strong></td>
                     <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
                     <td>${row.machine_name || '-'}</td>
@@ -405,10 +402,7 @@
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
     function downloadExcel() {
-        if (!filteredData || filteredData.length === 0) {
-            alert("Tidak ada data untuk diunduh!");
-            return;
-        }
+        if (!filteredData || filteredData.length === 0) return alert("Tidak ada data untuk diunduh!");
         let dataToExport = [];
         
         if (currentTab === 'rutin') {
@@ -419,7 +413,7 @@
                 "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
                 "Week": row.pelaksana?.week || '-',
                 "Keterangan": row.keterangan || '-', 
-                "Status": (row.status !== 'Approved' && row.status !== 'Rejected') ? 'Pending' : row.status
+                "Status": row.status || 'Pending'
             }));
         } else {
             dataToExport = filteredData.map(row => ({
@@ -430,31 +424,14 @@
                 "Kode Mold": row.mold_code || '-',
                 "Nama Mold": row.mold_name || '-',
                 "Tanggal Trial": formatDate(row.trial_date),
-                "Status": (row.status !== 'Approved' && row.status !== 'Rejected') ? 'Pending' : row.status
+                "Status": row.status || 'Pending'
             }));
         }
         
         const ws = XLSX.utils.json_to_sheet(dataToExport);
-        const columnWidths = [];
-        const keys = Object.keys(dataToExport[0]);
-
-        keys.forEach((key) => {
-            let maxLength = key.length; 
-            dataToExport.forEach(row => {
-                let cellValue = row[key] ? String(row[key]) : "";
-                if (cellValue.length > maxLength) {
-                    maxLength = cellValue.length;
-                }
-            });
-            if (maxLength > 100) maxLength = 100;
-            columnWidths.push({ wch: maxLength + 2 }); 
-        });
-
-        ws['!cols'] = columnWidths;
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Data");
-        const fileName = `Report_${currentTab}_${new Date().toISOString().slice(0,10)}.xlsx`;
-        XLSX.writeFile(wb, fileName);
+        XLSX.writeFile(wb, `Report_${currentTab}_${new Date().toISOString().slice(0,10)}.xlsx`);
     }
 
     function renderJsonCheck(title, jsonData) {
@@ -464,25 +441,14 @@
         for (const [key, val] of Object.entries(jsonData)) {
             let status = val.status || '-';
             let note = val.note || '-';
-            
             if (status === 'NG') {
                 hasIssues = true;
                 let colorClass = 'status-ng';
-                rows += `<tr>
-                            <td class="col-item">${key}</td>
-                            <td class="col-status ${colorClass}">${status}</td>
-                            <td class="col-ket">${note}</td>
-                        </tr>`;
+                rows += `<tr><td class="col-item">${key}</td><td class="col-status ${colorClass}">${status}</td><td class="col-ket">${note}</td></tr>`;
             }
         }
         if (!hasIssues) return ''; 
-        return `<div class="section-header">${title}</div>
-                <div class="table-wrapper">
-                    <table class="json-table">
-                        <tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Note</th></tr>
-                        ${rows}
-                    </table>
-                </div>`;
+        return `<div class="section-header">${title}</div><div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Note</th></tr>${rows}</table></div>`;
     }
 
     function renderRutinChecklist(row) {
@@ -498,11 +464,7 @@
                         totalIssues++;
                         const note = row[item + '_keterangan'] || '-';
                         const colorClass = status === 'NG' ? 'status-ng' : 'status-na';
-                        subRows += `<tr>
-                            <td class="col-item">${item.replace(/stacking_|conveyor_|dosing_|dummy_|_/g, ' ').toUpperCase()}</td>
-                            <td class="col-status ${colorClass}">${status}</td>
-                            <td class="col-ket">${note}</td>
-                        </tr>`;
+                        subRows += `<tr><td class="col-item">${item.replace(/stacking_|conveyor_|dosing_|dummy_|_/g, ' ').toUpperCase()}</td><td class="col-status ${colorClass}">${status}</td><td class="col-ket">${note}</td></tr>`;
                     }
                 });
                 if (subRows) {
@@ -511,13 +473,7 @@
                 }
             });
             if (groupRows) {
-                htmlContent += `<div class="section-header">${group.title}</div>
-                                <div class="table-wrapper">
-                                    <table class="json-table">
-                                        <tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>
-                                        ${groupRows}
-                                    </table>
-                                </div>`;
+                htmlContent += `<div class="section-header">${group.title}</div><div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>${groupRows}</table></div>`;
             }
         });
         if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>`;
