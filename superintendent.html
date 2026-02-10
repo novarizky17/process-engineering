@@ -11,93 +11,29 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
         header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5 rgba(0,0,0,0.1); }
         .container { padding: 20px; max-width: 1300px; margin: 0 auto; }
-        
         .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: #e0e0e0; color: #666; transition: 0.3s; font-size: 14px; }
         .tab-btn.active { background: #003366; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-
         .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-
         .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; }
         th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
         td { padding: 15px; border-top: 1px solid #eee; font-size: 14px; vertical-align: middle; }
-        
         .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
-        .status-completed { background: #d1ecf1; color: #0c5460; }
-
         .row-ng { background-color: #fff5f5; }
-        .row-ng td { border-top: 1px solid #fed7d7; }
-
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
         .btn-primary { background: #007bff; color: white; }
-        .btn-success { background: #28a745; color: white; }
-        .btn-back { background: #6c757d; color: white; text-decoration: none; }
         .btn-danger { background: #dc3545; color: white; }
-        .btn-excel { background: #198754; color: white; margin-left: auto; }
-
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
         .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 1200px; }
-        
-        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #003366; }
-        .info-item label { font-size: 11px; color: #666; display: block; margin-bottom: 3px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-        .info-item span { font-size: 14px; font-weight: bold; color: #333; }
-
-        .section-header { background: #f1f4f8; padding: 10px 15px; margin: 20px 0 0 0; font-weight: bold; color: #003366; border-left: 5px solid #003366; font-size: 15px; border-top-left-radius: 4px; border-top-right-radius: 4px; }
-        .sub-header { background: #e9ecef; padding: 8px 15px; font-weight: bold; color: #495057; font-size: 13px; border-bottom: 1px solid #dee2e6; }
-
-        .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        
-        .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
-        canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
-        textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
-        
-        .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; margin-bottom: 15px; }
-        .json-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px; }
-        .json-table th { background: #eee; text-align: left; padding: 12px 15px; border-bottom: 2px solid #ddd; }
-        .json-table td { padding: 10px 15px; border-bottom: 1px solid #eee; vertical-align: top; }
-        
-        .col-item { width: 35%; }
-        .col-status { width: 10%; text-align: center; }
-        .col-ket { width: 55%; }
-
-        .status-ng { color: red; font-weight: bold; }
-        .status-ok { color: green; font-weight: bold; }
-        .status-na { color: #666; font-style: italic; font-weight: bold; }
-        
-        .all-ok-msg { padding: 15px; background: #d4edda; color: #155724; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px; }
-        
+        #historySection { display: none; text-align: center; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+        #historySigArea { margin-top: 10px; display: flex; justify-content: center; width: 100%; }
+        #historySigImg { max-width: 250px; border: 1px solid #ddd; padding: 5px; background: white; }
         #autoProcessStatus { margin-left: 15px; font-size: 13px; font-weight: bold; color: #003366; display: none; }
-        .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #003366; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 5px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        #historySection {
-            display: none; 
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-        }
-        #historySigArea {
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-        }
-        #historySigImg {
-            max-width: 300px;
-            border: 1px solid #ddd;
-            padding: 5px;
-            background: white;
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -105,8 +41,8 @@
 <header>
     <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
     <div>
-        <span id="autoProcessStatus"><span class="spinner"></span> Memproses data aman...</span>
-        <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
+        <span id="autoProcessStatus">⌛ Memproses data aman...</span>
+        <a href="dashboard.html" class="btn" style="background:#6c757d; color:white; text-decoration:none;">← Dashboard</a>
         <button class="btn btn-primary" onclick="window.refreshData()">Refresh Data</button>
     </div>
 </header>
@@ -118,61 +54,44 @@
     </div>
 
     <div class="search-section">
-        <strong id="filterLabel">Cari Tanggal:</strong>
+        <strong>Filter Tanggal:</strong>
         <input type="date" id="searchDate" class="input-search" onchange="window.filterDataByDate()">
-        <button class="btn btn-back" onclick="window.resetFilter()">Reset</button>
-        <button class="btn btn-excel" onclick="window.downloadExcel()">📥 Download Excel</button>
-    </div>
-
-    <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Menampilkan hanya data dengan temuan <strong>NG</strong> atau yang statusnya <strong>Rejected/Pending</strong>. Data yang <strong>AMAN (OK)</strong> otomatis di-approve sistem.
+        <button class="btn" style="background:#6c757d; color:white;" onclick="window.resetFilter()">Reset</button>
+        <button class="btn" style="background:#198754; color:white;" onclick="window.downloadExcel()">📥 Excel</button>
     </div>
 
     <div class="card">
         <table>
             <thead><tr id="tableHeader"></tr></thead>
-            <tbody id="mainTable"><tr><td colspan="8" style="text-align:center;">Memuat data...</td></tr></tbody>
+            <tbody id="mainTable"><tr><td colspan="8" style="text-align:center; padding:50px;">Memuat data...</td></tr></tbody>
         </table>
     </div>
 </div>
 
 <div id="modal" class="modal">
     <div class="modal-content">
-        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="window.closeModal()">&times;</span>
-        <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 15px;">Review Checklist</h2>
-        
-        <div id="infoBox" class="info-grid"></div>
-        <div id="superNoteArea"></div>
+        <span style="float:right; cursor:pointer; font-size:28px;" onclick="window.closeModal()">&times;</span>
+        <h2 id="modalTitle">Review Checklist</h2>
+        <div id="infoBox" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px; background:#f8f9fa; padding:15px; border-radius:8px; margin-bottom:20px;"></div>
         <div id="modalBody"></div>
-
         <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
             <div id="pendingSection" style="display:none; text-align:center;">
                 <div style="text-align: left; margin-bottom: 15px;">
                     <label><strong>Nama Superintendent:</strong></label>
-                    <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama...">
-                    <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
-                    
-                    <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
-                    <textarea id="keteranganSuper" placeholder="Tuliskan komentar, instruksi, atau alasan reject di sini..."></textarea>
+                    <input type="text" id="namaSuperintendent" style="width:100%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:6px;" value="A. Rizki Mubarok K">
+                    <textarea id="keteranganSuper" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;" placeholder="Catatan..."></textarea>
                 </div>
-
-                <p><strong>Tanda Tangan Superintendent:</strong></p>
-                <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
-                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
-                
+                <div style="border: 2px dashed #003366; background:#fafafa; border-radius:8px;"><canvas id="sig-canvas" style="width:100%; height:150px;"></canvas></div>
+                <button class="btn" style="background:#6c757d; color:white; margin:10px 0;" onclick="window.clearSig()">Hapus TTD</button>
                 <div style="display: flex; justify-content: space-around;">
-                    <button class="btn btn-success" style="width: 45%;" onclick="window.processStatus('Approved')">APPROVE</button>
-                    <button class="btn btn-danger" style="width: 45%;" onclick="window.processStatus('Rejected')">REJECT</button>
+                    <button class="btn" style="background:#28a745; color:white; width:45%;" onclick="window.processStatus('Approved')">APPROVE</button>
+                    <button class="btn" style="background:#dc3545; color:white; width:45%;" onclick="window.processStatus('Rejected')">REJECT</button>
                 </div>
             </div>
-
-            <div id="historySection" style="display:none;">
-                <h3 id="historyLabel" style="margin-bottom:10px;"></h3>
-                <p style="margin-bottom:10px;"><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
-                <div id="historySigArea">
-                    <img id="historySigImg" alt="Tanda Tangan" style="display:none;">
-                    <span id="historyNoSig" style="display:none; font-style:italic; color:#888;">(Disetujui Otomatis oleh Sistem)</span>
-                </div>
+            <div id="historySection">
+                <h3 id="historyLabel"></h3>
+                <p><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
+                <div id="historySigArea"><img id="historySigImg"></div>
             </div>
         </div>
     </div>
@@ -183,377 +102,126 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // DATA TANDA TANGAN BOS (BASE64)
-    const TTD_OTOMATIS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABkCAYAAAAAd623AAAACXBIWXMAAAsTAAALEwEAmpwYAAADsElEQVR4nO3cwW0CQRRF0Z8Z7IAl2AF7YAdsQAtYgh0kgI8E6IDpIAtYgh20AxY7YAl2kAB78G9K06DAn0B0fV9660iWrfLMc6YvY845AACv8mUBAODfCCsAIAgrACAUKwAgFCsAIAn/WJ6YpkkvLy9v77uua7quu7u7e3t/fX2988XhcDj88f7z+fzzuXq9Xv28Xq8Xh8Ph7efD4fD2v6urq4vP9f37+Xy+mGfN6vV69fvLy8u7v1tVn8/ni+f6vn69Xv3v7u6uv+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fzuW885/rS9X39fD6fP9f37/v3/fsD6E9Yf9r7+9t+Xp9vAQBAWEEAoVgBAKFYAUAyvwAgv8+430fW/v7+Xh9Af7v9AgCCsAIAgrACAUKxAgBCsQIA+Asvj2pCHmY66gAAAABJRU5ErkJggg==";
+    const TTD_RIZKI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABkCAYAAAAAd623AAAACXBIWXMAAAsTAAALEwEAmpwYAAADsElEQVR4nO3cwW0CQRRF0Z8Z7IAl2AF7YAdsQAtYgh0kgI8E6IDpIAtYgh20AxY7YAl2kAB78G9K06DAn0B0fV9660iWrfLMc6YvY845AACv8mUBAODfCCsAIAgrACAUKwAgFCsAIAn/WJ6YpkkvLy9v77uua7quu7u7e3t/fX2988XhcDj88f7z+fzzuXq9Xv28Xq8Xh8Ph7efD4fD2v6urq4vP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz+W885/rS9X39fD6fP9f37/v3/fsD6E9Yf9r7+9t+Xp9vAQBAWEEAoVgBAKFYAUAyvwAgv8+430fW/v7+Xh9Af7v9AgCCsAIAgrACAUKxAgBCsQIA+Asvj2pCHmY66gAAAABJRU5ErkJggg==";
 
-    const rutinGroups = [
-        { title: "1. STAND LABEL", subs: [ { sub: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] }, { sub: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] }, { sub: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] }, { sub: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] } ] },
-        { title: "2. STACKING", subs: [ { sub: "ELECTRICAL", items: ["stacking_wiring", "stacking_sensor"] }, { sub: "MOTION", items: ["stacking_linier", "stacking_mechanical_part"] }, { sub: "PNEUMATIC", items: ["stacking_cylinder", "stacking_pneumatic"] } ] },
-        { title: "3. CONVEYOR", subs: [{ sub: "", items: ["conveyor_belt", "conveyor_motor", "conveyor_rantai", "conveyor_frame", "conveyor_inverter"] }] },
-        { title: "4. DOSING", subs: [{ sub: "", items: ["dosing_alarm", "dosing_setting"] }] },
-        { title: "5. DUMMY", subs: [{ sub: "", items: ["dummy_vacuum", "dummy_condition", "dummy_flange", "dummy_instalasi", "dummy_tubbing"] }] }
-    ];
-
-    let activeId = null, rawData = [], filteredData = [], currentRenderedData = [], currentTab = 'rutin'; 
+    let rawData = [], currentRenderedData = [], activeId = null, currentTab = 'rutin'; 
     const canvas = document.getElementById('sig-canvas'), ctx = canvas.getContext('2d');
     canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
 
-    window.switchTab = function(tab) {
-        currentTab = tab;
-        document.getElementById('tabRutin').classList.toggle('active', tab === 'rutin');
-        document.getElementById('tabTrial').classList.toggle('active', tab === 'trial');
-        document.getElementById('filterLabel').innerText = tab === 'rutin' ? 'Cari Tanggal Checklist:' : 'Cari Tanggal Trial:';
-        document.getElementById('searchDate').value = '';
-        loadData();
-    }
-
     function isRowNG(row) {
-        if (currentTab === 'rutin') {
-            for (const group of rutinGroups) {
-                for (const sub of group.subs) {
-                    for (const item of sub.items) {
-                        if (row[item] === 'NG') return true;
-                    }
-                }
-            }
-            return false;
-        } else {
-            const checks = [row.check_machine, row.check_mold, row.check_aux, row.check_material, row.check_qc, row.check_safety];
-            for (const check of checks) {
-                if (check) {
-                    for (const key in check) {
-                        if (check[key].status === 'NG') return true;
-                    }
-                }
-            }
-            return false;
-        }
+        const items = ["wiring", "komponen", "kerapihan", "sensor", "timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator", "selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad", "flange", "vacuum_pad_takeout", "stacking_wiring", "stacking_sensor", "stacking_linier", "stacking_mechanical_part", "stacking_cylinder", "stacking_pneumatic", "conveyor_belt", "conveyor_motor", "conveyor_rantai", "conveyor_frame", "conveyor_inverter", "dosing_alarm", "dosing_setting", "dummy_vacuum", "dummy_condition", "dummy_flange", "dummy_instalasi", "dummy_tubbing"];
+        if (currentTab === 'rutin') return items.some(i => row[i] === 'NG');
+        const checks = [row.check_machine, row.check_mold, row.check_aux, row.check_material, row.check_qc, row.check_safety];
+        return checks.some(c => c && Object.values(c).some(v => v.status === 'NG'));
     }
 
     async function autoApproveSafeItems(safeRows) {
         if (safeRows.length === 0) return;
         document.getElementById('autoProcessStatus').style.display = 'inline-block';
-        const autoName = "A. Rizki Mubarok K"; 
         const now = new Date().toISOString();
-
-        const updates = safeRows.map(async (row) => {
-            const updateData = { 
-                status: 'Approved', 
-                approved_at: now, 
-                nama_superintendent: autoName,
-                signature_superintendent: TTD_OTOMATIS // MASUKKAN TTD OTOMATIS DI SINI
-            };
-            if(currentTab === 'rutin') updateData.keterangan = "Approved Automatically (No Issues Found)";
-            else updateData.keterangan_superintendent = "Approved Automatically (No Issues Found)";
-            const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
-            return _supabase.from(tableName).update(updateData).eq('id', row.id);
-        });
-
-        await Promise.all(updates);
+        const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
+        
+        for (const row of safeRows) {
+            await _supabase.from(tableName).update({ 
+                status: 'Approved', approved_at: now, 
+                nama_superintendent: 'A. Rizki Mubarok K', 
+                signature_superintendent: TTD_RIZKI,
+                keterangan: "Approved Automatically (Safe)"
+            }).eq('id', row.id);
+        }
         document.getElementById('autoProcessStatus').style.display = 'none';
-        loadData(); 
+        refreshDataOnly();
     }
 
     async function loadData() {
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
-        const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
-        const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
-        if(error) return console.error(error);
-        
-        const safePendingRows = [];
-        data.forEach(row => {
-            const isNG = isRowNG(row);
-            const status = (row.status || '').toLowerCase();
-            if (!isNG && status !== 'approved' && status !== 'rejected') {
-                safePendingRows.push(row);
-            }
-        });
+        const { data, error } = await _supabase.from(tableName).select(currentTab === 'rutin' ? '*, pelaksana(*)' : '*').order('created_at', { ascending: false });
+        if(error) return;
 
-        if (safePendingRows.length > 0) {
-            await autoApproveSafeItems(safePendingRows);
-            return; 
+        const safePending = data.filter(r => !isRowNG(r) && !['approved', 'rejected'].includes((r.status || '').toLowerCase()));
+        if (safePending.length > 0) {
+            await autoApproveSafeItems(safePending);
+        } else {
+            rawData = data;
+            window.filterDataByDate();
         }
+    }
 
-        rawData = data;
+    async function refreshDataOnly() {
+        const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
+        const { data } = await _supabase.from(tableName).select(currentTab === 'rutin' ? '*, pelaksana(*)' : '*').order('created_at', { ascending: false });
+        rawData = data || [];
         window.filterDataByDate();
     }
 
-    window.filterDataByDate = function() {
+    window.filterDataByDate = () => {
         const selectedDate = document.getElementById('searchDate').value;
-        filteredData = rawData.filter(row => {
+        currentRenderedData = rawData.filter(row => {
             const status = (row.status || '').toLowerCase();
-            const isPending = status !== 'approved' && status !== 'rejected';
             if (selectedDate) {
-                const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
-                return rowDate === selectedDate;
+                const d = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
+                return d === selectedDate;
             } 
-            return isPending;
+            return status !== 'approved' && status !== 'rejected';
         });
-        renderTable(filteredData);
-    }
+        renderTable(currentRenderedData);
+    };
 
     function renderTable(dataList) {
-        currentRenderedData = dataList;
-        const header = document.getElementById('tableHeader');
         const tableBody = document.getElementById('mainTable');
-
-        if (currentTab === 'rutin') {
-            header.innerHTML = `<th>Pelaksana</th><th>Super</th><th>Equip</th><th>Tanggal</th><th>Week</th><th>Ket</th><th>Status</th><th>Aksi</th>`;
-        } else {
-            header.innerHTML = `<th>PIC Trial</th><th>Super</th><th>Mesin</th><th>Project</th><th>Tanggal</th><th>Ket. Super</th><th>Status</th><th>Aksi</th>`;
-        }
-
-        if (!dataList || dataList.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px;">
-                <strong>Tidak ada data yang perlu direview.</strong><br>
-                <small>Gunakan filter tanggal untuk melihat history data yang sudah selesai.</small>
-            </td></tr>`;
-            return;
-        }
-
+        document.getElementById('tableHeader').innerHTML = currentTab === 'rutin' ? `<th>Pelaksana</th><th>Super</th><th>Equip</th><th>Tanggal</th><th>Week</th><th>Ket</th><th>Status</th><th>Aksi</th>` : `<th>PIC Trial</th><th>Super</th><th>Mesin</th><th>Project</th><th>Tanggal</th><th>Ket. Super</th><th>Status</th><th>Aksi</th>`;
+        if (!dataList.length) { tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">Kosong / Filter Aktif</td></tr>`; return; }
         tableBody.innerHTML = dataList.map((row, index) => {
-            let statusText = row.status || 'Pending';
-            let statusClass = 'status-pending';
-            if (statusText === 'Approved') statusClass = 'status-approved';
-            else if (statusText === 'Rejected') statusClass = 'status-rejected';
-
-            const isNG = isRowNG(row);
-            const rowClass = isNG ? 'row-ng' : '';
-
-            const actionButtons = `
-                <div style="display:flex; gap:5px; justify-content:center;">
-                    <button class="btn btn-primary" onclick="window.openModalByIndex(${index})">REVIEW</button>
-                    <button class="btn btn-danger" onclick="window.deleteItemByIndex(${index})">HAPUS</button>
-                </div>`;
-
-            if (currentTab === 'rutin') {
-                return `<tr class="${rowClass}">
-                    <td><strong>${row.pelaksana?.nama_pelaksana || '-'}</strong></td>
-                    <td>${row.nama_superintendent || '-'}</td>
-                    <td>${row.pelaksana?.nama_tools || '-'}</td>
-                    <td>${formatDate(row.pelaksana?.tanggal_checklist)}</td>
-                    <td>${row.pelaksana?.week || '-'}</td> 
-                    <td>${row.keterangan || '-'}</td>
-                    <td><span class="badge ${statusClass}">${statusText}</span></td>
-                    <td style="text-align: center;">${actionButtons}</td>
-                </tr>`;
-            } else {
-                return `<tr class="${rowClass}">
-                    <td><strong>${row.pic_trial || '-'}</strong></td>
-                    <td>${row.nama_superintendent || '<i style="color:#ccc">N/A</i>'}</td>
-                    <td>${row.machine_name || '-'}</td>
-                    <td>${row.project_name || '-'}</td>
-                    <td>${formatDate(row.trial_date)}</td> 
-                    <td>${row.keterangan_superintendent || '-'}</td>
-                    <td><span class="badge ${statusClass}">${statusText}</span></td>
-                    <td style="text-align: center;">${actionButtons}</td>
-                </tr>`;
-            }
+            const s = (row.status || 'Pending').toUpperCase();
+            return `<tr class="${isRowNG(row) ? 'row-ng' : ''}">
+                <td><strong>${currentTab === 'rutin' ? (row.pelaksana?.nama_pelaksana || '-') : (row.pic_trial || '-')}</strong></td>
+                <td>${row.nama_superintendent || '-'}</td>
+                <td>${currentTab === 'rutin' ? (row.pelaksana?.nama_tools || '-') : (row.machine_name || '-')}</td>
+                <td>${currentTab === 'rutin' ? (row.pelaksana?.tanggal_checklist || '-') : (row.trial_date || '-')}</td>
+                <td>${currentTab === 'rutin' ? (row.pelaksana?.week || '-') : (row.project_name || '-')}</td>
+                <td>${currentTab === 'rutin' ? (row.keterangan || '-') : (row.keterangan_superintendent || '-')}</td>
+                <td><span class="badge ${s==='APPROVED'?'status-approved':s==='REJECTED'?'status-rejected':'status-pending'}">${s}</span></td>
+                <td><button class="btn btn-primary" onclick="window.openModalByIndex(${index})">REVIEW</button></td>
+            </tr>`;
         }).join('');
     }
 
-    let drawing = false;
-    function getP(e) {
-        const r = canvas.getBoundingClientRect();
-        return { x: ((e.clientX||e.touches[0].clientX)-r.left)*(canvas.width/r.width), y: ((e.clientY||e.touches[0].clientY)-r.top)*(canvas.height/r.height) };
-    }
-    canvas.onmousedown = (e) => { drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
-    canvas.onmousemove = (e) => { if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
-    window.onmouseup = () => drawing=false;
-    canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
-    canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
-    
-    window.clearSig = function() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-    window.refreshData = function() { loadData(); }
-    window.resetFilter = function() { document.getElementById('searchDate').value = ''; window.filterDataByDate(); }
-    window.closeModal = function() { document.getElementById('modal').style.display = 'none'; }
-
-    function formatDate(dateString) {
-        if (!dateString) return '-';
-        const parts = dateString.split('-');
-        if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`; 
-        return dateString;
-    }
-
-    window.deleteItemByIndex = async function(index) {
+    window.openModalByIndex = (index) => {
         const row = currentRenderedData[index];
-        if (!row) return;
-        if (!confirm("Hapus data ini?")) return;
-        const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
-        const { error } = await _supabase.from(tableName).delete().eq('id', row.id);
-        if (error) alert("Gagal: " + error.message);
-        else { alert("Terhapus."); loadData(); }
-    }
-
-    window.openModalByIndex = function(index) {
-        const row = currentRenderedData[index];
-        if (!row) return alert("Data error. Refresh halaman.");
-
         activeId = row.id;
-        document.getElementById('modalTitle').innerText = currentTab === 'rutin' ? "Review Checklist Rutin" : "Review Checklist Trial Mold";
-        document.getElementById('keteranganSuper').value = '';
-
-        const infoBox = document.getElementById('infoBox');
-        if (currentTab === 'rutin') {
-            infoBox.innerHTML = `
-                <div class="info-item"><label>Pelaksana</label><span>${row.pelaksana?.nama_pelaksana || '-'}</span></div>
-                <div class="info-item"><label>Mesin</label><span>${row.pelaksana?.nama_tools || '-'}</span></div>
-                <div class="info-item"><label>Tanggal</label><span>${formatDate(row.pelaksana?.tanggal_checklist)}</span></div>
-            `;
-        } else {
-            infoBox.innerHTML = `
-                <div class="info-item"><label>PIC Trial</label><span>${row.pic_trial || '-'}</span></div>
-                <div class="info-item"><label>Mesin</label><span>${row.machine_name || '-'}</span></div>
-                <div class="info-item"><label>Tanggal</label><span>${formatDate(row.trial_date)}</span></div>
-            `;
-        }
-
-        if (row.status === 'Approved' || row.status === 'Rejected') {
-            const noteText = currentTab === 'rutin' ? row.keterangan : (row.keterangan_superintendent || '-');
-            document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan:</strong> ${noteText}</div>`;
-        } else {
-            document.getElementById('superNoteArea').innerHTML = '';
-        }
-
-        const body = document.getElementById('modalBody');
-        body.innerHTML = '';
-
-        if (currentTab === 'rutin') {
-            body.innerHTML = renderRutinChecklist(row); 
-        } else {
-            let checksHtml = "";
-            checksHtml += renderJsonCheck("1. MESIN INJEKSI", row.check_machine);
-            checksHtml += renderJsonCheck("2. PERSIAPAN MOLD", row.check_mold);
-            checksHtml += renderJsonCheck("3. AUXILIARY", row.check_aux);
-            checksHtml += renderJsonCheck("4. MATERIAL", row.check_material);
-            checksHtml += renderJsonCheck("5. QC TOOLS", row.check_qc);
-            checksHtml += renderJsonCheck("6. SAFETY", row.check_safety);
-            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Tidak ada Item NG pada laporan ini.</div>`;
-            body.innerHTML = checksHtml;
-        }
-
-        const isReviewable = row.status !== 'Approved' && row.status !== 'Rejected';
-        document.getElementById('pendingSection').style.display = isReviewable ? 'block' : 'none';
-        document.getElementById('historySection').style.display = isReviewable ? 'none' : 'flex'; 
-        
-        if(!isReviewable) {
-            document.getElementById('historyLabel').innerText = row.status;
+        const isFin = ['approved', 'rejected'].includes((row.status || '').toLowerCase());
+        document.getElementById('pendingSection').style.display = isFin ? 'none' : 'block';
+        document.getElementById('historySection').style.display = isFin ? 'flex' : 'none';
+        if(isFin) {
+            document.getElementById('historyLabel').innerText = row.status.toUpperCase();
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
-            const sigUrl = row.signature_superintendent;
-            const imgEl = document.getElementById('historySigImg');
-            if(sigUrl) {
-                imgEl.src = sigUrl;
-                imgEl.style.display = 'block';
-            } else {
-                imgEl.style.display = 'none';
-            }
-        } else {
-            document.getElementById('namaSuperintendent').value = "A. Rizki Mubarok K";
+            document.getElementById('historySigImg').src = row.signature_superintendent || '';
+            document.getElementById('historySigImg').style.display = row.signature_superintendent ? 'block' : 'none';
         }
         document.getElementById('modal').style.display = 'block';
         window.clearSig();
-    }
+    };
 
-    window.processStatus = async function(st) {
-        const namaSuper = document.getElementById('namaSuperintendent').value;
-        const ketInput = document.getElementById('keteranganSuper').value; 
-        if(!namaSuper) return alert("Isi nama superintendent!");
+    window.processStatus = async (st) => {
+        const update = { status: st, approved_at: new Date().toISOString(), nama_superintendent: document.getElementById('namaSuperintendent').value, signature_superintendent: canvas.toDataURL() };
+        if(currentTab==='rutin') update.keterangan = document.getElementById('keteranganSuper').value; else update.keterangan_superintendent = document.getElementById('keteranganSuper').value;
+        await _supabase.from(currentTab==='rutin'?'checklist':'checklist_trial').update(update).eq('id', activeId);
+        window.closeModal(); loadData();
+    };
 
-        let update = { status: st, approved_at: new Date().toISOString(), nama_superintendent: namaSuper };
-        if (currentTab === 'rutin') update.keterangan = ketInput; 
-        else update.keterangan_superintendent = ketInput; 
+    window.switchTab = (t) => { currentTab = t; document.getElementById('tabRutin').className = t==='rutin'?'tab-btn active':'tab-btn'; document.getElementById('tabTrial').className = t==='trial'?'tab-btn active':'tab-btn'; loadData(); };
+    window.refreshData = () => loadData();
+    window.resetFilter = () => { document.getElementById('searchDate').value = ''; window.filterDataByDate(); };
+    window.closeModal = () => document.getElementById('modal').style.display = 'none';
+    window.clearSig = () => ctx.clearRect(0,0,canvas.width,canvas.height);
 
-        if(st === 'Approved') {
-            update.signature_superintendent = canvas.toDataURL(); 
-        }
-
-        const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
-        const { error } = await _supabase.from(tableName).update(update).eq('id', activeId);
-
-        if(!error) { alert("Berhasil disimpan!"); window.closeModal(); loadData(); } 
-        else { alert("Error: " + error.message); }
-    }
-
-    function renderJsonCheck(title, jsonData) {
-        if (!jsonData || Object.keys(jsonData).length === 0) return '';
-        let rows = '';
-        let hasIssues = false;
-        for (const [key, val] of Object.entries(jsonData)) {
-            let status = val.status || '-';
-            let note = val.note || '-';
-            if (status === 'NG') {
-                hasIssues = true;
-                let colorClass = 'status-ng';
-                rows += `<tr><td class="col-item">${key}</td><td class="col-status ${colorClass}">${status}</td><td class="col-ket">${note}</td></tr>`;
-            }
-        }
-        if (!hasIssues) return ''; 
-        return `<div class="section-header">${title}</div>
-                <div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Note</th></tr>${rows}</table></div>`;
-    }
-
-    function renderRutinChecklist(row) {
-        let htmlContent = '';
-        let totalIssues = 0;
-        rutinGroups.forEach(group => {
-            let groupRows = '';
-            group.subs.forEach(sub => {
-                let subRows = '';
-                sub.items.forEach(item => {
-                    const status = row[item];
-                    if (status === 'NG' || status === 'NA') { 
-                        totalIssues++;
-                        const note = row[item + '_keterangan'] || '-';
-                        const colorClass = status === 'NG' ? 'status-ng' : 'status-na';
-                        subRows += `<tr><td class="col-item">${item.replace(/stacking_|conveyor_|dosing_|dummy_|_/g, ' ').toUpperCase()}</td><td class="col-status ${colorClass}">${status}</td><td class="col-ket">${note}</td></tr>`;
-                    }
-                });
-                if (subRows) {
-                    if (sub.sub) groupRows += `<tr><td colspan="3" class="sub-header">${sub.sub}</td></tr>`;
-                    groupRows += subRows;
-                }
-            });
-            if (groupRows) {
-                htmlContent += `<div class="section-header">${group.title}</div>
-                                <div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>${groupRows}</table></div>`;
-            }
-        });
-        if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>`;
-        return htmlContent;
-    }
-
-    window.downloadExcel = function() {
-        if (!rawData || rawData.length === 0) {
-            alert("Tidak ada data untuk diunduh!");
-            return;
-        }
-        let exportData = filteredData.length > 0 ? filteredData : rawData;
-        let dataToExport = [];
-        if (currentTab === 'rutin') {
-            dataToExport = exportData.map(row => ({
-                "Pelaksana": row.pelaksana?.nama_pelaksana || '-',
-                "Superintendent": row.nama_superintendent || '-',
-                "Equipment": row.pelaksana?.nama_tools || '-',
-                "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
-                "Status NG?": isRowNG(row) ? "YA (Ada Masalah)" : "AMAN",
-                "Keterangan": row.keterangan || '-', 
-                "Status Approval": row.status
-            }));
-        } else {
-            dataToExport = exportData.map(row => ({
-                "PIC Trial": row.pic_trial || '-',
-                "Superintendent": row.nama_superintendent || '-',
-                "Mesin": row.machine_name || '-',
-                "Tanggal": formatDate(row.trial_date),
-                "Status NG?": isRowNG(row) ? "YA (Ada Masalah)" : "AMAN",
-                "Status Approval": row.status
-            }));
-        }
-        const ws = XLSX.utils.json_to_sheet(dataToExport);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Data");
-        XLSX.writeFile(wb, `Report_Filter_NG_${currentTab}.xlsx`);
-    }
+    let drawing = false;
+    const getP = (e) => { const r = canvas.getBoundingClientRect(); return { x: ((e.clientX||e.touches[0].clientX)-r.left)*(canvas.width/r.width), y: ((e.clientY||e.touches[0].clientY)-r.top)*(canvas.height/r.height) }; };
+    canvas.onmousedown = (e) => { drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
+    canvas.onmousemove = (e) => { if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
+    window.onmouseup = () => drawing=false;
+    canvas.ontouchstart = (e) => { drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); e.preventDefault(); };
+    canvas.ontouchmove = (e) => { if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); e.preventDefault(); };
 
     window.onload = loadData;
 </script>
