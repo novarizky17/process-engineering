@@ -24,11 +24,10 @@
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
-        .row-ng { background-color: #fff5f5; } .row-ng td { border-top: 1px solid #fed7d7; }
+        .row-ng { background-color: #fff5f5; }
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
         .btn-primary { background: #007bff; color: white; }
         .btn-success { background: #28a745; color: white; }
-        .btn-back { background: #6c757d; color: white; text-decoration: none; }
         .btn-danger { background: #dc3545; color: white; }
         .btn-excel { background: #198754; color: white; margin-left: auto; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
@@ -62,7 +61,7 @@
 <header>
     <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
     <div>
-        <span id="autoProcessStatus"><span class="spinner"></span> Processing Auto-Approve...</span>
+        <span id="autoProcessStatus"><span class="spinner"></span> Checking Auto-Approve...</span>
         <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
         <button class="btn btn-primary" onclick="window.refreshData()">Refresh Data</button>
     </div>
@@ -82,7 +81,7 @@
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN</strong> otomatis di-approve & hilang dari daftar (bisa dicari via tanggal).
+        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data Aman otomatis Approved.
     </div>
 
     <div class="card">
@@ -109,10 +108,10 @@
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama..." value="A. Rizki Mubarok K">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
                     <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
-                    <textarea id="keteranganSuper" placeholder="Tuliskan komentar, instruksi, atau alasan reject di sini..."></textarea>
+                    <textarea id="keteranganSuper" placeholder="Tuliskan komentar..."></textarea>
                 </div>
 
-                <p><strong>Tanda Tangan Superintendent:</strong></p>
+                <p><strong>Tanda Tangan Superintendent (Manual):</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
                 <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
                 
@@ -127,7 +126,7 @@
                 <p style="margin-bottom:10px;"><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
                 <div id="historySigArea">
                     <img id="historySigImg" alt="Tanda Tangan" style="display:none;">
-                    <span id="historyNoSig" style="display:none; font-style:italic; color:#888;">(Tidak Ada Tanda Tangan)</span>
+                    <span id="historyNoSig" style="display:none; font-style:italic; color:#888;">(Disetujui Tanpa TTD)</span>
                 </div>
             </div>
         </div>
@@ -169,7 +168,7 @@
         return { x: ((e.clientX||e.touches[0].clientX)-r.left)*(canvas.width/r.width), y: ((e.clientY||e.touches[0].clientY)-r.top)*(canvas.height/r.height) };
     }
     canvas.onmousedown = (e) => { drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
-    canvas.onmousemove = (e) => { if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
+    canvas.onmousemove = (e) => { if(!drawing) return; ctx.lineTo(getP(e).x, getP(e.y)); ctx.stroke(); };
     window.onmouseup = () => drawing=false;
     canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
     canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
@@ -199,7 +198,7 @@
         }
     }
 
-    // --- AUTO APPROVE: PISAH KOLOM SESUAI PERMINTAAN ---
+    // --- AUTO APPROVE: KHUSUS DATA AMAN ---
     async function executeAutoApprove(safeRows) {
         if (safeRows.length === 0 || isProcessingAuto) return;
         
@@ -210,7 +209,7 @@
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
-        // UPDATE STATUS & NAMA & KETERANGAN (Sesuai Kolom yang Benar)
+        // UPDATE STATUS & NAMA (Sesuai Kolom yang Diminta)
         const updates = safeRows.map(async (row) => {
             const updateData = { 
                 status: 'Approved', 
@@ -221,20 +220,16 @@
             // LOGIKA PEMISAHAN KOLOM
             if (currentTab === 'rutin') {
                 updateData.keterangan = "Approved Automatically (OK)";
-                // Signature tidak diupdate (dibiarkan null)
             } else {
                 updateData.keterangan_superintendent = "Approved Automatically (OK)";
-                // Signature tidak diupdate (dibiarkan null)
             }
             
             return _supabase.from(tableName).update(updateData).eq('id', row.id);
         });
 
         await Promise.all(updates);
-        
         document.getElementById('autoProcessStatus').style.display = 'none';
         isProcessingAuto = false;
-        
         loadData(true); 
     }
 
@@ -242,7 +237,12 @@
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
-        if(error) return console.error(error);
+        
+        if(error) {
+            console.error(error);
+            // Jangan spam alert jika error hanya masalah koneksi sebentar
+            return; 
+        }
         
         const safePendingRows = [];
         data.forEach(row => {
@@ -254,6 +254,7 @@
             }
         });
 
+        // EKSEKUSI AUTO APPROVE JIKA ADA DATA
         if (safePendingRows.length > 0 && !isProcessingAuto && !skipAutoCheck) {
             await executeAutoApprove(safePendingRows);
             return; 
@@ -266,13 +267,12 @@
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
         if (selectedDate) {
-            // MODE HISTORY
             filteredData = rawData.filter(row => {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
             });
         } else {
-            // MODE TO-DO (Sembunyikan Approved/Rejected)
+            // TO-DO LIST: Sembunyikan yang sudah Approved
             filteredData = rawData.filter(row => {
                 const status = (row.status || '').toLowerCase();
                 return status !== 'approved' && status !== 'rejected';
@@ -294,8 +294,8 @@
         if (!confirm("Hapus data ini?")) return;
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const { error } = await _supabase.from(tableName).delete().eq('id', id);
-        if (error) alert("Gagal menghapus data: " + error.message);
-        else { alert("Data berhasil dihapus."); loadData(); }
+        if (error) alert("Gagal hapus: " + error.message);
+        else { alert("Data dihapus."); loadData(); }
     }
 
     function renderTable(dataList) {
@@ -310,7 +310,7 @@
 
         if (!dataList || dataList.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">
-                ${document.getElementById('searchDate').value ? 'Tidak ada data pada tanggal ini.' : '<strong>Semua Beres (Clean)!</strong><br><small>Data Aman otomatis di-approve & disembunyikan. Cek history via tanggal.</small>'}
+                ${document.getElementById('searchDate').value ? 'Tidak ada data pada tanggal ini.' : '<strong>Semua Beres!</strong><br><small>Data Aman otomatis di-approve. Cek history via tanggal.</small>'}
             </td></tr>`;
             return;
         }
@@ -361,7 +361,7 @@
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
     function downloadExcel() {
-        if (!filteredData || filteredData.length === 0) return alert("Tidak ada data untuk diunduh!");
+        if (!filteredData || filteredData.length === 0) return alert("Tidak ada data!");
         let dataToExport = [];
         
         if (currentTab === 'rutin') {
@@ -435,7 +435,7 @@
                 htmlContent += `<div class="section-header">${group.title}</div><div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>${groupRows}</table></div>`;
             }
         });
-        if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Item Check Berstatus OK (Tidak ada temuan NG)</div>`;
+        if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Item OK</div>`;
         return htmlContent;
     }
 
@@ -466,7 +466,7 @@
 
         if (row.status === 'Approved' || row.status === 'Rejected') {
             const noteText = currentTab === 'rutin' ? row.keterangan : (row.keterangan_superintendent || '-');
-            document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan Superintendent Sebelumnya:</strong> ${noteText}</div>`;
+            document.getElementById('superNoteArea').innerHTML = `<div class="super-note-box"><strong>Catatan:</strong> ${noteText}</div>`;
         } else {
             document.getElementById('superNoteArea').innerHTML = '';
         }
@@ -484,7 +484,7 @@
             checksHtml += renderJsonCheck("4. MATERIAL", row.check_material);
             checksHtml += renderJsonCheck("5. QC TOOLS", row.check_qc);
             checksHtml += renderJsonCheck("6. SAFETY", row.check_safety);
-            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Item Check Berstatus OK (Tidak ada temuan NG)</div>`;
+            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Item OK</div>`;
             body.innerHTML = checksHtml;
         }
 
@@ -520,7 +520,7 @@
             nama_superintendent: namaSuper 
         };
 
-        // PEMILIHAN KOLOM MANUAL APPROVE
+        // PEMILIHAN KOLOM MANUAL APPROVE (SESUAI REQUEST)
         if (currentTab === 'rutin') {
             update.keterangan = ketInput; 
         } else {
@@ -529,10 +529,10 @@
 
         // SIMPAN TTD MANUAL JIKA ADA
         if(st === 'Approved') {
-            const dataURL = canvas.toDataURL();
-            if(dataURL.length > 3000) { 
-                if (currentTab === 'rutin') update.signature = dataURL;
-                else update.signature_superintendent = dataURL;
+            const manualSig = canvas.toDataURL();
+            if (manualSig.length > 3000) { 
+                 if (currentTab === 'rutin') update.signature = manualSig;
+                 else update.signature_superintendent = manualSig;
             }
         }
 
