@@ -77,7 +77,7 @@
         .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #003366; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 5px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* --- PERBAIKAN CSS: POSISI TANDA TANGAN TENGAH --- */
+        /* --- CSS FIX: POSISI TANDA TANGAN TENGAH --- */
         #historySection {
             display: none; 
             text-align: center;
@@ -148,7 +148,6 @@
         <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 15px;">Review Checklist</h2>
         
         <div id="infoBox" class="info-grid"></div>
-        
         <div id="superNoteArea"></div>
         <div id="modalBody"></div>
 
@@ -189,7 +188,6 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // --- DATA KOLOM UNTUK PENGECEKAN NG (TABEL RUTIN) ---
     const rutinGroups = [
         { title: "1. STAND LABEL", subs: [ { sub: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] }, { sub: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] }, { sub: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] }, { sub: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] } ] },
         { title: "2. STACKING", subs: [ { sub: "ELECTRICAL", items: ["stacking_wiring", "stacking_sensor"] }, { sub: "MOTION", items: ["stacking_linier", "stacking_mechanical_part"] }, { sub: "PNEUMATIC", items: ["stacking_cylinder", "stacking_pneumatic"] } ] },
@@ -212,7 +210,6 @@
         loadData();
     }
 
-    // --- FUNGSI CEK APAKAH BARIS INI ADA NG? ---
     function isRowNG(row) {
         if (currentTab === 'rutin') {
             for (const group of rutinGroups) {
@@ -236,54 +233,40 @@
         }
     }
 
-    // --- AUTO APPROVE FUNCTION ---
     async function autoApproveSafeItems(safeRows) {
         if (safeRows.length === 0) return;
-
         document.getElementById('autoProcessStatus').style.display = 'inline-block';
         const autoName = "AUTO SYSTEM (AMAN)";
         const now = new Date().toISOString();
 
         const updates = safeRows.map(async (row) => {
-            const updateData = { 
-                status: 'Approved', 
-                approved_at: now, 
-                nama_superintendent: autoName 
-            };
+            const updateData = { status: 'Approved', approved_at: now, nama_superintendent: autoName };
             if(currentTab === 'rutin') updateData.keterangan = "Approved Automatically (No Issues Found)";
             else updateData.keterangan_superintendent = "Approved Automatically (No Issues Found)";
-
             const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
             return _supabase.from(tableName).update(updateData).eq('id', row.id);
         });
 
         await Promise.all(updates);
         document.getElementById('autoProcessStatus').style.display = 'none';
-        loadData(); // Reload agar hilang dari list pending
+        loadData(); 
     }
 
-    // --- LOAD DATA UTAMA ---
     async function loadData() {
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
-        
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
         if(error) return console.error(error);
         
-        // PISAHKAN DATA NG DAN DATA AMAN
         const safePendingRows = [];
-        
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
-            
-            // Kalau AMAN (tidak NG) dan status masih Pending -> Masukkan antrian Auto Approve
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 safePendingRows.push(row);
             }
         });
 
-        // JALANKAN AUTO APPROVE
         if (safePendingRows.length > 0) {
             await autoApproveSafeItems(safePendingRows);
             return; 
@@ -293,30 +276,22 @@
         filterDataByDate();
     }
 
-    // --- FILTER TAMPILAN: HANYA MUNCULKAN NG ATAU REJECTED ---
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
-        
         filteredData = rawData.filter(row => {
             const hasIssue = isRowNG(row);
             const status = (row.status || '').toLowerCase();
             const isRejected = status === 'rejected';
-
-            let showRow = false;
             
-            // Jika filter tanggal aktif
+            let showRow = false;
             if (selectedDate) {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 if (rowDate === selectedDate) showRow = true;
             } else {
-                // Mode Default: Hanya tampilkan NG atau Rejected (karena yang aman sudah auto-approve)
-                if (hasIssue || isRejected) {
-                    showRow = true;
-                }
+                if (hasIssue || isRejected) showRow = true;
             }
             return showRow;
         });
-
         renderTable(filteredData);
     }
 
@@ -347,9 +322,10 @@
             const isNG = isRowNG(row);
             const rowClass = isNG ? 'row-ng' : '';
 
+            // --- PERBAIKAN DI SINI: MENGGUNAKAN ID STRING ---
             const actionButtons = `
                 <div style="display:flex; gap:5px; justify-content:center;">
-                    <button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW NG</button>
+                    <button class="btn btn-primary" onclick="openModal('${row.id}')">REVIEW NG</button>
                     <button class="btn btn-danger" onclick="deleteItem('${row.id}')">HAPUS</button>
                 </div>`;
 
@@ -408,7 +384,14 @@
         else { alert("Terhapus."); loadData(); }
     }
 
-    function openModal(row) {
+    // --- PERBAIKAN: OPEN MODAL PAKAI ID ---
+    function openModal(id) {
+        const row = rawData.find(r => r.id == id);
+        if (!row) {
+            alert("Data tidak ditemukan! Refresh halaman.");
+            return;
+        }
+
         activeId = row.id;
         document.getElementById('modalTitle').innerText = currentTab === 'rutin' ? "Review Checklist Rutin (NG Check)" : "Review Checklist Trial Mold (NG Check)";
         document.getElementById('keteranganSuper').value = '';
@@ -453,18 +436,14 @@
         }
 
         const isReviewable = row.status !== 'Approved' && row.status !== 'Rejected';
-        
-        // PENGATURAN DISPLAY ELEMENT DI MODAL
         document.getElementById('pendingSection').style.display = isReviewable ? 'block' : 'none';
         
-        // Pastikan History Section menggunakan display: flex agar centering bekerja
+        // GUNAKAN FLEX AGAR CSS CENTER BEKERJA
         document.getElementById('historySection').style.display = isReviewable ? 'none' : 'flex'; 
         
         if(!isReviewable) {
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
-            
-            // Logika Gambar Tanda Tangan
             const sigUrl = currentTab === 'rutin' ? null : row.signature_superintendent;
             const imgEl = document.getElementById('historySigImg');
             
