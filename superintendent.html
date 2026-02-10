@@ -11,45 +11,61 @@
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f0f2f5; color: #333; }
         header { background: #003366; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5 rgba(0,0,0,0.1); }
         .container { padding: 20px; max-width: 1300px; margin: 0 auto; }
+        
         .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: #e0e0e0; color: #666; transition: 0.3s; font-size: 14px; }
         .tab-btn.active { background: #003366; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
         .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .input-search { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+
         .card { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; min-width: 1000px; }
         th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #666; text-transform: uppercase; border-bottom: 2px solid #eee; }
         td { padding: 15px; border-top: 1px solid #eee; font-size: 14px; vertical-align: middle; }
+        
         .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
-        .row-ng { background-color: #fff5f5; } .row-ng td { border-top: 1px solid #fed7d7; }
+        
+        .row-ng { background-color: #fff5f5; }
+        .row-ng td { border-top: 1px solid #fed7d7; }
+
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
         .btn-primary { background: #007bff; color: white; }
         .btn-success { background: #28a745; color: white; }
         .btn-danger { background: #dc3545; color: white; }
         .btn-excel { background: #198754; color: white; margin-left: auto; }
+
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
         .modal-content { background: white; margin: 2% auto; padding: 25px; border-radius: 12px; width: 95%; max-width: 1200px; }
+        
         .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #003366; }
         .info-item label { font-size: 11px; color: #666; display: block; margin-bottom: 3px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
         .info-item span { font-size: 14px; font-weight: bold; color: #333; }
+
         .section-header { background: #f1f4f8; padding: 10px 15px; margin: 20px 0 0 0; font-weight: bold; color: #003366; border-left: 5px solid #003366; font-size: 15px; border-top-left-radius: 4px; border-top-right-radius: 4px; }
+        .sub-header { background: #e9ecef; padding: 8px 15px; font-weight: bold; color: #495057; font-size: 13px; border-bottom: 1px solid #dee2e6; }
         .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        
         .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; height: 150px; position: relative; }
         canvas { width: 100%; height: 100%; cursor: crosshair; display: block; touch-action: none; }
         textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
+        
         .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; margin-bottom: 15px; }
         .json-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px; }
         .json-table th { background: #eee; text-align: left; padding: 12px 15px; border-bottom: 2px solid #ddd; }
         .json-table td { padding: 10px 15px; border-bottom: 1px solid #eee; vertical-align: top; }
         .col-item { width: 35%; } .col-status { width: 10%; text-align: center; } .col-ket { width: 55%; }
         .status-ng { color: red; font-weight: bold; } .status-ok { color: green; font-weight: bold; } .status-na { color: #666; font-style: italic; font-weight: bold; }
+        
         .all-ok-msg { padding: 15px; background: #d4edda; color: #155724; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px; }
+        
         #autoProcessStatus { margin-left: 15px; font-size: 13px; font-weight: bold; color: #003366; display: none; }
         .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #003366; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 5px; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
         #historySection { display: none; text-align: center; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 20px; }
         #historySigArea { margin-top: 10px; display: flex; justify-content: center; align-items: center; width: 100%; }
         #historySigImg { max-width: 300px; border: 1px solid #ddd; padding: 5px; background: white; display: none; }
@@ -60,7 +76,7 @@
 <header>
     <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
     <div>
-        <span id="autoProcessStatus"><span class="spinner"></span> <strong>Memproses Auto-Approve...</strong></span>
+        <span id="autoProcessStatus"><span class="spinner"></span> <strong>Processing...</strong></span>
         <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
         <button class="btn btn-primary" onclick="window.refreshData()">Refresh Data</button>
     </div>
@@ -80,7 +96,7 @@
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN (OK)</strong> otomatis Approved.
+        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN (OK)</strong> otomatis Approved & Disembunyikan (Bisa dicari via tanggal).
     </div>
 
     <div class="card">
@@ -106,11 +122,12 @@
                     <label><strong>Nama Superintendent:</strong></label>
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama..." value="A. Rizki Mubarok K">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
+                    
                     <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
-                    <textarea id="keteranganSuper" placeholder="Tuliskan komentar..."></textarea>
+                    <textarea id="keteranganSuper" placeholder="Tuliskan komentar, instruksi, atau alasan reject di sini..."></textarea>
                 </div>
 
-                <p><strong>Tanda Tangan Superintendent (Manual):</strong></p>
+                <p><strong>Tanda Tangan Superintendent:</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
                 <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
                 
@@ -125,7 +142,7 @@
                 <p style="margin-bottom:10px;"><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
                 <div id="historySigArea">
                     <img id="historySigImg" alt="Tanda Tangan" style="display:none;">
-                    <span id="historyNoSig" style="display:none; font-style:italic; color:#888;">(Disetujui Tanpa TTD)</span>
+                    <span id="historyNoSig" style="display:none; font-style:italic; color:#888;">(Disetujui Otomatis / Tanpa TTD)</span>
                 </div>
             </div>
         </div>
@@ -171,8 +188,18 @@
     window.onmouseup = () => drawing=false;
     canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
     canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
-    function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
-    function refreshData() { loadData(); }
+    
+    window.clearSig = function() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+    window.refreshData = function() { loadData(); }
+    window.resetFilter = function() { document.getElementById('searchDate').value = ''; window.filterDataByDate(); }
+    window.closeModal = function() { document.getElementById('modal').style.display = 'none'; }
+
+    function formatDate(dateString) {
+        if (!dateString) return '-';
+        const parts = dateString.split('-');
+        if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`; 
+        return dateString;
+    }
 
     function isRowNG(row) {
         if (currentTab === 'rutin') {
@@ -197,7 +224,7 @@
         }
     }
 
-    // --- AUTO APPROVE FUNCTION (DENGAN DETEKSI ERROR) ---
+    // --- AUTO APPROVE: PISAH KOLOM SESUAI PERMINTAAN ---
     async function executeAutoApprove(safeRows) {
         if (safeRows.length === 0 || isProcessingAuto) return;
         
@@ -208,42 +235,30 @@
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
-        // UPDATE HANYA STATUS & NAMA
-        let errorCount = 0;
-        let errorMessage = "";
-
-        // Menggunakan Loop biar aman satu per satu
-        for (const row of safeRows) {
+        // UPDATE STATUS & NAMA
+        const updates = safeRows.map(async (row) => {
             const updateData = { 
                 status: 'Approved', 
                 approved_at: now, 
                 nama_superintendent: autoName
             };
 
+            // LOGIKA PEMISAHAN KOLOM
             if (currentTab === 'rutin') {
                 updateData.keterangan = "Approved Automatically (OK)";
             } else {
                 updateData.keterangan_superintendent = "Approved Automatically (OK)";
             }
             
-            const { error } = await _supabase.from(tableName).update(updateData).eq('id', row.id);
-            
-            if (error) {
-                errorCount++;
-                errorMessage = error.message;
-                console.error("GAGAL UPDATE:", error);
-            }
-        }
+            return _supabase.from(tableName).update(updateData).eq('id', row.id);
+        });
 
+        await Promise.all(updates);
+        
         document.getElementById('autoProcessStatus').style.display = 'none';
         isProcessingAuto = false;
-
-        // JIKA ADA ERROR, KASIH TAU USER BIAR SADAR
-        if (errorCount > 0) {
-            alert("⚠️ WARNING: Gagal melakukan Auto-Approve!\n\nJumlah Gagal: " + errorCount + "\nPesan Error Database: " + errorMessage + "\n\nSOLUSI: Mohon cek di Supabase, apakah kolom 'nama_superintendent' atau 'keterangan' sudah dibuat?");
-        } else {
-            loadData(true); // Sukses, reload data
-        }
+        
+        loadData(true); 
     }
 
     async function loadData(skipAutoCheck = false) {
@@ -256,6 +271,7 @@
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
+            // SYARAT: Belum Approved/Rejected DAN Tidak ada NG
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 safePendingRows.push(row);
             }
@@ -274,26 +290,20 @@
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
         if (selectedDate) {
+            // MODE HISTORY: TAMPILKAN SEMUA (Termasuk Approved/Rejected)
             filteredData = rawData.filter(row => {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
             });
         } else {
+            // MODE DEFAULT (TO-DO): SEMBUNYIKAN YANG SUDAH APPROVED / REJECTED
             filteredData = rawData.filter(row => {
                 const status = (row.status || '').toLowerCase();
+                // Tampilkan hanya jika status BUKAN Approved DAN BUKAN Rejected
                 return status !== 'approved' && status !== 'rejected';
             });
         }
         renderTable(filteredData);
-    }
-
-    function formatDate(dateString) {
-        if (!dateString) return '-';
-        const parts = dateString.split('-');
-        if (parts.length === 3) {
-            return `${parts[2]}-${parts[1]}-${parts[0]}`; 
-        }
-        return dateString;
     }
 
     async function deleteItem(id) {
@@ -316,7 +326,7 @@
 
         if (!dataList || dataList.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:20px;">
-                ${document.getElementById('searchDate').value ? 'Tidak ada data pada tanggal ini.' : '<strong>Semua Beres!</strong><br><small>Data Aman otomatis di-approve. Cek history via tanggal.</small>'}
+                ${document.getElementById('searchDate').value ? 'Tidak ada data pada tanggal ini.' : '<strong>Semua Beres (Clean)!</strong><br><small>Data Aman otomatis di-approve & disembunyikan. Cek history via tanggal.</small>'}
             </td></tr>`;
             return;
         }
@@ -362,41 +372,6 @@
                 </tr>`;
             }
         }).join('');
-    }
-
-    function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
-
-    function downloadExcel() {
-        if (!filteredData || filteredData.length === 0) return alert("Tidak ada data!");
-        let dataToExport = [];
-        
-        if (currentTab === 'rutin') {
-            dataToExport = filteredData.map(row => ({
-                "Pelaksana": row.pelaksana?.nama_pelaksana || '-',
-                "Superintendent": row.nama_superintendent || '-',
-                "Equipment": row.pelaksana?.nama_tools || '-',
-                "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
-                "Week": row.pelaksana?.week || '-',
-                "Keterangan": row.keterangan || '-', 
-                "Status": row.status || 'Pending'
-            }));
-        } else {
-            dataToExport = filteredData.map(row => ({
-                "PIC Trial": row.pic_trial || '-',
-                "Superintendent": row.nama_superintendent || '-',
-                "Mesin": row.machine_name || '-',
-                "Project": row.project_name || '-',
-                "Kode Mold": row.mold_code || '-',
-                "Nama Mold": row.mold_name || '-',
-                "Tanggal Trial": formatDate(row.trial_date),
-                "Status": row.status || 'Pending'
-            }));
-        }
-        
-        const ws = XLSX.utils.json_to_sheet(dataToExport);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Data");
-        XLSX.writeFile(wb, `Report_${currentTab}.xlsx`);
     }
 
     function renderJsonCheck(title, jsonData) {
@@ -502,6 +477,7 @@
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
             
+            // --- LOGIKA TAMPILKAN TTD (Sesuai Kolom) ---
             const sigUrl = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
             
             document.getElementById('historySigImg').src = sigUrl || '';
@@ -525,9 +501,14 @@
             nama_superintendent: namaSuper 
         };
 
-        if (currentTab === 'rutin') update.keterangan = ketInput;
-        else update.keterangan_superintendent = ketInput;
+        // PEMILIHAN KOLOM MANUAL APPROVE (SESUAI REQUEST)
+        if (currentTab === 'rutin') {
+            update.keterangan = ketInput; 
+        } else {
+            update.keterangan_superintendent = ketInput; 
+        }
 
+        // SIMPAN TTD MANUAL JIKA ADA
         if(st === 'Approved') {
             const manualSig = canvas.toDataURL();
             if (manualSig.length > 3000) { 
@@ -543,7 +524,39 @@
         else { alert("Error: " + error.message); }
     }
 
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    function downloadExcel() {
+        if (!filteredData || filteredData.length === 0) {
+            alert("Tidak ada data untuk diunduh!");
+            return;
+        }
+        let dataToExport = [];
+        if (currentTab === 'rutin') {
+            dataToExport = filteredData.map(row => ({
+                "Pelaksana": row.pelaksana?.nama_pelaksana || '-',
+                "Superintendent": row.nama_superintendent || '-',
+                "Equipment": row.pelaksana?.nama_tools || '-',
+                "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
+                "Week": row.pelaksana?.week || '-',
+                "Status NG?": isRowNG(row) ? "YA (Ada Masalah)" : "AMAN",
+                "Keterangan": row.keterangan || '-', 
+                "Status Approval": row.status
+            }));
+        } else {
+            dataToExport = filteredData.map(row => ({
+                "PIC Trial": row.pic_trial || '-',
+                "Superintendent": row.nama_superintendent || '-',
+                "Mesin": row.machine_name || '-',
+                "Tanggal": formatDate(row.trial_date),
+                "Status NG?": isRowNG(row) ? "YA (Ada Masalah)" : "AMAN",
+                "Status Approval": row.status
+            }));
+        }
+        const ws = XLSX.utils.json_to_sheet(dataToExport);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Data");
+        XLSX.writeFile(wb, `Report_Filter_NG_${currentTab}.xlsx`);
+    }
+
     window.onload = loadData;
 </script>
 </body>
