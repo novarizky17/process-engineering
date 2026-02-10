@@ -28,16 +28,13 @@
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
-        .status-completed { background: #d1ecf1; color: #0c5460; }
-
-        /* Highlight baris NG */
+        
         .row-ng { background-color: #fff5f5; }
         .row-ng td { border-top: 1px solid #fed7d7; }
 
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
         .btn-primary { background: #007bff; color: white; }
         .btn-success { background: #28a745; color: white; }
-        .btn-back { background: #6c757d; color: white; text-decoration: none; }
         .btn-danger { background: #dc3545; color: white; }
         .btn-excel { background: #198754; color: white; margin-left: auto; }
 
@@ -72,31 +69,27 @@
         
         .all-ok-msg { padding: 15px; background: #d4edda; color: #155724; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px; }
         
-        /* Auto Approve Loader */
         #autoProcessStatus { margin-left: 15px; font-size: 13px; font-weight: bold; color: #003366; display: none; }
         .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #003366; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 5px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* --- CSS FIX: POSISI TANDA TANGAN TENGAH --- */
+        /* TANDA TANGAN TENGAH */
         #historySection {
             display: none; 
             text-align: center;
-            /* Flexbox untuk memastikan semua anak elemen center */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             width: 100%;
         }
-        
         #historySigArea {
             margin-top: 10px;
             display: flex;
-            justify-content: center; /* Kunci horizontal center */
-            align-items: center;     /* Kunci vertical center */
+            justify-content: center;
+            align-items: center;
             width: 100%;
         }
-
         #historySigImg {
             max-width: 300px;
             border: 1px solid #ddd;
@@ -322,11 +315,11 @@
             const isNG = isRowNG(row);
             const rowClass = isNG ? 'row-ng' : '';
 
-            // --- PERBAIKAN DI SINI: MENGGUNAKAN ID STRING ---
+            // --- PERBAIKAN: Gunakan handleReviewClick untuk menghindari error tanda kutip ---
             const actionButtons = `
                 <div style="display:flex; gap:5px; justify-content:center;">
-                    <button class="btn btn-primary" onclick="openModal('${row.id}')">REVIEW NG</button>
-                    <button class="btn btn-danger" onclick="deleteItem('${row.id}')">HAPUS</button>
+                    <button class="btn btn-primary" data-id="${row.id}" onclick="handleReviewClick(this)">REVIEW NG</button>
+                    <button class="btn btn-danger" data-id="${row.id}" onclick="handleDeleteClick(this)">HAPUS</button>
                 </div>`;
 
             if (currentTab === 'rutin') {
@@ -353,6 +346,17 @@
                 </tr>`;
             }
         }).join('');
+    }
+
+    // --- FUNGSI BARU UNTUK HANDLE KLIK ---
+    window.handleReviewClick = function(btn) {
+        const id = btn.getAttribute('data-id');
+        openModal(id);
+    }
+
+    window.handleDeleteClick = function(btn) {
+        const id = btn.getAttribute('data-id');
+        deleteItem(id);
     }
 
     let drawing = false;
@@ -384,11 +388,12 @@
         else { alert("Terhapus."); loadData(); }
     }
 
-    // --- PERBAIKAN: OPEN MODAL PAKAI ID ---
     function openModal(id) {
+        // Cari data di local array, lebih aman daripada kirim JSON di HTML
         const row = rawData.find(r => r.id == id);
+        
         if (!row) {
-            alert("Data tidak ditemukan! Refresh halaman.");
+            alert("Data tidak ditemukan di tabel. Silakan Refresh.");
             return;
         }
 
@@ -437,8 +442,6 @@
 
         const isReviewable = row.status !== 'Approved' && row.status !== 'Rejected';
         document.getElementById('pendingSection').style.display = isReviewable ? 'block' : 'none';
-        
-        // GUNAKAN FLEX AGAR CSS CENTER BEKERJA
         document.getElementById('historySection').style.display = isReviewable ? 'none' : 'flex'; 
         
         if(!isReviewable) {
@@ -483,9 +486,7 @@
             alert("Tidak ada data untuk diunduh!");
             return;
         }
-        
         let exportData = filteredData.length > 0 ? filteredData : rawData;
-
         let dataToExport = [];
         if (currentTab === 'rutin') {
             dataToExport = exportData.map(row => ({
@@ -507,7 +508,6 @@
                 "Status Approval": row.status
             }));
         }
-        
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Data");
