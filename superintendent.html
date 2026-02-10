@@ -36,6 +36,8 @@
         .section-header { background: #f1f4f8; padding: 10px 15px; margin: 20px 0 0 0; font-weight: bold; color: #003366; border-left: 5px solid #003366; font-size: 15px; border-top-left-radius: 4px; border-top-right-radius: 4px; }
         .sub-header { background: #e9ecef; padding: 8px 15px; font-weight: bold; color: #495057; font-size: 13px; border-bottom: 1px solid #dee2e6; }
         .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; }
+        canvas { width: 100%; height: 150px; cursor: crosshair; display: block; touch-action: none; }
         textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; }
         .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; margin-bottom: 15px; }
         .json-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px; }
@@ -49,7 +51,10 @@
         .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #003366; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 5px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        #historySection { display: none; text-align: center; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 20px; }
+        #historySection { display: none; text-align: center; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+        #historySigArea { margin-top: 10px; display: flex; justify-content: center; align-items: center; width: 100%; }
+        /* Gambar Tanda Tangan di History */
+        #historySigImg { max-width: 300px; border: 1px solid #ddd; padding: 5px; background: white; display: none; }
     </style>
 </head>
 <body>
@@ -77,13 +82,13 @@
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Data AMAN (OK) otomatis <strong>APPROVED</strong> dan terisi nama Superintendent.
+        * Data AMAN (OK) otomatis <strong>APPROVED</strong> dan terisi Tanda Tangan.
     </div>
 
     <div class="card">
         <table>
             <thead><tr id="tableHeader"></tr></thead>
-            <tbody id="mainTable"><tr><td colspan="8" style="text-align:center;">Memuat data...</td></tr></tbody>
+            <tbody id="mainTable"><tr><td colspan="8" style="text-align:center; padding: 50px;">Memuat data...</td></tr></tbody>
         </table>
     </div>
 </div>
@@ -104,9 +109,13 @@
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama..." value="A. Rizki Mubarok K">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
                     
-                    <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan:</strong></label>
-                    <textarea id="keteranganSuper" placeholder="Tuliskan komentar..."></textarea>
+                    <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
+                    <textarea id="keteranganSuper" placeholder="Tuliskan komentar, instruksi, atau alasan reject di sini..."></textarea>
                 </div>
+
+                <p><strong>Tanda Tangan Superintendent:</strong></p>
+                <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
+                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
                 
                 <div style="display: flex; justify-content: space-around;">
                     <button class="btn btn-success" style="width: 45%;" onclick="window.processStatus('Approved')">APPROVE</button>
@@ -116,7 +125,11 @@
 
             <div id="historySection" style="display:none;">
                 <h3 id="historyLabel" style="margin-bottom:10px;"></h3>
-                <p style="font-size: 16px;">Disetujui Oleh: <br><strong style="font-size: 18px; color:#003366;" id="historyNamaSuper"></strong></p> 
+                <p style="margin-bottom:10px;"><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
+                <div id="historySigArea">
+                    <img id="historySigImg" alt="Tanda Tangan">
+                    <span id="historyNoSig" style="display:none; font-style:italic; color:#888;">(Tanda Tangan Tidak Ditemukan)</span>
+                </div>
             </div>
         </div>
     </div>
@@ -126,6 +139,9 @@
     const supabaseUrl = 'https://yutxomhfqodjzqqibewd.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // TTD OTOMATIS
+    const TTD_OTOMATIS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABkCAYAAAAAd623AAAACXBIWXMAAAsTAAALEwEAmpwYAAADsElEQVR4nO3cwW0CQRRF0Z8Z7IAl2AF7YAdsQAtYgh0kgI8E6IDpIAtYgh20AxY7YAl2kAB78G9K06DAn0B0fV9660iWrfLMc6YvY845AACv8mUBAODfCCsAIAgrACAUKwAgFCsAIAn/WJ6YpkkvLy9v77uua7quu7u7e3t/fX2988XhcDj88f7z+fzzuXq9Xv28Xq8Xh8Ph7efD4fD2v6urq4vP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz+W885/rS9X39fD6fP9f37/v3/fsD6E9Yf9r7+9t+Xp9vAQBAWEEAoVgBAKFYAUAyvwAgv8+430fW/v7+Xh9Af7v9AgCCsAIAgrACAUKxAgBCsQIA+Asvj2pCHmY66gAAAABJRU5ErkJggg==";
 
     const rutinGroups = [
         { title: "1. STAND LABEL", subs: [ { sub: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] }, { sub: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] }, { sub: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] }, { sub: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] } ] },
@@ -137,6 +153,8 @@
 
     let activeId = null, rawData = [], filteredData = [], currentRenderedData = [], currentTab = 'rutin'; 
     let isProcessingAuto = false; 
+    const canvas = document.getElementById('sig-canvas'), ctx = canvas.getContext('2d');
+    canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
 
     window.switchTab = function(tab) {
         currentTab = tab;
@@ -171,29 +189,30 @@
         }
     }
 
-    // --- FUNGSI AUTO APPROVE (TANPA TANDA TANGAN) ---
-    async function executeAutoApprove(safeRows) {
-        if (safeRows.length === 0 || isProcessingAuto) return;
+    // --- AUTO APPROVE FUNCTION ---
+    async function executeAutoApprove(rows) {
+        if (rows.length === 0 || isProcessingAuto) return;
         
         isProcessingAuto = true; 
         document.getElementById('autoProcessStatus').style.display = 'inline-block';
-        
         const autoName = "A. Rizki Mubarok K"; 
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
-        const updates = safeRows.map(async (row) => {
+        const updates = rows.map(async (row) => {
             const updateData = { 
                 status: 'Approved', 
                 approved_at: now, 
                 nama_superintendent: autoName
-                // KITA HAPUS BAGIAN SIGNATURE AGAR DATABASE TIDAK MENOLAK
             };
 
+            // MEMASTIKAN KOLOM TANDA TANGAN TERISI
             if (currentTab === 'rutin') {
                 updateData.keterangan = "Approved Automatically (No Issues Found)";
+                updateData.signature = TTD_OTOMATIS; 
             } else {
                 updateData.keterangan_superintendent = "Approved Automatically (No Issues Found)";
+                updateData.signature_superintendent = TTD_OTOMATIS; 
             }
             
             return _supabase.from(tableName).update(updateData).eq('id', row.id);
@@ -202,8 +221,6 @@
         await Promise.all(updates);
         document.getElementById('autoProcessStatus').style.display = 'none';
         isProcessingAuto = false; 
-        
-        // Reload data agar tampilan berubah
         loadData(true); 
     }
 
@@ -214,20 +231,23 @@
         
         if(error) return console.error(error);
         
-        const safePendingRows = [];
+        const repairList = [];
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
             
-            // Cek jika status belum Approved/Rejected DAN tidak ada NG (Aman)
             if (!isNG && status !== 'approved' && status !== 'rejected') {
-                safePendingRows.push(row);
+                repairList.push(row);
+            }
+            // Logic Repair: Jika sudah approved tapi TTD kosong, update ulang
+            else if (status === 'approved' && !isNG) {
+                const sig = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
+                if (!sig || sig.length < 50) repairList.push(row);
             }
         });
 
-        // Jalankan Auto Approve jika ada data yg aman
-        if (safePendingRows.length > 0 && !isProcessingAuto && !skipAutoCheck) {
-            await executeAutoApprove(safePendingRows);
+        if (repairList.length > 0 && !isProcessingAuto && !skipAutoCheck) {
+            await executeAutoApprove(repairList);
             return; 
         }
 
@@ -311,8 +331,19 @@
         }).join('');
     }
 
-    window.clearSig = function() { } // Tidak dipakai lagi tapi dibiarkan agar tidak error
-    window.refreshData = function() { isProcessingAuto = false; loadData(); }
+    let drawing = false;
+    function getP(e) {
+        const r = canvas.getBoundingClientRect();
+        return { x: ((e.clientX||e.touches[0].clientX)-r.left)*(canvas.width/r.width), y: ((e.clientY||e.touches[0].clientY)-r.top)*(canvas.height/r.height) };
+    }
+    canvas.onmousedown = (e) => { drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
+    canvas.onmousemove = (e) => { if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
+    window.onmouseup = () => drawing=false;
+    canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
+    canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
+    
+    window.clearSig = function() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+    window.refreshData = function() { hasTriedAutoApprove = false; loadData(); }
     window.resetFilter = function() { document.getElementById('searchDate').value = ''; window.filterDataByDate(); }
     window.closeModal = function() { document.getElementById('modal').style.display = 'none'; }
 
@@ -386,13 +417,27 @@
         
         if(!isReviewable) {
             document.getElementById('historyLabel').innerText = row.status;
-            // TAMPILKAN NAMA SAJA (TANPA GAMBAR)
-            document.getElementById('historyNamaSuper').innerText = row.nama_superintendent || "A. Rizki Mubarok K";
+            document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
+            
+            const sigUrl = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
+            const imgEl = document.getElementById('historySigImg');
+            const noSigEl = document.getElementById('historyNoSig');
+            
+            // LOGIKA TAMPILKAN GAMBAR
+            if(sigUrl && sigUrl.length > 50) { 
+                imgEl.src = sigUrl;
+                imgEl.style.display = 'block';
+                noSigEl.style.display = 'none';
+            } else {
+                imgEl.style.display = 'none';
+                noSigEl.style.display = 'block';
+            }
         } else {
             document.getElementById('namaSuperintendent').value = "A. Rizki Mubarok K";
         }
         
         document.getElementById('modal').style.display = 'block';
+        window.clearSig();
     }
 
     window.processStatus = async function(st) {
@@ -401,6 +446,18 @@
         if(!namaSuper) return alert("Isi nama superintendent!");
 
         let update = { status: st, approved_at: new Date().toISOString(), nama_superintendent: namaSuper };
+        
+        // Manual Review Update Logic (Untuk NG atau ubah status manual)
+        if(st === 'Approved') {
+            const manualSig = canvas.toDataURL();
+            // Cek apakah canvas kosong (hanya putih)
+            const isCanvasEmpty = manualSig.length < 3000; // threshold kasar untuk canvas kosong
+            
+            if (!isCanvasEmpty) {
+                if (currentTab === 'rutin') update.signature = manualSig;
+                else update.signature_superintendent = manualSig;
+            }
+        }
         
         if (currentTab === 'rutin') update.keterangan = ketInput;
         else update.keterangan_superintendent = ketInput;
