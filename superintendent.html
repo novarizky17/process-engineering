@@ -53,7 +53,6 @@
 
         #historySection { display: none; text-align: center; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
         #historySigArea { margin-top: 10px; display: flex; justify-content: center; align-items: center; width: 100%; }
-        /* Gambar Tanda Tangan di History */
         #historySigImg { max-width: 300px; border: 1px solid #ddd; padding: 5px; background: white; display: none; }
     </style>
 </head>
@@ -62,9 +61,9 @@
 <header>
     <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
     <div>
-        <span id="autoProcessStatus"><span class="spinner"></span> Memproses Auto-Approve...</span>
+        <span id="autoProcessStatus"><span class="spinner"></span> Sinkronisasi TTD Database...</span>
         <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
-        <button class="btn btn-primary" onclick="window.refreshData()">Refresh Data</button>
+        <button class="btn btn-primary" onclick="window.location.reload()">Refresh Data</button>
     </div>
 </header>
 
@@ -82,13 +81,13 @@
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Data AMAN (OK) otomatis <strong>APPROVED</strong> dan terisi Tanda Tangan.
+        * Tanda tangan diambil dari <strong>Database Master Signature</strong>.
     </div>
 
     <div class="card">
         <table>
             <thead><tr id="tableHeader"></tr></thead>
-            <tbody id="mainTable"><tr><td colspan="8" style="text-align:center; padding: 50px;">Memuat data...</td></tr></tbody>
+            <tbody id="mainTable"><tr><td colspan="8" style="text-align:center;">Memuat data...</td></tr></tbody>
         </table>
     </div>
 </div>
@@ -97,26 +96,19 @@
     <div class="modal-content">
         <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="window.closeModal()">&times;</span>
         <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 15px;">Review Checklist</h2>
-        
         <div id="infoBox" class="info-grid"></div>
         <div id="superNoteArea"></div>
         <div id="modalBody"></div>
 
         <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
             <div id="pendingSection" style="display:none; text-align:center;">
-                <div style="text-align: left; margin-bottom: 15px;">
-                    <label><strong>Nama Superintendent:</strong></label>
-                    <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama..." value="A. Rizki Mubarok K">
-                    <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
-                    
-                    <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
-                    <textarea id="keteranganSuper" placeholder="Tuliskan komentar, instruksi, atau alasan reject di sini..."></textarea>
-                </div>
-
-                <p><strong>Tanda Tangan Superintendent:</strong></p>
+                <label><strong>Nama Superintendent:</strong></label>
+                <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama..." value="A. Rizki Mubarok K">
+                <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
+                <textarea id="keteranganSuper" placeholder="Tuliskan komentar..."></textarea>
+                <p><strong>Tanda Tangan Manual (Untuk NG):</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
                 <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
-                
                 <div style="display: flex; justify-content: space-around;">
                     <button class="btn btn-success" style="width: 45%;" onclick="window.processStatus('Approved')">APPROVE</button>
                     <button class="btn btn-danger" style="width: 45%;" onclick="window.processStatus('Rejected')">REJECT</button>
@@ -140,8 +132,8 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    // TTD OTOMATIS
-    const TTD_OTOMATIS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABkCAYAAAAAd623AAAACXBIWXMAAAsTAAALEwEAmpwYAAADsElEQVR4nO3cwW0CQRRF0Z8Z7IAl2AF7YAdsQAtYgh0kgI8E6IDpIAtYgh20AxY7YAl2kAB78G9K06DAn0B0fV9660iWrfLMc6YvY845AACv8mUBAODfCCsAIAgrACAUKwAgFCsAIAn/WJ6YpkkvLy9v77uua7quu7u7e3t/fX2988XhcDj88f7z+fzzuXq9Xv28Xq8Xh8Ph7efD4fD2v6urq4vP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz+W885/rS9X39fD6fP9f37/v3/fsD6E9Yf9r7+9t+Xp9vAQBAWEEAoVgBAKFYAUAyvwAgv8+430fW/v7+Xh9Af7v9AgCCsAIAgrACAUKxAgBCsQIA+Asvj2pCHmY66gAAAABJRU5ErkJggg==";
+    // VARIABEL GLOBAL UNTUK MENYIMPAN TTD DARI DATABASE
+    let DATABASE_SIGNATURE = null;
 
     const rutinGroups = [
         { title: "1. STAND LABEL", subs: [ { sub: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] }, { sub: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] }, { sub: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] }, { sub: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] } ] },
@@ -189,30 +181,52 @@
         }
     }
 
-    // --- AUTO APPROVE FUNCTION ---
-    async function executeAutoApprove(rows) {
-        if (rows.length === 0 || isProcessingAuto) return;
+    // --- 1. AMBIL TTD DARI DATABASE (INIT) ---
+    async function fetchMasterSignature() {
+        // Coba ambil dari tabel master_signature
+        const { data, error } = await _supabase.from('master_signature').select('signature_data').limit(1).single();
         
+        if (data && data.signature_data) {
+            DATABASE_SIGNATURE = data.signature_data;
+            console.log("TTD Master berhasil diload dari Database.");
+        } else {
+            // Fallback jika tabel belum ada isinya, pakai default kosong atau teks peringatan
+            console.warn("TTD Master belum ada di database.");
+            DATABASE_SIGNATURE = ""; 
+        }
+        loadData(); // Lanjut load data
+    }
+
+    // --- 2. AUTO APPROVE PAKE TTD DARI DB ---
+    async function executeAutoApprove(safeRows) {
+        if (safeRows.length === 0 || isProcessingAuto) return;
+        
+        // JANGAN LANJUT KALAU TTD DATABASE BELUM KETEMU/KOSONG
+        if (!DATABASE_SIGNATURE) {
+            console.error("Tidak bisa Auto Approve: Master Signature Kosong!");
+            alert("Gagal Auto Approve: Tanda Tangan Master belum diseting di Database.");
+            return;
+        }
+
         isProcessingAuto = true; 
         document.getElementById('autoProcessStatus').style.display = 'inline-block';
         const autoName = "A. Rizki Mubarok K"; 
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
-        const updates = rows.map(async (row) => {
+        const updates = safeRows.map(async (row) => {
             const updateData = { 
                 status: 'Approved', 
                 approved_at: now, 
                 nama_superintendent: autoName
             };
 
-            // MEMASTIKAN KOLOM TANDA TANGAN TERISI
             if (currentTab === 'rutin') {
                 updateData.keterangan = "Approved Automatically (No Issues Found)";
-                updateData.signature = TTD_OTOMATIS; 
+                updateData.signature = DATABASE_SIGNATURE; // AMBIL DARI VARIABLE GLOBAL
             } else {
                 updateData.keterangan_superintendent = "Approved Automatically (No Issues Found)";
-                updateData.signature_superintendent = TTD_OTOMATIS; 
+                updateData.signature_superintendent = DATABASE_SIGNATURE; // AMBIL DARI VARIABLE GLOBAL
             }
             
             return _supabase.from(tableName).update(updateData).eq('id', row.id);
@@ -239,7 +253,7 @@
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 repairList.push(row);
             }
-            // Logic Repair: Jika sudah approved tapi TTD kosong, update ulang
+            // Logic Repair: Jika Approved tapi TTD kosong, inject ulang dari Master DB
             else if (status === 'approved' && !isNG) {
                 const sig = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
                 if (!sig || sig.length < 50) repairList.push(row);
@@ -419,11 +433,12 @@
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
             
+            // --- LOGIKA MENAMPILKAN GAMBAR ---
             const sigUrl = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
             const imgEl = document.getElementById('historySigImg');
             const noSigEl = document.getElementById('historyNoSig');
             
-            // LOGIKA TAMPILKAN GAMBAR
+            // Jika ada signature, tampilkan. Jika tidak, tampilkan fallback.
             if(sigUrl && sigUrl.length > 50) { 
                 imgEl.src = sigUrl;
                 imgEl.style.display = 'block';
@@ -447,15 +462,19 @@
 
         let update = { status: st, approved_at: new Date().toISOString(), nama_superintendent: namaSuper };
         
-        // Manual Review Update Logic (Untuk NG atau ubah status manual)
         if(st === 'Approved') {
             const manualSig = canvas.toDataURL();
-            // Cek apakah canvas kosong (hanya putih)
-            const isCanvasEmpty = manualSig.length < 3000; // threshold kasar untuk canvas kosong
-            
-            if (!isCanvasEmpty) {
-                if (currentTab === 'rutin') update.signature = manualSig;
-                else update.signature_superintendent = manualSig;
+            // Cek apakah canvas digambar (Manual Review)
+            // Jika manual review, kita pakai canvas. Jika auto (lewat variabel), pakai DB.
+            if (manualSig.length > 3000) {
+                 if (currentTab === 'rutin') update.signature = manualSig;
+                 else update.signature_superintendent = manualSig;
+            } else {
+                 // Kalau canvas kosong (Bos lupa tanda tangan manual), kita pakai TTD Master sebagai default
+                 if (DATABASE_SIGNATURE) {
+                     if (currentTab === 'rutin') update.signature = DATABASE_SIGNATURE;
+                     else update.signature_superintendent = DATABASE_SIGNATURE;
+                 }
             }
         }
         
@@ -548,7 +567,8 @@
         XLSX.writeFile(wb, `Report_Filter_NG_${currentTab}.xlsx`);
     }
 
-    window.onload = loadData;
+    // LOAD SIGNATURE FIRST, THEN LOAD DATA
+    window.onload = fetchMasterSignature;
 </script>
 </body>
 </html>
