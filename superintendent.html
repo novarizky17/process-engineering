@@ -53,6 +53,7 @@
 
         #historySection { display: none; text-align: center; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
         #historySigArea { margin-top: 10px; display: flex; justify-content: center; align-items: center; width: 100%; }
+        /* Perbaikan: Kalau gambar error/null, sembunyikan */
         #historySigImg { max-width: 300px; border: 1px solid #ddd; padding: 5px; background: white; display: none; }
     </style>
 </head>
@@ -61,7 +62,7 @@
 <header>
     <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
     <div>
-        <span id="autoProcessStatus"><span class="spinner"></span> <span id="statusText">Cek Data...</span></span>
+        <span id="autoProcessStatus"><span class="spinner"></span> Memproses Auto-Approve...</span>
         <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
         <button class="btn btn-primary" onclick="window.refreshData()">Refresh Data</button>
     </div>
@@ -81,7 +82,7 @@
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Sistem otomatis melakukan <strong>AUTO APPROVE</strong> dan <strong>MENGISI TANDA TANGAN</strong> untuk data yang AMAN (OK).
+        * Menampilkan data <strong>PENDING / NG</strong>. Data <strong>OK</strong> akan otomatis di-approve & ditandatangani.
     </div>
 
     <div class="card">
@@ -107,12 +108,15 @@
                     <label><strong>Nama Superintendent:</strong></label>
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama..." value="A. Rizki Mubarok K">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
-                    <label style="color:#003366; margin-top:10px;"><strong>Catatan:</strong></label>
-                    <textarea id="keteranganSuper" placeholder="Tuliskan komentar..."></textarea>
+                    
+                    <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
+                    <textarea id="keteranganSuper" placeholder="Tuliskan komentar, instruksi, atau alasan reject di sini..."></textarea>
                 </div>
-                <p><strong>Tanda Tangan Manual (Untuk NG):</strong></p>
+
+                <p><strong>Tanda Tangan Superintendent:</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
                 <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
+                
                 <div style="display: flex; justify-content: space-around;">
                     <button class="btn btn-success" style="width: 45%;" onclick="window.processStatus('Approved')">APPROVE</button>
                     <button class="btn btn-danger" style="width: 45%;" onclick="window.processStatus('Rejected')">REJECT</button>
@@ -124,7 +128,7 @@
                 <p style="margin-bottom:10px;"><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
                 <div id="historySigArea">
                     <img id="historySigImg" alt="Tanda Tangan">
-                    <span id="historyNoSig" style="display:none; font-style:italic; color:#888;">(Menunggu Sinkronisasi TTD...)</span>
+                    <span id="historyNoSig" style="display:none; font-style:italic; color:#888;">(Tanda Tangan Tidak Ditemukan)</span>
                 </div>
             </div>
         </div>
@@ -136,7 +140,7 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    const TTD_OTOMATIS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABkCAYAAAAAd623AAAACXBIWXMAAAsTAAALEwEAmpwYAAADsElEQVR4nO3cwW0CQRRF0Z8Z7IAl2AF7YAdsQAtYgh0kgI8E6IDpIAtYgh20AxY7YAl2kAB78G9K06DAn0B0fV9660iWrfLMc6YvY845AACv8mUBAODfCCsAIAgrACAUKwAgFCsAIAn/WJ6YpkkvLy9v77uua7quu7u7e3t/fX2988XhcDj88f7z+fzzuXq9Xv28Xq8Xh8Ph7efD4fD2v6urq4vP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz+W885/rS9X39fD6fP9f37/v3/fsD6E9Yf9r7+9t+Xp9vAQBAWEEAoVgBAKFYAUAyvwAgv8+430fW/v7+Xh9Af7v9AgCCsAIAgrACAUKxAgBCsQIA+Asvj2pCHmY66gAAAABJRU5ErkJggg==";
+    const TTD_OTOMATIS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABkCAYAAAAAd623AAAACXBIWXMAAAsTAAALEwEAmpwYAAADsElEQVR4nO3cwW0CQRRF0Z8Z7IAl2AF7YAdsQAtYgh0kgI8E6IDpIAtYgh20AxY7YAl2kAB78G9K06DAn0B0fV9660iWrfLMc6YvY845AACv8mUBAODfCCsAIAgrACAUKwAgFCsAIAn/WJ6YpkkvLy9v77uua7quu7u7e3t/fX2988XhcDj88f7z+fzzuXq9Xv28Xq8Xh8Ph7efD4fD2v6urq4vP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz+W885/rS9X39fD6fP9f37/v3/fsD6E9Yf9r7+9t+Xp9vAQBAWEEAoVgBAKFYAUAyvwAgv8+430fW/v7+Xh9Af7v9AgCCsAIAgrACAUKxAgBCsQIA+Asvj2pCHmY66gAAAABJRU5ErkJggg==";
 
     const rutinGroups = [
         { title: "1. STAND LABEL", subs: [ { sub: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] }, { sub: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] }, { sub: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] }, { sub: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] } ] },
@@ -184,19 +188,17 @@
         }
     }
 
-    // --- AGGRESSIVE AUTO APPROVE (Memperbaiki data yang rusak juga) ---
+    // --- FORCE AUTO APPROVE (REPAIR MODE) ---
     async function executeAutoApprove(rows) {
         if (rows.length === 0 || isProcessingAuto) return;
         
         isProcessingAuto = true; 
         document.getElementById('autoProcessStatus').style.display = 'inline-block';
-        document.getElementById('statusText').innerText = "Update " + rows.length + " Data...";
-        
         const autoName = "A. Rizki Mubarok K"; 
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
-        // Gunakan Loop untuk memastikan eksekusi berurutan dan tangkap error
+        // Lakukan satu per satu agar lebih aman
         for (const row of rows) {
             const updateData = { 
                 status: 'Approved', 
@@ -204,7 +206,7 @@
                 nama_superintendent: autoName
             };
 
-            // SET KOLOM YANG BENAR
+            // LOGIKA PEMILIHAN KOLOM TANDA TANGAN (SANGAT PENTING)
             if (currentTab === 'rutin') {
                 updateData.keterangan = "Approved Automatically (No Issues Found)";
                 updateData.signature = TTD_OTOMATIS; 
@@ -216,16 +218,17 @@
             const { error } = await _supabase.from(tableName).update(updateData).eq('id', row.id);
             if (error) {
                 console.error("GAGAL UPDATE:", error);
-                alert("GAGAL UPDATE DATA ID: " + row.id + "\nERROR: " + error.message + "\n\nMohon Cek Settingan Database Supabase (RLS/Kolom).");
+                // Jika error, hentikan loop dan beritahu user
+                alert(`GAGAL UPDATE OTOMATIS!\nID Data: ${row.id}\nError: ${error.message}\n\nSOLUSI: Masuk ke Supabase > SQL Editor, lalu jalankan perintah 'ALTER TABLE ... DISABLE ROW LEVEL SECURITY;'`);
                 isProcessingAuto = false;
                 document.getElementById('autoProcessStatus').style.display = 'none';
-                return; // Stop jika ada error biar ga spam alert
+                return;
             }
         }
 
         document.getElementById('autoProcessStatus').style.display = 'none';
         isProcessingAuto = false; 
-        loadData(true); // Reload data fresh dari DB
+        loadData(true); 
     }
 
     async function loadData(skipAutoCheck = false) {
@@ -235,34 +238,34 @@
         
         if(error) return console.error(error);
         
-        const rowsToProcess = [];
-        
+        const repairList = [];
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
             
-            // 1. Data Baru yang Aman (Pending & No NG)
+            // CEK 1: Data Baru (Pending & Aman) -> Masukkan Antrian
             if (!isNG && status !== 'approved' && status !== 'rejected') {
-                rowsToProcess.push(row);
+                repairList.push(row);
             }
             
-            // 2. Data "Rusak" (Sudah Approved TAPI Tanda Tangan Kosong/Pendek) -> REPAIR
+            // CEK 2: Data Rusak (Status Approved TAPI Tanda Tangan Hilang) -> Masukkan Antrian
             else if (status === 'approved' && !isNG) {
                 const sig = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
+                // Jika signature kosong atau terlalu pendek (bukan base64 valid), update ulang!
                 if (!sig || sig.length < 100) {
-                    // Masukkan ke antrian perbaikan
-                    rowsToProcess.push(row);
+                    repairList.push(row);
                 }
             }
         });
 
-        // Eksekusi jika ada yang perlu diproses
-        if (rowsToProcess.length > 0 && !skipAutoCheck) {
-            await executeAutoApprove(rowsToProcess);
-        } else {
-            rawData = data;
-            window.filterDataByDate();
+        // EKSEKUSI PERBAIKAN
+        if (repairList.length > 0 && !isProcessingAuto && !skipAutoCheck) {
+            await executeAutoApprove(repairList);
+            return; 
         }
+
+        rawData = data;
+        window.filterDataByDate();
     }
 
     window.filterDataByDate = function() {
@@ -429,11 +432,12 @@
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
             
-            // --- LOGIKA MENAMPILKAN GAMBAR DENGAN VALIDASI ---
+            // --- TAMPILKAN GAMBAR ---
             const sigUrl = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
             const imgEl = document.getElementById('historySigImg');
             const noSigEl = document.getElementById('historyNoSig');
             
+            // Pastikan string valid dan cukup panjang (indikator base64 gambar)
             if(sigUrl && sigUrl.length > 50) { 
                 imgEl.src = sigUrl;
                 imgEl.style.display = 'block';
@@ -457,6 +461,7 @@
 
         let update = { status: st, approved_at: new Date().toISOString(), nama_superintendent: namaSuper };
         
+        // Manual Review Update Logic
         if(st === 'Approved') {
             const manualSig = canvas.toDataURL();
             if (currentTab === 'rutin') {
