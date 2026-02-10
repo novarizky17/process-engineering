@@ -53,7 +53,6 @@
 
         #historySection { display: none; text-align: center; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
         #historySigArea { margin-top: 10px; display: flex; justify-content: center; align-items: center; width: 100%; }
-        /* Fix Broken Image: Kalau error dia hide sendiri */
         #historySigImg { max-width: 300px; border: 1px solid #ddd; padding: 5px; background: white; display: none; }
     </style>
 </head>
@@ -62,7 +61,7 @@
 <header>
     <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
     <div>
-        <span id="autoProcessStatus"><span class="spinner"></span> Memperbaiki Data TTD...</span>
+        <span id="autoProcessStatus"><span class="spinner"></span> <span id="statusText">Cek Data...</span></span>
         <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
         <button class="btn btn-primary" onclick="window.refreshData()">Refresh Data</button>
     </div>
@@ -82,7 +81,7 @@
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Sistem otomatis memperbaiki data yang sudah Approved tapi tanda tangannya hilang.
+        * Sistem otomatis melakukan <strong>AUTO APPROVE</strong> dan <strong>MENGISI TANDA TANGAN</strong> untuk data yang AMAN (OK).
     </div>
 
     <div class="card">
@@ -108,10 +107,10 @@
                     <label><strong>Nama Superintendent:</strong></label>
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama..." value="A. Rizki Mubarok K">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
-                    <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan:</strong></label>
+                    <label style="color:#003366; margin-top:10px;"><strong>Catatan:</strong></label>
                     <textarea id="keteranganSuper" placeholder="Tuliskan komentar..."></textarea>
                 </div>
-                <p><strong>Tanda Tangan Manual:</strong></p>
+                <p><strong>Tanda Tangan Manual (Untuk NG):</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
                 <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
                 <div style="display: flex; justify-content: space-around;">
@@ -124,8 +123,8 @@
                 <h3 id="historyLabel" style="margin-bottom:10px;"></h3>
                 <p style="margin-bottom:10px;"><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
                 <div id="historySigArea">
-                    <img id="historySigImg" alt="Tanda Tangan" onerror="this.style.display='none'">
-                    <span id="historyNoSig" style="display:none; font-style:italic; color:#888;">(Tanda Tangan Tidak Ditemukan)</span>
+                    <img id="historySigImg" alt="Tanda Tangan">
+                    <span id="historyNoSig" style="display:none; font-style:italic; color:#888;">(Menunggu Sinkronisasi TTD...)</span>
                 </div>
             </div>
         </div>
@@ -137,7 +136,7 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    const TTD_OTOMATIS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABkCAYAAAAAd623AAAACXBIWXMAAAsTAAALEwEAmpwYAAADsElEQVR4nO3cwW0CQRRF0Z8Z7IAl2AF7YAdsQAtYgh0kgI8E6IDpIAtYgh20AxY7YAl2kAB78G9K06DAn0B0fV9660iWrfLMc6YvY845AACv8mUBAODfCCsAIAgrACAUKwAgFCsAIAn/WJ6YpkkvLy9v77uua7quu7u7e3t/fX2988XhcDj88f7z+fzzuXq9Xv28Xq8Xh8Ph7efD4fD2v6urq4vP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fzuW885/rS9X39fD6fP9f37/v3/fsD6E9Yf9r7+9t+Xp9vAQBAWEEAoVgBAKFYAUAyvwAgv8+430fW/v7+Xh9Af7v9AgCCsAIAgrACAUKxAgBCsQIA+Asvj2pCHmY66gAAAABJRU5ErkJggg==";
+    const TTD_OTOMATIS = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABkCAYAAAAAd623AAAACXBIWXMAAAsTAAALEwEAmpwYAAADsElEQVR4nO3cwW0CQRRF0Z8Z7IAl2AF7YAdsQAtYgh0kgI8E6IDpIAtYgh20AxY7YAl2kAB78G9K06DAn0B0fV9660iWrfLMc6YvY845AACv8mUBAODfCCsAIAgrACAUKwAgFCsAIAn/WJ6YpkkvLy9v77uua7quu7u7e3t/fX2988XhcDj88f7z+fzzuXq9Xv28Xq8Xh8Ph7efD4fD2v6urq4vP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz7/v39/fn5+fHz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+fz9fX1z66v7+vX69XPrq/v69fr18+ur+9fXl7eP9f37+f37+fz+W885/rS9X39fD6fP9f37/v3/fsD6E9Yf9r7+9t+Xp9vAQBAWEEAoVgBAKFYAUAyvwAgv8+430fW/v7+Xh9Af7v9AgCCsAIAgrACAUKxAgBCsQIA+Asvj2pCHmY66gAAAABJRU5ErkJggg==";
 
     const rutinGroups = [
         { title: "1. STAND LABEL", subs: [ { sub: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] }, { sub: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] }, { sub: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] }, { sub: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] } ] },
@@ -185,41 +184,48 @@
         }
     }
 
-    // --- FUNGSI AUTO APPROVE (REPAIR MODE) ---
-    async function executeAutoApprove(safeRows) {
-        if (safeRows.length === 0 || isProcessingAuto) return;
+    // --- AGGRESSIVE AUTO APPROVE (Memperbaiki data yang rusak juga) ---
+    async function executeAutoApprove(rows) {
+        if (rows.length === 0 || isProcessingAuto) return;
         
         isProcessingAuto = true; 
         document.getElementById('autoProcessStatus').style.display = 'inline-block';
+        document.getElementById('statusText').innerText = "Update " + rows.length + " Data...";
+        
         const autoName = "A. Rizki Mubarok K"; 
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
-        const updates = safeRows.map(async (row) => {
+        // Gunakan Loop untuk memastikan eksekusi berurutan dan tangkap error
+        for (const row of rows) {
             const updateData = { 
                 status: 'Approved', 
                 approved_at: now, 
                 nama_superintendent: autoName
             };
 
-            // INI KUNCINYA: Pastikan kolom yang diupdate sesuai dengan Tabel
+            // SET KOLOM YANG BENAR
             if (currentTab === 'rutin') {
                 updateData.keterangan = "Approved Automatically (No Issues Found)";
-                updateData.signature = TTD_OTOMATIS; // Column: signature
+                updateData.signature = TTD_OTOMATIS; 
             } else {
                 updateData.keterangan_superintendent = "Approved Automatically (No Issues Found)";
-                updateData.signature_superintendent = TTD_OTOMATIS; // Column: signature_superintendent
+                updateData.signature_superintendent = TTD_OTOMATIS; 
             }
             
-            return _supabase.from(tableName).update(updateData).eq('id', row.id);
-        });
+            const { error } = await _supabase.from(tableName).update(updateData).eq('id', row.id);
+            if (error) {
+                console.error("GAGAL UPDATE:", error);
+                alert("GAGAL UPDATE DATA ID: " + row.id + "\nERROR: " + error.message + "\n\nMohon Cek Settingan Database Supabase (RLS/Kolom).");
+                isProcessingAuto = false;
+                document.getElementById('autoProcessStatus').style.display = 'none';
+                return; // Stop jika ada error biar ga spam alert
+            }
+        }
 
-        await Promise.all(updates);
         document.getElementById('autoProcessStatus').style.display = 'none';
         isProcessingAuto = false; 
-        
-        // Reload data tanpa cek lagi
-        loadData(true); 
+        loadData(true); // Reload data fresh dari DB
     }
 
     async function loadData(skipAutoCheck = false) {
@@ -229,35 +235,34 @@
         
         if(error) return console.error(error);
         
-        const repairList = [];
+        const rowsToProcess = [];
+        
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
             
-            // LOGIKA SELF-HEALING:
-            // 1. Data Pending & Aman -> Auto Approve
-            // 2. Data SUDAH Approved TAPI Tanda Tangannya Kosong -> Update Ulang (Repair)
-            
-            let isSignatureMissing = false;
-            if (currentTab === 'rutin') {
-                isSignatureMissing = !row.signature || row.signature.length < 50;
-            } else {
-                isSignatureMissing = !row.signature_superintendent || row.signature_superintendent.length < 50;
+            // 1. Data Baru yang Aman (Pending & No NG)
+            if (!isNG && status !== 'approved' && status !== 'rejected') {
+                rowsToProcess.push(row);
             }
-
-            if ((!isNG && status !== 'approved' && status !== 'rejected') || (status === 'approved' && isSignatureMissing)) {
-                repairList.push(row);
+            
+            // 2. Data "Rusak" (Sudah Approved TAPI Tanda Tangan Kosong/Pendek) -> REPAIR
+            else if (status === 'approved' && !isNG) {
+                const sig = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
+                if (!sig || sig.length < 100) {
+                    // Masukkan ke antrian perbaikan
+                    rowsToProcess.push(row);
+                }
             }
         });
 
-        // JIKA ADA YANG PERLU DIPERBAIKI/APPROVE
-        if (repairList.length > 0 && !isProcessingAuto && !skipAutoCheck) {
-            await executeAutoApprove(repairList);
-            return; 
+        // Eksekusi jika ada yang perlu diproses
+        if (rowsToProcess.length > 0 && !skipAutoCheck) {
+            await executeAutoApprove(rowsToProcess);
+        } else {
+            rawData = data;
+            window.filterDataByDate();
         }
-
-        rawData = data;
-        window.filterDataByDate();
     }
 
     window.filterDataByDate = function() {
@@ -424,13 +429,12 @@
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
             
-            // --- LOGIKA MENAMPILKAN TANDA TANGAN (SESUAI TAB) ---
+            // --- LOGIKA MENAMPILKAN GAMBAR DENGAN VALIDASI ---
             const sigUrl = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
             const imgEl = document.getElementById('historySigImg');
             const noSigEl = document.getElementById('historyNoSig');
             
-            // Kalau string signature ada dan valid (minimal 100 char)
-            if(sigUrl && sigUrl.length > 100) { 
+            if(sigUrl && sigUrl.length > 50) { 
                 imgEl.src = sigUrl;
                 imgEl.style.display = 'block';
                 noSigEl.style.display = 'none';
