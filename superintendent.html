@@ -24,7 +24,7 @@
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
-        .row-ng { background-color: #fff5f5; }
+        .row-ng { background-color: #fff5f5; } .row-ng td { border-top: 1px solid #fed7d7; }
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
         .btn-primary { background: #007bff; color: white; }
         .btn-success { background: #28a745; color: white; }
@@ -36,7 +36,6 @@
         .info-item label { font-size: 11px; color: #666; display: block; margin-bottom: 3px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
         .info-item span { font-size: 14px; font-weight: bold; color: #333; }
         .section-header { background: #f1f4f8; padding: 10px 15px; margin: 20px 0 0 0; font-weight: bold; color: #003366; border-left: 5px solid #003366; font-size: 15px; border-top-left-radius: 4px; border-top-right-radius: 4px; }
-        .sub-header { background: #e9ecef; padding: 8px 15px; font-weight: bold; color: #495057; font-size: 13px; border-bottom: 1px solid #dee2e6; }
         .super-note-box { background: #e3f2fd; border: 1px solid #bbdefb; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .sig-area { border: 2px dashed #003366; margin: 15px 0; background: #fafafa; border-radius: 8px; height: 150px; position: relative; }
         canvas { width: 100%; height: 100%; cursor: crosshair; display: block; touch-action: none; }
@@ -61,7 +60,7 @@
 <header>
     <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
     <div>
-        <span id="autoProcessStatus"><span class="spinner"></span> Checking Auto-Approve...</span>
+        <span id="autoProcessStatus"><span class="spinner"></span> <strong>Memproses Auto-Approve...</strong></span>
         <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
         <button class="btn btn-primary" onclick="window.refreshData()">Refresh Data</button>
     </div>
@@ -81,7 +80,7 @@
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data Aman otomatis Approved.
+        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN (OK)</strong> otomatis Approved.
     </div>
 
     <div class="card">
@@ -168,7 +167,7 @@
         return { x: ((e.clientX||e.touches[0].clientX)-r.left)*(canvas.width/r.width), y: ((e.clientY||e.touches[0].clientY)-r.top)*(canvas.height/r.height) };
     }
     canvas.onmousedown = (e) => { drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
-    canvas.onmousemove = (e) => { if(!drawing) return; ctx.lineTo(getP(e).x, getP(e.y)); ctx.stroke(); };
+    canvas.onmousemove = (e) => { if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
     window.onmouseup = () => drawing=false;
     canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
     canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
@@ -198,7 +197,7 @@
         }
     }
 
-    // --- AUTO APPROVE: KHUSUS DATA AMAN ---
+    // --- AUTO APPROVE FUNCTION (DENGAN DETEKSI ERROR) ---
     async function executeAutoApprove(safeRows) {
         if (safeRows.length === 0 || isProcessingAuto) return;
         
@@ -209,46 +208,54 @@
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
-        // UPDATE STATUS & NAMA (Sesuai Kolom yang Diminta)
-        const updates = safeRows.map(async (row) => {
+        // UPDATE HANYA STATUS & NAMA
+        let errorCount = 0;
+        let errorMessage = "";
+
+        // Menggunakan Loop biar aman satu per satu
+        for (const row of safeRows) {
             const updateData = { 
                 status: 'Approved', 
                 approved_at: now, 
                 nama_superintendent: autoName
             };
 
-            // LOGIKA PEMISAHAN KOLOM
             if (currentTab === 'rutin') {
                 updateData.keterangan = "Approved Automatically (OK)";
             } else {
                 updateData.keterangan_superintendent = "Approved Automatically (OK)";
             }
             
-            return _supabase.from(tableName).update(updateData).eq('id', row.id);
-        });
+            const { error } = await _supabase.from(tableName).update(updateData).eq('id', row.id);
+            
+            if (error) {
+                errorCount++;
+                errorMessage = error.message;
+                console.error("GAGAL UPDATE:", error);
+            }
+        }
 
-        await Promise.all(updates);
         document.getElementById('autoProcessStatus').style.display = 'none';
         isProcessingAuto = false;
-        loadData(true); 
+
+        // JIKA ADA ERROR, KASIH TAU USER BIAR SADAR
+        if (errorCount > 0) {
+            alert("⚠️ WARNING: Gagal melakukan Auto-Approve!\n\nJumlah Gagal: " + errorCount + "\nPesan Error Database: " + errorMessage + "\n\nSOLUSI: Mohon cek di Supabase, apakah kolom 'nama_superintendent' atau 'keterangan' sudah dibuat?");
+        } else {
+            loadData(true); // Sukses, reload data
+        }
     }
 
     async function loadData(skipAutoCheck = false) {
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const selectQuery = currentTab === 'rutin' ? '*, pelaksana(*)' : '*';
         const { data, error } = await _supabase.from(tableName).select(selectQuery).order('created_at', { ascending: false });
-        
-        if(error) {
-            console.error(error);
-            // Jangan spam alert jika error hanya masalah koneksi sebentar
-            return; 
-        }
+        if(error) return console.error(error);
         
         const safePendingRows = [];
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
-            // SYARAT: Belum Approved/Rejected DAN Tidak ada NG
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 safePendingRows.push(row);
             }
@@ -272,7 +279,6 @@
                 return rowDate === selectedDate;
             });
         } else {
-            // TO-DO LIST: Sembunyikan yang sudah Approved
             filteredData = rawData.filter(row => {
                 const status = (row.status || '').toLowerCase();
                 return status !== 'approved' && status !== 'rejected';
@@ -496,7 +502,6 @@
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
             
-            // --- LOGIKA TAMPILKAN TTD (Sesuai Kolom) ---
             const sigUrl = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
             
             document.getElementById('historySigImg').src = sigUrl || '';
@@ -520,14 +525,9 @@
             nama_superintendent: namaSuper 
         };
 
-        // PEMILIHAN KOLOM MANUAL APPROVE (SESUAI REQUEST)
-        if (currentTab === 'rutin') {
-            update.keterangan = ketInput; 
-        } else {
-            update.keterangan_superintendent = ketInput; 
-        }
+        if (currentTab === 'rutin') update.keterangan = ketInput;
+        else update.keterangan_superintendent = ketInput;
 
-        // SIMPAN TTD MANUAL JIKA ADA
         if(st === 'Approved') {
             const manualSig = canvas.toDataURL();
             if (manualSig.length > 3000) { 
