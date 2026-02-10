@@ -28,13 +28,16 @@
         .status-pending { background: #fff3cd; color: #856404; }
         .status-approved { background: #d4edda; color: #155724; }
         .status-rejected { background: #f8d7da; color: #721c24; }
-        
+        .status-completed { background: #d1ecf1; color: #0c5460; }
+
+        /* Highlight baris NG */
         .row-ng { background-color: #fff5f5; }
         .row-ng td { border-top: 1px solid #fed7d7; }
 
         .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; }
         .btn-primary { background: #007bff; color: white; }
         .btn-success { background: #28a745; color: white; }
+        .btn-back { background: #6c757d; color: white; text-decoration: none; }
         .btn-danger { background: #dc3545; color: white; }
         .btn-excel { background: #198754; color: white; margin-left: auto; }
 
@@ -69,6 +72,7 @@
         
         .all-ok-msg { padding: 15px; background: #d4edda; color: #155724; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px; }
         
+        /* Auto Approve Loader */
         #autoProcessStatus { margin-left: 15px; font-size: 13px; font-weight: bold; color: #003366; display: none; }
         .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #003366; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 5px; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -124,7 +128,7 @@
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Menampilkan hanya data dengan temuan <strong>NG</strong> atau yang statusnya <strong>Rejected/Pending</strong>. Data yang <strong>AMAN (OK)</strong> otomatis di-approve sistem.
+        * Default: Hanya menampilkan data <strong>PENDING</strong> (Belum Approve/Reject). Pilih <strong>Tanggal</strong> untuk melihat data yang sudah selesai (Approved/Rejected).
     </div>
 
     <div class="card">
@@ -192,14 +196,13 @@
     let activeId = null;
     let rawData = [];
     let filteredData = [];
-    let currentRenderedData = []; // Array ini untuk menyimpan data yang sedang tampil di layar
+    let currentRenderedData = []; 
     let currentTab = 'rutin'; 
     
     const canvas = document.getElementById('sig-canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
 
-    // --- PASTI GLOBAL SCOPE ---
     window.switchTab = function(tab) {
         currentTab = tab;
         document.getElementById('tabRutin').classList.toggle('active', tab === 'rutin');
@@ -275,29 +278,28 @@
         window.filterDataByDate();
     }
 
+    // --- LOGIKA FILTER SESUAI PERMINTAAN ---
     window.filterDataByDate = function() {
         const selectedDate = document.getElementById('searchDate').value;
         filteredData = rawData.filter(row => {
-            const hasIssue = isRowNG(row);
             const status = (row.status || '').toLowerCase();
-            const isRejected = status === 'rejected';
+            const isPending = status !== 'approved' && status !== 'rejected';
             
-            let showRow = false;
+            // JIKA TANGGAL DIPILIH -> TAMPILKAN SEMUA (PENDING, APPROVED, REJECTED)
             if (selectedDate) {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
-                if (rowDate === selectedDate) showRow = true;
-            } else {
-                if (hasIssue || isRejected) showRow = true;
-            }
-            return showRow;
+                return rowDate === selectedDate;
+            } 
+            
+            // JIKA TANGGAL KOSONG -> TAMPILKAN HANYA PENDING
+            // (Karena yang aman sudah auto-approve, maka yang pending pasti yang NG/Butuh Review)
+            return isPending;
         });
         renderTable(filteredData);
     }
 
     function renderTable(dataList) {
-        // SIMPAN DATA YANG DIRENDER KE VARIABEL GLOBAL AGAR BISA DIAKSES OLEH INDEX
         currentRenderedData = dataList;
-
         const header = document.getElementById('tableHeader');
         const tableBody = document.getElementById('mainTable');
 
@@ -309,8 +311,8 @@
 
         if (!dataList || dataList.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px;">
-                <strong>Tidak ada temuan NG yang perlu direview.</strong><br>
-                <small>Semua checklist aman telah disembunyikan dan di-approve otomatis.</small>
+                <strong>Tidak ada data yang perlu direview.</strong><br>
+                <small>Gunakan filter tanggal untuk melihat history data yang sudah selesai.</small>
             </td></tr>`;
             return;
         }
@@ -324,10 +326,10 @@
             const isNG = isRowNG(row);
             const rowClass = isNG ? 'row-ng' : '';
 
-            // --- JURUS TERAKHIR: GUNAKAN INDEX ARRAY (ANGKA) ---
+            // --- TOMBOL REVIEW PAKAI INDEX & FUNGSI GLOBAL (ANTI MACET) ---
             const actionButtons = `
                 <div style="display:flex; gap:5px; justify-content:center;">
-                    <button class="btn btn-primary" onclick="window.openModalByIndex(${index})">REVIEW NG</button>
+                    <button class="btn btn-primary" onclick="window.openModalByIndex(${index})">REVIEW</button>
                     <button class="btn btn-danger" onclick="window.deleteItemByIndex(${index})">HAPUS</button>
                 </div>`;
 
@@ -380,11 +382,9 @@
         return dateString;
     }
 
-    // --- FUNGSI HAPUS VIA INDEX ---
     window.deleteItemByIndex = async function(index) {
         const row = currentRenderedData[index];
         if (!row) return;
-
         if (!confirm("Hapus data ini?")) return;
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
         const { error } = await _supabase.from(tableName).delete().eq('id', row.id);
@@ -392,16 +392,13 @@
         else { alert("Terhapus."); loadData(); }
     }
 
-    // --- FUNGSI MODAL VIA INDEX (PASTI BISA) ---
+    // --- FUNGSI MODAL VIA INDEX ---
     window.openModalByIndex = function(index) {
         const row = currentRenderedData[index];
-        if (!row) {
-            alert("Data error. Refresh halaman.");
-            return;
-        }
+        if (!row) return alert("Data error. Refresh halaman.");
 
         activeId = row.id;
-        document.getElementById('modalTitle').innerText = currentTab === 'rutin' ? "Review Checklist Rutin (NG Check)" : "Review Checklist Trial Mold (NG Check)";
+        document.getElementById('modalTitle').innerText = currentTab === 'rutin' ? "Review Checklist Rutin" : "Review Checklist Trial Mold";
         document.getElementById('keteranganSuper').value = '';
 
         const infoBox = document.getElementById('infoBox');
@@ -491,24 +488,16 @@
         for (const [key, val] of Object.entries(jsonData)) {
             let status = val.status || '-';
             let note = val.note || '-';
-            
             if (status === 'NG') {
                 hasIssues = true;
                 let colorClass = 'status-ng';
-                rows += `<tr>
-                            <td class="col-item">${key}</td>
-                            <td class="col-status ${colorClass}">${status}</td>
-                            <td class="col-ket">${note}</td>
-                        </tr>`;
+                rows += `<tr><td class="col-item">${key}</td><td class="col-status ${colorClass}">${status}</td><td class="col-ket">${note}</td></tr>`;
             }
         }
         if (!hasIssues) return ''; 
         return `<div class="section-header">${title}</div>
                 <div class="table-wrapper">
-                    <table class="json-table">
-                        <tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Note</th></tr>
-                        ${rows}
-                    </table>
+                    <table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Note</th></tr>${rows}</table>
                 </div>`;
     }
 
@@ -525,11 +514,7 @@
                         totalIssues++;
                         const note = row[item + '_keterangan'] || '-';
                         const colorClass = status === 'NG' ? 'status-ng' : 'status-na';
-                        subRows += `<tr>
-                            <td class="col-item">${item.replace(/stacking_|conveyor_|dosing_|dummy_|_/g, ' ').toUpperCase()}</td>
-                            <td class="col-status ${colorClass}">${status}</td>
-                            <td class="col-ket">${note}</td>
-                        </tr>`;
+                        subRows += `<tr><td class="col-item">${item.replace(/stacking_|conveyor_|dosing_|dummy_|_/g, ' ').toUpperCase()}</td><td class="col-status ${colorClass}">${status}</td><td class="col-ket">${note}</td></tr>`;
                     }
                 });
                 if (subRows) {
@@ -539,12 +524,7 @@
             });
             if (groupRows) {
                 htmlContent += `<div class="section-header">${group.title}</div>
-                                <div class="table-wrapper">
-                                    <table class="json-table">
-                                        <tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>
-                                        ${groupRows}
-                                    </table>
-                                </div>`;
+                                <div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>${groupRows}</table></div>`;
             }
         });
         if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Checklist Rutin OK (Aman)</div>`;
@@ -556,9 +536,7 @@
             alert("Tidak ada data untuk diunduh!");
             return;
         }
-        
         let exportData = filteredData.length > 0 ? filteredData : rawData;
-
         let dataToExport = [];
         if (currentTab === 'rutin') {
             dataToExport = exportData.map(row => ({
@@ -580,7 +558,6 @@
                 "Status Approval": row.status
             }));
         }
-        
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Data");
