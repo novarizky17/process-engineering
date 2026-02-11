@@ -399,17 +399,37 @@
             });
         }
 
+        // --- UPDATE: TANDA TANGAN (AUTO APPROVE JADI KOSONG) ---
         function renderSignatures(dataMap) {
             for(let w=1; w<=5; w++) {
                 const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" class="sig-img">` : "";
                 document.getElementById(`sig-s-w${w}`).innerHTML = img;
                 document.getElementById(`sig-k-w${w}`).innerHTML = img;
             }
-            let latest = null;
-            for(let w=5; w>=1; w--) { if(dataMap[w] && dataMap[w].signature) { latest=dataMap[w]; break; } }
             
-            document.querySelectorAll('.super-sig').forEach(e => e.innerHTML = latest ? `<img src="${latest.signature}" class="super-img">` : "");
-            document.querySelectorAll('.super-name').forEach(e => e.innerText = latest ? `( ${latest.nama_superintendent} )` : "( ... )");
+            // CARI DATA TERAKHIR YANG APPROVED
+            let latest = null;
+            for(let w=5; w>=1; w--) { 
+                if(dataMap[w] && dataMap[w].status === 'Approved') { 
+                    latest=dataMap[w]; 
+                    break; 
+                } 
+            }
+            
+            // LOGIKA TANDA TANGAN SUPERINTENDENT
+            document.querySelectorAll('.super-sig').forEach(e => {
+                // Jika Manual (ada gambar) -> Tampilkan Gambar
+                if (latest && latest.signature) {
+                    e.innerHTML = `<img src="${latest.signature}" class="super-img">`;
+                } 
+                // Jika Auto Approve (gak ada gambar) -> Kosongkan
+                else {
+                    e.innerHTML = ""; 
+                }
+            });
+
+            // TAMPILKAN NAMA (TETAP MUNCUL WALAUPUN AUTO APPROVE)
+            document.querySelectorAll('.super-name').forEach(e => e.innerText = (latest && latest.nama_superintendent) ? `( ${latest.nama_superintendent} )` : "( ... )");
         }
 
         window.onload = initMachineList;
