@@ -10,7 +10,7 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f4f6f9; color: #333; }
         
-        /* HEADER BARU */
+        /* HEADER */
         header { 
             background: linear-gradient(90deg, #003366 0%, #004080 100%); 
             color: white; 
@@ -72,14 +72,8 @@
         .btn-danger { background: #dc3545; color: white; }
         .btn-warning { background: #ffc107; color: #212529; box-shadow: 0 4px 6px rgba(255, 193, 7, 0.3); }
         .btn-excel { background: #207245; color: white; margin-left: auto; box-shadow: 0 4px 6px rgba(32, 114, 69, 0.2); }
-        
-        /* TOMBOL KEMBALI STYLE */
-        .btn-back { 
-            background: rgba(255, 255, 255, 0.15); 
-            color: white; 
-            border: 1px solid rgba(255, 255, 255, 0.3); 
-        }
-        .btn-back:hover { background: rgba(255, 255, 255, 0.3); border-color: white; }
+        .btn-back { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.4); }
+        .btn-back:hover { background: rgba(255, 255, 255, 0.2); border-color: white; }
 
         /* MODAL UTAMA */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); overflow-y: auto; }
@@ -107,32 +101,22 @@
 
         .section-header { background: #eef2f7; padding: 12px 15px; margin: 25px 0 0 0; font-weight: 700; color: #003366; border-left: 5px solid #003366; border-radius: 4px; font-size: 15px; }
         .sub-header { background: #f8f9fa; padding: 8px 15px; font-weight: 700; color: #555; font-size: 13px; border-bottom: 1px solid #dee2e6; }
-        
         .super-note-box { background: #e3f2fd; border: 1px solid #90caf9; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #0d47a1; }
-        
         .sig-area { border: 2px dashed #ccc; margin: 15px 0; background: #fafafa; border-radius: 8px; height: 160px; position: relative; transition: 0.2s; }
         .sig-area:hover { border-color: #003366; background: #fff; }
         canvas { width: 100%; height: 100%; cursor: crosshair; display: block; touch-action: none; }
-        
         textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; padding: 12px; box-sizing: border-box; font-family: inherit; }
         textarea:focus, input.input-nama:focus { border-color: #003366; outline: none; }
-        
         .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; margin-bottom: 15px; border-radius: 8px; }
         .json-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px; }
         .json-table th { background: #f8f9fa; text-align: left; padding: 12px 15px; border-bottom: 2px solid #eee; color: #555; }
         .json-table td { padding: 12px 15px; border-bottom: 1px solid #eee; vertical-align: top; }
-        
-        .col-item { width: 40%; font-weight: 500; } 
-        .col-status { width: 10%; text-align: center; font-weight: 700; } 
-        .col-ket { width: 50%; color: #666; }
-        
+        .col-item { width: 40%; font-weight: 500; } .col-status { width: 10%; text-align: center; font-weight: 700; } .col-ket { width: 50%; color: #666; }
         .status-ng { color: #dc3545; } .status-ok { color: #198754; } .status-na { color: #6c757d; font-style: italic; }
         .all-ok-msg { padding: 20px; background: #d1e7dd; color: #0f5132; border-radius: 8px; text-align: center; font-weight: 700; margin-bottom: 20px; border: 1px solid #badbcc; }
-        
         #autoProcessStatus { margin-right: 15px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9); display: none; }
         .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        
         #historySection { display: none; text-align: center; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 20px; }
         #historySigArea { margin-top: 15px; display: flex; justify-content: center; align-items: center; width: 100%; }
         #historySigImg { max-width: 300px; border: 1px solid #eee; padding: 10px; background: white; display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-radius: 4px; }
@@ -143,10 +127,10 @@
 <header>
     <div class="header-title">SUPERINTENDENT - APPROVAL SYSTEM</div>
     <div class="header-controls">
-        <span id="autoProcessStatus"><span class="spinner"></span> Memproses...</span>
+        <span id="autoProcessStatus"><span class="spinner"></span> <strong>Processing...</strong></span>
         <button class="btn btn-warning" onclick="window.triggerAutoApprove()">✨ AUTO APPROVE (ALL OK)</button>
         <a href="dashboard.html" class="btn btn-back">← Kembali</a>
-        <button class="btn btn-primary" style="background: rgba(255,255,255,0.2); border:none;" onclick="window.refreshData()">Refresh</button>
+        <button class="btn btn-primary" style="background: rgba(255,255,255,0.2); border:none;" onclick="window.refreshData()">Refresh Data</button>
     </div>
 </header>
 
@@ -163,9 +147,8 @@
         <button class="btn btn-excel" onclick="window.downloadExcel()">📥 Download Excel</button>
     </div>
 
-    <div style="margin-bottom: 15px; font-size: 13px; color: #666;">
-        <span style="display:inline-block; margin-right: 15px;">ℹ️ <strong>Status Pending / NG</strong> ditampilkan di tabel.</span>
-        <span>ℹ️ Klik <strong>"AUTO APPROVE"</strong> di atas untuk menyetujui semua data Aman (OK/NA) sekaligus.</span>
+    <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
+        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN (OK/NA)</strong> otomatis Approved & Disembunyikan.
     </div>
 
     <div class="card">
@@ -178,34 +161,30 @@
 
 <div id="modal" class="modal">
     <div class="modal-content">
-        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold; color:#aaa;" onclick="window.closeModal()">&times;</span>
-        <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px;">Review Checklist</h2>
+        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="window.closeModal()">&times;</span>
+        <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 15px;">Review Checklist</h2>
         
         <div id="infoBox" class="info-grid"></div>
         <div id="superNoteArea"></div>
         <div id="modalBody"></div>
 
-        <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:25px;">
+        <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
             <div id="pendingSection" style="display:none; text-align:center;">
-                <div style="text-align: left; margin-bottom: 20px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                <div style="text-align: left; margin-bottom: 15px;">
                     <label><strong>Nama Superintendent:</strong></label>
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama..." value="A. Rizki Mubarok K">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
-                    
-                    <label style="color:#003366; margin-top:15px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
-                    <textarea id="keteranganSuper" rows="3" placeholder="Tuliskan komentar, instruksi, atau alasan reject di sini..."></textarea>
+                    <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
+                    <textarea id="keteranganSuper" placeholder="Tuliskan komentar..."></textarea>
                 </div>
-
-                <p><strong>Tanda Tangan Superintendent (Manual):</strong></p>
-                <div class="sig-area" style="max-width: 600px; margin: 0 auto 15px auto;"><canvas id="sig-canvas"></canvas></div>
-                <button class="btn" style="background:#6c757d; color:white; margin-bottom:25px;" onclick="window.clearSig()">Hapus Tanda Tangan</button>
-                
-                <div style="display: flex; justify-content: center; gap: 20px;">
-                    <button class="btn btn-success" style="width: 200px; font-size: 16px; padding: 12px;" onclick="window.confirmManualAction('Approved')">✅ APPROVE</button>
-                    <button class="btn btn-danger" style="width: 200px; font-size: 16px; padding: 12px;" onclick="window.confirmManualAction('Rejected')">❌ REJECT</button>
+                <p><strong>Tanda Tangan Superintendent:</strong></p>
+                <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
+                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
+                <div style="display: flex; justify-content: space-around;">
+                    <button class="btn btn-success" style="width: 45%;" onclick="window.confirmManualAction('Approved')">✅ APPROVE</button>
+                    <button class="btn btn-danger" style="width: 45%;" onclick="window.confirmManualAction('Rejected')">❌ REJECT</button>
                 </div>
             </div>
-
             <div id="historySection" style="display:none;">
                 <h3 id="historyLabel" style="margin-bottom:10px;"></h3>
                 <p style="margin-bottom:10px;"><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
@@ -303,7 +282,7 @@
         }
     }
 
-    // --- MANAJEMEN POP-UP KONFIRMASI ---
+    // --- POP-UP MODAL LOGIC ---
     window.showConfirmModal = function(title, text, icon, actionCallback) {
         document.getElementById('confirmTitle').innerText = title;
         document.getElementById('confirmText').innerText = text;
@@ -333,7 +312,6 @@
         rawData.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
-            // OK dan N/A dianggap Aman (bukan NG)
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 safePendingRows.push(row);
             }
@@ -378,7 +356,7 @@
         );
     }
 
-    // --- TRIGGER MANUAL APPROVE/REJECT ---
+    // --- TRIGGER MANUAL APPROVE ---
     window.confirmManualAction = function(status) {
         const namaSuper = document.getElementById('namaSuperintendent').value;
         if(!namaSuper) return alert("Harap isi nama superintendent!");
@@ -398,7 +376,7 @@
         );
     }
 
-    // --- TRIGGER HAPUS DATA (POP-UP) ---
+    // --- TRIGGER DELETE (POP-UP) ---
     window.deleteItem = function(id) {
         window.showConfirmModal(
             "Hapus Data",
@@ -508,7 +486,6 @@
 
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
-    // === DOWNLOAD EXCEL (BERSIH TANPA CHECKLIST) ===
     function downloadExcel() {
         const selectedDate = document.getElementById('searchDate').value;
         let dataToDownload = selectedDate ? filteredData : rawData;
@@ -559,7 +536,7 @@
 
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Data");
-        XLSX.writeFile(wb, `Report_Approval_${currentTab}.xlsx`);
+        XLSX.writeFile(wb, `Report_Filter_NG_${currentTab}.xlsx`);
     }
 
     function renderJsonCheck(title, jsonData) {
