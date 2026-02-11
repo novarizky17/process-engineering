@@ -61,7 +61,7 @@
 <header>
     <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
     <div>
-        <span id="autoProcessStatus"><span class="spinner"></span> <strong>Processing...</strong></span>
+        <span id="autoProcessStatus"><span class="spinner"></span> <strong>Checking Auto-Approve...</strong></span>
         <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
         <button class="btn btn-primary" onclick="window.refreshData()">Refresh Data</button>
     </div>
@@ -176,7 +176,9 @@
     function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
     function refreshData() { loadData(); }
 
-    // --- CHECKER NG (N/A is SAFE) ---
+    // --- LOGIKA CEK NG YANG LEBIH CERDAS ---
+    // Return TRUE hanya jika string benar-benar "NG"
+    // "NA", "N/A", "OK", Kosong -> Return FALSE (Aman/Lolos)
     function isRowNG(row) {
         if (currentTab === 'rutin') {
             for (const group of rutinGroups) {
@@ -200,6 +202,7 @@
                         } else {
                             status = String(itemVal).trim().toUpperCase();
                         }
+                        // HANYA BLOKIR JIKA "NG"
                         if (status === 'NG') return true;
                     }
                 }
@@ -208,47 +211,7 @@
         }
     }
 
-    // --- FUNGSI EXCEL BARU (NG / N/A / OK) ---
-    function getExcelStatusLabel(row) {
-        let foundNG = false;
-        let foundNA = false;
-
-        if (currentTab === 'rutin') {
-            rutinGroups.forEach(group => {
-                group.subs.forEach(sub => {
-                    sub.items.forEach(item => {
-                        // NORMALIZE VALUE AGAR MENANGKAP "N/A" atau "NA" atau "n/a"
-                        const val = row[item] ? String(row[item]).trim().toUpperCase() : '';
-                        if (val === 'NG') foundNG = true;
-                        if (val === 'NA' || val === 'N/A') foundNA = true;
-                    });
-                });
-            });
-        } else {
-            const checks = [row.check_machine, row.check_mold, row.check_aux, row.check_material, row.check_qc, row.check_safety];
-            checks.forEach(check => {
-                if (check) {
-                    Object.values(check).forEach(itemVal => {
-                        let val = '';
-                        if (typeof itemVal === 'object' && itemVal !== null) {
-                            val = itemVal.status ? String(itemVal.status).trim().toUpperCase() : '';
-                        } else {
-                            val = String(itemVal).trim().toUpperCase();
-                        }
-                        
-                        if (val === 'NG') foundNG = true;
-                        if (val === 'NA' || val === 'N/A') foundNA = true;
-                    });
-                }
-            });
-        }
-
-        if (foundNG) return "NG";
-        if (foundNA) return "N/A"; // DITULIS N/A
-        return "OK"; 
-    }
-
-    // --- AUTO APPROVE ---
+    // --- AUTO APPROVE (EKSEKUSI DATA AMAN) ---
     async function executeAutoApprove(safeRows) {
         if (safeRows.length === 0 || isProcessingAuto) return;
         
@@ -259,6 +222,7 @@
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
+        // Update satu per satu
         for (const row of safeRows) {
             const updateData = { 
                 status: 'Approved', 
@@ -275,6 +239,8 @@
             const { error } = await _supabase.from(tableName).update(updateData).eq('id', row.id);
             if (error) {
                 console.error("Gagal Auto Approve ID: " + row.id, error);
+                // Alert jika ada error database, biar tau kenapa tidak approve
+                alert(`Error Database ID ${row.id}: ${error.message}`);
             }
         }
         
@@ -293,12 +259,17 @@
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
-            // SYARAT AUTO APPROVE: PENDING & TIDAK ADA NG (N/A juga dianggap AMAN)
+            
+            // LOGIKA UTAMA:
+            // JIKA STATUS MASIH PENDING (Belum Approved/Rejected)
+            // DAN TIDAK ADA "NG" (Berarti isinya OK, N/A, atau Kosong)
+            // MAKA -> MASUK ANTRIAN AUTO-APPROVE
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 safePendingRows.push(row);
             }
         });
 
+        // EKSEKUSI AUTO APPROVE JIKA ADA DATA
         if (safePendingRows.length > 0 && !isProcessingAuto && !skipAutoCheck) {
             await executeAutoApprove(safePendingRows);
             return; 
@@ -401,6 +372,44 @@
 
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
+    // === FUNGSI STATUS EXCEL (NG / N/A / OK) ===
+    function getExcelStatusLabel(row) {
+        let foundNG = false;
+        let foundNA = false;
+
+        if (currentTab === 'rutin') {
+            rutinGroups.forEach(group => {
+                group.subs.forEach(sub => {
+                    sub.items.forEach(item => {
+                        const val = row[item] ? String(row[item]).trim().toUpperCase() : '';
+                        if (val === 'NG') foundNG = true;
+                        if (val === 'NA' || val === 'N/A') foundNA = true;
+                    });
+                });
+            });
+        } else {
+            const checks = [row.check_machine, row.check_mold, row.check_aux, row.check_material, row.check_qc, row.check_safety];
+            checks.forEach(check => {
+                if (check) {
+                    Object.values(check).forEach(itemVal => {
+                        let val = '';
+                        if (typeof itemVal === 'object' && itemVal !== null) {
+                            val = itemVal.status ? String(itemVal.status).trim().toUpperCase() : '';
+                        } else {
+                            val = String(itemVal).trim().toUpperCase();
+                        }
+                        if (val === 'NG') foundNG = true;
+                        if (val === 'NA' || val === 'N/A') foundNA = true;
+                    });
+                }
+            });
+        }
+
+        if (foundNG) return "NG";
+        if (foundNA) return "N/A"; // DITULIS N/A UNTUK EXCEL
+        return "OK"; 
+    }
+
     // === DOWNLOAD EXCEL ===
     function downloadExcel() {
         const selectedDate = document.getElementById('searchDate').value;
@@ -464,17 +473,18 @@
         for (const [key, val] of Object.entries(jsonData)) {
             let status = val.status || '-';
             let note = val.note || '-';
-            // Cek NG
             if (status === 'NG') {
                 hasIssues = true;
                 let colorClass = 'status-ng';
                 rows += `<tr><td class="col-item">${key}</td><td class="col-status ${colorClass}">${status}</td><td class="col-ket">${note}</td></tr>`;
             }
-            // Cek N/A (untuk ditampilkan juga jika diinginkan, tapi di sini hanya NG/NA yang mencolok)
+            // TAMPILKAN N/A TAPI BUKAN ISSUE (Cuma info)
             else if (status === 'N/A' || status === 'NA') {
-                 hasIssues = true; // Munculkan di modal review agar terlihat
                  let colorClass = 'status-na';
+                 // hasIssues = true; // JANGAN DI-TRUE-KAN AGAR TIDAK DIANGGAP NG
                  rows += `<tr><td class="col-item">${key}</td><td class="col-status ${colorClass}">N/A</td><td class="col-ket">${note}</td></tr>`;
+                 // KITA TAMPILKAN DI TABLE TAPI TIDAK MENGHALANGI AUTO APPROVE
+                 hasIssues = true; 
             }
         }
         if (!hasIssues) return ''; 
@@ -489,14 +499,12 @@
             group.subs.forEach(sub => {
                 let subRows = '';
                 sub.items.forEach(item => {
-                    // Normalisasi value
                     const rawStatus = row[item] ? String(row[item]).trim().toUpperCase() : '';
                     
                     if (rawStatus === 'NG' || rawStatus === 'NA' || rawStatus === 'N/A') { 
-                        totalIssues++;
+                        totalIssues++; // Tampilkan di tabel
                         const note = row[item + '_keterangan'] || '-';
                         const colorClass = rawStatus === 'NG' ? 'status-ng' : 'status-na';
-                        // Tampilkan status "N/A" yang rapi
                         const displayStatus = (rawStatus === 'NA' || rawStatus === 'N/A') ? 'N/A' : rawStatus;
                         
                         subRows += `<tr><td class="col-item">${item.replace(/stacking_|conveyor_|dosing_|dummy_|_/g, ' ').toUpperCase()}</td><td class="col-status ${colorClass}">${displayStatus}</td><td class="col-ket">${note}</td></tr>`;
@@ -560,7 +568,7 @@
             checksHtml += renderJsonCheck("4. MATERIAL", row.check_material);
             checksHtml += renderJsonCheck("5. QC TOOLS", row.check_qc);
             checksHtml += renderJsonCheck("6. SAFETY", row.check_safety);
-            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Item Check Berstatus OK (Tidak ada temuan NG)</div>`;
+            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Item OK (Aman)</div>`;
             body.innerHTML = checksHtml;
         }
 
