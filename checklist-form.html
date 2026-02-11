@@ -6,7 +6,7 @@
   <title>Form Checklist Tooling Injection</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* === CSS ORIGINAL BOS (TIDAK DIUBAH) === */
+    /* === CSS ORIGINAL (TIDAK BERUBAH) === */
     body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; }
     header { background-color: #003366; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
     .logo { font-size: 1.5em; font-weight: bold; }
@@ -56,16 +56,20 @@
     .btn-submit:hover { background-color: #218838; }
     .btn-submit:disabled { background-color: #ccc; cursor: not-allowed; }
 
-    /* === TAMBAHAN CSS HANYA UNTUK POP-UP === */
+    /* === CSS POP-UP (MODAL) === */
     .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-    .modal-content { background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: popIn 0.3s; }
+    .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 5px 20px rgba(0,0,0,0.3); animation: popIn 0.3s; }
     @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .modal-icon { font-size: 40px; margin-bottom: 10px; display: block; }
-    .modal-title { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #333; }
-    .modal-text { margin-bottom: 20px; color: #666; }
+    
+    .modal-icon { font-size: 45px; margin-bottom: 10px; display: block; }
+    .modal-title { font-size: 1.3em; font-weight: bold; margin-bottom: 10px; color: #333; }
+    .modal-text { margin-bottom: 25px; color: #555; font-size: 1em; line-height: 1.5; }
+    
     .modal-actions { display: flex; gap: 10px; justify-content: center; }
-    .btn-modal-no { background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-    .btn-modal-yes { background: #003366; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .btn-modal-no { background: #6c757d; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
+    .btn-modal-yes { background: #003366; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; }
+    .btn-modal-ok { background: #dc3545; color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; width: 100%; }
+    .btn-modal-ok:hover { background: #c82333; }
   </style>
 </head>
 <body>
@@ -135,11 +139,22 @@
     </div>
   </div>
 
+  <div id="warningModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-icon">⚠️</span>
+      <div class="modal-title">Perhatian!</div>
+      <div class="modal-text" id="warningText">Ada data yang belum lengkap.</div>
+      <div class="modal-actions">
+        <button class="btn-modal-ok" onclick="closeWarningModal()">OKE, SAYA LENGKAPI</button>
+      </div>
+    </div>
+  </div>
+
   <div id="saveModal" class="modal">
     <div class="modal-content">
       <span class="modal-icon">💾</span>
       <div class="modal-title">Konfirmasi Simpan</div>
-      <div class="modal-text">Apakah Anda yakin semua data sudah benar?</div>
+      <div class="modal-text">Apakah Anda yakin semua data sudah benar? Data yang disimpan tidak bisa diubah lagi oleh pelaksana.</div>
       <div class="modal-actions">
         <button class="btn-modal-no" onclick="closeSaveModal()">Batal</button>
         <button class="btn-modal-yes" id="btnExecuteSave" onclick="executeSave()">Ya, Simpan</button>
@@ -181,7 +196,7 @@
                 </div>
               </div>
               <div id="box-${f}" class="keterangan">
-                <textarea id="text-${f}" placeholder="Alasan NG untuk ${label}..."></textarea>
+                <textarea id="text-${f}" placeholder="Wajib isi alasan jika status NG..."></textarea>
               </div>
             </div>`;
         });
@@ -238,26 +253,44 @@
       }
     }
 
-    // --- FUNGSI VALIDASI & POPUP (BARU) ---
-    function confirmSave() {
-      // 1. Validasi Tanda Tangan
-      if (points < 10) return alert("Tanda tangan wajib diisi!");
+    // --- FUNGSI TAMPILKAN WARNING MODAL ---
+    function showWarning(msg) {
+        document.getElementById('warningText').innerText = msg;
+        document.getElementById('warningModal').style.display = 'flex';
+    }
 
-      // 2. Validasi Kelengkapan Data
+    function closeWarningModal() {
+        document.getElementById('warningModal').style.display = 'none';
+    }
+
+    // --- FUNGSI VALIDASI SEBELUM SIMPAN ---
+    function confirmSave() {
+      // 1. Cek Kelengkapan Data
       const allFields = config.flatMap(g => g.fields);
       for (const f of allFields) {
         const radio = document.querySelector(`input[name="${f}"]:checked`);
-        if (!radio) return alert("Mohon lengkapi semua item checklist!");
-        
+        // Kalau belum dipilih sama sekali
+        if (!radio) {
+            showWarning(`Item "${f.replace(/_/g, ' ').toUpperCase()}" belum dipilih statusnya!`);
+            return;
+        }
+        // Kalau NG tapi keterangan kosong
         if (radio.value === 'NG') {
-          const ketInput = document.getElementById(`text-${f}`);
-          if (!ketInput || !ketInput.value.trim()) {
-            return alert(`Item ${f.replace(/_/g, ' ').toUpperCase()} NG wajib diisi keterangan!`);
-          }
+            const ketValue = document.getElementById(`text-${f}`).value.trim();
+            if (!ketValue) {
+                showWarning(`Item "${f.replace(/_/g, ' ').toUpperCase()}" statusnya NG. Wajib diisi keterangan/alasannya!`);
+                return;
+            }
         }
       }
 
-      // Jika lolos, tampilkan Modal Pop-up
+      // 2. Cek Tanda Tangan
+      if (points < 10) {
+          showWarning("Mohon isi tanda tangan pelaksana terlebih dahulu!");
+          return;
+      }
+
+      // Jika lolos semua validasi, buka modal konfirmasi simpan
       document.getElementById('saveModal').style.display = 'flex';
     }
 
@@ -265,13 +298,13 @@
       document.getElementById('saveModal').style.display = 'none';
     }
 
-    // --- FUNGSI SIMPAN DATA KE SUPABASE ---
+    // --- FUNGSI EKSEKUSI SIMPAN KE DATABASE ---
     async function executeSave() {
       const pId = localStorage.getItem('pelaksana_id');
-      const btn = document.getElementById('btnExecuteSave');
+      const btnSave = document.getElementById('btnExecuteSave');
       
-      btn.disabled = true;
-      btn.innerText = "Menyimpan...";
+      btnSave.textContent = "Menyimpan...";
+      btnSave.disabled = true;
 
       let payload = { 
         pelaksana_id: pId, 
@@ -284,6 +317,7 @@
       for (const f of allFields) {
         const radio = document.querySelector(`input[name="${f}"]:checked`);
         payload[f] = radio.value;
+        
         if (radio.value === 'NG') {
           payload[`${f}_keterangan`] = document.getElementById(`text-${f}`).value.trim();
         }
@@ -292,9 +326,9 @@
       const { error } = await _supabase.from('checklist').insert([payload]);
       
       if (error) {
-        alert("Gagal menyimpan: " + error.message);
-        btn.disabled = false;
-        btn.innerText = "Ya, Simpan";
+        alert("Gagal menyimpan data: " + error.message);
+        btnSave.textContent = "Ya, Simpan";
+        btnSave.disabled = false;
         closeSaveModal();
       } else {
         alert("Data Checklist Berhasil Disimpan!");
