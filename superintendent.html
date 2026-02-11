@@ -61,7 +61,7 @@
 <header>
     <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
     <div>
-        <span id="autoProcessStatus"><span class="spinner"></span> <strong>Processing...</strong></span>
+        <span id="autoProcessStatus"><span class="spinner"></span> <strong>Checking Auto-Approve...</strong></span>
         <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
         <button class="btn btn-primary" onclick="window.refreshData()">Refresh Data</button>
     </div>
@@ -81,7 +81,7 @@
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN (OK)</strong> otomatis Approved & Disembunyikan (Bisa dicari via tanggal).
+        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN (OK/NA)</strong> otomatis Approved & Disembunyikan.
     </div>
 
     <div class="card">
@@ -176,6 +176,7 @@
     function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
     function refreshData() { loadData(); }
 
+    // --- CHECKER NG (Hanya NG yg dianggap masalah, NA aman) ---
     function isRowNG(row) {
         if (currentTab === 'rutin') {
             for (const group of rutinGroups) {
@@ -199,7 +200,7 @@
         }
     }
 
-    // --- AUTO APPROVE ---
+    // --- AUTO APPROVE (REVISED & STRONGER) ---
     async function executeAutoApprove(safeRows) {
         if (safeRows.length === 0 || isProcessingAuto) return;
         
@@ -210,7 +211,8 @@
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
-        const updates = safeRows.map(async (row) => {
+        // PROSES SATU PER SATU AGAR LEBIH STABIL
+        for (const row of safeRows) {
             const updateData = { 
                 status: 'Approved', 
                 approved_at: now, 
@@ -223,14 +225,15 @@
                 updateData.keterangan_superintendent = "Approved Automatically (OK)";
             }
             
-            return _supabase.from(tableName).update(updateData).eq('id', row.id);
-        });
-
-        await Promise.all(updates);
+            const { error } = await _supabase.from(tableName).update(updateData).eq('id', row.id);
+            if (error) {
+                console.error("Gagal Auto Approve ID: " + row.id, error);
+                alert(`GAGAL AUTO-APPROVE! Ada masalah pada Database.\nError: ${error.message}\n\nPastikan kolom 'nama_superintendent' & 'keterangan' ada di database.`);
+            }
+        }
         
         document.getElementById('autoProcessStatus').style.display = 'none';
         isProcessingAuto = false;
-        
         loadData(true); 
     }
 
@@ -244,12 +247,13 @@
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
-            // SYARAT AUTO APPROVE: PENDING & TIDAK ADA NG (NA dianggap Aman untuk Approval System)
+            // SYARAT AUTO APPROVE: PENDING & TIDAK ADA NG
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 safePendingRows.push(row);
             }
         });
 
+        // JIKA ADA DATA AMAN, JALANKAN AUTO APPROVE
         if (safePendingRows.length > 0 && !isProcessingAuto && !skipAutoCheck) {
             await executeAutoApprove(safePendingRows);
             return; 
@@ -268,7 +272,7 @@
                 return rowDate === selectedDate;
             });
         } else {
-            // MODE DEFAULT (TO-DO): SEMBUNYIKAN YANG SUDAH APPROVED / REJECTED
+            // MODE TO-DO: SEMBUNYIKAN YANG SUDAH APPROVED
             filteredData = rawData.filter(row => {
                 const status = (row.status || '').toLowerCase();
                 return status !== 'approved' && status !== 'rejected';
@@ -354,12 +358,10 @@
 
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
-    // === DOWNLOAD EXCEL (AUTO-FIT & DOWNLOAD ALL IF NO DATE) ===
+    // === DOWNLOAD EXCEL ===
     function downloadExcel() {
         const selectedDate = document.getElementById('searchDate').value;
-        // LOGIKA DOWNLOAD:
-        // Jika tanggal KOSONG -> Download SEMUA DATA (History Lengkap)
-        // Jika tanggal TERISI -> Download HANYA DATA TANGGAL ITU
+        // LOGIKA: Jika tanggal kosong -> Download SEMUA (rawData). Jika ada tanggal -> Download yang tampil (filteredData)
         let dataToDownload = selectedDate ? filteredData : rawData;
 
         if (!dataToDownload || dataToDownload.length === 0) {
@@ -376,8 +378,8 @@
                 "Capacity": row.pelaksana?.capacity || '-',
                 "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
                 "Week": row.pelaksana?.week || '-',
-                "Keterangan": row.keterangan || '-', 
-                "Status Approval": row.status
+                "Status Approval": row.status,
+                "Keterangan": row.keterangan || '-'
             }));
         } else {
             dataToExport = dataToDownload.map(row => ({
@@ -457,7 +459,7 @@
                 htmlContent += `<div class="section-header">${group.title}</div><div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>${groupRows}</table></div>`;
             }
         });
-        if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Item OK</div>`;
+        if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Item Check Berstatus OK (Tidak ada temuan NG)</div>`;
         return htmlContent;
     }
 
@@ -506,7 +508,7 @@
             checksHtml += renderJsonCheck("4. MATERIAL", row.check_material);
             checksHtml += renderJsonCheck("5. QC TOOLS", row.check_qc);
             checksHtml += renderJsonCheck("6. SAFETY", row.check_safety);
-            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Item OK</div>`;
+            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Item Check Berstatus OK (Tidak ada temuan NG)</div>`;
             body.innerHTML = checksHtml;
         }
 
