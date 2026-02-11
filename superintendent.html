@@ -48,6 +48,7 @@
         .col-item { width: 35%; } .col-status { width: 10%; text-align: center; } .col-ket { width: 55%; }
         .status-ng { color: red; font-weight: bold; } .status-ok { color: green; font-weight: bold; } .status-na { color: #666; font-style: italic; font-weight: bold; }
         .all-ok-msg { padding: 15px; background: #d4edda; color: #155724; border-radius: 8px; text-align: center; font-weight: bold; margin-bottom: 15px; }
+        
         #autoProcessStatus { margin-left: 15px; font-size: 13px; font-weight: bold; color: #003366; display: none; }
         .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid #003366; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 5px; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -61,7 +62,7 @@
 <header>
     <div style="font-size: 1.2rem; font-weight: bold;">SUPERINTENDENT - APPROVAL SYSTEM</div>
     <div>
-        <span id="autoProcessStatus"><span class="spinner"></span> <strong>Checking Auto-Approve...</strong></span>
+        <span id="autoProcessStatus"><span class="spinner"></span> <strong>Sedang Memproses...</strong></span>
         <a href="dashboard.html" class="btn btn-back">← Dashboard</a>
         <button class="btn btn-primary" onclick="window.refreshData()">Refresh Data</button>
     </div>
@@ -81,7 +82,7 @@
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN (OK/NA)</strong> otomatis Approved & Disembunyikan.
+        * Default: Menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN (OK/NA)</strong> otomatis Approved & Disembunyikan.
     </div>
 
     <div class="card">
@@ -107,17 +108,21 @@
                     <label><strong>Nama Superintendent:</strong></label>
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama..." value="A. Rizki Mubarok K">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
+                    
                     <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
                     <textarea id="keteranganSuper" placeholder="Tuliskan komentar, instruksi, atau alasan reject di sini..."></textarea>
                 </div>
+
                 <p><strong>Tanda Tangan Superintendent:</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
                 <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
+                
                 <div style="display: flex; justify-content: space-around;">
                     <button class="btn btn-success" style="width: 45%;" onclick="window.processStatus('Approved')">APPROVE</button>
                     <button class="btn btn-danger" style="width: 45%;" onclick="window.processStatus('Rejected')">REJECT</button>
                 </div>
             </div>
+
             <div id="historySection" style="display:none;">
                 <h3 id="historyLabel" style="margin-bottom:10px;"></h3>
                 <p style="margin-bottom:10px;"><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
@@ -172,13 +177,14 @@
     function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
     function refreshData() { loadData(); }
 
-    // --- LOGIKA DETEKSI NG YANG LEBIH KUAT ---
+    // --- LOGIKA CEK NG YANG LEBIH CERDAS ---
+    // Hanya return TRUE jika menemukan string "NG" secara spesifik.
+    // NA, OK, Kosong -> Return FALSE (Aman)
     function isRowNG(row) {
         if (currentTab === 'rutin') {
             for (const group of rutinGroups) {
                 for (const sub of group.subs) {
                     for (const item of sub.items) {
-                        // Ambil value, pastikan string, trim spasi, uppercase
                         const val = row[item] ? String(row[item]).trim().toUpperCase() : '';
                         if (val === 'NG') return true; 
                     }
@@ -190,7 +196,6 @@
             for (const check of checks) {
                 if (check) {
                     for (const key in check) {
-                        // Trial Mold bisa berupa Object {status: "NG"} atau String "NG"
                         const itemVal = check[key];
                         let status = '';
                         if (typeof itemVal === 'object' && itemVal !== null) {
@@ -198,7 +203,6 @@
                         } else {
                             status = String(itemVal).trim().toUpperCase();
                         }
-                        
                         if (status === 'NG') return true;
                     }
                 }
@@ -207,61 +211,7 @@
         }
     }
 
-    // --- FUNGSI EXCEL (TANPA OK/NG/NA) ---
-    function downloadExcel() {
-        const selectedDate = document.getElementById('searchDate').value;
-        let dataToDownload = selectedDate ? filteredData : rawData;
-
-        if (!dataToDownload || dataToDownload.length === 0) {
-            alert("Tidak ada data untuk diunduh!");
-            return;
-        }
-        let dataToExport = [];
-        
-        if (currentTab === 'rutin') {
-            dataToExport = dataToDownload.map(row => ({
-                "Pelaksana": row.pelaksana?.nama_pelaksana || '-',
-                "Superintendent": row.nama_superintendent || '-',
-                "Equipment": row.pelaksana?.nama_tools || '-',
-                "Capacity": row.pelaksana?.capacity || '-',
-                "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
-                "Week": row.pelaksana?.week || '-',
-                "Status Approval": row.status,
-                "Keterangan": row.keterangan || '-'
-            }));
-        } else {
-            dataToExport = dataToDownload.map(row => ({
-                "PIC Trial": row.pic_trial || '-',
-                "Superintendent": row.nama_superintendent || '-',
-                "Mesin": row.machine_name || '-',
-                "Project": row.project_name || '-',
-                "Kode Mold": row.mold_code || '-',
-                "Nama Mold": row.mold_name || '-',
-                "Tanggal Trial": formatDate(row.trial_date),
-                "Status Approval": row.status
-            }));
-        }
-        
-        const ws = XLSX.utils.json_to_sheet(dataToExport);
-        const columnWidths = [];
-        const keys = Object.keys(dataToExport[0]);
-        keys.forEach(key => {
-            let maxLen = key.length; 
-            dataToExport.forEach(row => {
-                const cellValue = row[key] ? String(row[key]) : "";
-                if (cellValue.length > maxLen) maxLen = cellValue.length;
-            });
-            if (maxLen > 100) maxLen = 100;
-            columnWidths.push({ wch: maxLen + 2 });
-        });
-        ws['!cols'] = columnWidths;
-
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Data");
-        XLSX.writeFile(wb, `Report_Filter_NG_${currentTab}.xlsx`);
-    }
-
-    // --- AUTO APPROVE ---
+    // --- AUTO APPROVE (EKSEKUSI DATA AMAN) ---
     async function executeAutoApprove(safeRows) {
         if (safeRows.length === 0 || isProcessingAuto) return;
         
@@ -272,7 +222,7 @@
         const now = new Date().toISOString();
         const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
 
-        // LOOPING AGAR LEBIH AMAN DAN DETEKSI ERROR
+        // Update satu per satu agar jika ada 1 error tidak membatalkan yang lain
         for (const row of safeRows) {
             const updateData = { 
                 status: 'Approved', 
@@ -289,6 +239,8 @@
             const { error } = await _supabase.from(tableName).update(updateData).eq('id', row.id);
             if (error) {
                 console.error("Gagal Auto Approve ID: " + row.id, error);
+                // JIKA ERROR, TAMPILKAN ALERT BIAR BOS TAU
+                alert(`GAGAL AUTO-APPROVE Item ID ${row.id}!\nPesan Error: ${error.message}\n\nKemungkinan kolom database belum lengkap.`);
             }
         }
         
@@ -307,7 +259,9 @@
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
-            // SYARAT AUTO APPROVE: PENDING & TIDAK ADA NG (NA AMAN)
+            
+            // JIKA STATUS BELUM DI PROSES (Pending) DAN TIDAK ADA NG
+            // BERARTI INI CALON AUTO-APPROVE (Termasuk yang isinya NA)
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 safePendingRows.push(row);
             }
@@ -413,6 +367,62 @@
         }).join('');
     }
 
+    function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
+
+    // === DOWNLOAD EXCEL ===
+    function downloadExcel() {
+        const selectedDate = document.getElementById('searchDate').value;
+        let dataToDownload = selectedDate ? filteredData : rawData;
+
+        if (!dataToDownload || dataToDownload.length === 0) {
+            alert("Tidak ada data untuk diunduh!");
+            return;
+        }
+        let dataToExport = [];
+        
+        if (currentTab === 'rutin') {
+            dataToExport = dataToDownload.map(row => ({
+                "Pelaksana": row.pelaksana?.nama_pelaksana || '-',
+                "Superintendent": row.nama_superintendent || '-',
+                "Equipment": row.pelaksana?.nama_tools || '-',
+                "Capacity": row.pelaksana?.capacity || '-',
+                "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
+                "Week": row.pelaksana?.week || '-',
+                "Status Approval": row.status,
+                "Keterangan": row.keterangan || '-'
+            }));
+        } else {
+            dataToExport = dataToDownload.map(row => ({
+                "PIC Trial": row.pic_trial || '-',
+                "Superintendent": row.nama_superintendent || '-',
+                "Mesin": row.machine_name || '-',
+                "Project": row.project_name || '-',
+                "Kode Mold": row.mold_code || '-',
+                "Nama Mold": row.mold_name || '-',
+                "Tanggal Trial": formatDate(row.trial_date),
+                "Status Approval": row.status
+            }));
+        }
+        
+        const ws = XLSX.utils.json_to_sheet(dataToExport);
+        const columnWidths = [];
+        const keys = Object.keys(dataToExport[0]);
+        keys.forEach(key => {
+            let maxLen = key.length; 
+            dataToExport.forEach(row => {
+                const cellValue = row[key] ? String(row[key]) : "";
+                if (cellValue.length > maxLen) maxLen = cellValue.length;
+            });
+            if (maxLen > 100) maxLen = 100;
+            columnWidths.push({ wch: maxLen + 2 });
+        });
+        ws['!cols'] = columnWidths;
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Data");
+        XLSX.writeFile(wb, `Report_Filter_NG_${currentTab}.xlsx`);
+    }
+
     function renderJsonCheck(title, jsonData) {
         if (!jsonData || Object.keys(jsonData).length === 0) return '';
         let rows = '';
@@ -455,7 +465,7 @@
                 htmlContent += `<div class="section-header">${group.title}</div><div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>${groupRows}</table></div>`;
             }
         });
-        if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Item OK</div>`;
+        if (totalIssues === 0) return `<div class="all-ok-msg">✨ Semua Item OK (Aman)</div>`;
         return htmlContent;
     }
 
@@ -504,7 +514,7 @@
             checksHtml += renderJsonCheck("4. MATERIAL", row.check_material);
             checksHtml += renderJsonCheck("5. QC TOOLS", row.check_qc);
             checksHtml += renderJsonCheck("6. SAFETY", row.check_safety);
-            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Item OK</div>`;
+            if (checksHtml === "") checksHtml = `<div class="all-ok-msg">✨ Semua Item OK (Aman)</div>`;
             body.innerHTML = checksHtml;
         }
 
