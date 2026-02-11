@@ -148,7 +148,7 @@
     </div>
 
     <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic;">
-        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN (OK/NA)</strong> otomatis Approved & Disembunyikan.
+        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN (OK/NA)</strong> otomatis Approved & Disembunyikan (Bisa dicari via tanggal).
     </div>
 
     <div class="card">
@@ -162,7 +162,7 @@
 <div id="modal" class="modal">
     <div class="modal-content">
         <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="window.closeModal()">&times;</span>
-        <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 15px;">Review Checklist</h2>
+        <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px;">Review Checklist</h2>
         
         <div id="infoBox" class="info-grid"></div>
         <div id="superNoteArea"></div>
@@ -174,17 +174,21 @@
                     <label><strong>Nama Superintendent:</strong></label>
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama..." value="A. Rizki Mubarok K">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
+                    
                     <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
                     <textarea id="keteranganSuper" placeholder="Tuliskan komentar..."></textarea>
                 </div>
+
                 <p><strong>Tanda Tangan Superintendent:</strong></p>
                 <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
-                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
+                <button class="btn" style="background:#6c757d; color:white; margin-bottom:25px;" onclick="window.clearSig()">Hapus TTD</button>
+                
                 <div style="display: flex; justify-content: space-around;">
-                    <button class="btn btn-success" style="width: 45%;" onclick="window.confirmManualAction('Approved')">✅ APPROVE</button>
-                    <button class="btn btn-danger" style="width: 45%;" onclick="window.confirmManualAction('Rejected')">❌ REJECT</button>
+                    <button class="btn btn-success" style="width: 200px; padding:12px;" onclick="window.confirmManualAction('Approved')">✅ APPROVE</button>
+                    <button class="btn btn-danger" style="width: 200px; padding:12px;" onclick="window.confirmManualAction('Rejected')">❌ REJECT</button>
                 </div>
             </div>
+
             <div id="historySection" style="display:none;">
                 <h3 id="historyLabel" style="margin-bottom:10px;"></h3>
                 <p style="margin-bottom:10px;"><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
@@ -282,19 +286,47 @@
         }
     }
 
-    // --- POP-UP MODAL LOGIC ---
+    // --- POP-UP MODAL LOGIC (FLEXIBLE) ---
     window.showConfirmModal = function(title, text, icon, actionCallback) {
         document.getElementById('confirmTitle').innerText = title;
         document.getElementById('confirmText').innerText = text;
         document.getElementById('confirmIcon').innerText = icon;
         document.getElementById('confirmModal').style.display = 'block';
         
+        // Reset Tombol ke Default (Ada Cancel)
+        const btnNo = document.querySelector('.btn-confirm-no');
         const btnYes = document.getElementById('btnConfirmYes');
+        
+        btnNo.style.display = 'inline-block';
+        btnYes.innerText = "Ya, Lanjutkan";
+
+        // Recreate Yes button to clear events
         const newBtn = btnYes.cloneNode(true);
         btnYes.parentNode.replaceChild(newBtn, btnYes);
         
         newBtn.onclick = function() {
             actionCallback();
+            window.closeConfirmModal();
+        };
+    }
+
+    // --- POP-UP INFO (TOMBOL OK SAJA) ---
+    window.showInfoModal = function(title, text, icon) {
+        document.getElementById('confirmTitle').innerText = title;
+        document.getElementById('confirmText').innerText = text;
+        document.getElementById('confirmIcon').innerText = icon;
+        document.getElementById('confirmModal').style.display = 'block';
+
+        // Sembunyikan Cancel, Ubah Yes jadi Tutup
+        document.querySelector('.btn-confirm-no').style.display = 'none';
+        
+        const btnYes = document.getElementById('btnConfirmYes');
+        btnYes.innerText = "Tutup";
+        
+        const newBtn = btnYes.cloneNode(true);
+        btnYes.parentNode.replaceChild(newBtn, btnYes);
+        
+        newBtn.onclick = function() {
             window.closeConfirmModal();
         };
     }
@@ -305,7 +337,7 @@
 
     // --- TRIGGER AUTO APPROVE ---
     window.triggerAutoApprove = async function() {
-        if (!rawData || rawData.length === 0) return alert("Tidak ada data untuk diproses.");
+        if (!rawData || rawData.length === 0) return window.showInfoModal("Info", "Tidak ada data untuk diproses.", "ℹ️");
         if (isProcessingAuto) return;
 
         const safePendingRows = [];
@@ -318,7 +350,7 @@
         });
 
         if (safePendingRows.length === 0) {
-            return alert("Tidak ada data 'Aman' yang Pending saat ini.");
+            return window.showInfoModal("Info", "Tidak ada data 'Aman' yang Pending saat ini.", "ℹ️");
         }
 
         window.showConfirmModal(
@@ -536,7 +568,7 @@
 
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Data");
-        XLSX.writeFile(wb, `Report_Filter_NG_${currentTab}.xlsx`);
+        XLSX.writeFile(wb, `Report_Approval_${currentTab}.xlsx`);
     }
 
     function renderJsonCheck(title, jsonData) {
