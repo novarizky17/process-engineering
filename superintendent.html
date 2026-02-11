@@ -15,7 +15,6 @@
         .tab-btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; background: #e0e0e0; color: #666; transition: 0.3s; font-size: 14px; }
         .tab-btn.active { background: #003366; color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         
-        /* Layout Header Control */
         .header-controls { display: flex; gap: 10px; align-items: center; }
 
         .search-section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -34,7 +33,7 @@
         .btn-primary { background: #007bff; color: white; }
         .btn-success { background: #28a745; color: white; }
         .btn-danger { background: #dc3545; color: white; }
-        .btn-warning { background: #ffc107; color: #333; } /* Tombol Auto Approve */
+        .btn-warning { background: #ffc107; color: #333; }
         .btn-excel { background: #198754; color: white; margin-left: auto; }
         
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); overflow-y: auto; }
@@ -216,43 +215,6 @@
         }
     }
 
-    function getExcelStatusLabel(row) {
-        let foundNG = false;
-        let foundNA = false;
-
-        if (currentTab === 'rutin') {
-            rutinGroups.forEach(group => {
-                group.subs.forEach(sub => {
-                    sub.items.forEach(item => {
-                        const val = row[item] ? String(row[item]).trim().toUpperCase() : '';
-                        if (val === 'NG') foundNG = true;
-                        if (val === 'NA' || val === 'N/A') foundNA = true;
-                    });
-                });
-            });
-        } else {
-            const checks = [row.check_machine, row.check_mold, row.check_aux, row.check_material, row.check_qc, row.check_safety];
-            checks.forEach(check => {
-                if (check) {
-                    Object.values(check).forEach(itemVal => {
-                        let val = '';
-                        if (typeof itemVal === 'object' && itemVal !== null) {
-                            val = itemVal.status ? String(itemVal.status).trim().toUpperCase() : '';
-                        } else {
-                            val = String(itemVal).trim().toUpperCase();
-                        }
-                        if (val === 'NG') foundNG = true;
-                        if (val === 'NA' || val === 'N/A') foundNA = true;
-                    });
-                }
-            });
-        }
-
-        if (foundNG) return "NG";
-        if (foundNA) return "N/A";
-        return "OK"; 
-    }
-
     // --- BUTTON TRIGGER AUTO APPROVE ---
     window.triggerAutoApprove = async function() {
         if (!rawData || rawData.length === 0) return alert("Tidak ada data untuk diproses.");
@@ -410,6 +372,7 @@
 
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
+    // === DOWNLOAD EXCEL ===
     function downloadExcel() {
         const selectedDate = document.getElementById('searchDate').value;
         let dataToDownload = selectedDate ? filteredData : rawData;
@@ -429,7 +392,6 @@
                 "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
                 "Week": row.pelaksana?.week || '-',
                 "Status Approval": row.status,
-                "Checklist": getExcelStatusLabel(row), 
                 "Keterangan": row.keterangan || '-'
             }));
         } else {
@@ -441,8 +403,7 @@
                 "Kode Mold": row.mold_code || '-',
                 "Nama Mold": row.mold_name || '-',
                 "Tanggal Trial": formatDate(row.trial_date),
-                "Status Approval": row.status,
-                "Checklist": getExcelStatusLabel(row)
+                "Status Approval": row.status
             }));
         }
         
@@ -478,8 +439,8 @@
                 rows += `<tr><td class="col-item">${key}</td><td class="col-status ${colorClass}">${status}</td><td class="col-ket">${note}</td></tr>`;
             }
             else if (status === 'N/A' || status === 'NA') {
-                 hasIssues = true; 
                  let colorClass = 'status-na';
+                 hasIssues = true; 
                  rows += `<tr><td class="col-item">${key}</td><td class="col-status ${colorClass}">N/A</td><td class="col-ket">${note}</td></tr>`;
             }
         }
