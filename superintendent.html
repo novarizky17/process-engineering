@@ -199,7 +199,7 @@
         }
     }
 
-    // FUNGSI UNTUK EXCEL: CEK STATUS SPESIFIK (NG/NA/OK)
+    // --- FUNGSI BARU: CEK STATUS UNTUK EXCEL (NG / NA / OK) ---
     function getExcelStatusLabel(row) {
         let foundNG = false;
         let foundNA = false;
@@ -227,8 +227,8 @@
         }
 
         if (foundNG) return "NG";
-        if (foundNA) return "NA"; // JIKA TIDAK ADA NG TAPI ADA NA
-        return "OK"; // JIKA AMAN SEMUA
+        if (foundNA) return "NA"; // Tampilkan NA jika ada
+        return "OK"; // Jika tidak ada NG dan tidak ada NA
     }
 
     // --- AUTO APPROVE ---
@@ -259,8 +259,10 @@
         });
 
         await Promise.all(updates);
+        
         document.getElementById('autoProcessStatus').style.display = 'none';
         isProcessingAuto = false;
+        
         loadData(true); 
     }
 
@@ -274,7 +276,7 @@
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
-            // SYARAT AUTO APPROVE: PENDING & TIDAK ADA NG (NA dianggap OK untuk Approval)
+            // SYARAT AUTO APPROVE: PENDING & TIDAK ADA NG (NA dianggap Aman untuk Approval System)
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 safePendingRows.push(row);
             }
@@ -292,11 +294,13 @@
     function filterDataByDate() {
         const selectedDate = document.getElementById('searchDate').value;
         if (selectedDate) {
+            // MODE HISTORY: TAMPILKAN SEMUA
             filteredData = rawData.filter(row => {
                 const rowDate = currentTab === 'rutin' ? row.pelaksana?.tanggal_checklist : row.trial_date;
                 return rowDate === selectedDate;
             });
         } else {
+            // MODE DEFAULT (TO-DO): SEMBUNYIKAN YANG SUDAH APPROVED / REJECTED
             filteredData = rawData.filter(row => {
                 const status = (row.status || '').toLowerCase();
                 return status !== 'approved' && status !== 'rejected';
@@ -382,7 +386,7 @@
 
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
-    // === DOWNLOAD EXCEL UPDATE (OK, NG, NA) ===
+    // === DOWNLOAD EXCEL UPDATE (STATUS: NG / NA / OK) ===
     function downloadExcel() {
         if (!filteredData || filteredData.length === 0) {
             alert("Tidak ada data untuk diunduh!");
@@ -397,7 +401,7 @@
                 "Equipment": row.pelaksana?.nama_tools || '-',
                 "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
                 "Week": row.pelaksana?.week || '-',
-                "OK/NG": getExcelStatusLabel(row),  // Panggil Fungsi Label Baru
+                "OK/NG/NA": getExcelStatusLabel(row),  // LOGIKA BARU
                 "Keterangan": row.keterangan || '-', 
                 "Status Approval": row.status
             }));
@@ -410,7 +414,7 @@
                 "Kode Mold": row.mold_code || '-',
                 "Nama Mold": row.mold_name || '-',
                 "Tanggal Trial": formatDate(row.trial_date),
-                "OK/NG": getExcelStatusLabel(row), // Panggil Fungsi Label Baru
+                "OK/NG/NA": getExcelStatusLabel(row), // LOGIKA BARU
                 "Status Approval": row.status
             }));
         }
@@ -424,7 +428,9 @@
             let maxLen = key.length; 
             dataToExport.forEach(row => {
                 const cellValue = row[key] ? String(row[key]) : "";
-                if (cellValue.length > maxLen) maxLen = cellValue.length;
+                if (cellValue.length > maxLen) {
+                    maxLen = cellValue.length;
+                }
             });
             if (maxLen > 100) maxLen = 100;
             columnWidths.push({ wch: maxLen + 2 });
