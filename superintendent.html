@@ -227,8 +227,8 @@
         }
 
         if (foundNG) return "NG";
-        if (foundNA) return "NA"; // Tampilkan NA jika ada
-        return "OK"; // Jika tidak ada NG dan tidak ada NA
+        if (foundNA) return "NA"; 
+        return "OK"; 
     }
 
     // --- AUTO APPROVE ---
@@ -386,7 +386,7 @@
 
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
-    // === DOWNLOAD EXCEL UPDATE (STATUS: NG / NA / OK) ===
+    // === DOWNLOAD EXCEL UPDATE (STATUS: NG / NA / OK) & AUTO FIT ===
     function downloadExcel() {
         if (!filteredData || filteredData.length === 0) {
             alert("Tidak ada data untuk diunduh!");
@@ -399,23 +399,22 @@
                 "Pelaksana": row.pelaksana?.nama_pelaksana || '-',
                 "Superintendent": row.nama_superintendent || '-',
                 "Equipment": row.pelaksana?.nama_tools || '-',
+                "Capacity": row.pelaksana?.capacity || '-',
                 "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
                 "Week": row.pelaksana?.week || '-',
-                "OK/NG/NA": getExcelStatusLabel(row),  // LOGIKA BARU
-                "Keterangan": row.keterangan || '-', 
-                "Status Approval": row.status
+                "Status": getExcelStatusLabel(row),  // STATUS ISI: OK / NG / NA
+                "Keterangan": row.keterangan || '-'
             }));
         } else {
             dataToExport = filteredData.map(row => ({
-                "PIC Trial": row.pic_trial || '-',
+                "Pelaksana": row.pic_trial || '-',
                 "Superintendent": row.nama_superintendent || '-',
-                "Mesin": row.machine_name || '-',
-                "Project": row.project_name || '-',
-                "Kode Mold": row.mold_code || '-',
-                "Nama Mold": row.mold_name || '-',
-                "Tanggal Trial": formatDate(row.trial_date),
-                "OK/NG/NA": getExcelStatusLabel(row), // LOGIKA BARU
-                "Status Approval": row.status
+                "Equipment": row.machine_name || '-',
+                "Capacity": '-', 
+                "Tanggal": formatDate(row.trial_date),
+                "Week": '-', 
+                "Status": getExcelStatusLabel(row), // STATUS ISI: OK / NG / NA
+                "Keterangan": row.keterangan_superintendent || '-'
             }));
         }
         
