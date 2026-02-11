@@ -199,38 +199,6 @@
         }
     }
 
-    // --- FUNGSI EXCEL (NG / NA / OK) ---
-    function getExcelStatusLabel(row) {
-        let foundNG = false;
-        let foundNA = false;
-
-        if (currentTab === 'rutin') {
-            rutinGroups.forEach(group => {
-                group.subs.forEach(sub => {
-                    sub.items.forEach(item => {
-                        const val = row[item];
-                        if (val === 'NG') foundNG = true;
-                        if (val === 'NA') foundNA = true;
-                    });
-                });
-            });
-        } else {
-            const checks = [row.check_machine, row.check_mold, row.check_aux, row.check_material, row.check_qc, row.check_safety];
-            checks.forEach(check => {
-                if (check) {
-                    Object.values(check).forEach(val => {
-                        if (val.status === 'NG') foundNG = true;
-                        if (val.status === 'NA') foundNA = true;
-                    });
-                }
-            });
-        }
-
-        if (foundNG) return "NG";
-        if (foundNA) return "NA"; // TETAP MUNCUL NA
-        return "OK"; 
-    }
-
     // --- AUTO APPROVE ---
     async function executeAutoApprove(safeRows) {
         if (safeRows.length === 0 || isProcessingAuto) return;
@@ -276,7 +244,7 @@
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
-            // SYARAT AUTO APPROVE: PENDING & TIDAK ADA NG (NA dianggap Aman untuk Approve, tapi status detail tetap NA)
+            // SYARAT AUTO APPROVE: PENDING & TIDAK ADA NG (NA dianggap Aman untuk Approval System)
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 safePendingRows.push(row);
             }
@@ -386,10 +354,12 @@
 
     function resetFilter() { document.getElementById('searchDate').value = ''; filterDataByDate(); }
 
-    // === DOWNLOAD EXCEL UPDATE (STATUS: NG / NA / OK) & AUTO FIT ===
+    // === DOWNLOAD EXCEL (AUTO-FIT & DOWNLOAD ALL IF NO DATE) ===
     function downloadExcel() {
         const selectedDate = document.getElementById('searchDate').value;
-        // LOGIKA: Jika tanggal kosong -> Download SEMUA (rawData). Jika ada tanggal -> Download yang tampil (filteredData)
+        // LOGIKA DOWNLOAD:
+        // Jika tanggal KOSONG -> Download SEMUA DATA (History Lengkap)
+        // Jika tanggal TERISI -> Download HANYA DATA TANGGAL ITU
         let dataToDownload = selectedDate ? filteredData : rawData;
 
         if (!dataToDownload || dataToDownload.length === 0) {
@@ -406,7 +376,6 @@
                 "Capacity": row.pelaksana?.capacity || '-',
                 "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
                 "Week": row.pelaksana?.week || '-',
-                "OK/NG/NA": getExcelStatusLabel(row),  // LOGIKA STATUS: NG/NA/OK
                 "Keterangan": row.keterangan || '-', 
                 "Status Approval": row.status
             }));
@@ -419,7 +388,6 @@
                 "Kode Mold": row.mold_code || '-',
                 "Nama Mold": row.mold_name || '-',
                 "Tanggal Trial": formatDate(row.trial_date),
-                "OK/NG/NA": getExcelStatusLabel(row), // LOGIKA STATUS: NG/NA/OK
                 "Status Approval": row.status
             }));
         }
@@ -433,7 +401,9 @@
             let maxLen = key.length; 
             dataToExport.forEach(row => {
                 const cellValue = row[key] ? String(row[key]) : "";
-                if (cellValue.length > maxLen) maxLen = cellValue.length;
+                if (cellValue.length > maxLen) {
+                    maxLen = cellValue.length;
+                }
             });
             if (maxLen > 100) maxLen = 100;
             columnWidths.push({ wch: maxLen + 2 });
