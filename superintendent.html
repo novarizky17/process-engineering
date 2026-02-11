@@ -199,7 +199,7 @@
         }
     }
 
-    // --- FUNGSI BARU: CEK STATUS UNTUK EXCEL (NG / NA / OK) ---
+    // --- FUNGSI EXCEL (NG / NA / OK) ---
     function getExcelStatusLabel(row) {
         let foundNG = false;
         let foundNA = false;
@@ -227,7 +227,7 @@
         }
 
         if (foundNG) return "NG";
-        if (foundNA) return "NA"; 
+        if (foundNA) return "NA"; // TETAP MUNCUL NA
         return "OK"; 
     }
 
@@ -276,7 +276,7 @@
         data.forEach(row => {
             const isNG = isRowNG(row);
             const status = (row.status || '').toLowerCase();
-            // SYARAT AUTO APPROVE: PENDING & TIDAK ADA NG (NA dianggap Aman untuk Approval System)
+            // SYARAT AUTO APPROVE: PENDING & TIDAK ADA NG (NA dianggap Aman untuk Approve, tapi status detail tetap NA)
             if (!isNG && status !== 'approved' && status !== 'rejected') {
                 safePendingRows.push(row);
             }
@@ -388,33 +388,39 @@
 
     // === DOWNLOAD EXCEL UPDATE (STATUS: NG / NA / OK) & AUTO FIT ===
     function downloadExcel() {
-        if (!filteredData || filteredData.length === 0) {
+        const selectedDate = document.getElementById('searchDate').value;
+        // LOGIKA: Jika tanggal kosong -> Download SEMUA (rawData). Jika ada tanggal -> Download yang tampil (filteredData)
+        let dataToDownload = selectedDate ? filteredData : rawData;
+
+        if (!dataToDownload || dataToDownload.length === 0) {
             alert("Tidak ada data untuk diunduh!");
             return;
         }
         let dataToExport = [];
         
         if (currentTab === 'rutin') {
-            dataToExport = filteredData.map(row => ({
+            dataToExport = dataToDownload.map(row => ({
                 "Pelaksana": row.pelaksana?.nama_pelaksana || '-',
                 "Superintendent": row.nama_superintendent || '-',
                 "Equipment": row.pelaksana?.nama_tools || '-',
                 "Capacity": row.pelaksana?.capacity || '-',
                 "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
                 "Week": row.pelaksana?.week || '-',
-                "Status": getExcelStatusLabel(row),  // STATUS ISI: OK / NG / NA
-                "Keterangan": row.keterangan || '-'
+                "OK/NG/NA": getExcelStatusLabel(row),  // LOGIKA STATUS: NG/NA/OK
+                "Keterangan": row.keterangan || '-', 
+                "Status Approval": row.status
             }));
         } else {
-            dataToExport = filteredData.map(row => ({
-                "Pelaksana": row.pic_trial || '-',
+            dataToExport = dataToDownload.map(row => ({
+                "PIC Trial": row.pic_trial || '-',
                 "Superintendent": row.nama_superintendent || '-',
-                "Equipment": row.machine_name || '-',
-                "Capacity": '-', 
-                "Tanggal": formatDate(row.trial_date),
-                "Week": '-', 
-                "Status": getExcelStatusLabel(row), // STATUS ISI: OK / NG / NA
-                "Keterangan": row.keterangan_superintendent || '-'
+                "Mesin": row.machine_name || '-',
+                "Project": row.project_name || '-',
+                "Kode Mold": row.mold_code || '-',
+                "Nama Mold": row.mold_name || '-',
+                "Tanggal Trial": formatDate(row.trial_date),
+                "OK/NG/NA": getExcelStatusLabel(row), // LOGIKA STATUS: NG/NA/OK
+                "Status Approval": row.status
             }));
         }
         
@@ -427,9 +433,7 @@
             let maxLen = key.length; 
             dataToExport.forEach(row => {
                 const cellValue = row[key] ? String(row[key]) : "";
-                if (cellValue.length > maxLen) {
-                    maxLen = cellValue.length;
-                }
+                if (cellValue.length > maxLen) maxLen = cellValue.length;
             });
             if (maxLen > 100) maxLen = 100;
             columnWidths.push({ wch: maxLen + 2 });
