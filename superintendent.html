@@ -10,7 +10,7 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f4f6f9; color: #333; padding-bottom: 20px; }
         
-        /* HEADER */
+        /* HEADER RESPONSIVE */
         header { 
             background: linear-gradient(90deg, #003366 0%, #004080 100%); 
             color: white; 
@@ -25,10 +25,11 @@
         .header-title { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
         .header-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-        .container { padding: 25px; max-width: 1400px; margin: 0 auto; }
+        /* CONTAINER DEFAULT (DESKTOP) */
+        .container { padding: 20px; max-width: 1400px; margin: 0 auto; }
         
-        /* TAB MENU */
-        .tab-menu { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        /* TAB MENU RESPONSIVE */
+        .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .tab-btn { 
             padding: 10px 20px; 
             border-radius: 30px; 
@@ -55,7 +56,7 @@
             display: flex; align-items: center; gap: 10px; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-wrap: wrap;
         }
-        .input-search { padding: 10px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; flex-grow: 1; }
+        .input-search { padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; flex-grow: 1; }
         .input-search:focus { border-color: #003366; }
 
         /* TOMBOL GENERIC */
@@ -68,82 +69,154 @@
         .btn-excel { background: #207245; color: white; margin-left: auto; }
         .btn-back { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.4); }
 
-        /* TABLE CARD DEFAULT */
+        /* --- CSS TABEL UTAMA (DASHBOARD) --- */
         .card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-        th { background: #f8f9fa; padding: 18px; text-align: left; font-size: 13px; color: #555; text-transform: uppercase; border-bottom: 2px solid #eee; font-weight: 700; }
-        td { padding: 16px; border-top: 1px solid #eee; font-size: 14px; vertical-align: middle; color: #444; }
         
-        .badge { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .status-pending { background: #fff3cd; color: #856404; }
-        .status-approved { background: #d1e7dd; color: #0f5132; }
-        .status-rejected { background: #f8d7da; color: #842029; }
-        .row-ng { background-color: #fff8f8; } .row-ng td { border-top: 1px solid #ffebeb; }
+        /* DESKTOP VIEW */
+        @media screen and (min-width: 769px) {
+            table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+            th { background: #f8f9fa; padding: 18px; text-align: left; font-size: 13px; color: #555; text-transform: uppercase; border-bottom: 2px solid #eee; font-weight: 700; }
+            td { padding: 16px; border-top: 1px solid #eee; font-size: 14px; vertical-align: middle; color: #444; }
+            .row-ng td { border-top: 1px solid #ffebeb; }
+        }
 
-        /* --- BAGIAN INI SAYA EDIT UNTUK FULL WIDTH DI HP --- */
+        /* --- MOBILE VIEW (HP) - LEBIH FULL SCREEN --- */
         @media screen and (max-width: 768px) {
-            /* 1. Container dibikin mentok (Padding 0 kiri kanan) */
-            .container { padding: 10px 0; width: 100%; box-sizing: border-box; }
+            /* Kurangi padding container agar kartu melebar */
+            .container { padding: 10px 8px; width: 100%; box-sizing: border-box; }
             
-            /* 2. Header & Controls dirapikan */
-            header { flex-direction: column; text-align: center; gap: 10px; padding: 15px; }
-            .header-controls { justify-content: center; width: 100%; }
-            .header-controls button, .header-controls a { width: 100%; margin-bottom: 5px; }
-            
-            /* 3. Search & Menu */
-            .search-section { flex-direction: column; align-items: stretch; margin: 10px; }
-            .btn-excel { margin-left: 0; width: 100%; margin-top: 10px; }
-            .tab-menu { padding: 0 10px; } /* Sedikit padding utk tombol menu */
-
-            /* 4. Tabel Card View FULL WIDTH */
+            /* Sembunyikan Header Tabel Utama */
             #mainTableParent thead { display: none; }
-            .card { border-radius: 0; box-shadow: none; background: transparent; } /* Hilangkan kotak card pembungkus */
+            
+            #mainTableParent { width: 100%; display: block; }
+            #mainTable { width: 100%; display: block; }
 
+            /* Baris Tabel Utama jadi Kartu */
             #mainTable tr { 
                 display: block; 
-                margin-bottom: 10px; /* Jarak antar kartu */
-                border-top: 1px solid #e0e0e0; 
-                border-bottom: 1px solid #e0e0e0;
+                margin-bottom: 12px; 
+                border: 1px solid #e0e0e0; 
+                border-radius: 10px; 
                 background: #fff;
-                width: 100%; /* FULL WIDTH */
+                box-shadow: 0 3px 6px rgba(0,0,0,0.06);
+                width: 100%; /* Paksa full width */
             }
             
+            /* Sel Tabel Utama */
             #mainTable td { 
                 display: flex; 
                 justify-content: space-between; 
                 align-items: center; 
-                padding: 12px 15px; 
+                padding: 10px 12px; 
                 border-bottom: 1px solid #f0f0f0; 
-                font-size: 14px;
+                font-size: 13px;
                 text-align: right;
             }
             
-            #mainTable td:last-child { border-bottom: none; justify-content: center; padding-top: 15px; background: #fcfcfc; }
+            #mainTable td:last-child { border-bottom: none; justify-content: flex-end; padding-top: 12px; padding-bottom: 12px; background: #fcfcfc; }
             
+            /* Label Kolom di HP */
             #mainTable td::before { 
                 content: attr(data-label); 
                 font-weight: 700; 
                 text-transform: uppercase; 
                 font-size: 11px; 
-                color: #666; 
+                color: #555; 
                 text-align: left;
                 margin-right: 15px;
+                min-width: 80px; /* Biar label rata */
             }
 
-            /* 5. Modal di HP */
-            .modal-content { width: 95%; margin: 5% auto; padding: 15px; max-height: 95vh; overflow-y: auto; }
-            .info-grid { grid-template-columns: 1fr; } 
-            canvas { width: 100% !important; }
+            /* Adjust Header HP */
+            header { flex-direction: column; text-align: center; gap: 10px; padding: 10px 15px; }
+            .header-controls { justify-content: center; width: 100%; flex-direction: column; }
+            .header-controls button, .header-controls a { width: 100%; margin-bottom: 5px; }
+            
+            /* Search HP */
+            .search-section { flex-direction: column; align-items: stretch; padding: 12px; }
+            .btn-excel { margin-left: 0; width: 100%; margin-top: 10px; }
+
+            /* Modal HP */
+            .modal-content { width: 95%; margin: 2% auto; padding: 15px; max-height: 95vh; overflow-y: auto; }
+            .info-grid { grid-template-columns: 1fr; gap: 10px; } 
+            
+            /* Agar tombol review/hapus sejajar rapi */
+            .action-btn-group { width: 100%; display: flex; gap: 5px; }
+            .action-btn-group button { flex: 1; justify-content: center; }
         }
 
-        /* MODAL & POPUP (STYLE TETAP SAMA) */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); overflow-y: auto; }
+        .badge { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-approved { background: #d1e7dd; color: #0f5132; }
+        .status-rejected { background: #f8d7da; color: #842029; }
+        .row-ng { background-color: #fff8f8; } 
+
+        /* --- CSS KHUSUS TABEL DETAIL (MODAL) --- */
+        .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; margin-bottom: 15px; border-radius: 8px; }
+        .json-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        
+        /* Desktop View Modal Table */
+        @media screen and (min-width: 769px) {
+            .json-table { min-width: 700px; }
+            .json-table th { background: #f8f9fa; text-align: left; padding: 12px 15px; border-bottom: 2px solid #eee; }
+            .json-table td { padding: 12px 15px; border-bottom: 1px solid #eee; }
+            .col-item { width: 40%; } 
+            .col-status { width: 10%; text-align: center; } 
+            .col-ket { width: 50%; }
+        }
+
+        /* MOBILE VIEW MODAL TABLE - RAPI & LURUS */
+        @media screen and (max-width: 768px) {
+            .json-table thead { display: none; } /* Hapus header */
+            .json-table { width: 100%; display: block; }
+            
+            .json-table tr {
+                display: flex;
+                flex-wrap: wrap; 
+                border-bottom: 1px solid #ddd;
+                padding: 10px 5px;
+                background-color: #fff;
+            }
+
+            .json-table td {
+                padding: 2px 0;
+                border: none;
+                text-align: left !important; /* PAKSA RATA KIRI */
+                display: block;
+            }
+
+            /* Item Name */
+            .json-table .col-item {
+                width: 100%;
+                font-weight: 800;
+                color: #003366;
+                font-size: 13px;
+                margin-bottom: 4px;
+            }
+
+            /* Status & Ket dalam satu baris flex */
+            .json-table .col-status { width: auto; margin-right: 10px; font-weight: bold; }
+            .json-table .col-ket { width: auto; flex: 1; font-style: italic; color: #666; font-size: 12px; }
+        }
+
+        .status-ng { color: #dc3545; font-weight: bold; } 
+        .status-ok { color: #198754; font-weight: bold; } 
+        .status-na { color: #6c757d; font-style: italic; font-weight: bold; }
+        
+        .all-ok-msg { padding: 20px; background: #d1e7dd; color: #0f5132; border-radius: 8px; text-align: center; font-weight: 700; margin-bottom: 20px; border: 1px solid #badbcc; }
+        
+        #autoProcessStatus { margin-right: 15px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9); display: none; }
+        .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* MODAL & POPUP */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); overflow-y: auto; }
         .modal-content { background: white; margin: 2% auto; padding: 30px; border-radius: 16px; width: 95%; max-width: 1200px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); animation: slideDown 0.3s ease-out; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         .confirm-modal-content { 
-            background: white; margin: 20% auto; padding: 25px; border-radius: 12px; 
-            width: 85%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+            background: white; margin: 25% auto; padding: 25px; border-radius: 12px; 
+            width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
             animation: popIn 0.3s;
         }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -155,10 +228,6 @@
         .btn-confirm-yes { background: #003366; color: white; flex: 1; }
         .btn-confirm-no { background: #e9ecef; color: #333; flex: 1; }
 
-        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #003366; }
-        .info-item label { font-size: 11px; color: #777; display: block; margin-bottom: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .info-item span { font-size: 15px; font-weight: 600; color: #222; }
-
         .section-header { background: #eef2f7; padding: 12px 15px; margin: 25px 0 0 0; font-weight: 700; color: #003366; border-left: 5px solid #003366; border-radius: 4px; font-size: 15px; }
         .sub-header { background: #f8f9fa; padding: 8px 15px; font-weight: 700; color: #555; font-size: 13px; border-bottom: 1px solid #dee2e6; }
         
@@ -166,29 +235,11 @@
         
         .sig-area { border: 2px dashed #ccc; margin: 15px 0; background: #fafafa; border-radius: 8px; height: 160px; position: relative; }
         canvas { width: 100%; height: 100%; cursor: crosshair; display: block; touch-action: none; }
-        
         textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; padding: 12px; box-sizing: border-box; font-family: inherit; }
-        textarea:focus, input.input-nama:focus { border-color: #003366; outline: none; }
         
-        .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; margin-bottom: 15px; border-radius: 8px; }
-        .json-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px; }
-        .json-table th { background: #f8f9fa; text-align: left; padding: 12px 15px; border-bottom: 2px solid #eee; color: #555; }
-        .json-table td { padding: 12px 15px; border-bottom: 1px solid #eee; vertical-align: top; }
-        
-        .col-item { width: 40%; font-weight: 500; } 
-        .col-status { width: 10%; text-align: center; font-weight: 700; } 
-        .col-ket { width: 50%; color: #666; }
-        
-        .status-ng { color: #dc3545; } .status-ok { color: #198754; } .status-na { color: #6c757d; font-style: italic; }
-        .all-ok-msg { padding: 20px; background: #d1e7dd; color: #0f5132; border-radius: 8px; text-align: center; font-weight: 700; margin-bottom: 20px; border: 1px solid #badbcc; }
-        
-        #autoProcessStatus { margin-right: 15px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9); display: none; }
-        .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 8px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        #historySection { display: none; text-align: center; flex-direction: column; align-items: center; justify-content: center; width: 100%; margin-top: 20px; }
-        #historySigArea { margin-top: 15px; display: flex; justify-content: center; align-items: center; width: 100%; }
-        #historySigImg { max-width: 300px; border: 1px solid #eee; padding: 10px; background: white; display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-radius: 4px; }
+        #historySection { display: none; text-align: center; }
+        #historySigArea { margin-top: 15px; display: flex; justify-content: center; width: 100%; }
+        #historySigImg { max-width: 300px; border: 1px solid #eee; padding: 10px; background: white; display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
@@ -196,8 +247,8 @@
 <header>
     <div class="header-title">APPROVAL SYSTEM</div>
     <div class="header-controls">
-        <span id="autoProcessStatus"><span class="spinner"></span> <strong>Processing...</strong></span>
-        <button class="btn btn-warning" onclick="window.triggerAutoApprove()">✨ AUTO APPROVE (ALL OK)</button>
+        <span id="autoProcessStatus"><span class="spinner"></span> Wait...</span>
+        <button class="btn btn-warning" onclick="window.triggerAutoApprove()">✨ AUTO APPROVE</button>
         <button class="btn btn-primary" onclick="window.refreshData()">🔄 Refresh</button>
         <a href="dashboard.html" class="btn btn-back">← Kembali</a>
     </div>
@@ -206,55 +257,55 @@
 <div class="container">
     <div class="tab-menu">
         <button id="tabRutin" class="tab-btn active" onclick="window.switchTab('rutin')">📋 Checklist Rutin</button>
-        <button id="tabTrial" class="tab-btn" onclick="window.switchTab('trial')">🧪 Checklist Trial Mold</button>
+        <button id="tabTrial" class="tab-btn" onclick="window.switchTab('trial')">🧪 Trial Mold</button>
     </div>
 
     <div class="search-section">
-        <strong id="filterLabel">Cari Tanggal (History):</strong>
+        <span class="filter-label">Cari Tanggal:</span>
         <input type="date" id="searchDate" class="input-search" onchange="window.filterDataByDate()">
-        <button class="btn btn-primary" onclick="window.resetFilter()">Reset / To Do List</button>
-        <button class="btn btn-excel" onclick="window.downloadExcel()">📥 Download Excel</button>
+        <button class="btn btn-primary" onclick="window.resetFilter()">Reset</button>
+        <button class="btn btn-excel" onclick="window.downloadExcel()">📥 Excel</button>
     </div>
 
-    <div style="margin-bottom: 10px; font-size: 13px; color: #666; font-style: italic; padding: 0 10px;">
-        * Default: Hanya menampilkan data <strong>PENDING / NG</strong>. Data <strong>AMAN (OK/NA)</strong> otomatis Approved & Disembunyikan.
+    <div style="margin-bottom: 15px; font-size: 13px; color: #666; font-style: italic;">
+        * Default: Tampil data <strong>PENDING / NG</strong>. Data <strong>AMAN (OK/NA)</strong> otomatis disembunyikan.
     </div>
 
     <div class="card">
         <table id="mainTableParent">
             <thead><tr id="tableHeader"></tr></thead>
-            <tbody id="mainTable"><tr><td colspan="8" style="text-align:center;">Memuat data...</td></tr></tbody>
+            <tbody id="mainTable"><tr><td colspan="8" style="text-align:center; padding:20px;">Memuat data...</td></tr></tbody>
         </table>
     </div>
 </div>
 
 <div id="modal" class="modal">
     <div class="modal-content">
-        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold;" onclick="window.closeModal()">&times;</span>
-        <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 15px;">Review Checklist</h2>
+        <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold; color:#aaa;" onclick="window.closeModal()">&times;</span>
+        <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px;">Review</h2>
         
         <div id="infoBox" class="info-grid"></div>
         <div id="superNoteArea"></div>
         <div id="modalBody"></div>
 
-        <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:20px;">
+        <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:25px;">
             <div id="pendingSection" style="display:none; text-align:center;">
-                <div style="text-align: left; margin-bottom: 15px;">
+                <div style="text-align: left; margin-bottom: 20px; max-width: 800px; margin-left: auto; margin-right: auto;">
                     <label><strong>Nama Superintendent:</strong></label>
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama..." value="A. Rizki Mubarok K">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
                     
-                    <label style="color:#003366; margin-top:10px;"><strong>Catatan / Keterangan Superintendent:</strong></label>
-                    <textarea id="keteranganSuper" placeholder="Tuliskan komentar..."></textarea>
+                    <label style="color:#003366; margin-top:15px;"><strong>Catatan / Keterangan:</strong></label>
+                    <textarea id="keteranganSuper" rows="3" placeholder="Tuliskan komentar..."></textarea>
                 </div>
 
-                <p><strong>Tanda Tangan Superintendent:</strong></p>
-                <div class="sig-area"><canvas id="sig-canvas"></canvas></div>
-                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
+                <p><strong>Tanda Tangan (Manual):</strong></p>
+                <div class="sig-area" style="max-width: 600px; margin: 0 auto 15px auto;"><canvas id="sig-canvas"></canvas></div>
+                <button class="btn" style="background:#6c757d; color:white; margin-bottom:25px;" onclick="window.clearSig()">Hapus TTD</button>
                 
-                <div style="display: flex; justify-content: space-around;">
-                    <button class="btn btn-success" style="width: 45%;" onclick="window.confirmManualAction('Approved')">✅ APPROVE</button>
-                    <button class="btn btn-danger" style="width: 45%;" onclick="window.confirmManualAction('Rejected')">❌ REJECT</button>
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap:wrap;">
+                    <button class="btn btn-success" style="width: 150px; padding:12px;" onclick="window.confirmManualAction('Approved')">✅ APPROVE</button>
+                    <button class="btn btn-danger" style="width: 150px; padding:12px;" onclick="window.confirmManualAction('Rejected')">❌ REJECT</button>
                 </div>
             </div>
 
@@ -263,7 +314,7 @@
                 <p style="margin-bottom:10px;"><strong>Superintendent:</strong> <span id="historyNamaSuper"></span></p> 
                 <div id="historySigArea">
                     <img id="historySigImg" alt="Tanda Tangan" style="display:none;">
-                    <span id="historyNoSig" style="display:none; font-style:italic; color:#888;">(Disetujui Otomatis / Tanpa TTD)</span>
+                    <span id="historyNoSig" style="display:none; font-style:italic; color:#888;">(Disetujui Otomatis)</span>
                 </div>
             </div>
         </div>
@@ -301,14 +352,24 @@
 
     const canvas = document.getElementById('sig-canvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = 600; canvas.height = 150; ctx.lineWidth = 3; ctx.lineCap = 'round';
+    
+    function resizeCanvas() {
+        const modalContent = document.querySelector('.modal-content');
+        if(modalContent) {
+            const maxWidth = Math.min(600, modalContent.clientWidth - 40); 
+            canvas.width = maxWidth;
+            canvas.height = 150;
+            ctx.lineWidth = 3; ctx.lineCap = 'round';
+        }
+    }
+    window.addEventListener('resize', resizeCanvas);
 
     window.switchTab = function(tab) {
         currentTab = tab;
         isProcessingAuto = false; 
         document.getElementById('tabRutin').classList.toggle('active', tab === 'rutin');
         document.getElementById('tabTrial').classList.toggle('active', tab === 'trial');
-        document.getElementById('filterLabel').innerText = tab === 'rutin' ? 'Cari Tanggal Checklist:' : 'Cari Tanggal Trial:';
+        document.getElementById('filterLabel').innerText = tab === 'rutin' ? 'Cari Tgl Checklist:' : 'Cari Tgl Trial:';
         document.getElementById('searchDate').value = '';
         loadData();
     }
@@ -421,7 +482,7 @@
 
         window.showConfirmModal(
             "Auto Approve", 
-            `Ditemukan ${safePendingRows.length} data AMAN (OK/NA).\nApakah Anda yakin ingin menyetujui semuanya sekaligus?`, 
+            `Ditemukan ${safePendingRows.length} data AMAN (OK/NA).\nApprove semuanya sekaligus?`, 
             "✨",
             async function() {
                 isProcessingAuto = true;
@@ -478,7 +539,7 @@
     window.deleteItem = function(id) {
         window.showConfirmModal(
             "Hapus Data",
-            "Apakah Anda yakin ingin menghapus data ini selamanya? Tindakan ini tidak bisa dibatalkan.",
+            "Yakin hapus data ini selamanya?",
             "🗑️",
             async function() {
                 const tableName = currentTab === 'rutin' ? 'checklist' : 'checklist_trial';
@@ -527,9 +588,9 @@
         const tableBody = document.getElementById('mainTable');
 
         if (currentTab === 'rutin') {
-            header.innerHTML = `<th>Pelaksana</th><th>Super</th><th>Equip</th><th>Tanggal</th><th>Week</th><th>Ket</th><th>Status</th><th>Aksi</th>`;
+            header.innerHTML = `<th>Pelaksana</th><th>Super</th><th>Equip</th><th>Tgl</th><th>Week</th><th>Ket</th><th>Sts</th><th>Aksi</th>`;
         } else {
-            header.innerHTML = `<th>PIC Trial</th><th>Super</th><th>Mesin</th><th>Project</th><th>Tanggal</th><th>Ket. Super</th><th>Status</th><th>Aksi</th>`;
+            header.innerHTML = `<th>PIC</th><th>Super</th><th>Mesin</th><th>Project</th><th>Tgl</th><th>Ket</th><th>Sts</th><th>Aksi</th>`;
         }
 
         if (!dataList || dataList.length === 0) {
@@ -551,9 +612,9 @@
             const rowClass = isNG ? 'row-ng' : '';
 
             const actionButtons = `
-                <div style="display:flex; gap:8px; justify-content:center;">
+                <div class="action-btn-group">
                     <button class="btn btn-primary" onclick='openModal(${JSON.stringify(row)})'>REVIEW</button>
-                    <button class="btn btn-danger" style="padding:8px;" onclick="window.deleteItem('${row.id}')">🗑️</button>
+                    <button class="btn btn-danger" onclick="window.deleteItem('${row.id}')">🗑️</button>
                 </div>`;
 
             if (currentTab === 'rutin') {
@@ -750,6 +811,7 @@
         } else {
             document.getElementById('namaSuperintendent').value = "A. Rizki Mubarok K";
             window.clearSig();
+            resizeCanvas(); // Resize canvas saat modal dibuka
         }
         document.getElementById('modal').style.display = 'block';
     }
@@ -757,11 +819,10 @@
     async function processStatus(st) {
         const namaSuper = document.getElementById('namaSuperintendent').value;
         const ketInput = document.getElementById('keteranganSuper').value; 
-        if(!namaSuper) return alert("Isi nama superintendent!");
-
+        
         let update = { 
             status: st, 
-            approved_at: new Date().toISOString(), 
+            approved_at: new Date().toISOString(), A
             nama_superintendent: namaSuper 
         };
 
