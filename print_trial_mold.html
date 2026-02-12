@@ -14,34 +14,38 @@
 
         /* === 2. RESET === */
         * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        html, body { max-width: 100%; overflow-x: hidden; }
         
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #eef2f5; 
             margin: 0; padding: 20px;
-            display: flex; justify-content: center;
+            display: flex; justify-content: center; align-items: flex-start;
         }
 
-        /* === 3. LAYOUT KERTAS === */
+        /* === 3. LAYOUT KERTAS (LAYAR DEKSTOP) === */
         .sheet {
             background: white;
-            width: 297mm; height: 210mm;
+            width: 297mm; min-height: 210mm;
             padding: 5mm 10mm;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
             display: flex; flex-direction: column;
-            overflow: hidden;
             font-family: 'Arial', sans-serif;
+            margin-left: 300px; /* Jaga jarak dari panel di mode PC */
         }
 
-        /* === 4. MODE PRINT === */
+        /* === 4. MODE PRINT (KERTAS ASLI) === */
         @media print {
-            body { background: white; padding: 0; margin: 0; }
+            body { background: white; padding: 0; margin: 0; display: block; }
             .no-print { display: none !important; }
             .sheet {
-                width: 100%; height: 100%;
+                width: 297mm !important; height: 210mm !important;
                 box-shadow: none; padding: 5mm 10mm;
                 margin: 0; border: none;
+                page-break-after: always;
             }
+            .table-container { overflow-x: visible !important; }
+            .main-table { min-width: 100% !important; }
         }
 
         /* === 5. DESAIN PANEL KONTROL === */
@@ -60,135 +64,112 @@
             overflow-y: auto;
         }
 
-        .no-print:hover {
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-        }
+        .no-print:hover { box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
 
         .panel-header {
-            font-size: 16px; 
-            font-weight: 700;
-            color: #1e293b; 
-            margin-bottom: 15px; 
-            text-align: center;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 10px;
+            font-size: 16px; font-weight: 700; color: #1e293b; 
+            margin-bottom: 15px; text-align: center;
+            letter-spacing: 0.5px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;
         }
 
         .input-group { margin-bottom: 10px; }
         .input-label { font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 3px; display: block; }
         
         .inp { 
-            width: 100%; 
-            border: 1px solid #cbd5e1; 
-            padding: 8px 12px; 
-            border-radius: 6px; 
-            font-size: 13px; 
-            outline: none;
-            transition: border-color 0.2s;
-            color: #334155;
+            width: 100%; border: 1px solid #cbd5e1; padding: 8px 12px; 
+            border-radius: 6px; font-size: 13px; outline: none;
+            transition: border-color 0.2s; color: #334155;
         }
         .inp:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
 
         .btn-group { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
         
         .btn { 
-            width: 100%; 
-            padding: 10px; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            border: none; 
-            font-weight: 600; 
-            font-size: 13px; 
+            width: 100%; padding: 10px; border-radius: 6px; 
+            cursor: pointer; border: none; font-weight: 600; font-size: 13px; 
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: transform 0.1s, box-shadow 0.2s;
-            color: white;
+            transition: transform 0.1s, box-shadow 0.2s; color: white;
         }
 
         .btn:active { transform: scale(0.98); }
-        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-
         .btn-search { background: linear-gradient(135deg, #3b82f6, #2563eb); }
         .btn-print { background: linear-gradient(135deg, #10b981, #059669); }
         .btn-back { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
         .btn-back:hover { background: #e2e8f0; color: #1e293b; }
 
         /* === 6. KOMPONEN REPORT (DATA) === */
-        
-        /* Header */
         .header-table { width: 100%; border-collapse: collapse; border: 2px solid #000; margin-bottom: 3px; }
         .header-table td { border: 1px solid #000; padding: 2px; vertical-align: middle; }
         .logo-img { height: 40px; display: block; margin: 0 auto; }
         
-        .main-title { 
-            font-size: 18pt; 
-            font-weight: 700; 
-            text-align: center; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-        }
+        .main-title { font-size: 18pt; font-weight: 700; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
         
         .meta-table { width: 100%; font-size: 8pt; font-weight: normal; border: none; }
         .meta-table td { border: none; padding: 0; line-height: 1.1; }
         .meta-label { font-weight: 600; }
 
-        /* Info Bar */
         .info-bar {
             border: 1px solid black; padding: 3px 5px; margin-bottom: 3px; width: 100%;
             display: flex; justify-content: space-between;
-            font-size: 8pt; 
-            font-weight: 600; 
-            background: #fff;
+            font-size: 8pt; font-weight: 600; background: #fff;
         }
         .info-group span { font-weight: normal; margin-left: 3px; text-transform: uppercase; }
 
-        /* Tabel Utama */
-        .table-container { flex-grow: 1; }
+        .table-container { flex-grow: 1; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .main-table { width: 100%; border-collapse: collapse; border: 1px solid black; font-size: 9pt; }
         .main-table th { 
             background-color: #334155; color: white; border: 1px solid black; 
-            padding: 3px; text-transform: uppercase; 
-            font-size: 8pt;
-            font-weight: 600; 
+            padding: 3px; text-transform: uppercase; font-size: 8pt; font-weight: 600; 
         }
-        .main-table td { 
-            border: 1px solid black; padding: 1px 3px; 
-            height: 14px; 
-            vertical-align: middle;
-        }
+        .main-table td { border: 1px solid black; padding: 1px 3px; height: 14px; vertical-align: middle; }
 
-        /* Judul Section */
-        .sect-row { 
-            background-color: #e2e8f0; 
-            font-weight: 700; 
-            font-size: 8pt; 
-            padding: 2px; text-transform: uppercase; 
-        }
+        .sect-row { background-color: #e2e8f0; font-weight: 700; font-size: 8pt; padding: 2px; text-transform: uppercase; }
 
         .st-ok { color: green; font-weight: 600; text-align: center; } 
         .st-ng { background: #fee2e2; color: red; font-weight: 600; text-align: center; }
         .st-na { color: #888; font-style: italic; text-align: center; }
 
-        /* Footer TTD */
         .footer-container {
-            margin-top: 5px; 
-            display: flex; justify-content: space-between; 
+            margin-top: 15px; display: flex; justify-content: space-between; 
             padding: 0 20px; page-break-inside: avoid;
         }
         .ttd-box { width: 160px; border: 1px solid black; text-align: center; }
-        .ttd-head { 
-            background: #eee; 
-            font-size: 8pt; 
-            font-weight: 600; 
-            border-bottom: 1px solid black; padding: 2px; 
-        }
+        .ttd-head { background: #eee; font-size: 8pt; font-weight: 600; border-bottom: 1px solid black; padding: 2px; }
         .ttd-sign { height: 45px; display: flex; align-items: center; justify-content: center; }
         .ttd-sign img { height: 40px; }
-        .ttd-name { 
-            border-top: 1px solid black; 
-            font-size: 8pt; 
-            font-weight: 600; 
-            padding: 2px; text-transform: uppercase; 
+        .ttd-name { border-top: 1px solid black; font-size: 8pt; font-weight: 600; padding: 2px; text-transform: uppercase; }
+
+        /* === 7. RESPONSIVE MOBILE TWEAKS === */
+        @media screen and (max-width: 1024px) {
+            body { flex-direction: column; padding: 10px; align-items: center; }
+            
+            .no-print { 
+                position: relative; top: 0; left: 0; 
+                width: 100%; margin-bottom: 20px; 
+                max-height: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            }
+            
+            .sheet { 
+                width: 100%; height: auto; min-height: auto; 
+                padding: 10px; margin-left: 0; 
+                box-shadow: 0 2px 10px rgba(0,0,0,0.08); 
+                border-radius: 8px;
+            }
+
+            .main-title { font-size: 13pt; }
+            .header-table td { font-size: 9px; }
+            
+            .info-bar { flex-wrap: wrap; justify-content: flex-start; gap: 8px; padding: 8px; }
+            .info-group { width: 48%; font-size: 10px; }
+
+            .main-table { min-width: 700px; /* Paksa lebar tabel agar tidak hancur, memunculkan scroll horizontal */ } 
+            
+            .footer-container { flex-wrap: wrap; gap: 15px; justify-content: space-around; padding: 0; }
+        }
+        
+        @media screen and (max-width: 480px) {
+            .info-group { width: 100%; border-bottom: 1px dashed #ddd; padding-bottom: 4px; }
+            .info-group:last-child { border-bottom: none; }
         }
 
     </style>
@@ -316,17 +297,14 @@
 
         // === FUNGSI UNTUK ISI DROPDOWN OTOMATIS ===
         async function populateDropdowns() {
-            // Ambil semua data nama mold, mesin, project dari database
             const { data, error } = await _sb.from('checklist_trial').select('mold_name, machine_name, project_name');
             
             if (error || !data) return;
 
-            // Filter data unik (menghapus duplikat)
             const uniqueMold = [...new Set(data.map(item => item.mold_name).filter(i => i))].sort();
             const uniqueMesin = [...new Set(data.map(item => item.machine_name).filter(i => i))].sort();
             const uniqueProject = [...new Set(data.map(item => item.project_name).filter(i => i))].sort();
 
-            // Masukkan ke dalam Datalist HTML
             fillDatalist('list-mold', uniqueMold);
             fillDatalist('list-mesin', uniqueMesin);
             fillDatalist('list-project', uniqueProject);
@@ -334,7 +312,7 @@
 
         function fillDatalist(elementId, items) {
             const datalist = document.getElementById(elementId);
-            datalist.innerHTML = ''; // Kosongkan dulu
+            datalist.innerHTML = ''; 
             items.forEach(item => {
                 const option = document.createElement('option');
                 option.value = item;
@@ -342,7 +320,6 @@
             });
         }
 
-        // Panggil fungsi isi dropdown saat halaman dimuat
         window.onload = populateDropdowns;
 
         async function fetchData() {
