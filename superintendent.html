@@ -8,6 +8,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <style>
+        /* PERBAIKAN: Mencegah layar geser kanan-kiri (Horizontal Scroll) */
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { max-width: 100%; overflow-x: hidden; }
+
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f4f6f9; color: #333; padding-bottom: 20px; }
         
         /* HEADER RESPONSIVE */
@@ -25,7 +29,7 @@
         .header-title { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
         .header-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-        .container { padding: 15px; max-width: 1400px; margin: 0 auto; }
+        .container { padding: 15px; max-width: 1400px; margin: 0 auto; width: 100%; }
         
         /* TAB MENU RESPONSIVE */
         .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -81,26 +85,21 @@
 
         /* --- CSS MOBILE (HP) UNTUK TABEL UTAMA --- */
         @media screen and (max-width: 768px) {
-            /* PERBAIKAN: Hilangkan background card luar agar tidak double, dan pastikan table full width */
             .card { background: transparent; box-shadow: none; border-radius: 0; }
             table, #mainTableParent, #mainTable { display: block; width: 100%; }
 
-            /* Sembunyikan Header Tabel Utama */
             #mainTableParent thead { display: none; }
             
-            /* Baris Tabel Utama jadi Kartu - PERBAIKAN: Lebar disamakan */
             #mainTable tr { 
                 display: block; 
                 width: 100%;
-                box-sizing: border-box;
                 margin-bottom: 15px; 
                 border: 1px solid #e0e0e0; 
                 border-radius: 10px; 
                 background: #fff;
-                box-shadow: 0 3px 8px rgba(0,0,0,0.08); /* Sedikit ditebalkan bayangannya */
+                box-shadow: 0 3px 8px rgba(0,0,0,0.08); 
             }
             
-            /* Sel Tabel Utama */
             #mainTable td { 
                 display: flex; 
                 justify-content: space-between; 
@@ -110,12 +109,10 @@
                 font-size: 14px;
                 text-align: right;
                 width: 100%;
-                box-sizing: border-box;
             }
             
             #mainTable td:last-child { border-bottom: none; justify-content: center; padding-top: 15px; background: #fcfcfc; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
             
-            /* Label Kolom di HP */
             #mainTable td::before { 
                 content: attr(data-label); 
                 font-weight: 700; 
@@ -124,19 +121,16 @@
                 color: #666; 
                 text-align: left;
                 margin-right: 15px;
-                min-width: 100px; /* Menjaga jarak label rapi */
+                min-width: 100px; 
             }
 
-            /* Adjust Header HP */
             header { flex-direction: column; text-align: center; gap: 15px; }
             .header-controls { justify-content: center; width: 100%; }
             .header-controls button, .header-controls a { width: 100%; margin-bottom: 5px; }
             
-            /* Search HP */
             .search-section { flex-direction: column; align-items: stretch; }
             .btn-excel { margin-left: 0; width: 100%; margin-top: 10px; }
 
-            /* Modal HP */
             .modal-content { width: 95%; margin: 5% auto; padding: 20px; max-height: 90vh; overflow-y: auto; }
             .info-grid { grid-template-columns: 1fr; } 
             canvas { width: 100% !important; }
@@ -165,7 +159,7 @@
         /* MOBILE VIEW MODAL TABLE */
         @media screen and (max-width: 768px) {
             .json-table thead { display: none; } 
-            .table-wrapper { border: none; background: transparent; box-shadow: none; margin-bottom: 5px; }
+            .table-wrapper { border: none; background: transparent; box-shadow: none; margin-bottom: 5px; overflow-x: hidden; }
             
             .json-table tbody tr {
                 display: flex;
@@ -288,7 +282,7 @@
         
         .sig-area { border: 2px dashed #ccc; margin: 15px 0; background: #fafafa; border-radius: 8px; height: 160px; position: relative; }
         canvas { width: 100%; height: 100%; cursor: crosshair; display: block; touch-action: none; }
-        textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; padding: 12px; box-sizing: border-box; font-family: inherit; }
+        textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; padding: 12px; font-family: inherit; }
         
         #historySection { display: none; text-align: center; }
         #historySigArea { margin-top: 15px; display: flex; justify-content: center; width: 100%; }
