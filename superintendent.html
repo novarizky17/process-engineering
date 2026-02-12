@@ -2,7 +2,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/> <title>Superintendent - Approval System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Superintendent - Approval System</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
@@ -18,7 +19,7 @@
             justify-content: space-between; 
             align-items: center; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-            flex-wrap: wrap; /* Agar bisa turun ke bawah di HP */
+            flex-wrap: wrap; 
             gap: 15px;
         }
         .header-title { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
@@ -38,7 +39,7 @@
             color: #555; 
             transition: all 0.3s ease; 
             font-size: 13px; 
-            flex: 1; /* Di HP tombol jadi rata */
+            flex: 1; 
             text-align: center;
         }
         .tab-btn.active { 
@@ -48,19 +49,12 @@
             transform: translateY(-2px);
         }
 
-        /* SEARCH SECTION RESPONSIVE */
+        /* SEARCH SECTION */
         .search-section { 
-            background: white; 
-            padding: 15px; 
-            border-radius: 12px; 
-            margin-bottom: 20px; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
-            flex-wrap: wrap;
+            background: white; padding: 15px; border-radius: 12px; margin-bottom: 20px; 
+            display: flex; align-items: center; gap: 10px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); flex-wrap: wrap;
         }
-        .filter-label { font-weight: bold; font-size: 13px; }
         .input-search { padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; flex-grow: 1; }
         .input-search:focus { border-color: #003366; }
 
@@ -74,16 +68,23 @@
         .btn-excel { background: #207245; color: white; margin-left: auto; }
         .btn-back { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.4); }
 
-        /* --- CSS KHUSUS HP (CARD VIEW UNTUK TABEL) --- */
+        /* --- CSS TABEL UTAMA (DASHBOARD) --- */
         .card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; }
-        
+        /* Tabel Desktop */
+        @media screen and (min-width: 769px) {
+            table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+            th { background: #f8f9fa; padding: 18px; text-align: left; font-size: 13px; color: #555; text-transform: uppercase; border-bottom: 2px solid #eee; font-weight: 700; }
+            td { padding: 16px; border-top: 1px solid #eee; font-size: 14px; vertical-align: middle; color: #444; }
+            .row-ng td { border-top: 1px solid #ffebeb; }
+        }
+
+        /* --- CSS MOBILE (HP) UNTUK TABEL UTAMA --- */
         @media screen and (max-width: 768px) {
-            /* Sembunyikan Header Tabel di HP */
-            thead { display: none; }
+            /* Sembunyikan Header Tabel Utama */
+            #mainTableParent thead { display: none; }
             
-            /* Ubah baris jadi kotak/kartu */
-            tr { 
+            /* Baris Tabel Utama jadi Kartu */
+            #mainTable tr { 
                 display: block; 
                 margin-bottom: 15px; 
                 border: 1px solid #e0e0e0; 
@@ -92,8 +93,8 @@
                 box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             }
             
-            /* Ubah sel jadi baris flex */
-            td { 
+            /* Sel Tabel Utama */
+            #mainTable td { 
                 display: flex; 
                 justify-content: space-between; 
                 align-items: center; 
@@ -103,10 +104,10 @@
                 text-align: right;
             }
             
-            td:last-child { border-bottom: none; justify-content: center; padding-top: 15px; background: #fcfcfc; }
+            #mainTable td:last-child { border-bottom: none; justify-content: center; padding-top: 15px; background: #fcfcfc; }
             
-            /* Tambahkan label kolom pakai data-label */
-            td::before { 
+            /* Label Kolom di HP */
+            #mainTable td::before { 
                 content: attr(data-label); 
                 font-weight: 700; 
                 text-transform: uppercase; 
@@ -116,27 +117,19 @@
                 margin-right: 15px;
             }
 
-            /* Adjust Header di HP */
+            /* Adjust Header HP */
             header { flex-direction: column; text-align: center; gap: 15px; }
             .header-controls { justify-content: center; width: 100%; }
             .header-controls button, .header-controls a { width: 100%; margin-bottom: 5px; }
             
-            /* Search di HP */
+            /* Search HP */
             .search-section { flex-direction: column; align-items: stretch; }
             .btn-excel { margin-left: 0; width: 100%; margin-top: 10px; }
 
-            /* Modal di HP */
+            /* Modal HP */
             .modal-content { width: 95%; margin: 5% auto; padding: 20px; max-height: 90vh; overflow-y: auto; }
-            .info-grid { grid-template-columns: 1fr; } /* Info jadi 1 kolom */
-            
-            /* Canvas TTD di HP */
+            .info-grid { grid-template-columns: 1fr; } 
             canvas { width: 100% !important; }
-        }
-
-        /* Tampilan Desktop Tetap Rapi */
-        @media screen and (min-width: 769px) {
-            th { background: #f8f9fa; padding: 18px; text-align: left; font-size: 13px; color: #555; text-transform: uppercase; border-bottom: 2px solid #eee; font-weight: 700; }
-            td { padding: 16px; border-top: 1px solid #eee; font-size: 14px; vertical-align: middle; color: #444; }
         }
 
         .badge { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -144,14 +137,82 @@
         .status-approved { background: #d1e7dd; color: #0f5132; }
         .status-rejected { background: #f8d7da; color: #842029; }
         .row-ng { background-color: #fff8f8; } 
-        @media screen and (min-width: 769px) { .row-ng td { border-top: 1px solid #ffebeb; } }
 
-        /* MODAL UTAMA */
+        /* --- CSS KHUSUS TABEL DETAIL (MODAL) BIAR RAPI DI HP --- */
+        .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; margin-bottom: 15px; border-radius: 8px; }
+        .json-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        
+        /* Desktop View Modal Table */
+        @media screen and (min-width: 769px) {
+            .json-table { min-width: 700px; }
+            .json-table th { background: #f8f9fa; text-align: left; padding: 12px 15px; border-bottom: 2px solid #eee; }
+            .json-table td { padding: 12px 15px; border-bottom: 1px solid #eee; }
+            .col-item { width: 40%; } 
+            .col-status { width: 10%; text-align: center; } 
+            .col-ket { width: 50%; }
+        }
+
+        /* MOBILE VIEW MODAL TABLE - PERBAIKAN UTAMA */
+        @media screen and (max-width: 768px) {
+            .json-table thead { display: none; } /* Hapus header tabel */
+            
+            .json-table tr {
+                display: flex;
+                flex-wrap: wrap; /* Biar turun ke bawah */
+                border-bottom: 1px solid #e0e0e0;
+                padding: 12px 5px;
+                background-color: #fff;
+            }
+
+            .json-table td {
+                padding: 4px 0;
+                border: none;
+                text-align: left !important; /* PAKSA RATA KIRI */
+            }
+
+            /* Judul Item (Misal: WIRING) - Baris Penuh */
+            .json-table .col-item {
+                width: 100%;
+                font-weight: 800;
+                color: #003366;
+                font-size: 14px;
+                margin-bottom: 5px;
+                padding-bottom: 5px;
+                border-bottom: 1px dashed #eee;
+            }
+
+            /* Status (OK/NG/NA) */
+            .json-table .col-status {
+                width: 30%;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+            }
+
+            /* Keterangan */
+            .json-table .col-ket {
+                width: 70%;
+                font-size: 13px;
+                color: #666;
+                font-style: italic;
+            }
+        }
+
+        .status-ng { color: #dc3545; font-weight: bold; } 
+        .status-ok { color: #198754; font-weight: bold; } 
+        .status-na { color: #6c757d; font-style: italic; font-weight: bold; }
+        
+        .all-ok-msg { padding: 20px; background: #d1e7dd; color: #0f5132; border-radius: 8px; text-align: center; font-weight: 700; margin-bottom: 20px; border: 1px solid #badbcc; }
+        
+        #autoProcessStatus { margin-right: 15px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9); display: none; }
+        .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* MODAL & POPUP */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); overflow-y: auto; }
         .modal-content { background: white; margin: 2% auto; padding: 30px; border-radius: 16px; width: 95%; max-width: 1200px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); animation: slideDown 0.3s ease-out; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* KONFIRMASI POP-UP (Kecil) */
         .confirm-modal-content { 
             background: white; margin: 20% auto; padding: 25px; border-radius: 12px; 
             width: 85%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
@@ -166,34 +227,18 @@
         .btn-confirm-yes { background: #003366; color: white; flex: 1; }
         .btn-confirm-no { background: #e9ecef; color: #333; flex: 1; }
 
-        /* ELEMENT LAINNYA */
         .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #003366; }
         .info-item label { font-size: 11px; color: #777; display: block; margin-bottom: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .info-item span { font-size: 15px; font-weight: 600; color: #222; }
 
         .section-header { background: #eef2f7; padding: 12px 15px; margin: 25px 0 0 0; font-weight: 700; color: #003366; border-left: 5px solid #003366; border-radius: 4px; font-size: 15px; }
-        .sub-header { background: #f8f9fa; padding: 8px 15px; font-weight: 700; color: #555; font-size: 13px; border-bottom: 1px solid #eee; }
+        .sub-header { background: #f8f9fa; padding: 8px 15px; font-weight: 700; color: #555; font-size: 13px; border-bottom: 1px solid #dee2e6; }
         
         .super-note-box { background: #e3f2fd; border: 1px solid #90caf9; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #0d47a1; }
         
         .sig-area { border: 2px dashed #ccc; margin: 15px 0; background: #fafafa; border-radius: 8px; height: 160px; position: relative; }
         canvas { width: 100%; height: 100%; cursor: crosshair; display: block; touch-action: none; }
-        
         textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; padding: 12px; box-sizing: border-box; font-family: inherit; }
-        
-        .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; margin-bottom: 15px; border-radius: 8px; }
-        .json-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px; } /* Tabel detail tetap scroll horizontal di HP biar rapi */
-        .json-table th { background: #f8f9fa; text-align: left; padding: 12px 15px; border-bottom: 2px solid #eee; }
-        .json-table td { padding: 12px 15px; border-bottom: 1px solid #eee; }
-        
-        .col-item { width: 40%; } .col-status { width: 10%; text-align: center; } .col-ket { width: 50%; }
-        .status-ng { color: #dc3545; font-weight: bold; } .status-ok { color: #198754; font-weight: bold; } .status-na { color: #6c757d; font-style: italic; font-weight: bold; }
-        
-        .all-ok-msg { padding: 20px; background: #d1e7dd; color: #0f5132; border-radius: 8px; text-align: center; font-weight: 700; margin-bottom: 20px; border: 1px solid #badbcc; }
-        
-        #autoProcessStatus { margin-right: 15px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.9); display: none; }
-        .spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid white; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite; margin-right: 8px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
         
         #historySection { display: none; text-align: center; }
         #historySigArea { margin-top: 15px; display: flex; justify-content: center; width: 100%; }
@@ -230,7 +275,7 @@
     </div>
 
     <div class="card">
-        <table>
+        <table id="mainTableParent">
             <thead><tr id="tableHeader"></tr></thead>
             <tbody id="mainTable"><tr><td colspan="8" style="text-align:center; padding:20px;">Memuat data...</td></tr></tbody>
         </table>
@@ -311,11 +356,10 @@
     const canvas = document.getElementById('sig-canvas');
     const ctx = canvas.getContext('2d');
     
-    // Canvas Responsif
     function resizeCanvas() {
         const modalContent = document.querySelector('.modal-content');
         if(modalContent) {
-            const maxWidth = Math.min(600, modalContent.clientWidth - 40); // 40px padding
+            const maxWidth = Math.min(600, modalContent.clientWidth - 40); 
             canvas.width = maxWidth;
             canvas.height = 150;
             ctx.lineWidth = 3; ctx.lineCap = 'round';
@@ -763,9 +807,7 @@
         if(!isReviewable) {
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
-            
             const sigUrl = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
-            
             document.getElementById('historySigImg').src = sigUrl || '';
             document.getElementById('historySigImg').style.display = sigUrl ? 'block' : 'none';
             document.getElementById('historyNoSig').style.display = sigUrl ? 'none' : 'block';
