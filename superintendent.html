@@ -165,13 +165,27 @@
         /* MOBILE VIEW MODAL TABLE */
         @media screen and (max-width: 768px) {
             .json-table thead { display: none; } 
+            .table-wrapper { border: none; background: transparent; box-shadow: none; margin-bottom: 5px; }
             
-            .json-table tr {
+            .json-table tbody tr {
                 display: flex;
                 flex-wrap: wrap; 
-                border-bottom: 1px solid #e0e0e0;
-                padding: 12px 5px;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 12px;
                 background-color: #fff;
+                margin-bottom: 10px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+            }
+
+            .json-table tbody tr.sub-header-row {
+                display: block;
+                border: none;
+                background: transparent;
+                box-shadow: none;
+                padding: 0;
+                margin-bottom: 5px;
+                margin-top: 10px;
             }
 
             .json-table td {
@@ -180,28 +194,57 @@
                 text-align: left !important;
             }
 
+            .json-table td.sub-header {
+                width: 100%;
+                background: #e9ecef;
+                color: #333;
+                border-radius: 6px;
+                text-align: center;
+                font-weight: bold;
+                padding: 8px;
+                border: none;
+            }
+
             .json-table .col-item {
                 width: 100%;
                 font-weight: 800;
                 color: #003366;
                 font-size: 14px;
-                margin-bottom: 5px;
-                padding-bottom: 5px;
+                margin-bottom: 8px;
+                padding-bottom: 8px;
                 border-bottom: 1px dashed #eee;
             }
 
             .json-table .col-status {
-                width: 30%;
+                width: 100%;
                 font-weight: bold;
                 display: flex;
                 align-items: center;
+                font-size: 13px;
+                margin-bottom: 4px;
+            }
+            .json-table .col-status::before {
+                content: 'Status:';
+                font-weight: normal;
+                color: #666;
+                width: 90px;
+                display: inline-block;
             }
 
             .json-table .col-ket {
-                width: 70%;
+                width: 100%;
                 font-size: 13px;
+                color: #444;
+                display: flex;
+                align-items: flex-start;
+            }
+            .json-table .col-ket::before {
+                content: 'Catatan:';
+                font-weight: normal;
                 color: #666;
-                font-style: italic;
+                width: 90px;
+                flex-shrink: 0;
+                display: inline-block;
             }
         }
 
@@ -727,7 +770,7 @@
             }
         }
         if (!hasIssues) return ''; 
-        return `<div class="section-header">${title}</div><div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Note</th></tr>${rows}</table></div>`;
+        return `<div class="section-header">${title}</div><div class="table-wrapper"><table class="json-table"><thead><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Note</th></tr></thead><tbody>${rows}</tbody></table></div>`;
     }
 
     function renderRutinChecklist(row) {
@@ -746,12 +789,12 @@
                     }
                 });
                 if (subRows) {
-                    if (sub.sub) groupRows += `<tr><td colspan="3" class="sub-header">${sub.sub}</td></tr>`;
+                    if (sub.sub) groupRows += `<tr class="sub-header-row"><td colspan="3" class="sub-header">${sub.sub}</td></tr>`;
                     groupRows += subRows;
                 }
             });
             if (groupRows) {
-                htmlContent += `<div class="section-header">${group.title}</div><div class="table-wrapper"><table class="json-table"><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr>${groupRows}</table></div>`;
+                htmlContent += `<div class="section-header">${group.title}</div><div class="table-wrapper"><table class="json-table"><thead><tr><th class="col-item">Item</th><th class="col-status">Status</th><th class="col-ket">Keterangan</th></tr></thead><tbody>${groupRows}</tbody></table></div>`;
             }
         });
         if (!htmlContent) return `<div class="all-ok-msg">✨ Semua Item OK (Aman)</div>`;
