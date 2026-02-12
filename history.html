@@ -9,6 +9,7 @@
     <style>
         /* --- PRINT SETTINGS --- */
         * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        html, body { max-width: 100%; overflow-x: hidden; }
         body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #525252; }
 
         @page { size: A4 portrait; margin: 0; }
@@ -24,12 +25,15 @@
                 page-break-after: always;
                 position: relative;
                 overflow: hidden;
+                box-shadow: none !important;
+                margin: 0 !important;
             }
             .sheet:last-child { page-break-after: auto; }
-            .outer-border { border: 2pt solid black !important; height: 100%; }
+            .outer-border { border: 2pt solid black !important; height: 100%; overflow-x: visible !important; }
+            .header-tbl, .info-wrapper, .data-tbl, .super-area { min-width: 100% !important; }
         }
 
-        /* LAYAR */
+        /* LAYAR DESKTOP */
         .sheet {
             background: white;
             width: 210mm;
@@ -62,14 +66,14 @@
 
         /* META DATA HEADER */
         .meta-row { display: flex; font-size: 7pt; font-weight: bold; line-height: 1.3; }
-        .meta-lbl { width: 80px; }
+        .meta-lbl { width: 80px; flex-shrink: 0; }
         .meta-val { flex-grow: 1; }
 
         /* INFO */
         .info-wrapper { display: flex; justify-content: space-between; font-size: 8pt; font-weight: bold; margin: 5px 0; text-transform: uppercase; }
         .info-col { width: 48%; }
         .info-row { display: flex; margin-bottom: 2px; }
-        .lbl { width: 80px; }
+        .lbl { width: 80px; flex-shrink: 0; }
         .val { border-bottom: 1px solid black; flex-grow: 1; padding-left: 3px; }
 
         /* TABEL UMUM */
@@ -115,10 +119,44 @@
         .super-sig-box { border: 1px solid black; height: 50px; margin: 2px auto; display: flex; align-items: center; justify-content: center; }
         .super-img { max-height: 45px; }
 
-        /* UI */
-        .ctl-pnl { width: 800px; margin: 0 auto 20px; background: white; padding: 10px; border-radius: 8px; display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
-        .inp { border: 1px solid #ccc; padding: 5px; border-radius: 4px; text-transform: uppercase; font-size: 12px; }
-        .btn { padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; color: white; border: none; }
+        /* UI PANEL */
+        .ctl-pnl { 
+            width: 100%; max-width: 800px; margin: 0 auto 20px; background: white; 
+            padding: 15px; border-radius: 8px; display: flex; gap: 8px; flex-wrap: wrap; 
+            justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        .inp { flex: 1 1 140px; border: 1px solid #ccc; padding: 8px; border-radius: 4px; text-transform: uppercase; font-size: 12px; outline: none; }
+        .inp:focus { border-color: #1e3a8a; }
+        .btn { flex: 1 1 100px; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; color: white; border: none; transition: transform 0.1s; }
+        .btn:active { transform: scale(0.98); }
+
+        /* RESPONSIVE MOBILE TWEAKS */
+        @media screen and (max-width: 768px) {
+            body { padding: 10px; }
+            .ctl-pnl { flex-direction: column; }
+            .inp, .btn { width: 100%; flex: none; padding: 12px; font-size: 14px; }
+            
+            .sheet {
+                width: 100%; 
+                height: auto; 
+                padding: 5px; 
+                margin-bottom: 20px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+            
+            /* Membuat area laporan bisa digeser horizontal di HP */
+            .outer-border {
+                overflow-x: auto; 
+                -webkit-overflow-scrolling: touch;
+                padding: 10px;
+                border-width: 1px; /* border lebih tipis di HP */
+            }
+            
+            /* Memaksa lebar agar desain tabel tidak hancur */
+            .header-tbl, .info-wrapper, .data-tbl, .super-area {
+                min-width: 700px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -225,7 +263,7 @@
                     </tfoot>
                 </table>
             </div>
-            </div>
+        </div>
     </div>
 
     <script>
