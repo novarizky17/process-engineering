@@ -10,7 +10,7 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #f4f6f9; color: #333; padding-bottom: 20px; }
         
-        /* HEADER RESPONSIVE */
+        /* HEADER */
         header { 
             background: linear-gradient(90deg, #003366 0%, #004080 100%); 
             color: white; 
@@ -28,7 +28,7 @@
         /* CONTAINER DEFAULT (DESKTOP) */
         .container { padding: 20px; max-width: 1400px; margin: 0 auto; }
         
-        /* TAB MENU RESPONSIVE */
+        /* TAB MENU */
         .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .tab-btn { 
             padding: 10px 20px; 
@@ -69,7 +69,7 @@
         .btn-excel { background: #207245; color: white; margin-left: auto; }
         .btn-back { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.4); }
 
-        /* --- CSS TABEL UTAMA (DASHBOARD) --- */
+        /* TABLE CARD DEFAULT (DESKTOP) */
         .card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
         
         /* DESKTOP VIEW */
@@ -80,37 +80,43 @@
             .row-ng td { border-top: 1px solid #ffebeb; }
         }
 
-        /* --- MOBILE VIEW (HP) - MODIFIKASI FULL WIDTH --- */
+        /* --- MOBILE VIEW (HP) - FULL WIDTH FIX --- */
         @media screen and (max-width: 768px) {
-            /* 1. Container dibikin mentok (Padding 0 kiri kanan) */
-            .container { padding: 0; width: 100%; box-sizing: border-box; }
+            /* 1. Hapus Padding Container Utama agar mentok tepi */
+            .container { padding: 0; width: 100%; max-width: 100%; box-sizing: border-box; }
             
-            /* 2. Header & Controls dirapikan */
+            /* 2. Header diatur ulang */
             header { flex-direction: column; text-align: center; gap: 10px; padding: 15px; }
             .header-controls { justify-content: center; width: 100%; }
             .header-controls button, .header-controls a { width: 100%; margin-bottom: 5px; }
             
-            /* 3. Search & Menu (Kasih margin dikit biar gak nempel banget) */
-            .search-section { flex-direction: column; align-items: stretch; margin: 10px; border-radius: 0; }
-            .btn-excel { margin-left: 0; width: 100%; margin-top: 10px; }
-            .tab-menu { padding: 0 10px; margin-top: 10px;} 
+            /* 3. Search & Tab Menu (Kasih margin dikit) */
+            .search-section { margin: 10px; flex-direction: column; align-items: stretch; border-radius: 8px; }
+            .tab-menu { padding: 0 10px; margin-top: 10px; margin-bottom: 10px; }
+            .btn-excel { margin-left: 0; width: 100%; margin-top: 5px; }
+            
+            /* 4. TABEL JADI KARTU FULL WIDTH (EDGE-TO-EDGE) */
+            #mainTableParent { width: 100%; display: block; }
+            #mainTableParent thead { display: none; } /* Hide Header */
+            
+            /* Hapus background putih card pembungkus agar menyatu */
+            .card { background: transparent; border-radius: 0; box-shadow: none; }
 
-            /* 4. Tabel Card View FULL WIDTH */
-            #mainTableParent thead { display: none; }
-            .card { border-radius: 0; box-shadow: none; background: transparent; } /* Hilangkan radius card pembungkus */
-
+            /* Style untuk setiap Baris Data (Kartu) */
             #mainTable tr { 
                 display: block; 
-                margin-bottom: 8px; /* Jarak antar kartu */
-                border-top: 1px solid #e0e0e0; 
-                border-bottom: 1px solid #e0e0e0;
+                margin-bottom: 10px; /* Jarak antar kartu */
                 background: #fff;
+                border-top: 1px solid #e0e0e0;
+                border-bottom: 1px solid #e0e0e0;
                 width: 100%; /* FULL WIDTH */
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             }
             
+            /* Style Sel Data */
             #mainTable td { 
                 display: flex; 
-                justify-content: space-between; 
+                justify-content: space-between; /* Label Kiri, Isi Kanan */
                 align-items: center; 
                 padding: 12px 15px; 
                 border-bottom: 1px solid #f0f0f0; 
@@ -118,26 +124,43 @@
                 text-align: right;
             }
             
-            #mainTable td:last-child { border-bottom: none; justify-content: center; padding-top: 15px; background: #fcfcfc; }
+            /* Bagian Tombol Aksi */
+            #mainTable td:last-child { 
+                border-bottom: none; 
+                justify-content: flex-end; 
+                padding-top: 12px; 
+                padding-bottom: 12px;
+                background: #fff; /* Putih polos */
+            }
             
+            /* Label Kolom (Pseudo-element) */
             #mainTable td::before { 
                 content: attr(data-label); 
                 font-weight: 700; 
                 text-transform: uppercase; 
                 font-size: 11px; 
-                color: #666; 
+                color: #555; 
                 text-align: left;
                 margin-right: 15px;
+                flex-shrink: 0; /* Jangan menyusut */
             }
 
-            /* 5. Modal di HP */
-            .modal-content { width: 95%; margin: 5% auto; padding: 15px; max-height: 95vh; overflow-y: auto; }
-            .info-grid { grid-template-columns: 1fr; } 
-            canvas { width: 100% !important; }
+            /* 5. Modal di HP (Hampir Full Screen) */
+            .modal-content { width: 95%; margin: 2% auto; padding: 15px; max-height: 98vh; overflow-y: auto; border-radius: 8px; }
+            .info-grid { grid-template-columns: 1fr; gap: 8px; } 
             
-            /* Agar tombol review/hapus sejajar rapi */
+            /* Tabel Detail di Modal (Lurus ke bawah) */
+            .json-table { width: 100%; display: block; }
+            .json-table thead { display: none; }
+            .json-table tr { display: flex; flex-wrap: wrap; border-bottom: 1px solid #eee; padding: 8px 0; }
+            .json-table td { border: none; padding: 2px 5px; width: 100%; display: block; text-align: left; }
+            .col-item { font-weight: bold; color: #003366; width: 100%; }
+            
+            /* Tombol Aksi Group */
             .action-btn-group { width: 100%; display: flex; gap: 5px; }
             .action-btn-group button { flex: 1; justify-content: center; }
+            
+            canvas { width: 100% !important; }
         }
 
         .badge { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -145,54 +168,6 @@
         .status-approved { background: #d1e7dd; color: #0f5132; }
         .status-rejected { background: #f8d7da; color: #842029; }
         .row-ng { background-color: #fff8f8; } 
-
-        /* --- CSS KHUSUS TABEL DETAIL (MODAL) --- */
-        .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; margin-bottom: 15px; border-radius: 8px; }
-        .json-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        
-        /* Desktop View Modal Table */
-        @media screen and (min-width: 769px) {
-            .json-table { min-width: 700px; }
-            .json-table th { background: #f8f9fa; text-align: left; padding: 12px 15px; border-bottom: 2px solid #eee; }
-            .json-table td { padding: 12px 15px; border-bottom: 1px solid #eee; }
-            .col-item { width: 40%; } 
-            .col-status { width: 10%; text-align: center; } 
-            .col-ket { width: 50%; }
-        }
-
-        /* MOBILE VIEW MODAL TABLE - RAPI & LURUS */
-        @media screen and (max-width: 768px) {
-            .json-table thead { display: none; } /* Hapus header */
-            .json-table { width: 100%; display: block; }
-            
-            .json-table tr {
-                display: flex;
-                flex-wrap: wrap; 
-                border-bottom: 1px solid #ddd;
-                padding: 10px 5px;
-                background-color: #fff;
-            }
-
-            .json-table td {
-                padding: 2px 0;
-                border: none;
-                text-align: left !important; /* PAKSA RATA KIRI */
-                display: block;
-            }
-
-            /* Item Name */
-            .json-table .col-item {
-                width: 100%;
-                font-weight: 800;
-                color: #003366;
-                font-size: 13px;
-                margin-bottom: 4px;
-            }
-
-            /* Status & Ket dalam satu baris flex */
-            .json-table .col-status { width: auto; margin-right: 10px; font-weight: bold; }
-            .json-table .col-ket { width: auto; flex: 1; font-style: italic; color: #666; font-size: 12px; }
-        }
 
         .status-ng { color: #dc3545; font-weight: bold; } 
         .status-ok { color: #198754; font-weight: bold; } 
@@ -205,13 +180,13 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         
         /* MODAL & POPUP */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); overflow-y: auto; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); overflow-y: auto; }
         .modal-content { background: white; margin: 2% auto; padding: 30px; border-radius: 16px; width: 95%; max-width: 1200px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); animation: slideDown 0.3s ease-out; }
         @keyframes slideDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         .confirm-modal-content { 
-            background: white; margin: 20% auto; padding: 25px; border-radius: 12px; 
-            width: 85%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+            background: white; margin: 25% auto; padding: 25px; border-radius: 12px; 
+            width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
             animation: popIn 0.3s;
         }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -223,10 +198,6 @@
         .btn-confirm-yes { background: #003366; color: white; flex: 1; }
         .btn-confirm-no { background: #e9ecef; color: #333; flex: 1; }
 
-        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid #003366; }
-        .info-item label { font-size: 11px; color: #777; display: block; margin-bottom: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .info-item span { font-size: 15px; font-weight: 600; color: #222; }
-
         .section-header { background: #eef2f7; padding: 12px 15px; margin: 25px 0 0 0; font-weight: 700; color: #003366; border-left: 5px solid #003366; border-radius: 4px; font-size: 15px; }
         .sub-header { background: #f8f9fa; padding: 8px 15px; font-weight: 700; color: #555; font-size: 13px; border-bottom: 1px solid #dee2e6; }
         
@@ -234,7 +205,6 @@
         
         .sig-area { border: 2px dashed #ccc; margin: 15px 0; background: #fafafa; border-radius: 8px; height: 160px; position: relative; }
         canvas { width: 100%; height: 100%; cursor: crosshair; display: block; touch-action: none; }
-        
         textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; padding: 12px; box-sizing: border-box; font-family: inherit; }
         
         #historySection { display: none; text-align: center; }
@@ -282,30 +252,30 @@
 <div id="modal" class="modal">
     <div class="modal-content">
         <span style="float:right; cursor:pointer; font-size:28px; font-weight:bold; color:#aaa;" onclick="window.closeModal()">&times;</span>
-        <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px;">Review</h2>
+        <h2 id="modalTitle" style="color:#003366; margin:0; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px;">Review</h2>
         
         <div id="infoBox" class="info-grid"></div>
         <div id="superNoteArea"></div>
         <div id="modalBody"></div>
 
-        <div id="approvalPanel" style="margin-top:30px; border-top: 2px solid #eee; padding-top:25px;">
+        <div id="approvalPanel" style="margin-top:20px; border-top: 2px solid #eee; padding-top:20px;">
             <div id="pendingSection" style="display:none; text-align:center;">
-                <div style="text-align: left; margin-bottom: 20px; max-width: 800px; margin-left: auto; margin-right: auto;">
+                <div style="text-align: left; margin-bottom: 15px; max-width: 800px; margin-left: auto; margin-right: auto;">
                     <label><strong>Nama Superintendent:</strong></label>
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama..." value="A. Rizki Mubarok K">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
                     
-                    <label style="color:#003366; margin-top:15px;"><strong>Catatan / Keterangan:</strong></label>
-                    <textarea id="keteranganSuper" rows="3" placeholder="Tuliskan komentar..."></textarea>
+                    <label style="color:#003366; margin-top:10px;"><strong>Catatan:</strong></label>
+                    <textarea id="keteranganSuper" rows="2" placeholder="Tuliskan komentar..."></textarea>
                 </div>
 
                 <p><strong>Tanda Tangan (Manual):</strong></p>
-                <div class="sig-area" style="max-width: 600px; margin: 0 auto 15px auto;"><canvas id="sig-canvas"></canvas></div>
-                <button class="btn" style="background:#6c757d; color:white; margin-bottom:25px;" onclick="window.clearSig()">Hapus TTD</button>
+                <div class="sig-area" style="max-width: 600px; margin: 0 auto 10px auto;"><canvas id="sig-canvas"></canvas></div>
+                <button class="btn" style="background:#6c757d; color:white; margin-bottom:15px;" onclick="window.clearSig()">Hapus TTD</button>
                 
-                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap:wrap;">
-                    <button class="btn btn-success" style="width: 150px; padding:12px;" onclick="window.confirmManualAction('Approved')">✅ APPROVE</button>
-                    <button class="btn btn-danger" style="width: 150px; padding:12px;" onclick="window.confirmManualAction('Rejected')">❌ REJECT</button>
+                <div style="display: flex; justify-content: center; gap: 10px; flex-wrap:wrap;">
+                    <button class="btn btn-success" style="width: 140px; padding:10px;" onclick="window.confirmManualAction('Approved')">✅ APPROVE</button>
+                    <button class="btn btn-danger" style="width: 140px; padding:10px;" onclick="window.confirmManualAction('Rejected')">❌ REJECT</button>
                 </div>
             </div>
 
