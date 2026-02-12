@@ -13,9 +13,10 @@
         html, body { max-width: 100%; overflow-x: hidden; }
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
         
-        .sig-canvas { border: 2px dashed #003366; background: #fff; width: 100%; height: 160px; touch-action: none; cursor: crosshair; border-radius: 8px; }
+        /* PERBAIKAN: Tinggi canvas tanda tangan diperkecil sangat drastis agar tidak makan tempat */
+        .sig-canvas { border: 2px dashed #003366; background: #fff; width: 100%; height: 70px; touch-action: none; cursor: crosshair; border-radius: 8px; }
         .table-custom th { background: #003366; color: white; text-transform: uppercase; font-size: 0.8rem; padding: 12px; }
-        .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: 1rem; }
+        .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: 0.5rem; }
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; white-space: nowrap; }
         
         .approved { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
@@ -29,57 +30,56 @@
         }
 
         /* Custom Scrollbar untuk tabel di HP */
-        .custom-scroll::-webkit-scrollbar { height: 6px; }
+        .custom-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<header class="bg-[#003366] text-white p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg">
+<header class="bg-[#003366] text-white p-3 md:p-4 flex flex-col md:flex-row justify-between items-center gap-3 shadow-lg">
     <div class="flex items-center gap-3 w-full md:w-auto">
         <button onclick="window.location.href='laporan.html'" class="text-[10px] md:text-xs font-bold bg-blue-800 px-3 md:px-4 py-2 rounded-xl hover:bg-blue-700 transition border border-white/20 uppercase whitespace-nowrap">← Dashboard</button>
         <h1 class="text-sm md:text-xl font-black uppercase tracking-tight truncate flex-1 text-center md:text-left">Superintendent Approval</h1>
     </div>
-    <button onclick="fetchLaporan()" class="w-full md:w-auto bg-blue-600 px-5 py-2.5 rounded-xl hover:bg-blue-500 font-bold text-xs shadow-md transition-all uppercase tracking-wider">Refresh Data</button>
+    <button onclick="fetchLaporan()" class="w-full md:w-auto bg-blue-600 px-5 py-2 rounded-xl hover:bg-blue-500 font-bold text-xs shadow-md transition-all uppercase tracking-wider">Refresh Data</button>
 </header>
 
-<div class="container mx-auto p-4 md:p-6">
-    <!-- PERBAIKAN: overflow-x-auto ditambahkan agar tabel bisa digeser di HP -->
-    <div class="bg-white rounded-2xl shadow-xl overflow-x-auto custom-scroll border border-gray-100">
+<div class="container mx-auto p-3 md:p-6">
+    <div class="bg-white rounded-xl shadow-xl overflow-x-auto custom-scroll border border-gray-100">
         <table class="w-full text-left border-collapse table-custom min-w-[800px]">
             <thead>
                 <tr>
-                    <th class="px-6 whitespace-nowrap">Tanggal Input</th>
-                    <th class="px-6 whitespace-nowrap">Nama Mesin</th>
-                    <th class="px-6 whitespace-nowrap">Job Type</th>
-                    <th class="px-6 whitespace-nowrap">Engineer</th>
-                    <th class="px-6 text-center whitespace-nowrap">Status</th>
-                    <th class="px-6 text-center whitespace-nowrap">Aksi</th>
+                    <th class="px-5 py-3 whitespace-nowrap">Tanggal Input</th>
+                    <th class="px-5 py-3 whitespace-nowrap">Nama Mesin</th>
+                    <th class="px-5 py-3 whitespace-nowrap">Job Type</th>
+                    <th class="px-5 py-3 whitespace-nowrap">Engineer</th>
+                    <th class="px-5 py-3 text-center whitespace-nowrap">Status</th>
+                    <th class="px-5 py-3 text-center whitespace-nowrap">Aksi</th>
                 </tr>
             </thead>
             <tbody id="listLaporan">
-                <tr><td colspan="6" class="p-12 text-center text-gray-400 italic">Memuat data...</td></tr>
+                <tr><td colspan="6" class="p-8 text-center text-gray-400 italic">Memuat data...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <div id="modalReview" class="modal">
-    <!-- PERBAIKAN: Padding modal container & tinggi maks disesuaikan untuk layar kecil -->
-    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden max-h-[95vh] md:max-h-[90vh] flex flex-col">
-        <div class="bg-slate-50 p-4 md:p-5 border-b flex justify-between items-center sticky top-0 z-10">
-            <h2 class="text-base md:text-lg font-extrabold text-[#003366] uppercase truncate pr-4">Review Laporan</h2>
-            <button onclick="closeModal()" class="text-3xl font-light hover:text-red-500 transition leading-none">&times;</button>
+    <!-- PERBAIKAN: Layout modal dibuat SUPER compact agar tidak ada scroll layar -->
+    <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden max-h-[98vh] flex flex-col">
+        <div class="bg-slate-50 p-2 md:p-3 border-b flex justify-between items-center shrink-0">
+            <h2 class="text-xs md:text-sm font-extrabold text-[#003366] uppercase truncate pr-4">Review Laporan</h2>
+            <button onclick="closeModal()" class="text-xl font-light hover:text-red-500 transition leading-none">&times;</button>
         </div>
         
-        <div class="p-4 md:p-6 overflow-y-auto flex-grow custom-scroll" id="modalContent"></div>
+        <div class="p-2 md:p-3 overflow-y-auto flex-grow custom-scroll text-[10px]" id="modalContent"></div>
 
-        <div id="approvalPanel" class="p-4 md:p-8 bg-slate-50 border-t shadow-inner" style="display: none;">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
+        <div id="approvalPanel" class="p-2 md:p-3 bg-slate-50 border-t shadow-inner shrink-0" style="display: none;">
+            <div class="grid grid-cols-2 gap-2 mb-2">
                 <div>
-                    <label class="block text-[10px] font-black text-[#003366] uppercase mb-1">Nama Pemeriksa (Superintendent)</label>
-                    <input type="text" id="spt_name" list="nama_opsi" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm focus:border-blue-500 outline-none uppercase font-bold" placeholder="PILIH ATAU KETIK NAMA..." autocomplete="off">
+                    <label class="block text-[8px] font-black text-[#003366] uppercase mb-0.5">Pemeriksa (Superintendent)</label>
+                    <input type="text" id="spt_name" list="nama_opsi" class="w-full border border-slate-300 rounded p-1.5 text-[10px] focus:border-blue-500 outline-none uppercase font-bold" placeholder="NAMA..." autocomplete="off">
                     <datalist id="nama_opsi">
                         <option value="A. RIZKI MUBAROK KULJAMIL">
                         <option value="SUPERINTENDENT LAIN">
@@ -87,33 +87,35 @@
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-black text-[#003366] uppercase mb-1">Catatan / Rekomendasi (Wajib jika Reject)</label>
-                    <textarea id="spt_notes" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm focus:border-blue-500 outline-none transition-all resize-none" rows="2" placeholder="Hasil evaluasi teknis..."></textarea>
+                    <label class="block text-[8px] font-black text-[#003366] uppercase mb-0.5">Catatan (Wajib jika Reject)</label>
+                    <!-- Teks area diganti jadi satu baris input agar irit tempat -->
+                    <input type="text" id="spt_notes" class="w-full border border-slate-300 rounded p-1.5 text-[10px] focus:border-blue-500 outline-none transition-all" placeholder="Catatan evaluasi...">
                 </div>
             </div>
 
-            <p class="font-bold text-slate-400 mb-2 text-center uppercase text-[9px] tracking-widest">Tanda Tangan Di Bawah Ini</p>
-            <div class="relative">
-                <canvas id="sig-spt" class="sig-canvas mb-4 shadow-sm"></canvas>
-                <button onclick="clearCanvas()" class="absolute top-2 right-2 text-[10px] bg-red-50 text-red-600 px-3 py-1.5 rounded-lg shadow-sm font-black hover:bg-red-100 uppercase transition-all">Reset TTD</button>
+            <div class="relative mb-2">
+                <canvas id="sig-spt" class="sig-canvas shadow-sm"></canvas>
+                <div class="absolute top-1 left-2 pointer-events-none">
+                    <p class="font-bold text-slate-300 uppercase text-[8px] tracking-widest">Tanda Tangan Di Sini</p>
+                </div>
+                <button onclick="clearCanvas()" class="absolute top-1 right-1 text-[8px] bg-red-50 text-red-600 px-2 py-0.5 rounded shadow-sm font-black hover:bg-red-100 uppercase transition-all">Reset</button>
             </div>
 
-            <!-- PERBAIKAN: Tombol stack vertikal di mobile, horizontal di desktop -->
-            <div class="flex flex-col md:flex-row gap-3 md:gap-4">
-                <button onclick="processReview('Rejected')" class="w-full md:flex-1 bg-white border-2 border-red-500 text-red-600 py-3.5 md:py-4 rounded-2xl font-black text-xs hover:bg-red-50 transition-all uppercase">Reject Laporan</button>
-                <button onclick="processReview('Approved')" class="w-full md:flex-[2] bg-green-600 text-white py-3.5 md:py-4 rounded-2xl font-black text-xs hover:bg-green-700 shadow-xl transition-all uppercase">Approve & Teruskan</button>
+            <div class="flex flex-row gap-2">
+                <button onclick="processReview('Rejected')" class="flex-1 bg-white border border-red-500 text-red-600 py-1.5 rounded font-black text-[10px] hover:bg-red-50 transition-all uppercase">Reject</button>
+                <button onclick="processReview('Approved')" class="flex-[2] bg-green-600 text-white py-1.5 rounded font-black text-[10px] hover:bg-green-700 shadow-md transition-all uppercase">Approve & Teruskan</button>
             </div>
         </div>
 
-        <div id="historyPanel" class="p-6 md:p-8 bg-slate-50 border-t text-center" style="display: none;">
-            <div class="max-w-md mx-auto">
-                <p id="history_status_text" class="font-black uppercase mb-3 text-sm tracking-widest"></p>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-6 text-left" id="history_box_color">
-                    <p class="text-[9px] font-bold text-slate-400 uppercase mb-1">Pemeriksa & Catatan:</p>
-                    <p id="view_spt_name" class="text-sm font-black text-slate-800 uppercase"></p>
-                    <p id="view_spt_notes" class="text-xs italic text-slate-500 mt-2 leading-relaxed"></p>
+        <div id="historyPanel" class="p-3 md:p-4 bg-slate-50 border-t text-center shrink-0" style="display: none;">
+            <div class="max-w-md mx-auto flex flex-col items-center">
+                <p id="history_status_text" class="font-black uppercase mb-1 text-[10px] md:text-xs tracking-widest"></p>
+                <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm mb-2 w-full text-left" id="history_box_color">
+                    <p class="text-[8px] font-bold text-slate-400 uppercase mb-0.5">Pemeriksa & Catatan:</p>
+                    <p id="view_spt_name" class="text-[10px] md:text-xs font-black text-slate-800 uppercase"></p>
+                    <p id="view_spt_notes" class="text-[9px] md:text-[10px] italic text-slate-500 mt-0.5 leading-tight"></p>
                 </div>
-                <img id="view-sig-spt" class="h-24 md:h-28 mx-auto border-2 border-slate-100 bg-white p-2 rounded-2xl shadow-md" alt="Signature">
+                <img id="view-sig-spt" class="h-12 md:h-16 mx-auto border border-slate-200 bg-white p-1 rounded-lg shadow-sm" alt="Signature">
             </div>
         </div>
     </div>
@@ -145,14 +147,14 @@
                 if (s.includes('reject')) badgeClass = 'rejected';
 
                 return `
-                    <tr class="border-b hover:bg-slate-50 transition-colors text-sm">
-                        <td class="p-4 md:p-5 font-medium text-slate-500 whitespace-nowrap">${new Date(row.created_at).toLocaleDateString('id-ID')}</td>
-                        <td class="p-4 md:p-5 font-black text-slate-800 uppercase tracking-tight whitespace-nowrap">${row.nama_mesin || '-'}</td>
-                        <td class="p-4 md:p-5 font-bold text-blue-600 italic whitespace-nowrap">${row.job_type || '-'}</td>
-                        <td class="p-4 md:p-5 font-semibold text-slate-600 tracking-tight uppercase whitespace-nowrap">${row.engineer_name || '-'}</td>
-                        <td class="p-4 md:p-5 text-center"><span class="status-badge ${badgeClass}">${row.status || 'Pending'}</span></td>
-                        <td class="p-4 md:p-5 text-center">
-                            <button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-4 md:px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-900 transition-all shadow-md">Review</button>
+                    <tr class="border-b hover:bg-slate-50 transition-colors text-xs md:text-sm">
+                        <td class="p-3 md:p-4 font-medium text-slate-500 whitespace-nowrap">${new Date(row.created_at).toLocaleDateString('id-ID')}</td>
+                        <td class="p-3 md:p-4 font-black text-slate-800 uppercase tracking-tight whitespace-nowrap">${row.nama_mesin || '-'}</td>
+                        <td class="p-3 md:p-4 font-bold text-blue-600 italic whitespace-nowrap">${row.job_type || '-'}</td>
+                        <td class="p-3 md:p-4 font-semibold text-slate-600 tracking-tight uppercase whitespace-nowrap">${row.engineer_name || '-'}</td>
+                        <td class="p-3 md:p-4 text-center"><span class="status-badge ${badgeClass}">${row.status || 'Pending'}</span></td>
+                        <td class="p-3 md:p-4 text-center">
+                            <button onclick='openReview(${JSON.stringify(row)})' class="bg-[#003366] text-white px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-blue-900 transition-all shadow-sm">Review</button>
                         </td>
                     </tr>
                 `}).join('');
@@ -167,36 +169,41 @@
         const { data: act } = await _sb.from('maintenance_actions').select('*').eq('maintenance_id', row.id);
         const { data: part } = await _sb.from('maintenance_parts').select('*').eq('maintenance_id', row.id);
 
+        /* PERBAIKAN: Layout SUPER COMPACT dibuat agar semuanya muat di satu layar tanpa scroll */
         cont.innerHTML = `
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 md:mb-8 border bg-blue-50/50 p-4 md:p-6 rounded-2xl md:rounded-3xl border-blue-100 shadow-sm text-left">
-                <div class="col-span-2 md:col-span-1"><p class="text-[9px] text-blue-400 uppercase font-black tracking-widest mb-1">Equipment</p><p class="font-black text-[#003366] text-base md:text-xl uppercase break-words">${row.nama_mesin}</p></div>
-                <div class="col-span-2 md:col-span-1"><p class="text-[9px] text-blue-400 uppercase font-black tracking-widest mb-1">Pekerjaan</p><p class="font-black text-blue-700 text-base md:text-xl uppercase break-words">${row.job_type}</p></div>
-                <div class="col-span-2 md:col-span-1"><p class="text-[9px] text-slate-400 uppercase font-black tracking-widest mb-1">Engineer</p><p class="font-bold text-slate-700 uppercase text-sm md:text-base break-words">${row.engineer_name}</p></div>
-                <div class="col-span-2 md:col-span-1"><p class="text-[9px] text-slate-400 uppercase font-black tracking-widest mb-1">Periode</p>
-                     <p class="text-[10px] font-bold text-slate-700">${formatIndoDateTime(row.jam_mulai)} <br class="hidden md:block"> s/d <br class="hidden md:block"> ${formatIndoDateTime(row.jam_selesai)}</p>
+            <div class="flex flex-wrap gap-1.5 mb-1.5 border bg-blue-50/50 p-2 rounded-lg border-blue-100 shadow-sm text-left">
+                <div class="flex-1 min-w-[45%]"><p class="text-[7px] text-blue-400 uppercase font-black tracking-widest mb-0.5">Equipment</p><p class="font-black text-[#003366] text-[10px] uppercase truncate">${row.nama_mesin}</p></div>
+                <div class="flex-1 min-w-[45%]"><p class="text-[7px] text-blue-400 uppercase font-black tracking-widest mb-0.5">Pekerjaan</p><p class="font-black text-blue-700 text-[10px] uppercase truncate">${row.job_type}</p></div>
+                <div class="flex-1 min-w-[45%]"><p class="text-[7px] text-slate-400 uppercase font-black tracking-widest mb-0.5">Engineer</p><p class="font-bold text-slate-700 uppercase text-[9px] truncate">${row.engineer_name}</p></div>
+                <div class="flex-1 min-w-[45%]"><p class="text-[7px] text-slate-400 uppercase font-black tracking-widest mb-0.5">Periode</p>
+                     <p class="text-[8px] font-bold text-slate-700 leading-none">${formatIndoDateTime(row.jam_mulai).split(' ')[0]} - ${formatIndoDateTime(row.jam_selesai).split(' ')[0]}</p>
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 text-left">
-                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm"><p class="font-black text-[#003366] text-[10px] uppercase mb-2">1. Masalah:</p>
-                     <ul class="list-disc pl-5 text-xs space-y-2 italic text-slate-600">${prob.map(p => `<li>${p.description}</li>`).join('')}</ul>
+            <div class="grid grid-cols-2 gap-1.5 mb-1.5 text-left">
+                <div class="bg-white p-1.5 rounded-lg border border-slate-100 shadow-sm flex flex-col max-h-[70px]">
+                     <p class="font-black text-[#003366] text-[8px] uppercase mb-1 shrink-0">1. Masalah:</p>
+                     <ul class="list-disc pl-3 text-[8px] space-y-0.5 italic text-slate-600 overflow-y-auto custom-scroll">${prob.map(p => `<li>${p.description}</li>`).join('')}</ul>
                 </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm"><p class="font-black text-[#003366] text-[10px] uppercase mb-2">2. Tindakan:</p>
-                     <ul class="list-disc pl-5 text-xs space-y-2 italic text-slate-600">${act.map(a => `<li>${a.description}</li>`).join('')}</ul>
+                <div class="bg-white p-1.5 rounded-lg border border-slate-100 shadow-sm flex flex-col max-h-[70px]">
+                     <p class="font-black text-[#003366] text-[8px] uppercase mb-1 shrink-0">2. Tindakan:</p>
+                     <ul class="list-disc pl-3 text-[8px] space-y-0.5 italic text-slate-600 overflow-y-auto custom-scroll">${act.map(a => `<li>${a.description}</li>`).join('')}</ul>
                 </div>
             </div>
             
-            <div class="mb-6 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm text-left overflow-x-auto custom-scroll">
-                <p class="font-black text-[#003366] text-[10px] uppercase mb-2">3. Suku Cadang:</p>
-                <table class="w-full text-[10px] min-w-[300px]">
-                    <thead class="bg-slate-50 uppercase font-black text-slate-400"><tr><th class="p-2 text-left">Part</th><th class="p-2 text-center">Qty</th><th class="p-2 text-center">Status</th></tr></thead>
-                    <tbody>${part.length ? part.map(pt => `<tr class="border-b border-slate-50"><td class="p-2 font-bold uppercase text-slate-700">${pt.nama_part}</td><td class="p-2 text-center font-black text-blue-600">${pt.qty}</td><td class="p-2 text-center font-bold text-slate-500 uppercase text-[8px]">${pt.tindak_lanjut}</td></tr>`).join('') : '<tr><td colspan="3" class="p-4 text-center italic text-slate-300">Tidak ada penggantian part</td></tr>'}</tbody>
-                </table>
+            <div class="mb-1.5 bg-white p-1.5 rounded-lg border border-slate-100 shadow-sm text-left flex flex-col max-h-[80px]">
+                <p class="font-black text-[#003366] text-[8px] uppercase mb-0.5 shrink-0">3. Suku Cadang:</p>
+                <div class="overflow-y-auto custom-scroll">
+                    <table class="w-full text-[8px]">
+                        <thead class="bg-slate-50 uppercase font-black text-slate-400 sticky top-0"><tr><th class="p-1 text-left">Part</th><th class="p-1 text-center">Qty</th><th class="p-1 text-center">Sts</th></tr></thead>
+                        <tbody>${part.length ? part.map(pt => `<tr class="border-b border-slate-50"><td class="p-1 font-bold uppercase text-slate-700">${pt.nama_part}</td><td class="p-1 text-center font-black text-blue-600">${pt.qty}</td><td class="p-1 text-center font-bold text-slate-500 uppercase">${pt.tindak_lanjut}</td></tr>`).join('') : '<tr><td colspan="3" class="p-2 text-center italic text-slate-300">N/A</td></tr>'}</tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="bg-amber-50 p-4 md:p-5 border-l-4 border-amber-400 rounded-xl text-left shadow-sm mb-2">
-                <p class="text-[9px] font-black text-amber-700 uppercase mb-2 tracking-widest">Catatan Engineer:</p>
-                <p class="text-xs md:text-sm italic text-slate-700 font-medium leading-relaxed">"${row.rekomendasi_catatan || '-'}"</p>
+            <div class="bg-amber-50 p-1.5 border-l-2 border-amber-400 rounded-lg text-left shadow-sm">
+                <p class="text-[7px] font-black text-amber-700 uppercase mb-0.5 tracking-widest">Catatan Eng:</p>
+                <p class="text-[9px] italic text-slate-700 font-medium leading-tight line-clamp-2">"${row.rekomendasi_catatan || '-'}"</p>
             </div>
         `;
         
@@ -212,8 +219,8 @@
             const isApproved = st.includes('approve');
             
             hText.innerText = isApproved ? "✓ LAPORAN TELAH DISETUJUI" : "✘ LAPORAN TELAH DITOLAK";
-            hText.className = isApproved ? "text-green-600 font-black uppercase mb-3 text-sm md:text-base tracking-widest" : "text-red-600 font-black uppercase mb-3 text-sm md:text-base tracking-widest";
-            hBox.className = isApproved ? "bg-green-50 p-4 rounded-2xl border border-green-100 shadow-sm mb-6 text-left" : "bg-red-50 p-4 rounded-2xl border border-red-100 shadow-sm mb-6 text-left";
+            hText.className = isApproved ? "text-green-600 font-black uppercase mb-2 text-xs md:text-sm tracking-widest" : "text-red-600 font-black uppercase mb-2 text-xs md:text-sm tracking-widest";
+            hBox.className = isApproved ? "bg-green-50 p-3 rounded-xl border border-green-100 shadow-sm mb-4 text-left" : "bg-red-50 p-3 rounded-xl border border-red-100 shadow-sm mb-4 text-left";
             
             document.getElementById('view_spt_name').innerText = row.spt_name || "-";
             document.getElementById('view_spt_notes').innerText = row.spt_notes || "Tidak ada catatan.";
