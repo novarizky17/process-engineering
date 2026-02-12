@@ -7,7 +7,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Mencegah layar bergeser keluar batas secara tidak sengaja */
+        html, body { max-width: 100%; overflow-x: hidden; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f8fafc; }
+        
         .table-manager th { background: #1e293b; color: white; text-transform: uppercase; font-size: 0.75rem; padding: 12px; }
         .modal { 
             display: none; 
@@ -17,73 +20,117 @@
             background: rgba(0,0,0,0.7); 
             align-items: center; 
             justify-content: center; 
-            padding: 1.5rem; 
+            padding: 0.5rem; 
         }
-        .status-badge { padding: 2px 8px; border-radius: 12px; font-weight: bold; font-size: 10px; text-transform: uppercase; }
-        .approved-mn { background: #dcfce7; color: #15803d; }
-        .approved-spt { background: #e0f2fe; color: #0369a1; }
-        .rejected { background: #fee2e2; color: #b91c1c; }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 10px; text-transform: uppercase; white-space: nowrap; }
+        .approved-mn { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .approved-spt { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .rejected { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        /* --- PERBAIKAN: MOBILE TABLE CARD LAYOUT --- */
+        @media screen and (max-width: 768px) {
+            .table-manager thead { display: none; }
+            .table-manager, .table-manager tbody, .table-manager tr, .table-manager td { display: block; width: 100%; }
+            .table-manager tr { 
+                margin-bottom: 1rem; 
+                border: 1px solid #e2e8f0; 
+                border-radius: 0.75rem; 
+                background: white; 
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            .table-manager td { 
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center; 
+                padding: 0.75rem 1rem !important; 
+                border-bottom: 1px solid #f8fafc; 
+                text-align: right !important; 
+            }
+            .table-manager td:last-child { 
+                border-bottom: none; 
+                justify-content: center; 
+                background: #f8fafc; 
+                border-bottom-left-radius: 0.75rem; 
+                border-bottom-right-radius: 0.75rem; 
+                padding-top: 1rem !important;
+            }
+            .table-manager td::before { 
+                content: attr(data-label); 
+                font-weight: 800; 
+                text-transform: uppercase; 
+                font-size: 0.65rem; 
+                color: #64748b; 
+                text-align: left; 
+                margin-right: 1rem; 
+            }
+        }
     </style>
 </head>
 <body>
 
-<header class="bg-[#1e293b] text-white p-4 flex justify-between items-center shadow-md">
-    <div class="flex items-center gap-4">
-        <button onclick="window.location.href='laporan.html'" class="text-xs bg-slate-700 px-3 py-1.5 rounded hover:bg-slate-600 transition">← DASHBOARD</button>
-        <h1 class="text-xl font-bold tracking-tight">MANAGER - FINAL APPROVAL</h1>
+<header class="bg-[#1e293b] text-white p-3 md:p-4 flex flex-col md:flex-row justify-between items-center gap-3 shadow-md">
+    <div class="flex items-center gap-3 w-full md:w-auto">
+        <button onclick="window.location.href='laporan.html'" class="text-[10px] md:text-xs bg-slate-700 px-3 md:px-4 py-2 rounded-xl hover:bg-slate-600 transition whitespace-nowrap font-bold">← DASHBOARD</button>
+        <h1 class="text-sm md:text-xl font-bold tracking-tight truncate flex-1 text-center md:text-left">MANAGER - FINAL APPROVAL</h1>
     </div>
-    <button onclick="fetchLaporan()" class="bg-blue-600 px-4 py-2 rounded font-bold text-sm hover:bg-blue-700 transition shadow-lg">REFRESH DATA</button>
+    <button onclick="fetchLaporan()" class="w-full md:w-auto bg-blue-600 px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-blue-700 transition shadow-lg tracking-wider">REFRESH DATA</button>
 </header>
 
-<div class="container mx-auto p-6">
-    <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
-        <table class="w-full text-left border-collapse table-manager">
+<div class="container mx-auto p-3 md:p-6">
+    <!-- Mematikan background putih & border kotak luar di HP agar fokus ke card baris tabel -->
+    <div class="md:bg-white md:rounded-xl md:shadow-xl md:overflow-x-auto custom-scroll md:border md:border-slate-200">
+        <table class="w-full text-left border-collapse table-manager md:min-w-[800px]">
             <thead>
                 <tr>
-                    <th>Tanggal Input</th>
-                    <th>Mesin / Equipment</th>
-                    <th>Tipe</th>
-                    <th>Engineer</th>
-                    <th>Status</th>
-                    <th class="text-center">Aksi</th>
+                    <th class="px-5 py-3 whitespace-nowrap">Tanggal Input</th>
+                    <th class="px-5 py-3 whitespace-nowrap">Mesin / Equipment</th>
+                    <th class="px-5 py-3 whitespace-nowrap">Tipe</th>
+                    <th class="px-5 py-3 whitespace-nowrap">Engineer</th>
+                    <th class="px-5 py-3 text-center whitespace-nowrap">Status</th>
+                    <th class="px-5 py-3 text-center whitespace-nowrap">Aksi</th>
                 </tr>
             </thead>
             <tbody id="listLaporan">
-                <tr><td colspan="6" class="p-12 text-center text-slate-400 italic font-medium">Mencari data laporan maintenance...</td></tr>
+                <tr><td colspan="6" class="p-8 text-center text-slate-400 italic font-medium">Mencari data laporan maintenance...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
 <div id="modalManager" class="modal">
-    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden max-h-[95vh] flex flex-col">
-        <div class="bg-slate-50 p-5 border-b flex justify-between items-center">
-            <h2 class="text-xl font-bold text-slate-800">Final Review & Decision</h2>
-            <button onclick="closeModal()" class="text-3xl font-light hover:text-red-500 transition">&times;</button>
+    <div class="bg-white w-full max-w-5xl rounded-xl shadow-2xl overflow-hidden max-h-[98vh] md:max-h-[90vh] flex flex-col">
+        <div class="bg-slate-50 p-3 md:p-5 border-b flex justify-between items-center shrink-0">
+            <h2 class="text-sm md:text-xl font-bold text-slate-800 truncate pr-4">Final Review & Decision</h2>
+            <button onclick="closeModal()" class="text-2xl md:text-3xl font-light hover:text-red-500 transition leading-none">&times;</button>
         </div>
         
-        <div class="p-8 overflow-y-auto flex-grow" id="modalContent"></div>
+        <div class="p-3 md:p-6 overflow-y-auto flex-grow custom-scroll" id="modalContent"></div>
 
-        <div class="px-8 pb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-blue-50 p-4 rounded-xl border-l-4 border-blue-500">
-                <p class="text-[10px] font-black text-blue-800 uppercase mb-1">Catatan Engineer (Pelaksana):</p>
-                <p id="view_eng_notes_modal" class="text-sm italic text-slate-700 font-medium"></p>
+        <div class="px-3 md:px-6 pb-3 md:pb-6 grid grid-cols-1 md:grid-cols-2 gap-3 shrink-0">
+            <div class="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500 shadow-sm">
+                <p class="text-[9px] md:text-[10px] font-black text-blue-800 uppercase mb-1">Catatan Engineer (Pelaksana):</p>
+                <p id="view_eng_notes_modal" class="text-xs md:text-sm italic text-slate-700 font-medium"></p>
             </div>
-            <div class="bg-slate-100 p-4 rounded-xl border-l-4 border-slate-500">
-                <p class="text-[10px] font-black text-slate-500 uppercase mb-1">Evaluasi Superintendent (Pemeriksa):</p>
-                <p id="view_spt_name_modal" class="text-xs font-bold text-slate-800 uppercase mb-1"></p>
-                <p id="view_spt_notes_modal" class="text-sm italic text-slate-600 font-medium"></p>
+            <div class="bg-slate-100 p-3 rounded-lg border-l-4 border-slate-500 shadow-sm">
+                <p class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-1">Evaluasi Superintendent (Pemeriksa):</p>
+                <p id="view_spt_name_modal" class="text-[10px] md:text-xs font-bold text-slate-800 uppercase mb-0.5"></p>
+                <p id="view_spt_notes_modal" class="text-xs md:text-sm italic text-slate-600 font-medium leading-tight"></p>
             </div>
         </div>
 
-        <div class="p-8 bg-slate-50 border-t">
-            <div id="managerActionButtons" class="flex flex-col md:flex-row gap-4 items-center justify-center">
-                <div id="decisionPending" class="flex gap-4 w-full justify-center">
-                    <button onclick="saveDecision('Rejected')" class="flex-1 max-w-xs bg-red-600 text-white py-4 rounded-xl font-black text-lg hover:bg-red-700 shadow-xl transform active:scale-95 transition-all uppercase tracking-wider">REJECT (TOLAK)</button>
-                    <button onclick="saveDecision('Manager Approved')" class="flex-1 max-w-xs bg-green-600 text-white py-4 rounded-xl font-black text-lg hover:bg-green-700 shadow-xl transform active:scale-95 transition-all uppercase tracking-wider">APPROVE (SETUJU)</button>
+        <div class="p-3 md:p-6 bg-slate-50 border-t shrink-0">
+            <div id="managerActionButtons" class="flex flex-col md:flex-row gap-3 items-center justify-center">
+                <div id="decisionPending" class="flex flex-row gap-2 md:gap-4 w-full justify-center">
+                    <button onclick="saveDecision('Rejected')" class="flex-1 md:max-w-xs bg-white border border-red-500 text-red-600 md:bg-red-600 md:border-none md:text-white py-2.5 md:py-4 rounded-xl font-black text-[11px] md:text-lg hover:bg-red-50 md:hover:bg-red-700 shadow-sm md:shadow-xl transform active:scale-95 transition-all uppercase tracking-wider">REJECT (TOLAK)</button>
+                    <button onclick="saveDecision('Manager Approved')" class="flex-[2] md:flex-1 md:max-w-xs bg-green-600 text-white py-2.5 md:py-4 rounded-xl font-black text-[11px] md:text-lg hover:bg-green-700 shadow-md md:shadow-xl transform active:scale-95 transition-all uppercase tracking-wider">APPROVE (SETUJU)</button>
                 </div>
                 <div id="decisionDone" class="hidden text-center w-full">
-                    <div class="inline-block px-8 py-3 rounded-full font-black text-xl border-4" id="finalStatusBadge"></div>
+                    <div class="inline-block px-6 py-2 md:px-8 md:py-3 rounded-full font-black text-xs md:text-xl border-4" id="finalStatusBadge"></div>
                 </div>
             </div>
         </div>
@@ -112,15 +159,16 @@
                 if (row.status === 'Manager Approved') badgeClass = 'approved-mn';
                 if (row.status === 'Rejected') badgeClass = 'rejected';
 
+                // Menambahkan data-label untuk mobile card layout
                 return `
-                <tr class="border-b hover:bg-slate-50 transition-all text-sm">
-                    <td class="p-4 font-medium text-slate-500">${new Date(row.created_at).toLocaleDateString()}</td>
-                    <td class="p-4 font-bold text-slate-800 uppercase">${row.nama_mesin}</td>
-                    <td class="p-4">${row.job_type}</td>
-                    <td class="p-4">${row.engineer_name}</td>
-                    <td class="p-4"><span class="status-badge ${badgeClass}">${row.status}</span></td>
-                    <td class="p-4 text-center">
-                        <button onclick='viewDetail(${JSON.stringify(row)})' class="bg-[#1e293b] text-white px-4 py-1.5 rounded-lg text-xs font-bold shadow-md hover:scale-105 transition-transform">PROSES DATA</button>
+                <tr class="md:border-b hover:bg-slate-50 transition-all text-xs md:text-sm">
+                    <td data-label="TANGGAL INPUT" class="p-3 md:p-4 font-medium text-slate-500 md:whitespace-nowrap">${new Date(row.created_at).toLocaleDateString('id-ID')}</td>
+                    <td data-label="MESIN/EQUIPMENT" class="p-3 md:p-4 font-bold text-slate-800 uppercase tracking-tight md:whitespace-nowrap">${row.nama_mesin}</td>
+                    <td data-label="TIPE" class="p-3 md:p-4 text-blue-600 font-medium md:whitespace-nowrap">${row.job_type}</td>
+                    <td data-label="ENGINEER" class="p-3 md:p-4 font-semibold md:whitespace-nowrap uppercase">${row.engineer_name}</td>
+                    <td data-label="STATUS" class="p-3 md:p-4 text-right md:text-center"><span class="status-badge ${badgeClass}">${row.status}</span></td>
+                    <td data-label="AKSI" class="p-3 md:p-4 text-center">
+                        <button onclick='viewDetail(${JSON.stringify(row)})' class="w-full md:w-auto bg-[#1e293b] text-white px-4 py-2 md:py-1.5 rounded-lg text-[10px] font-bold shadow-md hover:scale-105 transition-transform uppercase tracking-widest">PROSES DATA</button>
                     </td>
                 </tr>
             `}).join('');
@@ -134,14 +182,21 @@
 
         const cont = document.getElementById('modalContent');
         cont.innerHTML = `
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Equipment</p><p class="font-bold text-slate-800 uppercase">${row.nama_mesin}</p></div>
-                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Tipe</p><p class="font-bold text-blue-600">${row.job_type}</p></div>
-                <div><p class="text-[9px] text-slate-400 uppercase font-bold">Engineer</p><p class="font-bold text-slate-800 uppercase">${row.engineer_name}</p></div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-3 md:mb-6 bg-slate-50 p-3 md:p-4 rounded-xl border border-slate-200">
+                <div class="col-span-2 md:col-span-1"><p class="text-[8px] md:text-[9px] text-slate-400 uppercase font-bold mb-0.5">Equipment</p><p class="font-bold text-slate-800 text-xs md:text-sm uppercase truncate">${row.nama_mesin}</p></div>
+                <div class="col-span-2 md:col-span-1"><p class="text-[8px] md:text-[9px] text-slate-400 uppercase font-bold mb-0.5">Tipe</p><p class="font-bold text-blue-600 text-xs md:text-sm truncate">${row.job_type}</p></div>
+                <div class="col-span-2 md:col-span-1"><p class="text-[8px] md:text-[9px] text-slate-400 uppercase font-bold mb-0.5">Engineer</p><p class="font-bold text-slate-800 text-xs md:text-sm uppercase truncate">${row.engineer_name}</p></div>
+                <div class="col-span-2 md:col-span-1"><p class="text-[8px] md:text-[9px] text-slate-400 uppercase font-bold mb-0.5">Tanggal Pelaksanaan</p><p class="font-bold text-slate-800 text-xs md:text-sm uppercase truncate">${new Date(row.created_at).toLocaleDateString('id-ID')}</p></div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div><h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">Masalah</h3><ul class="text-xs space-y-1 italic text-slate-600">${prob.map(p => `<li>• ${p.description}</li>`).join('')}</ul></div>
-                <div><h3 class="font-bold text-slate-800 border-b mb-2 text-xs uppercase">Tindakan</h3><ul class="text-xs space-y-1 italic text-slate-600">${act.map(a => `<li>• ${a.description}</li>`).join('')}</ul></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 mb-2">
+                <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm flex flex-col max-h-[120px] md:max-h-none">
+                    <h3 class="font-bold text-slate-800 border-b pb-1 mb-2 text-[10px] md:text-xs uppercase shrink-0">Masalah</h3>
+                    <ul class="text-[10px] md:text-xs space-y-1 italic text-slate-600 pl-4 list-disc overflow-y-auto custom-scroll">${prob.map(p => `<li>${p.description}</li>`).join('')}</ul>
+                </div>
+                <div class="bg-white p-3 rounded-lg border border-slate-100 shadow-sm flex flex-col max-h-[120px] md:max-h-none">
+                    <h3 class="font-bold text-slate-800 border-b pb-1 mb-2 text-[10px] md:text-xs uppercase shrink-0">Tindakan</h3>
+                    <ul class="text-[10px] md:text-xs space-y-1 italic text-slate-600 pl-4 list-disc overflow-y-auto custom-scroll">${act.map(a => `<li>${a.description}</li>`).join('')}</ul>
+                </div>
             </div>
         `;
 
@@ -158,26 +213,26 @@
             const badge = document.getElementById('finalStatusBadge');
             badge.innerText = row.status === 'Manager Approved' ? "DATA DISETUJUI" : "DATA DITOLAK";
             badge.className = row.status === 'Manager Approved' ? 
-                "inline-block px-8 py-3 rounded-full font-black text-xl border-4 border-green-600 text-green-600" : 
-                "inline-block px-8 py-3 rounded-full font-black text-xl border-4 border-red-600 text-red-600";
+                "inline-block px-6 py-2 md:px-8 md:py-3 rounded-full font-black text-[10px] md:text-xl border-2 md:border-4 border-green-600 text-green-600" : 
+                "inline-block px-6 py-2 md:px-8 md:py-3 rounded-full font-black text-[10px] md:text-xl border-2 md:border-4 border-red-600 text-red-600";
         }
 
         document.getElementById('modalManager').style.display = 'flex';
     }
 
     async function saveDecision(statusValue) {
-        if (!confirm(`Konfirmasi keputusan: ${statusValue}?`)) return;
+        if (!confirm(`Konfirmasi keputusan akhir: ${statusValue}?`)) return;
 
         const { error } = await _sb.from('laporan_maintenance')
             .update({ status: statusValue })
             .eq('id', currentId);
 
         if (!error) {
-            alert(`Berhasil di-${statusValue}`);
+            alert(`Laporan berhasil di-${statusValue}`);
             closeModal();
             fetchLaporan();
         } else {
-            alert("Gagal: " + error.message);
+            alert("Terjadi kesalahan sistem: " + error.message);
         }
     }
 
