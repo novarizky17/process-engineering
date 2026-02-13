@@ -18,34 +18,34 @@
             padding: 20px;
             background: #f1f5f9;
             color: #000;
-            /* Hapus Flexbox di body agar zoom aman */
+            /* Penting untuk zoom wrapper */
             display: block; 
             min-height: 100vh;
-            overflow-x: auto; /* Allow scroll horizontal */
+            overflow-x: auto;
         }
 
-        /* Wrapper untuk menengahkan kertas dan handling zoom */
+        /* WRAPPER UNTUK ZOOM & SCROLL */
         .zoom-wrapper {
+            width: 100%;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            width: 100%;
-            padding-bottom: 50px; /* Ruang untuk scroll bawah */
             transform-origin: top center;
             transition: transform 0.2s ease-out;
+            padding-bottom: 50px;
         }
 
         .container {
-            width: 280mm; /* A4 Landscape width */
+            width: 280mm; /* Lebar A4 Landscape Tetap */
             min-height: 210mm;
             background: white;
             padding: 10mm;
             box-sizing: border-box;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             position: relative;
-            flex-shrink: 0; /* Cegah penyusutan */
+            flex-shrink: 0; /* Jangan biarkan menyusut oleh flexbox */
         }
 
+        /* Element Form (Tidak Diubah) */
         .input-dot {
             border: none;
             border-bottom: 1px dotted black;
@@ -72,7 +72,7 @@
             appearance: none;
         }
 
-        /* SEARCH BAR */
+        /* SEARCH BAR (Panel Atas) */
         .search-area {
             background: #1e293b;
             padding: 15px;
@@ -115,7 +115,7 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: #1e293b;
+            background: rgba(30, 41, 59, 0.9);
             padding: 8px 15px;
             border-radius: 50px;
             display: flex;
@@ -130,11 +130,11 @@
             background: #3b82f6;
             color: white;
             border: none;
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -143,97 +143,28 @@
         }
         
         .zoom-btn:active { transform: scale(0.9); }
-        .zoom-val { color: white; font-weight: bold; min-width: 45px; text-align: center; }
+        .zoom-val { color: white; font-weight: bold; min-width: 50px; text-align: center; font-size: 14px; }
 
-        /* HEADER DOKUMEN */
-        .header {
-            position: relative;
-            margin-bottom: 0;
-            height: 70px; 
-            margin-top: 5px;
-        }
-
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: absolute;
-            left: 0;
-            top: 0;
-        }
-
+        /* --- STYLE FORM ASLI (A4) --- */
+        .header { position: relative; margin-bottom: 0; height: 70px; margin-top: 5px; }
+        .logo-area { display: flex; align-items: center; gap: 12px; position: absolute; left: 0; top: 0; }
         .logo { width: 95px; height: auto; }
         .company-name { font-size: 14px; font-weight: bold; }
+        .title { font-size: 24px; font-weight: bold; text-align: center; width: 100%; margin: 0; padding-top: 10px; }
 
-        .title {
-            font-size: 24px;
-            font-weight: bold; 
-            text-align: center;
-            width: 100%;
-            margin: 0;
-            padding-top: 10px;
-        }
-
-        /* INFORMASI MESIN */
-        .meta-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end; 
-            margin-bottom: 10px; 
-            margin-top: 15px;
-        }
-
-        .machine-info div { 
-            margin-bottom: 4px; 
-            font-size: 10.5pt; 
-            font-weight: normal !important; 
-        }
-        
-        .label { 
-            font-weight: normal !important; 
-            display: inline-block; 
-            width: 165px; 
-        }
-
+        .meta-section { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; margin-top: 15px; }
+        .machine-info div { margin-bottom: 4px; font-size: 10.5pt; font-weight: normal !important; }
+        .label { font-weight: normal !important; display: inline-block; width: 165px; }
         .doc-info { text-align: left; font-size: 10.5pt; font-weight: normal !important; }
         .doc-info div { margin-bottom: 2px; }
         .doc-label { font-weight: normal !important; display: inline-block; width: 140px; }
 
-        /* TABEL UTAMA */
-        .table-wrapper { width: 100%; }
-        .main-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 25px;
-        }
+        .main-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        .main-table th { border: 1px solid black; padding: 6px; font-size: 9.5pt; text-align: center; background-color: #f8fafc; font-weight: bold; }
+        .main-table td { border: 1px solid black; padding: 4px; font-size: 9.5pt; text-align: center; vertical-align: middle; height: 25px; font-weight: normal; }
 
-        .main-table th {
-            border: 1px solid black;
-            padding: 6px;
-            font-size: 9.5pt;
-            text-align: center;
-            background-color: #f8fafc;
-            font-weight: bold;
-        }
-
-        .main-table td {
-            border: 1px solid black;
-            padding: 4px;
-            font-size: 9.5pt;
-            text-align: center;
-            vertical-align: middle;
-            height: 25px;
-            font-weight: normal;
-        }
-
-        /* TANDA TANGAN */
         .signature-section { margin-top: 20px; }
-        .signature-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 50px;
-        }
-
+        .signature-row { display: flex; justify-content: space-between; gap: 50px; }
         .sig-box { flex: 1; text-align: center; max-width: 300px; }
         .sig-title { font-weight: bold; font-size: 12.5pt; margin-bottom: 70px; text-transform: uppercase; }
         .sig-line { border-bottom: 1.5px solid black; width: 90%; margin: 0 auto 10px; }
@@ -241,69 +172,40 @@
 
         .spacer-top { height: 70px; display: block; }
 
-        /* === TAMPILAN RESPONSIF (HP) === */
+        /* === MEDIA QUERY KHUSUS HP === */
         @media screen and (max-width: 768px) {
-            body { padding: 10px; background: #f8fafc; display: block; }
+            body { padding: 10px; background: #334155; /* Background gelap biar kontras */ }
             
-            /* Search Area Stack */
+            /* Panel Search disusun vertikal di HP */
             .search-area {
-                position: static;
-                transform: none;
-                width: 100%;
-                max-width: 100%;
-                flex-direction: column;
-                align-items: stretch;
-                margin-bottom: 20px;
-                padding: 15px;
+                position: relative; top: 0; left: 0; transform: none;
+                width: 100%; max-width: 100%; flex-direction: column;
+                margin-bottom: 20px; box-shadow: none; border-bottom: 1px solid #475569;
             }
-            .search-area input, .search-area select, .search-area button { width: 100%; height: 40px; font-size: 14px; }
+            .search-area input, .search-area select, .search-area button { width: 100%; height: 45px; font-size: 16px; }
             .spacer-top { display: none; }
 
-            /* Penyesuaian Zoom Wrapper di HP */
+            /* Wrapper Zoom disesuaikan agar mulai dari kiri atas */
             .zoom-wrapper {
-                align-items: flex-start;
-                padding: 0;
-                transform-origin: top left; /* Zoom dari pojok kiri atas di HP agar tidak lari */
+                justify-content: flex-start; /* Biar kalau di-zoom, mulainya dari kiri */
+                padding-left: 0;
+                transform-origin: top left; /* Titik zoom di pojok kiri atas */
+                overflow: visible;
+                height: auto;
             }
-
-            /* Container tetap ukuran asli agar tidak gepeng, kita mainkan di zoom */
-            .container {
-                margin: 0;
-            }
-
-            /* Header Stack */
-            .header { height: auto; text-align: center; margin-bottom: 30px; }
-            .logo-area { position: static; justify-content: center; margin-bottom: 10px; }
-            .title { padding-top: 0; font-size: 20px; }
-
-            .meta-section { flex-direction: column; gap: 20px; align-items: flex-start; }
-            .machine-info, .doc-info { width: 100%; }
-            .label, .doc-label { font-weight: bold !important; width: 100%; margin-bottom: 2px; font-size: 12px; color: #555; }
-            .input-dot { width: 100%; border-bottom: 1px solid #ccc; font-size: 14px; }
-
-            .table-wrapper {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                margin-bottom: 20px;
-                border: 1px solid #eee;
-            }
-            .main-table { min-width: 800px; }
-
-            .signature-row { flex-direction: column; gap: 40px; align-items: center; }
-            .sig-box { width: 100%; max-width: 200px; }
-            .sig-title { margin-bottom: 50px; }
+            
+            /* Controls Zoom di HP */
+            .zoom-controls { bottom: 30px; width: 90%; justify-content: space-between; padding: 10px 20px; }
         }
 
-        /* === MODE CETAK (PRINT) === */
+        /* === MODE CETAK === */
         @media print {
             body { background: white; padding: 0; display: block; }
             .no-print, .search-area, .spacer-top, .zoom-controls { display: none !important; }
-            .zoom-wrapper { transform: none !important; display: block !important; }
+            .zoom-wrapper { transform: none !important; display: block !important; width: 100%; }
             .container { width: 280mm; box-shadow: none; padding: 5mm 10mm; margin: 0 auto; border: none; }
             .input-dot { border-bottom: none; }
             .table-select { appearance: none; -webkit-appearance: none; border: none; }
-            .table-wrapper { overflow: visible; }
-            .main-table { min-width: auto; }
         }
     </style>
 </head>
@@ -325,16 +227,17 @@
     </select>
     <button onclick="fetchData()" class="btn-action">CARI DATA</button>
     <button onclick="window.print()" class="btn-action" style="background:#10b981">CETAK</button>
-    <button onclick="window.location.href='laporan.html'" class="btn-action" style="background:#64748b">KEMBALI</button>
+    <button onclick="window.location.href='center.html'" class="btn-action" style="background:#64748b">KEMBALI</button>
 </div>
 
 <div class="spacer-top no-print"></div>
 
 <!-- TOMBOL ZOOM (Floating) -->
 <div class="zoom-controls no-print">
-    <button class="zoom-btn" onclick="adjustZoom(-0.1)">-</button>
+    <button class="zoom-btn" onclick="adjustZoom(-0.1)">−</button>
     <span class="zoom-val" id="zoomVal">100%</span>
     <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
+    <button class="zoom-btn" onclick="fitToScreen()" style="background:#f59e0b; font-size: 12px; width:auto; padding:0 10px; border-radius:15px;">FIT</button>
 </div>
 
 <!-- Wrapper Zoom -->
@@ -363,23 +266,21 @@
             </div>
         </div>
 
-        <div class="table-wrapper">
-            <table class="main-table">
-                <thead>
-                    <tr>
-                        <th style="width: 12%">Tanggal</th>
-                        <th style="width: 20%">Permasalahan</th>
-                        <th style="width: 20%">Tindakan</th>
-                        <th style="width: 20%">Spare Part</th>
-                        <th style="width: 16%">Keterangan</th>
-                        <th style="width: 12%">PIC</th>
-                    </tr>
-                </thead>
-                <tbody id="table_content">
-                    <!-- Data akan masuk sini -->
-                </tbody>
-            </table>
-        </div>
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th style="width: 12%">Tanggal</th>
+                    <th style="width: 20%">Permasalahan</th>
+                    <th style="width: 20%">Tindakan</th>
+                    <th style="width: 20%">Spare Part</th>
+                    <th style="width: 16%">Keterangan</th>
+                    <th style="width: 12%">PIC</th>
+                </tr>
+            </thead>
+            <tbody id="table_content">
+                <!-- Data akan masuk sini -->
+            </tbody>
+        </table>
 
         <div class="signature-section">
             <div class="signature-row">
@@ -408,24 +309,46 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
     const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-    // --- LOGIKA ZOOM ---
+    // --- LOGIKA ZOOM & AUTO FIT ---
     let currentZoom = 1;
+    
     function adjustZoom(delta) {
         currentZoom += delta;
-        if(currentZoom < 0.3) currentZoom = 0.3; // Min zoom
-        if(currentZoom > 2.0) currentZoom = 2.0; // Max zoom
-        
+        if(currentZoom < 0.2) currentZoom = 0.2; 
+        if(currentZoom > 2.0) currentZoom = 2.0; 
+        applyZoom();
+    }
+
+    function fitToScreen() {
+        if(window.innerWidth < 1060) { // Jika layar lebih kecil dari A4 Landscape (approx 1060px)
+            // Hitung rasio: Lebar Layar / Lebar Kertas (1060px)
+            // Dikurangi padding 20px
+            currentZoom = (window.innerWidth - 20) / 1060;
+        } else {
+            currentZoom = 1;
+        }
+        applyZoom();
+    }
+
+    function applyZoom() {
         const wrapper = document.getElementById('zoomTarget');
         const zoomText = document.getElementById('zoomVal');
         
         zoomText.innerText = Math.round(currentZoom * 100) + "%";
         wrapper.style.transform = `scale(${currentZoom})`;
         
-        // Fix: Sesuaikan margin agar tidak ada ruang kosong berlebih saat zoom out
-        if(currentZoom < 1) {
-            wrapper.style.width = `${100 / currentZoom}%`; 
+        // Sesuaikan dimensi wrapper agar scrollbar muncul dengan benar
+        // Saat scale < 1, elemen menyusut, kita perlu kurangi margin negatif agar tidak ada blank space
+        if(window.innerWidth < 768) {
+             wrapper.style.width = `${1060 * currentZoom}px`; // Fix width di HP
+             wrapper.style.height = `${800 * currentZoom}px`; 
         } else {
-            wrapper.style.width = '100%';
+             if(currentZoom < 1) {
+                wrapper.style.marginBottom = `-${(1 - currentZoom) * 100}%`;
+             } else {
+                wrapper.style.marginBottom = "0";
+             }
+             wrapper.style.width = "100%";
         }
     }
 
@@ -494,7 +417,6 @@
             });
         }
 
-        // --- Isi baris kosong sampai 10 ---
         const targetRows = 10;
         const remaining = targetRows - (reports ? reports.length : 0);
         
@@ -515,9 +437,19 @@
             </tr>`;
         }
         
-        // Auto zoom out sedikit di HP saat load agar terlihat lebih banyak
-        if(window.innerWidth < 768) {
-            adjustZoom(-0.4); 
+        // Auto FIT saat load di HP
+        if(window.innerWidth < 800) {
+            fitToScreen();
+        }
+    };
+    
+    // Auto re-scale saat layar diputar/diubah
+    window.onresize = () => {
+        if(window.innerWidth < 800) {
+            fitToScreen();
+        } else {
+            currentZoom = 1;
+            applyZoom();
         }
     };
 </script>
