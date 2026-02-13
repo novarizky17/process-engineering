@@ -14,40 +14,39 @@
         /* Container Dashboard */
         .dashboard-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
 
-        /* === 2. TAMPILAN MODAL KERTAS A4 (LAPTOP/DESKTOP) === */
+        /* === 2. TAMPILAN MODAL KERTAS A4 (FIXED LAYOUT) === */
+        /* Kita kunci ukurannya agar tampilan tidak berubah (tidak di-edit) */
         .document-page { 
             width: 210mm; 
             min-height: 296mm; 
             background: white; 
-            margin: 40px auto; /* Jarak atas bawah di modal */
+            margin: 20px auto; 
             padding: 10mm; 
             border: 1px solid #ccc; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15); /* Bayangan biar elegan */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
             display: flex; 
             flex-direction: column; 
             position: relative;
             box-sizing: border-box;
+            transform-origin: top center; /* Titik pusat zoom di atas tengah */
         }
 
         .btn-close-review {
-            position: absolute; top: 10px; right: -50px; /* Tombol Close di luar kertas */
+            position: absolute; top: -15px; right: -15px; z-index: 50;
             background: #ef4444; color: white; padding: 8px 12px;
-            border-radius: 8px; font-weight: bold; font-size: 14px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; border: none;
+            border-radius: 50%; font-weight: bold; font-size: 16px; width: 40px; height: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor: pointer; border: 2px solid white;
+            display: flex; align-items: center; justify-content: center;
         }
-        .btn-close-review:hover { background: #dc2626; transform: scale(1.05); transition: 0.2s; }
+        .btn-close-review:hover { background: #dc2626; transform: scale(1.1); }
 
-        /* HEADER LAPORAN (Formulir) */
+        /* HEADER LAPORAN (Formulir Asli - Tidak Diedit) */
         .main-header { width: 100%; border-collapse: collapse; border: 2px solid black; margin-bottom: 15px; table-layout: fixed; }
         .main-header td { border: 1px solid black; padding: 5px; vertical-align: middle; color: black; }
         .logo-box { width: 150px; padding: 10px !important; text-align: center !important; }
         .logo-img { width: 120px; height: auto; }
 
-        .company-col { 
-            font-size: 14pt; font-weight: bold; padding: 10px !important; 
-            border-bottom: 1px solid black; text-align: center !important; 
-        }
-
+        .company-col { font-size: 14pt; font-weight: bold; padding: 10px !important; border-bottom: 1px solid black; text-align: center !important; }
         .meta-box { width: 250px; padding: 0 !important; }
         .meta-table { width: 100%; border-collapse: collapse; font-size: 8pt; text-align: left; }
         .meta-table td { border: none !important; border-bottom: 1px solid black !important; padding: 4px 8px !important; color: black; }
@@ -67,12 +66,10 @@
         .section-label { font-weight: bold; margin-top: 15px; margin-bottom: 5px; display: block; color: black; text-decoration: underline; font-size: 10pt; }
         .dotted-item { display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px dotted #999; padding-bottom: 2px; margin-bottom: 4px; color: black; font-size: 10pt; }
         
-        /* TABEL PART */
         .part-table { width: 100%; border-collapse: collapse; border: 1px solid black; margin-top: 10px; color: black; font-size: 9pt; }
         .part-table th { border: 1px solid black; padding: 6px; background-color: #e2e8f0; font-weight: bold; text-align: center; }
         .part-table td { border: 1px solid black; padding: 5px; text-align: center; }
 
-        /* TANDA TANGAN */
         .sig-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: auto; padding-top: 20px; }
         .sig-box { text-align: center; display: flex; flex-direction: column; height: 160px; border: 1px solid transparent; }
         .sig-header { font-weight: bold; font-size: 9pt; margin-bottom: 5px; color: black; }
@@ -85,19 +82,26 @@
         
         /* MODAL WRAPPER */
         .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.8); overflow-y: auto; backdrop-filter: blur(4px); }
-        .modal-content-wrapper { min-height: 100%; display: flex; justify-content: center; padding: 20px 0; }
+        .modal-content-wrapper { 
+            min-height: 100%; 
+            display: flex; 
+            justify-content: center; 
+            padding: 20px 0; 
+            /* Penting untuk scaling di HP */
+            width: 100%;
+            overflow-x: hidden;
+        }
 
-        /* === 3. MEDIA QUERY HP (RESPONSIVE) === */
+        /* === 3. MOBILE RESPONSIVE UNTUK DASHBOARD SAJA === */
         @media screen and (max-width: 768px) {
             body { padding: 10px; background: #f8fafc; }
             .dashboard-container { margin: 10px auto; padding: 0; }
             
-            /* Header Dashboard Stack */
             .header-flex { flex-direction: column; gap: 10px; text-align: center; }
             .header-flex div { width: 100%; display: flex; gap: 5px; }
             .header-flex button { flex: 1; justify-content: center; }
 
-            /* --- TABEL DASHBOARD JADI KARTU (CARD) --- */
+            /* Dashboard Table jadi Kartu (Tetap Dipertahankan) */
             .table-list thead { display: none; }
             .table-list, .table-list tbody, .table-list tr, .table-list td { display: block; width: 100%; }
             .table-list tr {
@@ -113,80 +117,32 @@
                 content: attr(data-label); font-weight: 800; font-size: 10px; 
                 color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;
             }
-
-            /* --- MODAL FORM JADI RESPONSIVE (STACK) --- */
-            .modal { background: white; } /* Full screen white di HP */
-            .modal-content-wrapper { display: block; padding: 0; }
-            .document-page { 
-                width: 100%; height: auto; margin: 0; padding: 15px 15px 80px 15px; 
-                border: none; box-shadow: none; min-height: 100vh;
+            
+            /* Di HP, kita tidak mengubah layout form, tapi kita atur wrapper agar bisa di-scale lewat JS */
+            .modal-content-wrapper {
+                align-items: flex-start; /* Mulai dari atas */
+                padding-top: 10px;
             }
             
-            /* Tombol Close Pindah ke Pojok Kanan Atas Layar */
-            .btn-close-review { top: 15px; right: 15px; position: fixed; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-
-            /* Header Laporan Stack */
-            .main-header, .main-header tbody, .main-header tr, .main-header td { display: block; width: 100%; border: none; }
-            .main-header { border: 1px solid #ddd; margin-bottom: 20px; }
-            .main-header td { border-bottom: 1px solid #eee; text-align: center !important; }
-            .company-col { font-size: 12pt; white-space: normal; }
-            .meta-table tr { display: flex; }
-            .meta-table td { width: 50%; border: none !important; text-align: left !important; }
-
-            /* Konten Laporan Stack */
-            .view-row { flex-wrap: wrap; margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
-            .view-label { width: 100%; color: #64748b; font-size: 10px; margin-bottom: 5px; text-transform: uppercase; }
-            .view-separator { display: none; }
-            .view-line { width: 100%; border-bottom: none; font-size: 12pt; padding: 0; font-weight: 800; }
-            
-            .grid-cols-2 { grid-template-columns: 1fr !important; gap: 0 !important; }
-            .dotted-item { border-bottom: 1px solid #f1f5f9; padding: 8px 0; }
-
-            /* Tabel Part Scroll */
-            .part-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 20px; }
-            .part-table { min-width: 600px; }
-
-            /* Tanda Tangan Stack */
-            .sig-grid { display: flex; flex-direction: column; gap: 25px; }
-            .sig-box { border: 1px dashed #cbd5e1; border-radius: 12px; padding: 15px; height: auto; background: #f8fafc; }
-            .sig-area { min-height: 80px; }
+            /* Tombol close di HP agak turun biar ga kepotong */
+            .btn-close-review { top: 5px; right: 5px; }
         }
 
-        /* === 4. MODE CETAK (PRINT) - MUTLAK A4 === */
+        /* === 4. PRINT STYLE (MUTLAK A4) === */
         @media print {
             .no-print { display: none !important; }
             body { background: white; padding: 0; }
             .modal { position: static; display: block; background: none; padding: 0; }
-            .modal-content-wrapper { display: block; padding: 0; }
+            .modal-content-wrapper { display: block; padding: 0; height: auto; overflow: visible; }
             
-            /* Paksa Ukuran A4 */
+            /* Reset Scale saat print */
             .document-page { 
                 width: 210mm !important; height: 296mm !important; 
                 margin: 0 !important; padding: 10mm !important; 
                 border: none !important; box-shadow: none !important; 
+                transform: none !important; /* Hapus zoom JS */
                 page-break-after: always; display: block !important;
             }
-
-            /* Reset Layout Header */
-            .main-header { display: table !important; width: 100% !important; border: 2px solid black !important; }
-            .main-header tbody, .main-header tr { display: table-row-group !important; }
-            .main-header td { display: table-cell !important; border: 1px solid black !important; }
-            
-            /* Reset Layout Konten */
-            .view-row { display: flex !important; flex-wrap: nowrap !important; border: none !important; }
-            .view-label { width: 230px !important; color: black !important; font-size: 10pt !important; margin-bottom: 0 !important; }
-            .view-separator { display: block !important; }
-            .view-line { width: auto !important; border-bottom: 1px dashed black !important; font-weight: normal !important; }
-            
-            .grid-cols-2 { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 2rem !important; }
-            .dotted-item { border-bottom: 1px dotted #999 !important; padding: 0 !important; }
-            
-            .part-table-wrapper { overflow: visible !important; }
-            .part-table { min-width: auto !important; width: 100% !important; }
-            
-            .sig-grid { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 15px !important; }
-            .sig-box { border: none !important; height: 160px !important; background: transparent !important; }
-            
             .dashboard-container { display: none !important; }
         }
     </style>
@@ -202,7 +158,6 @@
             </div>
         </div>
         
-        <!-- Tabel Dashboard dengan Desain Laptop yang "Clean" -->
         <div class="bg-white border border-slate-200 rounded-b-xl shadow-sm overflow-hidden">
             <table class="w-full text-left text-sm border-collapse table-list">
                 <thead class="bg-[#003366] text-white">
@@ -222,11 +177,10 @@
         </div>
     </div>
 
-    <!-- Modal Review (Kertas Laporan) -->
     <div id="modalReview" class="modal">
-        <div class="modal-content-wrapper">
-            <div class="document-page relative">
-                <button onclick="closeModal()" class="no-print btn-close-review">Tutup [X]</button>
+        <div class="modal-content-wrapper" id="modalWrapper">
+            <div class="document-page relative" id="documentPage">
+                <button onclick="closeModal()" class="no-print btn-close-review text-xl leading-none">&times;</button>
                 
                 <table class="main-header">
                     <tr>
@@ -273,8 +227,8 @@
                     </div>
                 </div>
 
-                <div class="mt-6 text-right no-print md:absolute md:bottom-10 md:right-10 w-full md:w-auto">
-                    <button onclick="window.print()" class="bg-[#003366] text-white px-8 py-3 rounded-xl font-bold uppercase text-xs shadow-xl hover:bg-black transition flex items-center justify-center gap-2 ml-auto w-full md:w-auto">
+                <div class="mt-6 text-right no-print absolute bottom-4 right-10 w-full md:w-auto">
+                    <button onclick="window.print()" class="bg-[#003366] text-white px-8 py-3 rounded-xl font-bold uppercase text-xs shadow-xl hover:bg-black transition flex items-center justify-center gap-2 ml-auto w-auto">
                         <span>🖨️</span> Cetak PDF
                     </button>
                 </div>
@@ -298,6 +252,38 @@
             const d = new Date(iso);
             return d.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'}) + ", " + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit', hour12: false});
         }
+
+        // --- FUNGSI AUTO ZOOM KHUSUS HP ---
+        function autoScaleForMobile() {
+            const page = document.getElementById('documentPage');
+            const wrapper = document.getElementById('modalWrapper');
+            
+            if (window.innerWidth < 820) { // Jika layar HP/Tablet Kecil
+                // Hitung skala: Lebar Layar / Lebar Kertas Asli (800px)
+                // Dikurangi sedikit margin (20px) biar ga mepet
+                const scale = (window.innerWidth - 20) / 800; 
+                
+                page.style.transform = `scale(${scale})`;
+                // Kita sesuaikan margin negatif agar tidak ada ruang kosong berlebih karena scaling
+                page.style.marginBottom = `-${(1 - scale) * 100}%`; 
+                page.style.marginRight = `-${(1 - scale) * 100}%`;
+                
+                // Set tinggi wrapper agar bisa discroll sampai bawah
+                wrapper.style.height = (page.offsetHeight * scale + 100) + "px";
+                wrapper.style.alignItems = "flex-start"; // Mulai dari atas
+            } else {
+                page.style.transform = "none";
+                page.style.margin = "20px auto";
+                wrapper.style.height = "auto";
+                wrapper.style.alignItems = "center";
+            }
+        }
+
+        window.addEventListener('resize', () => {
+            if(document.getElementById('modalReview').style.display === 'block') {
+                autoScaleForMobile();
+            }
+        });
 
         async function fetchHistory() {
             const { data } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
@@ -368,7 +354,9 @@
             document.getElementById('view-name-eng').innerText = row.engineer_name || "";
             document.getElementById('view-name-spt').innerText = row.spt_name || "";
             document.getElementById('view-name-mn').innerText = row.manager_name || "";
+            
             document.getElementById('modalReview').style.display = 'block';
+            autoScaleForMobile(); // Panggil fungsi zoom otomatis
         }
 
         function closeModal() { document.getElementById('modalReview').style.display = 'none'; }
