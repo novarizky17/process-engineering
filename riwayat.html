@@ -6,10 +6,10 @@
     <title>KARTU RIWAYAT - PT. AMARILYS KARISMA GEMILANG</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* SETUP A4 LANDSCAPE */
+        /* SETUP A4 LANDSCAPE (DEFAULT / PRINT) */
         @page {
             size: A4 landscape;
-            margin: 5mm; /* Margin kertas tipis */
+            margin: 5mm;
         }
 
         body {
@@ -20,18 +20,19 @@
             color: #000;
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* PENTING: Konten mulai dari ATAS, bukan tengah */
+            align-items: flex-start;
             min-height: 100vh;
         }
 
         .container {
-            width: 280mm; /* Lebar A4 Landscape */
+            width: 280mm; /* A4 Landscape width */
             height: auto;
+            min-height: 210mm;
             background: white;
-            padding: 5mm 10mm; /* Padding atas diperkecil jadi 5mm */
+            padding: 10mm;
             box-sizing: border-box;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            margin-top: 0; /* Pastikan tidak ada jarak tambahan di atas */
+            position: relative;
         }
 
         .input-dot {
@@ -60,21 +61,23 @@
             appearance: none;
         }
 
+        /* SEARCH BAR */
         .search-area {
             background: #1e293b;
             padding: 15px;
-            margin-bottom: 25px;
             display: flex;
             gap: 12px;
             align-items: center;
             border-radius: 6px;
             justify-content: center;
-            position: fixed; /* Search bar melayang agar tidak ganggu layout */
+            position: fixed;
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 999;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            width: auto;
+            max-width: 95%;
         }
 
         .search-area input, .search-area select {
@@ -92,14 +95,15 @@
             cursor: pointer;
             font-weight: bold;
             border-radius: 4px;
+            white-space: nowrap;
         }
 
-        /* HEADER */
+        /* HEADER DOKUMEN */
         .header {
             position: relative;
             margin-bottom: 0;
             height: 70px; 
-            margin-top: 5px; /* Sedikit jarak dari tepi kertas */
+            margin-top: 5px;
         }
 
         .logo-area {
@@ -108,7 +112,7 @@
             gap: 12px;
             position: absolute;
             left: 0;
-            top: 0; /* Logo nempel atas */
+            top: 0;
         }
 
         .logo { width: 95px; height: auto; }
@@ -120,15 +124,16 @@
             text-align: center;
             width: 100%;
             margin: 0;
-            padding-top: 10px; /* Judul naik ke atas */
+            padding-top: 10px;
         }
 
+        /* INFORMASI MESIN */
         .meta-section {
             display: flex;
             justify-content: space-between;
             align-items: flex-end; 
             margin-bottom: 10px; 
-            margin-top: 15px; /* Jarak antara header dan info diperkecil */
+            margin-top: 15px;
         }
 
         .machine-info div { 
@@ -147,6 +152,8 @@
         .doc-info div { margin-bottom: 2px; }
         .doc-label { font-weight: normal !important; display: inline-block; width: 140px; }
 
+        /* TABEL UTAMA */
+        .table-wrapper { width: 100%; } /* Wrapper default */
         .main-table {
             width: 100%;
             border-collapse: collapse;
@@ -172,6 +179,7 @@
             font-weight: normal;
         }
 
+        /* TANDA TANGAN */
         .signature-section { margin-top: 20px; }
         .signature-row {
             display: flex;
@@ -184,23 +192,78 @@
         .sig-line { border-bottom: 1.5px solid black; width: 90%; margin: 0 auto 10px; }
         .sig-label { font-size: 11.5pt; font-weight: bold; }
 
-        /* Jarak placeholder untuk search bar di layar biasa */
-        .spacer-top { height: 60px; display: block; }
+        .spacer-top { height: 70px; display: block; }
 
+        /* === TAMPILAN RESPONSIF (HP) === */
+        @media screen and (max-width: 768px) {
+            body { padding: 10px; display: block; background: #f8fafc; }
+            
+            /* Search Area Stack */
+            .search-area {
+                position: static;
+                transform: none;
+                width: 100%;
+                max-width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                margin-bottom: 20px;
+                padding: 20px;
+            }
+            .search-area input, .search-area select, .search-area button { width: 100%; height: 40px; font-size: 14px; }
+            .spacer-top { display: none; }
+
+            /* Kertas menyesuaikan layar */
+            .container {
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                padding: 15px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+
+            /* Header Stack */
+            .header { height: auto; text-align: center; margin-bottom: 30px; }
+            .logo-area { position: static; justify-content: center; margin-bottom: 10px; }
+            .title { padding-top: 0; font-size: 20px; }
+
+            /* Meta Info Stack */
+            .meta-section { flex-direction: column; gap: 20px; align-items: flex-start; }
+            .machine-info, .doc-info { width: 100%; }
+            .machine-info div, .doc-info div { display: flex; flex-direction: column; margin-bottom: 10px; }
+            .label, .doc-label { font-weight: bold !important; width: 100%; margin-bottom: 2px; font-size: 12px; color: #555; }
+            .input-dot { width: 100%; border-bottom: 1px solid #ccc; font-size: 14px; }
+
+            /* Tabel Scroll Horizontal */
+            .table-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                margin-bottom: 20px;
+                border: 1px solid #eee;
+            }
+            .main-table { min-width: 800px; /* Lebar minimum agar tabel tidak gepeng */ }
+
+            /* Tanda Tangan Stack */
+            .signature-row { flex-direction: column; gap: 40px; align-items: center; }
+            .sig-box { width: 100%; max-width: 200px; }
+            .sig-title { margin-bottom: 50px; }
+        }
+
+        /* === MODE CETAK (PRINT) === */
         @media print {
-            body { background: white; display: block; padding: 0; }
+            body { background: white; padding: 0; display: flex; justify-content: center; align-items: flex-start; }
             .no-print, .search-area, .spacer-top { display: none !important; }
-            .container { width: 100%; box-shadow: none; padding: 0; margin: 0; }
+            .container { width: 280mm; box-shadow: none; padding: 5mm 10mm; margin: 0; border: none; }
             .input-dot { border-bottom: none; }
             .table-select { appearance: none; -webkit-appearance: none; border: none; }
-            .header { margin-top: 0; } /* Header nempel atas saat print */
+            .table-wrapper { overflow: visible; }
+            .main-table { min-width: auto; }
         }
     </style>
 </head>
 <body>
 
 <div class="search-area no-print">
-    <input type="text" id="mesin_search" placeholder="NAMA MESIN...">
+    <input type="text" id="mesin_search" placeholder="CARI NAMA MESIN...">
     <select id="bulan_search">
         <option value="">- Semua Bulan -</option>
         <option value="01">Januari</option><option value="02">Februari</option>
@@ -215,7 +278,7 @@
     </select>
     <button onclick="fetchData()" class="btn-action">CARI DATA</button>
     <button onclick="window.print()" class="btn-action" style="background:#10b981">CETAK</button>
-    <button onclick="window.location.href='center.html'" class="btn-action" style="background:#64748b">KEMBALI</button>
+    <button onclick="window.location.href='laporan.html'" class="btn-action" style="background:#64748b">KEMBALI</button>
 </div>
 
 <div class="spacer-top no-print"></div>
@@ -231,7 +294,7 @@
 
     <div class="meta-section">
         <div class="machine-info">
-            <div><span class="label">NAMA MESIN</span>: <span id="d_mesin">-</span></div>
+            <div><span class="label">NAMA MESIN</span>: <span id="d_mesin" style="font-weight:bold; margin-left: 5px;">-</span></div>
             <div><span class="label">NO. MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
             <div><span class="label">TAHUN PEMBUATAN</span>: <input type="text" class="input-dot" placeholder="..."></div>
             <div><span class="label">LOKASI MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
@@ -244,20 +307,23 @@
         </div>
     </div>
 
-    <table class="main-table">
-        <thead>
-            <tr>
-                <th style="width: 12%">Tanggal</th>
-                <th style="width: 20%">Permasalahan</th>
-                <th style="width: 20%">Tindakan</th>
-                <th style="width: 20%">Spare Part</th>
-                <th style="width: 16%">Keterangan</th>
-                <th style="width: 12%">PIC</th>
-            </tr>
-        </thead>
-        <tbody id="table_content">
-        </tbody>
-    </table>
+    <div class="table-wrapper">
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th style="width: 12%">Tanggal</th>
+                    <th style="width: 20%">Permasalahan</th>
+                    <th style="width: 20%">Tindakan</th>
+                    <th style="width: 20%">Spare Part</th>
+                    <th style="width: 16%">Keterangan</th>
+                    <th style="width: 12%">PIC</th>
+                </tr>
+            </thead>
+            <tbody id="table_content">
+                <!-- Data akan masuk sini -->
+            </tbody>
+        </table>
+    </div>
 
     <div class="signature-section">
         <div class="signature-row">
@@ -350,7 +416,7 @@
             });
         }
 
-        // --- JUMLAH BARIS DIKURANGI JADI 10 (Sesuai Request) ---
+        // --- Isi baris kosong sampai 10 ---
         const targetRows = 10;
         const remaining = targetRows - (reports ? reports.length : 0);
         
@@ -364,7 +430,6 @@
 
     window.onload = () => {
         const tbody = document.getElementById('table_content');
-        // Loop 10 baris saja
         for(let i=0; i<10; i++) {
             tbody.innerHTML += `<tr>
                 <td>&nbsp;</td><td></td><td></td><td></td>
