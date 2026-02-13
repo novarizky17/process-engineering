@@ -15,9 +15,9 @@
         .dashboard-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
 
         /* === 2. TAMPILAN MODAL KERTAS A4 (FIXED LAYOUT) === */
-        /* Kita kunci ukurannya agar tampilan tidak berubah (tidak di-edit) */
+        /* Kita kunci ukurannya agar tampilan tidak berubah */
         .document-page { 
-            width: 210mm; 
+            width: 210mm; /* Lebar tetap A4 */
             min-height: 296mm; 
             background: white; 
             margin: 20px auto; 
@@ -28,14 +28,14 @@
             flex-direction: column; 
             position: relative;
             box-sizing: border-box;
-            transform-origin: top center; /* Titik pusat zoom di atas tengah */
+            flex-shrink: 0; /* Mencegah kertas menyusut */
         }
 
         .btn-close-review {
-            position: absolute; top: -15px; right: -15px; z-index: 50;
+            position: fixed; top: 10px; right: 10px; z-index: 999;
             background: #ef4444; color: white; padding: 8px 12px;
             border-radius: 50%; font-weight: bold; font-size: 16px; width: 40px; height: 40px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2); cursor: pointer; border: 2px solid white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); cursor: pointer; border: 2px solid white;
             display: flex; align-items: center; justify-content: center;
         }
         .btn-close-review:hover { background: #dc2626; transform: scale(1.1); }
@@ -81,15 +81,16 @@
         .note-line { border-bottom: 1px solid black; min-height: 20px; width: 100%; margin-bottom: 4px; font-style: italic; color: black; padding-left: 5px; }
         
         /* MODAL WRAPPER */
-        .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.8); overflow-y: auto; backdrop-filter: blur(4px); }
+        .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.85); overflow: hidden; backdrop-filter: blur(4px); }
+        
+        /* Kontainer Scroll Horizontal & Vertikal */
         .modal-content-wrapper { 
-            min-height: 100%; 
-            display: flex; 
-            justify-content: center; 
-            padding: 20px 0; 
-            /* Penting untuk scaling di HP */
-            width: 100%;
-            overflow-x: hidden;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; /* Aktifkan scroll segala arah */
+            display: block; 
+            padding: 20px; 
+            -webkit-overflow-scrolling: touch; /* Smooth scroll di iOS */
         }
 
         /* === 3. MOBILE RESPONSIVE UNTUK DASHBOARD SAJA === */
@@ -118,14 +119,18 @@
                 color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;
             }
             
-            /* Di HP, kita tidak mengubah layout form, tapi kita atur wrapper agar bisa di-scale lewat JS */
-            .modal-content-wrapper {
-                align-items: flex-start; /* Mulai dari atas */
-                padding-top: 10px;
+            /* Penyesuaian Modal di HP agar bisa digeser */
+            .modal-content-wrapper { 
+                padding: 10px; 
+                align-items: flex-start; 
             }
             
-            /* Tombol close di HP agak turun biar ga kepotong */
-            .btn-close-review { top: 5px; right: 5px; }
+            /* Pastikan kertas tidak mengecil di HP */
+            .document-page {
+                min-width: 210mm; /* Lebar minimal tetap 210mm agar scroll muncul */
+                transform: none !important; /* Matikan zoom otomatis */
+                margin: 0 auto;
+            }
         }
 
         /* === 4. PRINT STYLE (MUTLAK A4) === */
@@ -142,6 +147,7 @@
                 border: none !important; box-shadow: none !important; 
                 transform: none !important; /* Hapus zoom JS */
                 page-break-after: always; display: block !important;
+                min-width: 0 !important;
             }
             .dashboard-container { display: none !important; }
         }
@@ -178,9 +184,11 @@
     </div>
 
     <div id="modalReview" class="modal">
+        <!-- Tombol Close Fixed -->
+        <button onclick="closeModal()" class="no-print btn-close-review text-xl leading-none">&times;</button>
+        
         <div class="modal-content-wrapper" id="modalWrapper">
             <div class="document-page relative" id="documentPage">
-                <button onclick="closeModal()" class="no-print btn-close-review text-xl leading-none">&times;</button>
                 
                 <table class="main-header">
                     <tr>
@@ -253,38 +261,6 @@
             return d.toLocaleDateString('id-ID', {day: '2-digit', month: '2-digit', year: 'numeric'}) + ", " + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit', hour12: false});
         }
 
-        // --- FUNGSI AUTO ZOOM KHUSUS HP ---
-        function autoScaleForMobile() {
-            const page = document.getElementById('documentPage');
-            const wrapper = document.getElementById('modalWrapper');
-            
-            if (window.innerWidth < 820) { // Jika layar HP/Tablet Kecil
-                // Hitung skala: Lebar Layar / Lebar Kertas Asli (800px)
-                // Dikurangi sedikit margin (20px) biar ga mepet
-                const scale = (window.innerWidth - 20) / 800; 
-                
-                page.style.transform = `scale(${scale})`;
-                // Kita sesuaikan margin negatif agar tidak ada ruang kosong berlebih karena scaling
-                page.style.marginBottom = `-${(1 - scale) * 100}%`; 
-                page.style.marginRight = `-${(1 - scale) * 100}%`;
-                
-                // Set tinggi wrapper agar bisa discroll sampai bawah
-                wrapper.style.height = (page.offsetHeight * scale + 100) + "px";
-                wrapper.style.alignItems = "flex-start"; // Mulai dari atas
-            } else {
-                page.style.transform = "none";
-                page.style.margin = "20px auto";
-                wrapper.style.height = "auto";
-                wrapper.style.alignItems = "center";
-            }
-        }
-
-        window.addEventListener('resize', () => {
-            if(document.getElementById('modalReview').style.display === 'block') {
-                autoScaleForMobile();
-            }
-        });
-
         async function fetchHistory() {
             const { data } = await _sb.from('laporan_maintenance').select('*').order('created_at', { ascending: false });
             const list = document.getElementById('listHistory');
@@ -356,7 +332,6 @@
             document.getElementById('view-name-mn').innerText = row.manager_name || "";
             
             document.getElementById('modalReview').style.display = 'block';
-            autoScaleForMobile(); // Panggil fungsi zoom otomatis
         }
 
         function closeModal() { document.getElementById('modalReview').style.display = 'none'; }
