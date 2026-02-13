@@ -6,163 +6,113 @@
     <title>KARTU RIWAYAT - PT. AMARILYS KARISMA GEMILANG</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* SETUP A4 LANDSCAPE (DEFAULT / PRINT) */
-        @page {
-            size: A4 landscape;
-            margin: 5mm;
-        }
-
+        /* === GLOBAL STYLE === */
         body {
             font-family: Arial, Helvetica, sans-serif;
             margin: 0;
             padding: 20px;
             background: #f1f5f9;
             color: #000;
-            /* Penting untuk zoom wrapper */
-            display: block; 
-            min-height: 100vh;
-            overflow-x: auto;
-        }
-
-        /* WRAPPER UNTUK ZOOM & SCROLL */
-        .zoom-wrapper {
-            width: 100%;
             display: flex;
-            justify-content: center;
-            transform-origin: top center;
-            transition: transform 0.2s ease-out;
-            padding-bottom: 50px;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
 
-        .container {
-            width: 280mm; /* Lebar A4 Landscape Tetap */
-            min-height: 210mm;
-            background: white;
-            padding: 10mm;
-            box-sizing: border-box;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            position: relative;
-            flex-shrink: 0; /* Jangan biarkan menyusut oleh flexbox */
-        }
-
-        /* Element Form (Tidak Diubah) */
-        .input-dot {
-            border: none;
-            border-bottom: 1px dotted black;
-            width: 380px; 
-            font-family: Arial;
-            font-size: 10.5pt;
-            outline: none;
-            background: transparent;
-            font-weight: normal !important; 
-            color: #000;
-        }
-
-        .table-select {
-            border: none;
-            width: 100%;
-            height: 100%;
-            font-family: Arial;
-            font-size: 9pt;
-            text-align: center;
-            text-align-last: center;
-            outline: none;
-            background: transparent;
-            cursor: pointer;
-            appearance: none;
-        }
-
-        /* SEARCH BAR (Panel Atas) */
+        /* === SEARCH PANEL (CONTROL) === */
         .search-area {
             background: #1e293b;
             padding: 15px;
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
-            border-radius: 6px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            max-width: 100%;
+            flex-wrap: wrap;
             justify-content: center;
-            position: fixed;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 999;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            width: auto;
-            max-width: 95%;
         }
 
         .search-area input, .search-area select {
-            padding: 8px;
-            border-radius: 4px;
+            padding: 10px;
+            border-radius: 6px;
             border: 1px solid #cbd5e1;
             font-weight: bold;
+            font-size: 14px;
+            outline: none;
         }
 
         .btn-action {
-            background: #3b82f6;
             color: white;
             border: none;
-            padding: 8px 20px;
+            padding: 10px 20px;
             cursor: pointer;
             font-weight: bold;
-            border-radius: 4px;
-            white-space: nowrap;
+            border-radius: 6px;
+            font-size: 13px;
+            text-transform: uppercase;
+            transition: 0.2s;
         }
+        .btn-cari { background: #3b82f6; }
+        .btn-cetak { background: #10b981; }
+        .btn-kembali { background: #64748b; }
+        .btn-action:active { transform: scale(0.95); }
 
-        /* ZOOM CONTROLS (Floating Bottom) */
-        .zoom-controls {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(30, 41, 59, 0.9);
-            padding: 8px 15px;
-            border-radius: 50px;
+        /* === CONTAINER DOKUMEN === */
+        /* Wrapper ini memungkinkan scroll samping di HP tanpa merusak layout body */
+        .document-scroll-wrapper {
+            width: 100%;
+            overflow-x: auto; /* Scroll samping otomatis jika layar sempit */
             display: flex;
-            gap: 15px;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            z-index: 999;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .zoom-btn {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            font-weight: bold;
-            font-size: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            transition: background 0.2s;
+            padding-bottom: 20px; /* Ruang untuk scrollbar */
+            -webkit-overflow-scrolling: touch; /* Smooth scroll di iOS */
         }
-        
-        .zoom-btn:active { transform: scale(0.9); }
-        .zoom-val { color: white; font-weight: bold; min-width: 50px; text-align: center; font-size: 14px; }
 
-        /* --- STYLE FORM ASLI (A4) --- */
-        .header { position: relative; margin-bottom: 0; height: 70px; margin-top: 5px; }
+        .container {
+            width: 280mm; /* A4 Landscape Mutlak */
+            min-height: 210mm;
+            background: white;
+            padding: 10mm;
+            box-sizing: border-box;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            position: relative;
+            /* Pastikan tidak mengecil */
+            flex-shrink: 0; 
+        }
+
+        /* === ELEMEN FORMULIR (ISO STANDARD) === */
+        .header { position: relative; height: 70px; margin-top: 5px; }
         .logo-area { display: flex; align-items: center; gap: 12px; position: absolute; left: 0; top: 0; }
         .logo { width: 95px; height: auto; }
         .company-name { font-size: 14px; font-weight: bold; }
         .title { font-size: 24px; font-weight: bold; text-align: center; width: 100%; margin: 0; padding-top: 10px; }
 
         .meta-section { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; margin-top: 15px; }
-        .machine-info div { margin-bottom: 4px; font-size: 10.5pt; font-weight: normal !important; }
-        .label { font-weight: normal !important; display: inline-block; width: 165px; }
-        .doc-info { text-align: left; font-size: 10.5pt; font-weight: normal !important; }
-        .doc-info div { margin-bottom: 2px; }
-        .doc-label { font-weight: normal !important; display: inline-block; width: 140px; }
+        .machine-info div { margin-bottom: 4px; font-size: 10.5pt; }
+        .label { display: inline-block; width: 165px; }
+        
+        .input-dot {
+            border: none; border-bottom: 1px dotted black; width: 380px;
+            font-family: Arial; font-size: 10.5pt; outline: none; background: transparent; color: black;
+        }
 
+        .doc-info { text-align: left; font-size: 10.5pt; }
+        .doc-info div { margin-bottom: 2px; }
+        .doc-label { display: inline-block; width: 140px; }
+
+        /* TABEL UTAMA */
         .main-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
         .main-table th { border: 1px solid black; padding: 6px; font-size: 9.5pt; text-align: center; background-color: #f8fafc; font-weight: bold; }
-        .main-table td { border: 1px solid black; padding: 4px; font-size: 9.5pt; text-align: center; vertical-align: middle; height: 25px; font-weight: normal; }
+        .main-table td { border: 1px solid black; padding: 4px; font-size: 9.5pt; text-align: center; vertical-align: middle; height: 25px; }
 
+        .table-select {
+            border: none; width: 100%; height: 100%; font-family: Arial; font-size: 9pt;
+            text-align: center; text-align-last: center; outline: none; background: transparent; cursor: pointer; appearance: none;
+        }
+
+        /* TANDA TANGAN */
         .signature-section { margin-top: 20px; }
         .signature-row { display: flex; justify-content: space-between; gap: 50px; }
         .sig-box { flex: 1; text-align: center; max-width: 300px; }
@@ -170,47 +120,55 @@
         .sig-line { border-bottom: 1.5px solid black; width: 90%; margin: 0 auto 10px; }
         .sig-label { font-size: 11.5pt; font-weight: bold; }
 
-        .spacer-top { height: 70px; display: block; }
-
-        /* === MEDIA QUERY KHUSUS HP === */
+        /* === MEDIA QUERY MOBILE (HP) === */
         @media screen and (max-width: 768px) {
-            body { padding: 10px; background: #334155; /* Background gelap biar kontras */ }
+            body { padding: 10px; align-items: stretch; background: #f1f5f9; }
             
-            /* Panel Search disusun vertikal di HP */
+            /* Panel Pencarian Stack ke Bawah */
             .search-area {
-                position: relative; top: 0; left: 0; transform: none;
-                width: 100%; max-width: 100%; flex-direction: column;
-                margin-bottom: 20px; box-shadow: none; border-bottom: 1px solid #475569;
+                flex-direction: column;
+                width: 100%;
+                gap: 12px;
+                padding: 20px;
             }
-            .search-area input, .search-area select, .search-area button { width: 100%; height: 45px; font-size: 16px; }
-            .spacer-top { display: none; }
+            .search-area input, .search-area select, .search-area button {
+                width: 100%;
+                height: 45px; /* Tombol lebih besar untuk jari */
+                font-size: 16px;
+            }
 
-            /* Wrapper Zoom disesuaikan agar mulai dari kiri atas */
-            .zoom-wrapper {
-                justify-content: flex-start; /* Biar kalau di-zoom, mulainya dari kiri */
+            /* Container Dokumen */
+            /* Kita biarkan container tetap lebar 280mm agar tabel tidak hancur */
+            /* Tapi kita beri margin kiri agar terlihat ada 'awal' saat scroll */
+            .document-scroll-wrapper {
+                justify-content: flex-start; 
                 padding-left: 0;
-                transform-origin: top left; /* Titik zoom di pojok kiri atas */
-                overflow: visible;
-                height: auto;
             }
             
-            /* Controls Zoom di HP */
-            .zoom-controls { bottom: 30px; width: 90%; justify-content: space-between; padding: 10px 20px; }
+            /* Beri sedikit shadow di HP biar keliatan batas kertas */
+            .container {
+                box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            }
         }
 
-        /* === MODE CETAK === */
+        /* === MEDIA QUERY PRINT === */
         @media print {
-            body { background: white; padding: 0; display: block; }
-            .no-print, .search-area, .spacer-top, .zoom-controls { display: none !important; }
-            .zoom-wrapper { transform: none !important; display: block !important; width: 100%; }
-            .container { width: 280mm; box-shadow: none; padding: 5mm 10mm; margin: 0 auto; border: none; }
-            .input-dot { border-bottom: none; }
-            .table-select { appearance: none; -webkit-appearance: none; border: none; }
+            @page { size: A4 landscape; margin: 5mm; }
+            body { padding: 0; margin: 0; display: block; background: white; }
+            .no-print, .search-area { display: none !important; }
+            .document-scroll-wrapper { display: block; overflow: visible; width: auto; padding: 0; }
+            .container { 
+                width: 100%; margin: 0; padding: 0; box-shadow: none; border: none; 
+                page-break-after: always; 
+            }
+            .input-dot { border-bottom: none; } /* Hilangkan titik-titik saat print jika diinginkan */
+            .table-select { appearance: none; border: none; }
         }
     </style>
 </head>
 <body>
 
+<!-- PANEL PENCARIAN (Akan disembunyikan saat Print) -->
 <div class="search-area no-print">
     <input type="text" id="mesin_search" placeholder="CARI NAMA MESIN...">
     <select id="bulan_search">
@@ -225,23 +183,16 @@
     <select id="tahun_search">
         <script>for(let i=2024; i<=2030; i++) document.write(`<option value="${i}" ${i==2025?'selected':''}>${i}</option>`);</script>
     </select>
-    <button onclick="fetchData()" class="btn-action">CARI DATA</button>
-    <button onclick="window.print()" class="btn-action" style="background:#10b981">CETAK</button>
-    <button onclick="window.location.href='center.html'" class="btn-action" style="background:#64748b">KEMBALI</button>
+    
+    <div style="display: flex; gap: 10px; width: 100%;">
+        <button onclick="fetchData()" class="btn-action btn-cari" style="flex:1;">CARI</button>
+        <button onclick="window.print()" class="btn-action btn-cetak" style="flex:1;">CETAK</button>
+    </div>
+    <button onclick="window.location.href='center.html'" class="btn-action btn-kembali" style="width: 100%;">KEMBALI KE DASHBOARD</button>
 </div>
 
-<div class="spacer-top no-print"></div>
-
-<!-- TOMBOL ZOOM (Floating) -->
-<div class="zoom-controls no-print">
-    <button class="zoom-btn" onclick="adjustZoom(-0.1)">−</button>
-    <span class="zoom-val" id="zoomVal">100%</span>
-    <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
-    <button class="zoom-btn" onclick="fitToScreen()" style="background:#f59e0b; font-size: 12px; width:auto; padding:0 10px; border-radius:15px;">FIT</button>
-</div>
-
-<!-- Wrapper Zoom -->
-<div class="zoom-wrapper" id="zoomTarget">
+<!-- WRAPPER SCROLL (Agar form A4 Landscape bisa digeser di HP) -->
+<div class="document-scroll-wrapper">
     <div class="container">
         <div class="header">
             <div class="logo-area">
@@ -278,7 +229,7 @@
                 </tr>
             </thead>
             <tbody id="table_content">
-                <!-- Data akan masuk sini -->
+                <!-- Data -->
             </tbody>
         </table>
 
@@ -308,49 +259,6 @@
     const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
     const _sb = supabase.createClient(SB_URL, SB_KEY);
-
-    // --- LOGIKA ZOOM & AUTO FIT ---
-    let currentZoom = 1;
-    
-    function adjustZoom(delta) {
-        currentZoom += delta;
-        if(currentZoom < 0.2) currentZoom = 0.2; 
-        if(currentZoom > 2.0) currentZoom = 2.0; 
-        applyZoom();
-    }
-
-    function fitToScreen() {
-        if(window.innerWidth < 1060) { // Jika layar lebih kecil dari A4 Landscape (approx 1060px)
-            // Hitung rasio: Lebar Layar / Lebar Kertas (1060px)
-            // Dikurangi padding 20px
-            currentZoom = (window.innerWidth - 20) / 1060;
-        } else {
-            currentZoom = 1;
-        }
-        applyZoom();
-    }
-
-    function applyZoom() {
-        const wrapper = document.getElementById('zoomTarget');
-        const zoomText = document.getElementById('zoomVal');
-        
-        zoomText.innerText = Math.round(currentZoom * 100) + "%";
-        wrapper.style.transform = `scale(${currentZoom})`;
-        
-        // Sesuaikan dimensi wrapper agar scrollbar muncul dengan benar
-        // Saat scale < 1, elemen menyusut, kita perlu kurangi margin negatif agar tidak ada blank space
-        if(window.innerWidth < 768) {
-             wrapper.style.width = `${1060 * currentZoom}px`; // Fix width di HP
-             wrapper.style.height = `${800 * currentZoom}px`; 
-        } else {
-             if(currentZoom < 1) {
-                wrapper.style.marginBottom = `-${(1 - currentZoom) * 100}%`;
-             } else {
-                wrapper.style.marginBottom = "0";
-             }
-             wrapper.style.width = "100%";
-        }
-    }
 
     const selectHTML = `
         <select class="table-select">
@@ -417,6 +325,7 @@
             });
         }
 
+        // --- Isi baris kosong sampai 10 ---
         const targetRows = 10;
         const remaining = targetRows - (reports ? reports.length : 0);
         
@@ -435,21 +344,6 @@
                 <td>&nbsp;</td><td></td><td></td><td></td>
                 <td>${selectHTML}</td><td></td>
             </tr>`;
-        }
-        
-        // Auto FIT saat load di HP
-        if(window.innerWidth < 800) {
-            fitToScreen();
-        }
-    };
-    
-    // Auto re-scale saat layar diputar/diubah
-    window.onresize = () => {
-        if(window.innerWidth < 800) {
-            fitToScreen();
-        } else {
-            currentZoom = 1;
-            applyZoom();
         }
     };
 </script>
