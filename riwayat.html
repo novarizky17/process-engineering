@@ -18,21 +18,32 @@
             padding: 20px;
             background: #f1f5f9;
             color: #000;
+            /* Hapus Flexbox di body agar zoom aman */
+            display: block; 
+            min-height: 100vh;
+            overflow-x: auto; /* Allow scroll horizontal */
+        }
+
+        /* Wrapper untuk menengahkan kertas dan handling zoom */
+        .zoom-wrapper {
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            min-height: 100vh;
+            width: 100%;
+            padding-bottom: 50px; /* Ruang untuk scroll bawah */
+            transform-origin: top center;
+            transition: transform 0.2s ease-out;
         }
 
         .container {
             width: 280mm; /* A4 Landscape width */
-            height: auto;
             min-height: 210mm;
             background: white;
             padding: 10mm;
             box-sizing: border-box;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             position: relative;
+            flex-shrink: 0; /* Cegah penyusutan */
         }
 
         .input-dot {
@@ -98,6 +109,42 @@
             white-space: nowrap;
         }
 
+        /* ZOOM CONTROLS (Floating Bottom) */
+        .zoom-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            padding: 8px 15px;
+            border-radius: 50px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 999;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .zoom-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .zoom-btn:active { transform: scale(0.9); }
+        .zoom-val { color: white; font-weight: bold; min-width: 45px; text-align: center; }
+
         /* HEADER DOKUMEN */
         .header {
             position: relative;
@@ -153,7 +200,7 @@
         .doc-label { font-weight: normal !important; display: inline-block; width: 140px; }
 
         /* TABEL UTAMA */
-        .table-wrapper { width: 100%; } /* Wrapper default */
+        .table-wrapper { width: 100%; }
         .main-table {
             width: 100%;
             border-collapse: collapse;
@@ -196,7 +243,7 @@
 
         /* === TAMPILAN RESPONSIF (HP) === */
         @media screen and (max-width: 768px) {
-            body { padding: 10px; display: block; background: #f8fafc; }
+            body { padding: 10px; background: #f8fafc; display: block; }
             
             /* Search Area Stack */
             .search-area {
@@ -207,18 +254,21 @@
                 flex-direction: column;
                 align-items: stretch;
                 margin-bottom: 20px;
-                padding: 20px;
+                padding: 15px;
             }
             .search-area input, .search-area select, .search-area button { width: 100%; height: 40px; font-size: 14px; }
             .spacer-top { display: none; }
 
-            /* Kertas menyesuaikan layar */
+            /* Penyesuaian Zoom Wrapper di HP */
+            .zoom-wrapper {
+                align-items: flex-start;
+                padding: 0;
+                transform-origin: top left; /* Zoom dari pojok kiri atas di HP agar tidak lari */
+            }
+
+            /* Container tetap ukuran asli agar tidak gepeng, kita mainkan di zoom */
             .container {
-                width: 100%;
-                height: auto;
-                min-height: auto;
-                padding: 15px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                margin: 0;
             }
 
             /* Header Stack */
@@ -226,23 +276,19 @@
             .logo-area { position: static; justify-content: center; margin-bottom: 10px; }
             .title { padding-top: 0; font-size: 20px; }
 
-            /* Meta Info Stack */
             .meta-section { flex-direction: column; gap: 20px; align-items: flex-start; }
             .machine-info, .doc-info { width: 100%; }
-            .machine-info div, .doc-info div { display: flex; flex-direction: column; margin-bottom: 10px; }
             .label, .doc-label { font-weight: bold !important; width: 100%; margin-bottom: 2px; font-size: 12px; color: #555; }
             .input-dot { width: 100%; border-bottom: 1px solid #ccc; font-size: 14px; }
 
-            /* Tabel Scroll Horizontal */
             .table-wrapper {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 margin-bottom: 20px;
                 border: 1px solid #eee;
             }
-            .main-table { min-width: 800px; /* Lebar minimum agar tabel tidak gepeng */ }
+            .main-table { min-width: 800px; }
 
-            /* Tanda Tangan Stack */
             .signature-row { flex-direction: column; gap: 40px; align-items: center; }
             .sig-box { width: 100%; max-width: 200px; }
             .sig-title { margin-bottom: 50px; }
@@ -250,9 +296,10 @@
 
         /* === MODE CETAK (PRINT) === */
         @media print {
-            body { background: white; padding: 0; display: flex; justify-content: center; align-items: flex-start; }
-            .no-print, .search-area, .spacer-top { display: none !important; }
-            .container { width: 280mm; box-shadow: none; padding: 5mm 10mm; margin: 0; border: none; }
+            body { background: white; padding: 0; display: block; }
+            .no-print, .search-area, .spacer-top, .zoom-controls { display: none !important; }
+            .zoom-wrapper { transform: none !important; display: block !important; }
+            .container { width: 280mm; box-shadow: none; padding: 5mm 10mm; margin: 0 auto; border: none; }
             .input-dot { border-bottom: none; }
             .table-select { appearance: none; -webkit-appearance: none; border: none; }
             .table-wrapper { overflow: visible; }
@@ -283,64 +330,74 @@
 
 <div class="spacer-top no-print"></div>
 
-<div class="container">
-    <div class="header">
-        <div class="logo-area">
-            <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo AKG" class="logo">
-            <div class="company-name">PT. AMARILYS KARISMA GEMILANG</div>
-        </div>
-        <div class="title">KARTU RIWAYAT</div>
-    </div>
+<!-- TOMBOL ZOOM (Floating) -->
+<div class="zoom-controls no-print">
+    <button class="zoom-btn" onclick="adjustZoom(-0.1)">-</button>
+    <span class="zoom-val" id="zoomVal">100%</span>
+    <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
+</div>
 
-    <div class="meta-section">
-        <div class="machine-info">
-            <div><span class="label">NAMA MESIN</span>: <span id="d_mesin" style="font-weight:bold; margin-left: 5px;">-</span></div>
-            <div><span class="label">NO. MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
-            <div><span class="label">TAHUN PEMBUATAN</span>: <input type="text" class="input-dot" placeholder="..."></div>
-            <div><span class="label">LOKASI MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
-        </div>
-        <div class="doc-info">
-            <div><span class="doc-label">No Dokumen</span>: AF.SP 05.18.Rev-00</div>
-            <div><span class="doc-label">Tanggal Terbit</span>: 02 Agustus 2024</div>
-            <div><span class="doc-label">Halaman</span>: 1/1</div>
-            <div><span class="doc-label">Tanggal Revisi</span>: -</div>
-        </div>
-    </div>
-
-    <div class="table-wrapper">
-        <table class="main-table">
-            <thead>
-                <tr>
-                    <th style="width: 12%">Tanggal</th>
-                    <th style="width: 20%">Permasalahan</th>
-                    <th style="width: 20%">Tindakan</th>
-                    <th style="width: 20%">Spare Part</th>
-                    <th style="width: 16%">Keterangan</th>
-                    <th style="width: 12%">PIC</th>
-                </tr>
-            </thead>
-            <tbody id="table_content">
-                <!-- Data akan masuk sini -->
-            </tbody>
-        </table>
-    </div>
-
-    <div class="signature-section">
-        <div class="signature-row">
-            <div class="sig-box">
-                <div class="sig-title">DIBUAT</div>
-                <div class="sig-line"></div>
-                <div class="sig-label">PIC</div>
+<!-- Wrapper Zoom -->
+<div class="zoom-wrapper" id="zoomTarget">
+    <div class="container">
+        <div class="header">
+            <div class="logo-area">
+                <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo AKG" class="logo">
+                <div class="company-name">PT. AMARILYS KARISMA GEMILANG</div>
             </div>
-            <div class="sig-box">
-                <div class="sig-title">DIKETAHUI</div>
-                <div class="sig-line"></div>
-                <div class="sig-label">Spv</div>
+            <div class="title">KARTU RIWAYAT</div>
+        </div>
+
+        <div class="meta-section">
+            <div class="machine-info">
+                <div><span class="label">NAMA MESIN</span>: <span id="d_mesin" style="font-weight:bold; margin-left: 5px;">-</span></div>
+                <div><span class="label">NO. MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
+                <div><span class="label">TAHUN PEMBUATAN</span>: <input type="text" class="input-dot" placeholder="..."></div>
+                <div><span class="label">LOKASI MESIN</span>: <input type="text" class="input-dot" placeholder="..."></div>
             </div>
-            <div class="sig-box">
-                <div class="sig-title">DISETUJUI</div>
-                <div class="sig-line"></div>
-                <div class="sig-label">Superintendent</div>
+            <div class="doc-info">
+                <div><span class="doc-label">No Dokumen</span>: AF.SP 05.18.Rev-00</div>
+                <div><span class="doc-label">Tanggal Terbit</span>: 02 Agustus 2024</div>
+                <div><span class="doc-label">Halaman</span>: 1/1</div>
+                <div><span class="doc-label">Tanggal Revisi</span>: -</div>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="main-table">
+                <thead>
+                    <tr>
+                        <th style="width: 12%">Tanggal</th>
+                        <th style="width: 20%">Permasalahan</th>
+                        <th style="width: 20%">Tindakan</th>
+                        <th style="width: 20%">Spare Part</th>
+                        <th style="width: 16%">Keterangan</th>
+                        <th style="width: 12%">PIC</th>
+                    </tr>
+                </thead>
+                <tbody id="table_content">
+                    <!-- Data akan masuk sini -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="signature-section">
+            <div class="signature-row">
+                <div class="sig-box">
+                    <div class="sig-title">DIBUAT</div>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">PIC</div>
+                </div>
+                <div class="sig-box">
+                    <div class="sig-title">DIKETAHUI</div>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Spv</div>
+                </div>
+                <div class="sig-box">
+                    <div class="sig-title">DISETUJUI</div>
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Superintendent</div>
+                </div>
             </div>
         </div>
     </div>
@@ -350,6 +407,27 @@
     const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
     const _sb = supabase.createClient(SB_URL, SB_KEY);
+
+    // --- LOGIKA ZOOM ---
+    let currentZoom = 1;
+    function adjustZoom(delta) {
+        currentZoom += delta;
+        if(currentZoom < 0.3) currentZoom = 0.3; // Min zoom
+        if(currentZoom > 2.0) currentZoom = 2.0; // Max zoom
+        
+        const wrapper = document.getElementById('zoomTarget');
+        const zoomText = document.getElementById('zoomVal');
+        
+        zoomText.innerText = Math.round(currentZoom * 100) + "%";
+        wrapper.style.transform = `scale(${currentZoom})`;
+        
+        // Fix: Sesuaikan margin agar tidak ada ruang kosong berlebih saat zoom out
+        if(currentZoom < 1) {
+            wrapper.style.width = `${100 / currentZoom}%`; 
+        } else {
+            wrapper.style.width = '100%';
+        }
+    }
 
     const selectHTML = `
         <select class="table-select">
@@ -435,6 +513,11 @@
                 <td>&nbsp;</td><td></td><td></td><td></td>
                 <td>${selectHTML}</td><td></td>
             </tr>`;
+        }
+        
+        // Auto zoom out sedikit di HP saat load agar terlihat lebih banyak
+        if(window.innerWidth < 768) {
+            adjustZoom(-0.4); 
         }
     };
 </script>
