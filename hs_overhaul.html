@@ -15,7 +15,6 @@
         .dashboard-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
 
         /* === 2. TAMPILAN MODAL KERTAS A4 (FIXED LAYOUT) === */
-        /* Kita kunci ukurannya agar tampilan tidak berubah */
         .document-page { 
             width: 210mm; /* Lebar tetap A4 */
             min-height: 296mm; 
@@ -28,7 +27,9 @@
             flex-direction: column; 
             position: relative;
             box-sizing: border-box;
-            flex-shrink: 0; /* Mencegah kertas menyusut */
+            flex-shrink: 0;
+            transform-origin: top center; /* Titik zoom di tengah atas */
+            transition: transform 0.2s ease-out; /* Animasi zoom halus */
         }
 
         .btn-close-review {
@@ -40,7 +41,7 @@
         }
         .btn-close-review:hover { background: #dc2626; transform: scale(1.1); }
 
-        /* HEADER LAPORAN (Formulir Asli - Tidak Diedit) */
+        /* HEADER LAPORAN (Formulir Asli) */
         .main-header { width: 100%; border-collapse: collapse; border: 2px solid black; margin-bottom: 15px; table-layout: fixed; }
         .main-header td { border: 1px solid black; padding: 5px; vertical-align: middle; color: black; }
         .logo-box { width: 150px; padding: 10px !important; text-align: center !important; }
@@ -82,72 +83,56 @@
         
         /* MODAL WRAPPER */
         .modal { display: none; position: fixed; z-index: 100; inset: 0; background: rgba(0,0,0,0.85); overflow: hidden; backdrop-filter: blur(4px); }
-        
-        /* Kontainer Scroll Horizontal & Vertikal */
         .modal-content-wrapper { 
-            width: 100%; 
-            height: 100%; 
-            overflow: auto; /* Aktifkan scroll segala arah */
-            display: block; 
-            padding: 20px; 
-            -webkit-overflow-scrolling: touch; /* Smooth scroll di iOS */
+            width: 100%; height: 100%; overflow: auto; display: block; padding: 20px; 
+            -webkit-overflow-scrolling: touch; 
         }
 
-        /* === 3. MOBILE RESPONSIVE UNTUK DASHBOARD SAJA === */
+        /* ZOOM CONTROLS UI */
+        .zoom-controls {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(30, 41, 59, 0.9); padding: 8px 16px; border-radius: 50px;
+            display: flex; align-items: center; gap: 15px; color: white; z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .zoom-btn {
+            width: 32px; height: 32px; border-radius: 50%; background: #3b82f6; border: none;
+            color: white; font-size: 18px; font-weight: bold; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+        }
+        .zoom-btn:active { background: #2563eb; transform: scale(0.95); }
+        .zoom-text { font-size: 14px; font-weight: bold; min-width: 45px; text-align: center; font-variant-numeric: tabular-nums; }
+
+        /* === 3. MOBILE RESPONSIVE DASHBOARD === */
         @media screen and (max-width: 768px) {
             body { padding: 10px; background: #f8fafc; }
             .dashboard-container { margin: 10px auto; padding: 0; }
-            
             .header-flex { flex-direction: column; gap: 10px; text-align: center; }
             .header-flex div { width: 100%; display: flex; gap: 5px; }
             .header-flex button { flex: 1; justify-content: center; }
 
-            /* Dashboard Table jadi Kartu (Tetap Dipertahankan) */
+            /* Dashboard Table jadi Kartu */
             .table-list thead { display: none; }
             .table-list, .table-list tbody, .table-list tr, .table-list td { display: block; width: 100%; }
-            .table-list tr {
-                background: white; margin-bottom: 15px; border-radius: 12px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; overflow: hidden;
-            }
-            .table-list td {
-                display: flex; justify-content: space-between; align-items: center;
-                padding: 12px 15px; border-bottom: 1px solid #f1f5f9; text-align: right;
-            }
+            .table-list tr { background: white; margin-bottom: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; overflow: hidden; }
+            .table-list td { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid #f1f5f9; text-align: right; }
             .table-list td:last-child { border-bottom: none; background: #f8fafc; justify-content: center; padding: 15px; }
-            .table-list td::before {
-                content: attr(data-label); font-weight: 800; font-size: 10px; 
-                color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;
-            }
+            .table-list td::before { content: attr(data-label); font-weight: 800; font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
             
-            /* Penyesuaian Modal di HP agar bisa digeser */
-            .modal-content-wrapper { 
-                padding: 10px; 
-                align-items: flex-start; 
-            }
-            
-            /* Pastikan kertas tidak mengecil di HP */
-            .document-page {
-                min-width: 210mm; /* Lebar minimal tetap 210mm agar scroll muncul */
-                transform: none !important; /* Matikan zoom otomatis */
-                margin: 0 auto;
-            }
+            .modal-content-wrapper { padding: 10px; align-items: flex-start; }
         }
 
         /* === 4. PRINT STYLE (MUTLAK A4) === */
         @media print {
-            .no-print { display: none !important; }
+            .no-print, .zoom-controls { display: none !important; }
             body { background: white; padding: 0; }
             .modal { position: static; display: block; background: none; padding: 0; }
             .modal-content-wrapper { display: block; padding: 0; height: auto; overflow: visible; }
             
-            /* Reset Scale saat print */
             .document-page { 
-                width: 210mm !important; height: 296mm !important; 
-                margin: 0 !important; padding: 10mm !important; 
-                border: none !important; box-shadow: none !important; 
-                transform: none !important; /* Hapus zoom JS */
-                page-break-after: always; display: block !important;
-                min-width: 0 !important;
+                width: 210mm !important; height: 296mm !important; margin: 0 !important; padding: 10mm !important; 
+                border: none !important; box-shadow: none !important; transform: none !important; 
+                page-break-after: always; display: block !important; min-width: 0 !important;
             }
             .dashboard-container { display: none !important; }
         }
@@ -184,8 +169,14 @@
     </div>
 
     <div id="modalReview" class="modal">
-        <!-- Tombol Close Fixed -->
         <button onclick="closeModal()" class="no-print btn-close-review text-xl leading-none">&times;</button>
+        
+        <!-- TOMBOL ZOOM CONTROL -->
+        <div class="zoom-controls no-print">
+            <button onclick="adjustZoom(-0.1)" class="zoom-btn">−</button>
+            <span class="zoom-text" id="zoomLevel">100%</span>
+            <button onclick="adjustZoom(0.1)" class="zoom-btn">+</button>
+        </div>
         
         <div class="modal-content-wrapper" id="modalWrapper">
             <div class="document-page relative" id="documentPage">
@@ -248,6 +239,30 @@
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
+
+        // --- ZOOM LOGIC ---
+        let currentZoom = 1.0;
+
+        function adjustZoom(delta) {
+            currentZoom += delta;
+            // Batasi zoom agar tidak terlalu kecil/besar
+            if (currentZoom < 0.3) currentZoom = 0.3;
+            if (currentZoom > 2.0) currentZoom = 2.0;
+            applyZoom();
+        }
+
+        function applyZoom() {
+            const page = document.getElementById('documentPage');
+            document.getElementById('zoomLevel').innerText = Math.round(currentZoom * 100) + "%";
+            page.style.transform = `scale(${currentZoom})`;
+            
+            // Fix margin bawah agar bisa discroll sampai mentok saat zoom out
+            if (currentZoom < 1) {
+                 page.style.marginBottom = `-${(1 - currentZoom) * 100}%`;
+            } else {
+                 page.style.marginBottom = "0";
+            }
+        }
 
         function fmtDateOnly(iso) {
             if(!iso) return "-";
@@ -332,6 +347,10 @@
             document.getElementById('view-name-mn').innerText = row.manager_name || "";
             
             document.getElementById('modalReview').style.display = 'block';
+            
+            // Reset Zoom setiap kali buka baru
+            currentZoom = 1.0;
+            applyZoom();
         }
 
         function closeModal() { document.getElementById('modalReview').style.display = 'none'; }
