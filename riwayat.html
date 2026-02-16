@@ -17,6 +17,7 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden; /* Prevent body scroll, handle in wrapper */
         }
 
         /* === SEARCH PANEL (CONTROL) === */
@@ -32,6 +33,7 @@
             max-width: 100%;
             flex-wrap: wrap;
             justify-content: center;
+            z-index: 10;
         }
 
         .search-area input, .search-area select {
@@ -59,15 +61,50 @@
         .btn-kembali { background: #64748b; }
         .btn-action:active { transform: scale(0.95); }
 
+        /* === ZOOM CONTROLS (Floating Bottom) === */
+        .zoom-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 41, 59, 0.95);
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            z-index: 1000;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .zoom-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, transform 0.1s;
+        }
+        
+        .zoom-btn:active { transform: scale(0.9); background: #2563eb; }
+        .zoom-val { color: white; font-weight: bold; min-width: 50px; text-align: center; font-size: 14px; font-variant-numeric: tabular-nums; }
+
         /* === CONTAINER DOKUMEN === */
-        /* Wrapper ini memungkinkan scroll samping di HP tanpa merusak layout body */
         .document-scroll-wrapper {
             width: 100%;
-            overflow-x: auto; /* Scroll samping otomatis jika layar sempit */
+            overflow: auto; /* Scroll jika di-zoom in */
             display: flex;
             justify-content: center;
-            padding-bottom: 20px; /* Ruang untuk scrollbar */
-            -webkit-overflow-scrolling: touch; /* Smooth scroll di iOS */
+            padding-bottom: 80px; /* Ruang untuk tombol zoom */
+            flex-grow: 1;
         }
 
         .container {
@@ -78,8 +115,11 @@
             box-sizing: border-box;
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
             position: relative;
-            /* Pastikan tidak mengecil */
             flex-shrink: 0; 
+            
+            /* Konfigurasi Zoom */
+            transform-origin: top center;
+            transition: transform 0.2s ease-out;
         }
 
         /* === ELEMEN FORMULIR (ISO STANDARD) === */
@@ -133,35 +173,35 @@
             }
             .search-area input, .search-area select, .search-area button {
                 width: 100%;
-                height: 45px; /* Tombol lebih besar untuk jari */
+                height: 45px;
                 font-size: 16px;
             }
 
-            /* Container Dokumen */
-            /* Kita biarkan container tetap lebar 280mm agar tabel tidak hancur */
-            /* Tapi kita beri margin kiri agar terlihat ada 'awal' saat scroll */
+            /* Container Dokumen di HP */
             .document-scroll-wrapper {
-                justify-content: flex-start; 
-                padding-left: 0;
+                align-items: flex-start; /* Mulai dari atas */
+                overflow: hidden; /* Hide scrollbar native, use zoom logic */
+                padding-top: 10px;
             }
             
-            /* Beri sedikit shadow di HP biar keliatan batas kertas */
             .container {
-                box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+                /* Shadow agar terlihat batas kertas */
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2); 
             }
         }
 
         /* === MEDIA QUERY PRINT === */
         @media print {
             @page { size: A4 landscape; margin: 5mm; }
-            body { padding: 0; margin: 0; display: block; background: white; }
-            .no-print, .search-area { display: none !important; }
-            .document-scroll-wrapper { display: block; overflow: visible; width: auto; padding: 0; }
+            body { padding: 0; margin: 0; display: block; background: white; overflow: visible; }
+            .no-print, .search-area, .zoom-controls { display: none !important; }
+            .document-scroll-wrapper { display: block; overflow: visible; width: auto; padding: 0; height: auto; }
             .container { 
                 width: 100%; margin: 0; padding: 0; box-shadow: none; border: none; 
-                page-break-after: always; 
+                page-break-after: always; transform: none !important; /* Reset Zoom saat print */
+                margin-bottom: 0 !important;
             }
-            .input-dot { border-bottom: none; } /* Hilangkan titik-titik saat print jika diinginkan */
+            .input-dot { border-bottom: none; }
             .table-select { appearance: none; border: none; }
         }
     </style>
@@ -191,9 +231,17 @@
     <button onclick="window.location.href='center.html'" class="btn-action btn-kembali" style="width: 100%;">KEMBALI KE DASHBOARD</button>
 </div>
 
-<!-- WRAPPER SCROLL (Agar form A4 Landscape bisa digeser di HP) -->
-<div class="document-scroll-wrapper">
-    <div class="container">
+<!-- TOMBOL ZOOM (Floating) -->
+<div class="zoom-controls no-print">
+    <button class="zoom-btn" onclick="adjustZoom(-0.1)">−</button>
+    <span class="zoom-val" id="zoomLevel">100%</span>
+    <button class="zoom-btn" onclick="adjustZoom(0.1)">+</button>
+    <button class="zoom-btn" onclick="fitToScreen()" style="background:#f59e0b; font-size: 12px; width:auto; padding:0 10px; border-radius:15px;">FIT</button>
+</div>
+
+<!-- WRAPPER UNTUK ZOOM -->
+<div class="document-scroll-wrapper" id="zoomWrapper">
+    <div class="container" id="documentContainer">
         <div class="header">
             <div class="logo-area">
                 <img src="https://amarilyskg.co.id/bootstrap/img/logo.png" alt="Logo AKG" class="logo">
@@ -260,6 +308,56 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
     const _sb = supabase.createClient(SB_URL, SB_KEY);
 
+    // --- LOGIKA ZOOM ---
+    let currentZoom = 1.0;
+
+    function adjustZoom(delta) {
+        currentZoom += delta;
+        if(currentZoom < 0.3) currentZoom = 0.3; // Min zoom
+        if(currentZoom > 2.0) currentZoom = 2.0; // Max zoom
+        applyZoom();
+    }
+
+    function fitToScreen() {
+        const wrapperWidth = window.innerWidth;
+        const docWidth = 1060; // Approx 280mm in px
+        
+        if (wrapperWidth < docWidth) {
+            // Hitung scale agar pas di layar (dikurangi padding)
+            currentZoom = (wrapperWidth - 30) / docWidth;
+        } else {
+            currentZoom = 1.0;
+        }
+        applyZoom();
+    }
+
+    function applyZoom() {
+        const doc = document.getElementById('documentContainer');
+        const zoomText = document.getElementById('zoomLevel');
+        
+        doc.style.transform = `scale(${currentZoom})`;
+        zoomText.innerText = Math.round(currentZoom * 100) + "%";
+
+        // Fix Margin Bawah saat Zoom Out agar tidak ada ruang kosong berlebih
+        if(currentZoom < 1) {
+            doc.style.marginBottom = `-${(1 - currentZoom) * 100}%`;
+            // Di HP (layar kecil), margin kanan juga perlu disesuaikan agar tetap center/kiri
+            if(window.innerWidth < 768) {
+                 doc.style.marginRight = `-${(1 - currentZoom) * 100}%`;
+            }
+        } else {
+            doc.style.marginBottom = "0";
+            doc.style.marginRight = "0";
+        }
+    }
+
+    // Auto Fit saat load di HP
+    window.addEventListener('load', () => {
+        if (window.innerWidth < 1000) {
+            fitToScreen();
+        }
+    });
+
     const selectHTML = `
         <select class="table-select">
             <option value=""></option>
@@ -325,7 +423,6 @@
             });
         }
 
-        // --- Isi baris kosong sampai 10 ---
         const targetRows = 10;
         const remaining = targetRows - (reports ? reports.length : 0);
         
@@ -337,15 +434,14 @@
         }
     }
 
-    window.onload = () => {
-        const tbody = document.getElementById('table_content');
-        for(let i=0; i<10; i++) {
-            tbody.innerHTML += `<tr>
-                <td>&nbsp;</td><td></td><td></td><td></td>
-                <td>${selectHTML}</td><td></td>
-            </tr>`;
-        }
-    };
+    // Init rows
+    const tbody = document.getElementById('table_content');
+    for(let i=0; i<10; i++) {
+        tbody.innerHTML += `<tr>
+            <td>&nbsp;</td><td></td><td></td><td></td>
+            <td>${selectHTML}</td><td></td>
+        </tr>`;
+    }
 </script>
 </body>
 </html>
