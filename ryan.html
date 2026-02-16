@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Ryan (Manual Save Only)</title>
+    <title>Work Panel - Ryan</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,303 +13,358 @@
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #eff6ff; 
+            background-color: #f8fafc; 
             color: #334155;
-            font-size: 13px;
+            font-size: 14px;
             overflow-x: hidden;
             -webkit-tap-highlight-color: transparent;
         }
 
+        /* Scrollbar Halus */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Table Inputs */
+        /* Input Styles */
         .table-input {
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
-            padding: 8px 10px;
+            padding: 8px 12px;
             width: 100%;
             font-size: 13px; 
             color: #334155;
             transition: all 0.2s;
+            height: 38px;
         }
-        .table-input:focus { border-color: #2563eb; outline: none; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1); }
+        .table-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
 
-        /* Badge Select */
+        /* Select Styles */
         .badge-select {
             appearance: none;
-            padding: 8px 25px 8px 12px;
+            padding: 0 25px 0 12px;
             border-radius: 8px;
             font-size: 12px; 
             font-weight: 700;
             cursor: pointer;
-            border: 1px solid transparent;
-            text-align: center;
-            text-align-last: center;
+            border: 1px solid #e2e8f0;
+            width: 100%;
+            height: 38px;
+            background-color: white;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.5rem center;
             background-size: 1em;
-            text-transform: capitalize;
-            width: 100%;
+            text-align: left;
         }
-        .badge-select:hover { transform: scale(1.02); }
 
-        /* FAB */
-        .fab-container {
-            position: fixed; bottom: 30px; right: 30px;
-            display: flex; gap: 15px; z-index: 50;
+        /* FAB (Floating Action Button) - Style Baru Sesuai Gambar */
+        .fab-group {
+            position: absolute; bottom: 20px; right: 20px;
+            display: flex; gap: 15px; z-index: 60;
         }
-        .fab {
-            width: 60px; height: 60px;
+        .fab-btn {
+            width: 56px; height: 56px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0, 0.3);
-            transition: transform 0.2s; border: 4px solid white; cursor: pointer;
+            font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s; border: none; cursor: pointer; color: white;
         }
-        .fab:hover { transform: scale(1.1); }
-
-        .fab-add { background: #2563eb; color: white; }
-        .fab-save { background: #10b981; color: white; }
+        .fab-btn:active { transform: scale(0.9); }
+        .fab-save { background: #10b981; } /* Hijau */
+        .fab-add { background: #2563eb; } /* Biru */
 
         /* Modal Styles */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(30, 58, 138, 0.7);
-            backdrop-filter: blur(4px);
-            z-index: 100; display: none; align-items: center; justify-content: center;
-            padding: 20px;
-        }
-        .modal-box {
-            background: white; width: 100%; max-width: 600px;
-            border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            max-height: 90vh; overflow-y: auto;
-            animation: popUp 0.3s ease-out;
-        }
-        @keyframes popUp { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
-        .modal-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; display: block; }
-        .modal-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; }
-        .modal-input:focus { border-color: #2563eb; background-color: #eff6ff; }
-
-        /* Badges */
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-        .badge-mid { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
-        .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
-        .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        .badge-status { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
-        .badge-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 15px; }
         
-        .tree-line { border-left: 2px dashed #cbd5e1; border-bottom: 2px dashed #cbd5e1; height: 25px; width: 15px; display: inline-block; margin-right: 8px; margin-bottom: 5px; }
+        /* Mobile Modal Content (Style Sesuai Gambar) */
+        .mobile-modal-content {
+            background: #f1f5f9; /* Abu-abu muda seperti di gambar */
+            width: 100%; height: 100%; max-width: 100%;
+            border-radius: 0; display: flex; flex-direction: column;
+            position: relative; overflow: hidden;
+        }
 
-        /* --- MOBILE RESPONSIVE CSS --- */
+        .form-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 6px; display: block; letter-spacing: 0.5px; }
+        
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%;
+            background: #3b82f6; cursor: pointer; margin-top: -8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border: 2px solid white;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 6px; cursor: pointer; background: #cbd5e1; border-radius: 3px;
+        }
+
+        /* --- MOBILE RESPONSIVE --- */
         @media screen and (max-width: 768px) {
-            /* Header */
-            .header-content { flex-direction: column; align-items: flex-start; gap: 15px; }
-            .header-btn { width: 100%; justify-content: center; }
-            .content-wrapper { padding: 0 16px; margin-top: -30px; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            
-            /* Table to Card Transformation */
+            /* Table Reset */
+            table, thead, tbody, th, td, tr { display: block; width: 100%; }
             thead { display: none; }
-            table, tbody, tr, td { display: block; width: 100%; }
-            
-            /* Reset Tabel di HP agar tidak maksa lebar */
             table { min-width: 0 !important; }
             
-            /* Card Style per Row */
-            tr {
+            /* Card Style */
+            tr.mobile-card {
                 background: white;
-                margin-bottom: 20px;
+                margin-bottom: 16px;
                 border-radius: 16px;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
                 border: 1px solid #e2e8f0;
                 overflow: hidden;
             }
-            
-            /* Subtask Card */
-            tr[data-type="sub"] {
-                background: #f8fafc;
-                margin: -10px 10px 15px 10px; /* Indentasi */
-                border-radius: 12px;
-                border: 1px solid #e2e8f0;
-                border-left: 4px solid #cbd5e1;
-            }
 
-            /* Cell Style */
             td {
-                padding: 12px 16px;
-                border-bottom: 1px solid #f1f5f9;
-                position: relative;
-                text-align: left;
+                display: flex; justify-content: space-between; align-items: center;
+                padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+                text-align: right;
             }
+            td:last-child { border-bottom: none; background: #f8fafc; padding: 16px; justify-content: center; }
             
-            /* Label (Header Kolom) */
             td::before {
                 content: attr(data-label);
-                font-size: 10px;
-                font-weight: 800;
-                color: #94a3b8;
-                text-transform: uppercase;
-                display: block;
-                margin-bottom: 6px;
+                font-size: 10px; font-weight: 800; color: #94a3b8;
+                text-transform: uppercase; margin-right: 10px;
             }
             
-            /* Spesifik Kolom */
+            /* Header Kartu */
             td[data-label="PROJECT INFO"] {
-                background: #f8fafc;
-                border-bottom: 1px solid #e2e8f0;
-                padding-top: 16px;
-                padding-bottom: 16px;
+                background: white; border-bottom: 1px solid #e2e8f0; display: block; text-align: left; padding: 16px;
             }
-            td[data-label="PROJECT INFO"]::before { display: none; } /* Hide label on header */
+            td[data-label="PROJECT INFO"]::before { display: none; }
 
-            /* Action Button Full Width */
-            td:last-child {
-                border-bottom: none;
-                background: #f8fafc;
-                padding: 16px;
-            }
-            td:last-child button { width: 100%; }
+            /* Hide elements not needed in card view preview */
+            td.desktop-only { display: none; }
+
+            /* Stats Grid Mobile */
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             
-            /* Inputs Full Width on Mobile */
-            .table-input, .badge-select {
-                width: 100%;
-                max-width: none;
-                padding: 10px;
-                font-size: 14px;
-            }
+            /* Header Mobile */
+            .header-wrap { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .header-actions { width: 100%; justify-content: space-between; }
+            .header-btn { flex: 1; justify-content: center; }
+        }
+
+        /* --- DESKTOP SPECIFIC (TABLE LEBAR) --- */
+        @media screen and (min-width: 769px) {
+            .mobile-only { display: none; }
             
-            textarea.table-input {
-                min-height: 80px;
+            /* Tabel Desktop Lebar */
+            table { border-collapse: separate; border-spacing: 0; min-width: 1600px; }
+            th { position: sticky; top: 0; z-index: 10; background: #f8fafc; text-align: left; padding: 15px; font-size: 11px; font-weight: 800; color: #64748b; border-bottom: 1px solid #e2e8f0; }
+            td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+            tr:hover { background-color: #f8fafc; }
+            
+            /* Modal Desktop */
+            .mobile-modal-content {
+                width: 600px; height: auto; max-height: 90vh; border-radius: 20px;
+                margin: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                background: white; /* Desktop background white */
             }
         }
+        
+        /* Helper colors */
+        .text-pending { color: #d97706; }
+        .text-progress { color: #2563eb; }
+        .text-done { color: #059669; }
+        .bg-pending { background-color: #fef3c7; }
+        .bg-progress { background-color: #dbeafe; }
+        .bg-done { background-color: #d1fae5; }
     </style>
 </head>
-<body class="antialiased bg-slate-50">
+<body>
 
-    <div class="bg-[#1e3a8a] border-b border-blue-950 pt-8 pb-20 px-8 shadow-xl w-full relative">
-        <!-- HEADER -->
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center w-full max-w-[98%] mx-auto header-content gap-4">
+    <!-- Header -->
+    <div class="bg-[#1e3a8a] border-b border-blue-900 pt-6 pb-20 px-6 shadow-md w-full">
+        <div class="max-w-[98%] mx-auto flex justify-between items-center header-wrap">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-blue-900/50">R</div>
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-inner">R</div>
                 <div>
-                    <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-tight">Panel Kerja Ryan</h1>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-                        <p class="text-xs text-blue-200 font-semibold tracking-wide">Online • Edit Langsung</p>
+                    <h1 class="text-xl font-bold text-white tracking-tight">Panel Kerja Ryan</h1>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                        <p class="text-[10px] text-blue-200 font-medium tracking-wide uppercase">Online System</p>
                     </div>
                 </div>
             </div>
-            <div class="flex gap-2 w-full md:w-auto">
-                <button onclick="fetchRyanTasks()" class="flex-1 md:flex-none bg-blue-800 hover:bg-blue-700 text-white border border-blue-700 px-5 py-2.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-2 shadow-md header-btn">
+            <div class="flex gap-3 header-actions">
+                <button onclick="fetchRyanTasks()" class="header-btn bg-blue-800 hover:bg-blue-700 text-white border border-blue-700 px-4 py-2 rounded-lg text-xs font-bold transition-all uppercase flex items-center gap-2 shadow-sm">
                     <i class="fa-solid fa-arrows-rotate"></i> Refresh
                 </button>
-                <a href="employee_report.html" class="flex-1 md:flex-none bg-blue-900 hover:bg-blue-800 text-white border border-blue-800 px-5 py-2.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-2 shadow-md header-btn">
+                <a href="employee_report.html" class="header-btn bg-white/10 hover:bg-white/20 text-white border border-white/20 px-4 py-2 rounded-lg text-xs font-bold transition-all uppercase flex items-center gap-2">
                     <i class="fa-solid fa-arrow-left"></i> Menu
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- MAIN CONTENT: max-w-[98%] agar lebar di desktop -->
-    <div class="w-full max-w-[98%] mx-auto px-4 md:px-0 -mt-10 pb-32 relative z-10 content-wrapper">
+    <!-- Main Content -->
+    <div class="w-full max-w-[98%] mx-auto px-4 md:px-0 -mt-12 pb-24 relative z-10 content-wrapper">
         
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8 w-full stats-grid">
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-l-4 border-l-blue-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p><h3 id="stat-active" class="text-3xl font-black text-slate-800 stat-val">0</h3>
+        <!-- Stats Cards (Style Update) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 stats-grid">
+            <!-- In Progress -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p>
+                    <h3 id="stat-active" class="text-3xl font-black text-slate-800">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500"><i class="fa-solid fa-spinner fa-spin"></i></div>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-l-4 border-l-amber-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p><h3 id="stat-pending" class="text-3xl font-black text-slate-800 stat-val">0</h3>
+            <!-- Pending -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p>
+                    <h3 id="stat-pending" class="text-3xl font-black text-slate-800">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-500"><i class="fa-regular fa-clock"></i></div>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-l-4 border-l-rose-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p><h3 id="stat-hold" class="text-3xl font-black text-slate-800 stat-val">0</h3>
+            <!-- Hold -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p>
+                    <h3 id="stat-hold" class="text-3xl font-black text-slate-800">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-rose-50 flex items-center justify-center text-rose-500"><i class="fa-solid fa-pause"></i></div>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-l-4 border-l-emerald-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Done</p><h3 id="stat-finished" class="text-3xl font-black text-slate-800 stat-val">0</h3>
+            <!-- Done -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Selesai</p>
+                    <h3 id="stat-finished" class="text-3xl font-black text-slate-800">0</h3>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500"><i class="fa-solid fa-check"></i></div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden w-full">
+        <!-- Desktop Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="overflow-x-auto">
-                <!-- PERBAIKAN: md:min-w-[1500px] hanya aktif di desktop. Di HP, dia akan ikut flow normal (card view) -->
-                <table class="w-full text-left border-collapse md:min-w-[1500px]">
+                <table class="w-full text-left">
                     <thead>
-                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] uppercase font-bold tracking-wider">
-                            <th class="px-6 py-4 w-[250px]">Project Info</th>
-                            <th class="px-6 py-4 min-w-[300px]">Instruksi Kerja</th>
-                            <th class="px-4 py-4 text-center w-[100px]">Priority</th>
-                            <th class="px-4 py-4 text-center w-[120px]">Progress (%)</th>
-                            <th class="px-4 py-4 text-center w-[150px]">Start Date</th>
-                            <th class="px-4 py-4 text-center w-[150px]">Finish Date</th>
-                            <th class="px-4 py-4 text-center w-[140px]">Tipe</th>
-                            <th class="px-4 py-4 text-left w-[200px]">Catatan Hold</th>
-                            <th class="px-4 py-4 text-center w-[130px]">Status</th>
-                            <th class="px-4 py-4 text-center w-[70px]">Aksi</th>
+                        <tr>
+                            <th>PROJECT INFO</th>
+                            <th>INSTRUKSI KERJA</th>
+                            <th class="text-center">PRIORITY</th>
+                            <th class="text-center">PROGRESS</th>
+                            <th class="text-center desktop-only">START</th>
+                            <th class="text-center desktop-only">FINISH</th>
+                            <th class="text-center desktop-only">TIPE</th>
+                            <th class="text-left desktop-only">KETERANGAN</th>
+                            <th class="text-center">STATUS</th>
+                            <th class="text-center">AKSI</th>
                         </tr>
                     </thead>
-                    <tbody id="ryan-work-body" class="divide-y divide-slate-100 bg-white text-sm"></tbody>
+                    <tbody id="ryan-work-body" class="divide-y divide-slate-100 text-sm"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <div class="fab-container">
-        <button onclick="saveAllChanges()" class="fab fab-save" title="Simpan Semua"><i class="fa-solid fa-floppy-disk"></i></button>
-        <button onclick="openSubtaskModal()" class="fab fab-add" title="Tambah Sub-Task"><i class="fa-solid fa-plus"></i></button>
-    </div>
-
-    <!-- MODAL ADD SUBTASK -->
-    <div id="subtaskModal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50 rounded-t-2xl">
-                <div><h3 id="modal-title" class="text-lg font-extrabold text-slate-800 uppercase">Input Sub-Task</h3></div>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 text-2xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
+    <!-- MODAL EDIT (Mobile & Desktop) -->
+    <div id="editModal" class="modal">
+        <div class="mobile-modal-content">
+            <!-- Blue Accent Line -->
+            <div class="h-1.5 w-full bg-blue-600"></div>
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-white/50 backdrop-blur-sm border-b border-slate-200 flex justify-between items-center sticky top-0 z-10">
+                <div>
+                    <h3 class="text-lg font-black text-slate-800 uppercase" id="modal-project">PROJECT NAME</h3>
+                    <p class="text-xs font-bold text-slate-400 uppercase mt-0.5" id="modal-machine">MACHINE NAME</p>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 transition">&times;</button>
             </div>
-            <div class="p-6 space-y-5">
-                <input type="hidden" id="modal-subtask-id">
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                    <label class="modal-label text-blue-700 uppercase tracking-wide">PILIH PROJECT UTAMA (WAJIB)</label>
-                    <select id="modal-parent-id" class="modal-input font-bold text-blue-900 border-blue-200 h-12"><option value="">-- Pilih Project --</option></select>
+            
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto flex-grow space-y-6">
+                <input type="hidden" id="modal-id">
+                
+                <!-- Instruction (Mirip Gambar) -->
+                <div>
+                    <label class="form-label">INTRUKSI</label>
+                    <div class="bg-slate-200 p-4 rounded-xl text-slate-700 font-bold text-sm leading-relaxed shadow-inner" id="modal-instruction">
+                        -
+                    </div>
                 </div>
-                <div><label class="modal-label">Nama Pekerjaan / Sub-Task</label><input type="text" id="modal-desc" class="modal-input" placeholder="Isi detail pekerjaan..."></div>
-                <div class="grid grid-cols-2 gap-5">
-                    <div><label class="modal-label">Priority</label><select id="modal-prio" class="modal-input"><option value="Low">Low</option><option value="Mid">Mid</option><option value="High">High</option></select></div>
-                    <div><label class="modal-label">Progress (%)</label><input type="number" id="modal-prog" class="modal-input" value="0" min="0" max="100"></div>
+
+                <!-- Priority (Label Only) -->
+                <div>
+                    <label class="form-label">PRIORITY</label>
+                    <div id="modal-priority-badge" class="inline-block"></div>
                 </div>
-                <div class="grid grid-cols-2 gap-5">
-                    <div><label class="modal-label">Start Date</label><input type="datetime-local" id="modal-start" class="modal-input"></div>
-                    <div><label class="modal-label">Finish Date</label><input type="datetime-local" id="modal-finish" class="modal-input"></div>
+
+                <!-- Progress Slider (Mirip Gambar) -->
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="form-label mb-0">PROGRESS</label>
+                        <div class="flex items-center border rounded-lg overflow-hidden border-slate-300">
+                            <input type="number" id="modal-prog-input" class="w-12 text-center text-sm font-bold outline-none py-1 text-slate-700" min="0" max="100" oninput="syncProgress(this.value)">
+                            <div class="bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500 border-l border-slate-300">%</div>
+                        </div>
+                    </div>
+                    <input type="range" id="modal-prog-slider" min="0" max="100" class="w-full" oninput="syncProgress(this.value)">
                 </div>
-                <div class="grid grid-cols-2 gap-5">
-                     <div>
-                        <label class="modal-label">Kategori</label>
-                        <select id="modal-job" class="modal-input">
-                            <option value="-">-</option>
-                            <option value="Improvement">Improvement</option>
-                            <option value="Overhaul">Overhaul</option>
-                            <option value="Perawatan">Perawatan</option>
-                            <option value="New Project">New Project</option>
-                            <option value="Trial">Trial</option>
-                        </select>
+
+                <!-- Dates -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="form-label">START</label>
+                        <input type="datetime-local" id="modal-start" class="table-input">
                     </div>
                     <div>
-                        <label class="modal-label">Status</label>
-                        <select id="modal-status" class="modal-input font-bold text-blue-600">
-                            <option value="Pending">Pending</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Hold">Hold</option>
-                            <option value="Done">Done</option>
-                        </select>
+                        <label class="form-label">FINISH</label>
+                        <input type="datetime-local" id="modal-end" class="table-input">
                     </div>
                 </div>
-                <div><label class="modal-label">Catatan Tambahan (Wajib jika HOLD)</label><textarea id="modal-note" class="modal-input h-20 resize-none" placeholder="Tulis catatan..."></textarea></div>
+
+                <!-- Type -->
+                <div>
+                    <label class="form-label">TIPE</label>
+                    <select id="modal-job" class="table-input font-semibold">
+                        <option value="-">-</option>
+                        <option value="Improvement">Improvement</option>
+                        <option value="Overhaul">Overhaul</option>
+                        <option value="Perawatan">Perawatan</option>
+                        <option value="New Project">New Project</option>
+                        <option value="Trial">Trial</option>
+                    </select>
+                </div>
+
+                <!-- Note -->
+                <div>
+                    <label class="form-label">NOTE / HOLD REASON</label>
+                    <textarea id="modal-note" class="table-input h-24 resize-none" placeholder="Catatan..."></textarea>
+                </div>
+
+                <!-- Status -->
+                 <div>
+                    <label class="form-label">STATUS</label>
+                    <select id="modal-status" class="table-input font-bold">
+                        <option value="Pending">PENDING</option>
+                        <option value="In Progress">IN PROGRESS</option>
+                        <option value="Hold">HOLD</option>
+                        <option value="Done">DONE</option>
+                    </select>
+                </div>
             </div>
-            <div class="p-6 border-t border-slate-100 bg-slate-50">
-                <button onclick="saveSubtask()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg transition-all text-sm tracking-wide">Simpan Data</button>
+
+            <!-- Floating Action Buttons (Mirip Gambar) -->
+            <div class="fab-group">
+                <!-- Save Button (Green) -->
+                <button onclick="saveFromModal()" class="fab-btn fab-save shadow-lg hover:shadow-xl hover:scale-105 active:scale-95" title="Simpan">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                </button>
+                <!-- Add Subtask (Blue) -->
+                 <button onclick="alert('Fitur Subtask: Coming Soon')" class="fab-btn fab-add shadow-lg hover:shadow-xl hover:scale-105 active:scale-95" title="Tambah Subtask">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
             </div>
+            
+            <!-- Spacer for FAB visibility -->
+            <div class="h-24 md:hidden"></div>
         </div>
     </div>
 
@@ -317,277 +372,189 @@
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
-        let allTasks = [], subTasksMap = {}; 
+        let allTasks = [];
 
         function cleanTimestamp(dateStr) { return dateStr ? dateStr.substring(0, 16) : ''; }
-        function formatTime(dateStr) {
-            if (!dateStr) return '-';
-            const date = new Date(dateStr);
-            if(isNaN(date.getTime())) return '-';
-            const day = String(date.getUTCDate()).padStart(2, '0');
-            const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-            const year = date.getUTCFullYear().toString().substr(-2);
-            const hours = String(date.getUTCHours()).padStart(2, '0');
-            const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-            return `${day}/${month}/${year} ${hours}:${minutes}`;
-        }
 
-        // --- HELPER WARNA ---
-        function getJobClass(job) {
-            switch(job) {
-                case 'Improvement': return 'bg-blue-50 text-blue-700 border-blue-200';
-                case 'Overhaul': return 'bg-purple-50 text-purple-700 border-purple-200';
-                case 'Perawatan': return 'bg-amber-50 text-amber-700 border-amber-200';
-                case 'New Project': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                case 'Trial': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
-                default: return 'bg-slate-50 text-slate-500 border-slate-200';
-            }
-        }
-        
-        function getStatusClass(status) {
-            switch(status) {
-                case 'Pending': return 'bg-amber-100 text-amber-700 border-amber-200';
-                case 'In Progress': return 'bg-blue-100 text-blue-700 border-blue-200';
-                case 'Hold': return 'bg-rose-100 text-rose-700 border-rose-200';
-                case 'Done': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-                default: return 'bg-white text-slate-500 border-slate-200';
-            }
-        }
-        function updateSelectColor(el, type) {
-            if(type === 'job') el.className = `badge-select ${getJobClass(el.value)}`;
-            if(type === 'status') el.className = `badge-select ${getStatusClass(el.value)}`;
+        function getStatusColor(status) {
+            if(status === 'Pending') return 'bg-amber-100 text-amber-700 border-amber-200';
+            if(status === 'In Progress') return 'bg-blue-100 text-blue-700 border-blue-200';
+            if(status === 'Hold') return 'bg-rose-100 text-rose-700 border-rose-200';
+            if(status === 'Done') return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+            return 'bg-white text-slate-500';
         }
 
         async function fetchRyanTasks() {
-            const { data: mainData, error } = await _sb.from('management_tracker').select('*').ilike('assigned_to', 'ryan').order('created_at', { ascending: false });
+            const { data, error } = await _sb.from('management_tracker').select('*').ilike('assigned_to', 'ryan').order('created_at', { ascending: false });
             if (error) return console.error(error);
-            allTasks = mainData || [];
-            fillProjectDropdown(allTasks);
-
-            const taskIds = allTasks.map(t => t.id);
-            if(taskIds.length > 0) {
-                const { data: subData } = await _sb.from('employee_subtasks').select('*').in('parent_task_id', taskIds).order('created_at', { ascending: true });
-                subTasksMap = {};
-                if(subData) subData.forEach(sub => {
-                    if(!subTasksMap[sub.parent_task_id]) subTasksMap[sub.parent_task_id] = [];
-                    subTasksMap[sub.parent_task_id].push(sub);
-                });
-            } else subTasksMap = {};
-
+            allTasks = data || [];
             renderTasks(allTasks);
             updateStats(allTasks);
-        }
-
-        function fillProjectDropdown(tasks) {
-            const select = document.getElementById('modal-parent-id');
-            const currentVal = select.value; 
-            select.innerHTML = '<option value="">-- Pilih Project --</option>';
-            tasks.forEach(task => { if(task.status !== 'Done') select.innerHTML += `<option value="${task.id}">${task.project_name} (${task.machine_name})</option>`; });
-            if(currentVal) select.value = currentVal;
         }
 
         function renderTasks(dataList) {
             const tbody = document.getElementById('ryan-work-body');
             tbody.innerHTML = dataList.map(row => {
-                const progress = row.progress_percent || 0; 
-                const mySubtasks = subTasksMap[row.id] || [];
-                const jobClass = getJobClass(row.job_type); 
-                const statusClass = getStatusClass(row.status);
-                let progressColor = row.status === 'Done' ? "bg-emerald-600" : "bg-blue-600";
-                
-                let mainRow = `
-                    <tr class="bg-white border-b border-slate-100 hover:bg-blue-50/30 transition-colors" data-id="${row.id}">
-                        <td data-label="PROJECT INFO" class="px-6 py-5 align-top border-l-4 border-blue-600 pl-5">
-                            <div class="font-extrabold text-slate-800 text-sm uppercase tracking-tight">${row.project_name}</div>
-                            <div class="text-[11px] text-slate-400 mt-1 font-bold bg-slate-100 inline-block px-2 py-0.5 rounded">${row.machine_name || '-'}</div>
+                // Desktop Row HTML
+                return `
+                    <tr class="bg-white hover:bg-slate-50 transition-colors border-b border-slate-100 mobile-card" data-id="${row.id}">
+                        <!-- Project Info -->
+                        <td class="px-6 py-4 align-top border-l-4 border-blue-600 pl-5" data-label="PROJECT INFO">
+                            <div class="font-extrabold text-slate-800 text-sm uppercase leading-snug">${row.project_name}</div>
+                            <div class="mt-1"><span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded border border-slate-200 uppercase">${row.machine_name || '-'}</span></div>
                         </td>
-                        <td data-label="INSTRUKSI" class="px-6 py-5 align-top">
-                            <div class="bg-blue-50 border border-blue-100 px-4 py-3 rounded-xl text-blue-900 font-medium relative shadow-sm">
-                                <span class="text-[9px] font-extrabold text-blue-500 uppercase block mb-1 tracking-widest md:hidden">Instruksi Utama</span>
+                        
+                        <!-- Instruksi -->
+                        <td class="px-6 py-4 align-top" data-label="INSTRUKSI">
+                            <div class="bg-slate-50 border border-slate-100 px-3 py-2 rounded-lg text-slate-600 font-medium text-xs">
                                 "${row.task_desc || '-'}"
                             </div>
                         </td>
-                        <td data-label="PRIORITY" class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
-                        <td data-label="PROGRESS" class="px-4 py-5 align-top">
-                            <div class="flex items-center gap-2 justify-center">
-                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold">
+
+                        <!-- Priority -->
+                        <td class="px-4 py-4 text-center align-top" data-label="PRIORITY">
+                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${row.priority=='High'?'bg-rose-100 text-rose-600':(row.priority=='Mid'?'bg-blue-100 text-blue-600':'bg-emerald-100 text-emerald-600')}">${row.priority}</span>
+                        </td>
+
+                        <!-- Progress (Desktop: Input, Mobile: Text) -->
+                        <td class="px-4 py-4 align-top desktop-only" data-label="PROGRESS">
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="d-prog-${row.id}" value="${row.progress_percent}" class="table-input text-center font-bold text-blue-600 w-16">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
-                            <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="${progressColor} h-full transition-all duration-500" style="width:${progress}%"></div></div>
                         </td>
-                        <td data-label="START" class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-center"></td>
-                        <td data-label="FINISH" class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-center"></td>
-                        <td data-label="TIPE" class="px-4 py-5 align-top text-center">
-                            <select id="job-${row.id}" onchange="updateSelectColor(this, 'job')" class="badge-select ${jobClass}">
+
+                        <!-- Dates (Desktop Only) -->
+                        <td class="px-4 py-4 align-top text-center desktop-only"><input type="datetime-local" id="d-start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-xs"></td>
+                        <td class="px-4 py-4 align-top text-center desktop-only"><input type="datetime-local" id="d-end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-xs"></td>
+                        
+                        <!-- Type & Note (Desktop Only) -->
+                        <td class="px-4 py-4 align-top desktop-only">
+                             <select id="d-job-${row.id}" class="badge-select text-xs">
                                 <option value="-" ${row.job_type=='-'?'selected':''}>-</option>
                                 <option value="Improvement" ${row.job_type=='Improvement'?'selected':''}>Improvement</option>
-                                <option value="Overhaul" ${row.job_type=='Overhaul'?'selected':''}>Overhaul</option>
                                 <option value="Perawatan" ${row.job_type=='Perawatan'?'selected':''}>Perawatan</option>
-                                <option value="New Project" ${row.job_type=='New Project'?'selected':''}>New Project</option>
-                                <option value="Trial" ${row.job_type=='Trial'?'selected':''}>Trial</option>
+                                <option value="Overhaul" ${row.job_type=='Overhaul'?'selected':''}>Overhaul</option>
                             </select>
                         </td>
-                        <td data-label="CATATAN / HOLD" class="px-4 py-5 align-top">
-                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold...">${row.hold_reason||''}</textarea>
+                        <td class="px-4 py-4 align-top desktop-only">
+                             <textarea id="d-hold-${row.id}" class="table-input text-xs resize-none h-10">${row.hold_reason||''}</textarea>
                         </td>
-                        <td data-label="STATUS" class="px-4 py-5 align-top text-center">
-                            <select id="stat-${row.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusClass}">
-                                <option value="Pending" ${row.status=='Pending'?'selected':''}>PENDING</option>
-                                <option value="In Progress" ${row.status=='In Progress'?'selected':''}>IN PROGRESS</option>
-                                <option value="Hold" ${row.status=='Hold'?'selected':''}>HOLD</option>
-                                <option value="Done" ${row.status=='Done'?'selected':''}>DONE</option>
-                            </select>
+
+                        <!-- Status (Desktop: Select, Mobile: Badge) -->
+                        <td class="px-4 py-4 align-top text-center" data-label="STATUS">
+                            <div class="desktop-only">
+                                <select id="d-stat-${row.id}" class="badge-select font-bold ${getStatusColor(row.status)}">
+                                    <option value="Pending" ${row.status=='Pending'?'selected':''}>PENDING</option>
+                                    <option value="In Progress" ${row.status=='In Progress'?'selected':''}>PROCESS</option>
+                                    <option value="Done" ${row.status=='Done'?'selected':''}>DONE</option>
+                                    <option value="Hold" ${row.status=='Hold'?'selected':''}>HOLD</option>
+                                </select>
+                            </div>
+                            <div class="md:hidden">
+                                <span class="px-3 py-1 rounded-full font-bold text-[10px] uppercase border ${getStatusColor(row.status)}">${row.status}</span>
+                            </div>
                         </td>
-                        <td data-label="AKSI" class="px-4 py-5 align-top text-center">
-                             <button class="w-full md:w-10 h-10 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md flex items-center justify-center mx-auto hover:scale-105 active:scale-95 uppercase font-bold text-xs" onclick="saveMain('${row.id}')" title="Simpan Satu">
-                                <i class="fa-solid fa-floppy-disk text-lg mr-2 md:mr-0"></i> <span class="md:hidden">SIMPAN</span>
-                             </button>
+
+                        <!-- Actions -->
+                        <td class="px-4 py-4 align-top text-center" data-label="">
+                            <!-- Desktop Save Button -->
+                            <button class="desktop-only bg-[#003366] text-white w-10 h-10 rounded-lg shadow hover:bg-blue-800 transition flex items-center justify-center mx-auto" onclick="saveDesktop('${row.id}')">
+                                <i class="fa-solid fa-floppy-disk text-lg"></i>
+                            </button>
+                            
+                            <!-- Mobile Edit Button (Opens Modal) -->
+                            <button class="md:hidden w-full bg-blue-600 text-white py-3 rounded-xl text-xs font-bold uppercase shadow" onclick='openModal(${JSON.stringify(row)})'>
+                                BUKA DETAIL / EDIT
+                            </button>
                         </td>
                     </tr>
                 `;
-
-                let subRows = mySubtasks.map(sub => {
-                    let badgeClass = sub.priority === 'High' ? 'badge-high' : (sub.priority === 'Mid' ? 'badge-mid' : 'badge-low');
-                    let jobBadge = getJobClass(sub.job_type); 
-                    let statusBadge = getStatusClass(sub.status);
-                    let subProgressColor = "bg-blue-600";
-                    if(sub.status === 'In Progress') subProgressColor = "bg-blue-600";
-                    if(sub.status === 'Done') subProgressColor = "bg-emerald-600";
-                    
-                    return `
-                    <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white transition-colors" data-id="${sub.id}" data-type="sub">
-                        <td data-label="TYPE" class="px-6 py-4 text-right align-middle">
-                            <div class="flex items-center justify-end gap-3">
-                                <div class="tree-line"></div>
-                                <span class="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest bg-slate-100 px-3 py-1 rounded">SUBTASK</span>
-                            </div>
-                        </td>
-                        <td data-label="SUB-TASK" class="px-6 py-4 align-middle font-bold text-slate-700 flex justify-between items-center gap-3">
-                            <span class="text-[15px]">${sub.subtask_desc}</span>
-                            <div class="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                                <button onclick="editSubtask('${sub.id}', '${row.id}')" class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-500 hover:text-white transition-all flex items-center justify-center text-xs" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="deleteSubTask('${sub.id}')" class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-xs" title="Hapus"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </td>
-                        <td data-label="PRIORITY" class="px-4 py-4 text-center align-middle"><span class="badge ${badgeClass}">${sub.priority}</span></td>
-                        <td data-label="PROGRESS" class="px-4 py-4 text-center align-middle">
-                            <div class="flex items-center gap-2 justify-center">
-                                <input type="number" id="sub-prog-${sub.id}" value="${sub.progress_percent||0}" class="table-input text-center font-bold text-blue-600">
-                            </div>
-                        </td>
-                        <td data-label="START" class="px-4 py-4 text-center align-middle"><input type="datetime-local" id="sub-start-${sub.id}" value="${cleanTimestamp(sub.start_date)}" class="table-input text-xs text-center"></td>
-                        <td data-label="FINISH" class="px-4 py-4 text-center align-middle"><input type="datetime-local" id="sub-end-${sub.id}" value="${cleanTimestamp(sub.end_date)}" class="table-input text-xs text-center"></td>
-                        <td data-label="TIPE" class="px-4 py-4 text-center align-middle">
-                            ${sub.job_type && sub.job_type !== '-' ? `<span class="badge-select py-1.5 px-3 text-[12px] ${jobBadge} border-none pointer-events-none w-auto inline-block">${sub.job_type}</span>` : '-'}
-                        </td>
-                        <td data-label="CATATAN" class="px-4 py-4 align-middle">
-                            <textarea id="sub-note-${sub.id}" class="table-input text-[13px] resize-none h-10 placeholder:text-slate-300" placeholder="Catatan...">${sub.worker_notes || ''}</textarea>
-                        </td>
-                        <td data-label="STATUS" class="px-4 py-4 text-center align-middle">
-                            <select id="sub-stat-${sub.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusBadge}">
-                                <option value="Pending" ${sub.status=='Pending'?'selected':''}>PENDING</option>
-                                <option value="In Progress" ${sub.status=='In Progress'?'selected':''}>IN PROGRESS</option>
-                                <option value="Hold" ${sub.status=='Hold'?'selected':''}>HOLD</option>
-                                <option value="Done" ${sub.status=='Done'?'selected':''}>DONE</option>
-                            </select>
-                        </td>
-                        <td data-label="AKSI" class="px-4 py-4 text-center align-middle">
-                             <button class="w-full md:w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto uppercase font-bold text-xs" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
-                                <i class="fa-solid fa-floppy-disk text-xs mr-2 md:mr-0"></i> <span class="md:hidden">SIMPAN</span>
-                             </button>
-                        </td>
-                    </tr>
-                    `;
-                }).join('');
-
-                return mainRow + subRows;
             }).join('');
         }
 
-        async function saveAllChanges() {
-            const updatesMain = [];
-            const updatesSub = [];
-            let isValid = true; 
-            allTasks.forEach(task => {
-                const id = task.id;
-                const statVal = document.getElementById(`stat-${id}`)?.value;
-                const holdVal = document.getElementById(`hold-${id}`)?.value;
-                if (statVal === 'Hold' && (!holdVal || !holdVal.trim())) { alert(`⚠️ Project "${task.project_name}" HOLD butuh catatan!`); isValid = false; return; }
-                if (statVal) updatesMain.push({ id, status: statVal, progress_percent: document.getElementById(`prog-${id}`)?.value, work_start_time: document.getElementById(`start-${id}`)?.value || null, work_end_time: document.getElementById(`end-${id}`)?.value || null, job_type: document.getElementById(`job-${id}`)?.value, hold_reason: holdVal });
-            });
-            if (!isValid) return;
-            const subTaskArray = Object.values(subTasksMap).flat();
-            for (const sub of subTaskArray) {
-                const id = sub.id;
-                const statVal = document.getElementById(`sub-stat-${id}`)?.value;
-                const noteVal = document.getElementById(`sub-note-${id}`)?.value;
-                if (statVal === 'Hold' && (!noteVal || !noteVal.trim())) { alert(`⚠️ Subtask "${sub.subtask_desc}" HOLD butuh catatan!`); isValid = false; break; }
-                if (statVal) updatesSub.push({ id, status: statVal, worker_notes: noteVal });
+        // --- MOBILE MODAL LOGIC (New Style) ---
+        function openModal(row) {
+            document.getElementById('modal-id').value = row.id;
+            document.getElementById('modal-project').innerText = row.project_name;
+            document.getElementById('modal-machine').innerText = row.machine_name || '-';
+            document.getElementById('modal-instruction').innerText = row.task_desc || '-';
+            
+            // Priority Badge
+            const prioColor = row.priority==='High'?'bg-rose-100 text-rose-600':(row.priority==='Mid'?'bg-blue-100 text-blue-600':'bg-emerald-100 text-emerald-600');
+            document.getElementById('modal-priority-badge').innerHTML = `<span class="px-3 py-1 rounded text-xs font-black uppercase ${prioColor}">${row.priority}</span>`;
+
+            // Inputs
+            syncProgress(row.progress_percent || 0);
+            document.getElementById('modal-start').value = cleanTimestamp(row.work_start_time);
+            document.getElementById('modal-end').value = cleanTimestamp(row.work_end_time);
+            document.getElementById('modal-job').value = row.job_type || '-';
+            document.getElementById('modal-note').value = row.hold_reason || '';
+            document.getElementById('modal-status').value = row.status || 'Pending';
+
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function syncProgress(val) {
+            document.getElementById('modal-prog-slider').value = val;
+            document.getElementById('modal-prog-input').value = val;
+        }
+
+        async function saveFromModal() {
+            const id = document.getElementById('modal-id').value;
+            const payload = {
+                progress_percent: document.getElementById('modal-prog-input').value,
+                work_start_time: document.getElementById('modal-start').value || null,
+                work_end_time: document.getElementById('modal-end').value || null,
+                job_type: document.getElementById('modal-job').value,
+                hold_reason: document.getElementById('modal-note').value,
+                status: document.getElementById('modal-status').value
+            };
+            await updateDB(id, payload);
+            closeModal();
+        }
+
+        // --- DESKTOP SAVE LOGIC ---
+        async function saveDesktop(id) {
+            const payload = {
+                progress_percent: document.getElementById(`d-prog-${id}`).value,
+                work_start_time: document.getElementById(`d-start-${id}`).value || null,
+                work_end_time: document.getElementById(`d-end-${id}`).value || null,
+                job_type: document.getElementById(`d-job-${id}`).value,
+                hold_reason: document.getElementById(`d-hold-${id}`).value,
+                status: document.getElementById(`d-stat-${id}`).value
+            };
+            await updateDB(id, payload);
+        }
+
+        async function updateDB(id, payload) {
+            if (payload.status === 'Hold' && !payload.hold_reason.trim()) {
+                alert("⚠️ Status HOLD wajib mengisi catatan!");
+                return;
             }
-            if (!isValid) return;
-            if(!confirm("Simpan semua perubahan?")) return;
-
-            try {
-                const promises = [...updatesMain.map(i => _sb.from('management_tracker').update(i).eq('id', i.id)), ...updatesSub.map(i => _sb.from('employee_subtasks').update(i).eq('id', i.id))];
-                await Promise.all(promises); alert("Tersimpan!"); fetchRyanTasks();
-            } catch (err) { alert("Error saving."); }
-        }
-
-        async function saveMain(id) {
-            const sVal = document.getElementById(`start-${id}`).value;
-            const eVal = document.getElementById(`end-${id}`).value;
-            const statVal = document.getElementById(`stat-${id}`).value;
-            const holdVal = document.getElementById(`hold-${id}`).value;
-            if (statVal === 'Hold' && !holdVal.trim()) return alert("Status HOLD wajib isi catatan!");
             
-            const payload = { status: statVal, progress_percent: document.getElementById(`prog-${id}`).value, work_start_time: sVal || null, work_end_time: eVal || null, job_type: document.getElementById(`job-${id}`).value, hold_reason: holdVal };
             const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
-            if (error) alert("Gagal: " + error.message); else { alert("Tersimpan!"); fetchRyanTasks(); }
+            if (error) alert("Gagal: " + error.message);
+            else { 
+                alert("Data Tersimpan!"); 
+                fetchRyanTasks(); 
+            }
         }
 
-        async function saveSubtaskInline(subId) {
-            const statusVal = document.getElementById(`sub-stat-${subId}`).value;
-            const noteVal = document.getElementById(`sub-note-${subId}`).value;
-            if (statusVal === 'Hold' && !noteVal.trim()) return alert("Status HOLD wajib isi catatan!");
-            const { error } = await _sb.from('employee_subtasks').update({ status: statusVal, worker_notes: noteVal }).eq('id', subId);
-            if (error) alert("Gagal: " + error.message); else { alert("Subtask Tersimpan!"); fetchRyanTasks(); }
-        }
-
-        async function saveSubtask() {
-            const subId = document.getElementById('modal-subtask-id').value;
-            const parentId = document.getElementById('modal-parent-id').value;
-            const desc = document.getElementById('modal-desc').value;
-            if(!parentId || !desc) return alert("Pilih Project & Isi Nama Tugas!");
-
-            const payload = { parent_task_id: parentId, subtask_desc: desc, priority: document.getElementById('modal-prio').value, progress_percent: document.getElementById('modal-prog').value, start_date: document.getElementById('modal-start').value || null, end_date: document.getElementById('modal-finish').value || null, job_type: document.getElementById('modal-job').value, worker_notes: document.getElementById('modal-note').value, status: document.getElementById('modal-status').value };
-            
-            let res = subId ? await _sb.from('employee_subtasks').update(payload).eq('id', subId) : await _sb.from('employee_subtasks').insert([payload]);
-            if(res.error) alert("Gagal: " + res.error.message); else { alert("Berhasil!"); closeModal(); fetchRyanTasks(); }
-        }
-
-        function openSubtaskModal() {
-            document.getElementById('modal-title').innerText = "Tambah Rincian";
-            document.getElementById('modal-subtask-id').value = ""; document.getElementById('modal-parent-id').value = ''; document.getElementById('modal-parent-id').disabled = false;
-            document.getElementById('modal-desc').value = ''; document.getElementById('modal-prio').value = 'Mid'; document.getElementById('modal-prog').value = '0';
-            document.getElementById('subtaskModal').style.display = 'flex';
-        }
-        function editSubtask(subId, parentId) {
-            const task = subTasksMap[parentId].find(t => t.id == subId);
-            document.getElementById('modal-title').innerText = "Edit Rincian";
-            document.getElementById('modal-subtask-id').value = subId; document.getElementById('modal-parent-id').value = parentId; document.getElementById('modal-parent-id').disabled = true;
-            document.getElementById('modal-desc').value = task.subtask_desc; document.getElementById('modal-prio').value = task.priority; document.getElementById('modal-prog').value = task.progress_percent;
-            document.getElementById('modal-start').value = cleanTimestamp(task.start_date); document.getElementById('modal-finish').value = cleanTimestamp(task.end_date);
-            document.getElementById('modal-job').value = task.job_type; document.getElementById('modal-status').value = task.status; document.getElementById('modal-note').value = task.worker_notes;
-            document.getElementById('subtaskModal').style.display = 'flex';
-        }
-        function closeModal() { document.getElementById('subtaskModal').style.display = 'none'; }
-        async function deleteSubTask(id) { if(confirm("Hapus?")) { await _sb.from('employee_subtasks').delete().eq('id', id); fetchRyanTasks(); } }
-
+        function closeModal() { document.getElementById('editModal').style.display = 'none'; }
+        
         function updateStats(data) {
              let p=0, i=0, h=0, d=0;
-             data.forEach(item => { if(item.status==='Pending') p++; else if(item.status==='In Progress') i++; else if(item.status==='Hold') h++; else if(item.status==='Done') d++; });
-             document.getElementById('stat-active').innerText = i; document.getElementById('stat-pending').innerText = p;
-             document.getElementById('stat-hold').innerText = h; document.getElementById('stat-finished').innerText = d;
+             data.forEach(item => { 
+                 if(item.status==='Pending') p++; 
+                 else if(item.status==='In Progress') i++; 
+                 else if(item.status==='Hold') h++; 
+                 else if(item.status==='Done') d++; 
+             });
+             document.getElementById('stat-active').innerText = i; 
+             document.getElementById('stat-pending').innerText = p;
+             document.getElementById('stat-hold').innerText = h; 
+             document.getElementById('stat-finished').innerText = d;
         }
 
         window.onload = fetchRyanTasks;
