@@ -20,7 +20,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
@@ -104,101 +104,57 @@
 
         /* --- MOBILE RESPONSIVE CSS --- */
         @media screen and (max-width: 768px) {
-            /* Header Stack */
+            /* Header */
             .header-content { flex-direction: column; align-items: flex-start; gap: 15px; }
             .header-btn { width: 100%; justify-content: center; }
             .content-wrapper { padding: 0 16px; margin-top: -30px; }
             
             /* Stats Grid */
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .stat-val { font-size: 1.8rem; }
 
-            /* TRANSFORMASI TABEL KE KARTU */
+            /* Table to Card Transformation */
             thead { display: none; }
             table, tbody, tr, td { display: block; width: 100%; }
             
-            /* Reset Min Width Table di HP */
-            table { min-width: 0 !important; }
-
-            /* Style Kartu Utama */
+            /* Card Style */
             tr:not([data-type="sub"]) {
-                background: white;
-                margin-bottom: 20px;
-                border-radius: 16px;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                border: 1px solid #e2e8f0;
-                overflow: hidden;
+                background: white; margin-bottom: 20px; border-radius: 16px;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; overflow: hidden;
             }
-
-            /* Style Kartu Subtask */
             tr[data-type="sub"] {
-                background: #f8fafc;
-                margin: -10px 10px 15px 10px; 
-                border-radius: 12px;
-                border: 1px solid #cbd5e1;
-                border-left: 4px solid #94a3b8;
+                background: #f8fafc; margin: -10px 10px 15px 10px; border-radius: 12px;
+                border: 1px solid #cbd5e1; border-left: 4px solid #94a3b8;
                 position: relative;
             }
             tr[data-type="sub"]::before {
-                content: '↳ SUB-TASK';
-                position: absolute;
-                top: -20px;
-                left: 0;
-                font-size: 10px;
-                font-weight: 900;
-                color: #94a3b8;
-                padding-left: 5px;
+                content: '↳ SUB-TASK'; position: absolute; top: -20px; left: 0;
+                font-size: 10px; font-weight: 900; color: #94a3b8; padding-left: 5px;
             }
-            
-            /* Style Sel (Baris Data) */
+
+            /* Cells */
             td {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 12px 16px;
-                border-bottom: 1px solid #f1f5f9;
-                text-align: right;
+                display: flex; justify-content: space-between; align-items: center;
+                padding: 12px 16px; border-bottom: 1px solid #f1f5f9; text-align: right;
             }
-            
-            td:last-child {
-                border-bottom: none;
-                justify-content: center;
-                background: #f8fafc;
-                padding: 16px;
-            }
+            td:last-child { border-bottom: none; justify-content: center; background: #f8fafc; padding: 16px; }
 
-            /* Label Kolom di Kiri */
+            /* Label */
             td::before {
-                content: attr(data-label);
-                font-weight: 800;
-                text-transform: uppercase;
-                font-size: 10px;
-                color: #94a3b8;
-                text-align: left;
-                margin-right: 1rem;
-                flex-shrink: 0;
-                width: 90px;
+                content: attr(data-label); font-weight: 800; text-transform: uppercase;
+                font-size: 10px; color: #94a3b8; text-align: left; margin-right: 1rem; flex-shrink: 0; width: 90px;
             }
 
-            /* Header Kartu (Project Info) */
+            /* Header Kartu */
             td[data-label="PROJECT INFO"] {
-                background: #f8fafc;
-                border-bottom: 1px solid #e2e8f0;
-                display: block;
-                text-align: left;
-                padding: 16px;
+                background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: block; text-align: left; padding: 16px;
             }
             td[data-label="PROJECT INFO"]::before { display: none; }
 
-            /* Inputs Full Width */
+            /* Inputs */
             .table-input, .badge-select { width: 100%; max-width: 65%; }
             textarea.table-input { max-width: 100%; margin-top: 0.5rem; text-align: left; min-height: 60px; }
-            
-            /* Stack layout for textareas */
-            td:has(textarea) {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+            td:has(textarea) { flex-direction: column; align-items: flex-start; }
             td:has(textarea)::before { margin-bottom: 5px; }
         }
     </style>
@@ -206,7 +162,8 @@
 <body class="antialiased bg-slate-50">
 
     <div class="bg-[#1e3a8a] border-b border-blue-950 pt-8 pb-20 px-8 shadow-xl w-full relative">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center w-full max-w-7xl mx-auto header-content gap-4">
+        <!-- Gunakan max-w-[98%] untuk laptop agar lebar -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center w-full max-w-[98%] mx-auto header-content gap-4">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-blue-900/50">R</div>
                 <div>
@@ -217,15 +174,20 @@
                     </div>
                 </div>
             </div>
-            <a href="employee_report.html" class="header-btn bg-blue-900 hover:bg-blue-800 text-white border border-blue-800 px-6 py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-2 shadow-md">
-                <i class="fa-solid fa-arrow-left"></i> Kembali Menu
-            </a>
+            <div class="flex gap-2 w-full md:w-auto">
+                <button onclick="fetchRyanTasks()" class="flex-1 md:flex-none bg-blue-800 hover:bg-blue-700 text-white border border-blue-700 px-5 py-2.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-2 shadow-md">
+                    <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                </button>
+                <a href="employee_report.html" class="flex-1 md:flex-none bg-blue-900 hover:bg-blue-800 text-white border border-blue-800 px-5 py-2.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-2 shadow-md">
+                    <i class="fa-solid fa-arrow-left"></i> Menu
+                </a>
+            </div>
         </div>
     </div>
 
-    <div class="w-full max-w-7xl mx-auto px-4 md:px-8 -mt-10 pb-32 relative z-10 content-wrapper">
+    <!-- Gunakan max-w-[98%] untuk laptop agar lebar -->
+    <div class="w-full max-w-[98%] mx-auto px-4 md:px-0 -mt-10 pb-32 relative z-10 content-wrapper">
         
-        <!-- Stats Grid -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8 w-full stats-grid">
             <div class="bg-white p-5 rounded-2xl shadow-lg border-l-4 border-l-blue-500">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p><h3 id="stat-active" class="text-3xl font-black text-slate-800 stat-val">0</h3>
@@ -243,20 +205,20 @@
 
         <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden w-full">
             <div class="overflow-x-auto">
-                <!-- Tambahkan min-w-[1200px] agar di laptop tetap lebar & scrollable -->
-                <table class="w-full text-left border-collapse min-w-[1200px]">
+                <!-- Tambahkan min-w-[1600px] agar di desktop tabelnya lebar dan tidak gepeng -->
+                <table class="w-full text-left border-collapse min-w-[1600px] md:min-w-[1600px] lg:min-w-[100%]">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] uppercase font-bold tracking-wider">
                             <th class="px-6 py-4 w-[250px]">Project Info</th>
-                            <th class="px-6 py-4 min-w-[300px]">Instruksi Kerja</th>
+                            <th class="px-6 py-4 min-w-[350px]">Instruksi Kerja</th>
                             <th class="px-4 py-4 text-center w-[100px]">Priority</th>
                             <th class="px-4 py-4 text-center w-[120px]">Progress (%)</th>
-                            <th class="px-4 py-4 text-center w-[150px]">Start Date</th>
-                            <th class="px-4 py-4 text-center w-[150px]">Finish Date</th>
+                            <th class="px-4 py-4 text-center w-[160px]">Start Date</th>
+                            <th class="px-4 py-4 text-center w-[160px]">Finish Date</th>
                             <th class="px-4 py-4 text-center w-[140px]">Tipe</th>
-                            <th class="px-4 py-4 text-left w-[200px]">Catatan Hold</th>
-                            <th class="px-4 py-4 text-center w-[130px]">Status</th>
-                            <th class="px-4 py-4 text-center w-[70px]">Aksi</th>
+                            <th class="px-4 py-4 text-left w-[250px]">Catatan Hold</th>
+                            <th class="px-4 py-4 text-center w-[140px]">Status</th>
+                            <th class="px-4 py-4 text-center w-[80px]">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="ryan-work-body" class="divide-y divide-slate-100 bg-white text-sm"></tbody>
@@ -404,7 +366,7 @@
                 
                 let mainRow = `
                     <tr class="bg-white border-b border-slate-100 hover:bg-blue-50/30 transition-colors" data-id="${row.id}">
-                        <td data-label="PROJECT INFO" class="px-6 py-5 align-top border-l-4 border-blue-500 pl-5">
+                        <td data-label="PROJECT INFO" class="px-6 py-5 align-top border-l-4 border-blue-600 pl-5">
                             <div class="font-extrabold text-slate-800 text-sm uppercase tracking-tight">${row.project_name}</div>
                             <div class="text-[11px] text-slate-400 mt-1 font-bold bg-slate-100 inline-block px-2 py-0.5 rounded">${row.machine_name || '-'}</div>
                         </td>
