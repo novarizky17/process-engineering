@@ -57,13 +57,11 @@
         }
         .badge-select:hover { transform: scale(1.02); }
 
-        /* Floating Buttons Container */
+        /* Floating Buttons */
         .fab-container {
             position: fixed; bottom: 30px; right: 30px;
             display: flex; gap: 15px; z-index: 50;
         }
-
-        /* FAB Common Style */
         .fab {
             width: 60px; height: 60px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -71,7 +69,6 @@
             transition: transform 0.2s; border: 4px solid white; cursor: pointer;
         }
         .fab:hover { transform: scale(1.1); }
-
         .fab-add { background: #2563eb; color: white; }
         .fab-save { background: #10b981; color: white; }
 
@@ -107,7 +104,7 @@
 
         /* --- MOBILE RESPONSIVE CSS --- */
         @media screen and (max-width: 768px) {
-            /* Header */
+            /* Header Stack */
             .header-content { flex-direction: column; align-items: flex-start; gap: 15px; }
             .header-btn { width: 100%; justify-content: center; }
             .content-wrapper { padding: 0 16px; margin-top: -30px; }
@@ -116,33 +113,49 @@
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .stat-val { font-size: 1.8rem; }
 
-            /* Table to Card Transformation */
+            /* TRANSFORMASI TABEL KE KARTU */
             thead { display: none; }
             table, tbody, tr, td { display: block; width: 100%; }
             
-            tr {
-                margin-bottom: 1rem;
+            /* Reset Min Width Table di HP */
+            table { min-width: 0 !important; }
+
+            /* Style Kartu Utama */
+            tr:not([data-type="sub"]) {
                 background: white;
-                border-radius: 1rem;
+                margin-bottom: 20px;
+                border-radius: 16px;
                 box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
                 border: 1px solid #e2e8f0;
                 overflow: hidden;
             }
 
-            /* Subtask indentation style */
+            /* Style Kartu Subtask */
             tr[data-type="sub"] {
                 background: #f8fafc;
-                margin-left: 1rem;
-                border-left: 4px solid #cbd5e1;
-                margin-bottom: 1rem;
+                margin: -10px 10px 15px 10px; 
+                border-radius: 12px;
+                border: 1px solid #cbd5e1;
+                border-left: 4px solid #94a3b8;
+                position: relative;
+            }
+            tr[data-type="sub"]::before {
+                content: '↳ SUB-TASK';
+                position: absolute;
+                top: -20px;
+                left: 0;
+                font-size: 10px;
+                font-weight: 900;
+                color: #94a3b8;
+                padding-left: 5px;
             }
             
-            /* Cells */
+            /* Style Sel (Baris Data) */
             td {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 0.75rem 1rem;
+                padding: 12px 16px;
                 border-bottom: 1px solid #f1f5f9;
                 text-align: right;
             }
@@ -151,39 +164,42 @@
                 border-bottom: none;
                 justify-content: center;
                 background: #f8fafc;
-                padding: 1rem;
+                padding: 16px;
             }
 
-            /* Label for each cell */
+            /* Label Kolom di Kiri */
             td::before {
                 content: attr(data-label);
                 font-weight: 800;
                 text-transform: uppercase;
-                font-size: 0.65rem;
+                font-size: 10px;
                 color: #94a3b8;
                 text-align: left;
                 margin-right: 1rem;
                 flex-shrink: 0;
+                width: 90px;
             }
 
-            /* Special styling for Project Info in card header */
+            /* Header Kartu (Project Info) */
             td[data-label="PROJECT INFO"] {
-                background: #f1f5f9;
+                background: #f8fafc;
                 border-bottom: 1px solid #e2e8f0;
                 display: block;
                 text-align: left;
+                padding: 16px;
             }
             td[data-label="PROJECT INFO"]::before { display: none; }
 
-            /* Inputs full width in mobile */
-            .table-input, .badge-select { width: 100%; max-width: 60%; }
-            textarea.table-input { max-width: 100%; margin-top: 0.5rem; text-align: left; }
+            /* Inputs Full Width */
+            .table-input, .badge-select { width: 100%; max-width: 65%; }
+            textarea.table-input { max-width: 100%; margin-top: 0.5rem; text-align: left; min-height: 60px; }
             
             /* Stack layout for textareas */
             td:has(textarea) {
                 flex-direction: column;
                 align-items: flex-start;
             }
+            td:has(textarea)::before { margin-bottom: 5px; }
         }
     </style>
 </head>
@@ -209,6 +225,7 @@
 
     <div class="w-full max-w-7xl mx-auto px-4 md:px-8 -mt-10 pb-32 relative z-10 content-wrapper">
         
+        <!-- Stats Grid -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-8 w-full stats-grid">
             <div class="bg-white p-5 rounded-2xl shadow-lg border-l-4 border-l-blue-500">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p><h3 id="stat-active" class="text-3xl font-black text-slate-800 stat-val">0</h3>
@@ -226,7 +243,8 @@
 
         <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden w-full">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[1200px] md:min-w-0">
+                <!-- Tambahkan min-w-[1200px] agar di laptop tetap lebar & scrollable -->
+                <table class="w-full text-left border-collapse min-w-[1200px]">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] uppercase font-bold tracking-wider">
                             <th class="px-6 py-4 w-[250px]">Project Info</th>
@@ -338,7 +356,7 @@
             }
         }
         function updateSelectColor(el, type) {
-            if(type === 'job') el.parentElement.className = `badge-select ${getJobClass(el.value)}`; // Fix parent styling issue
+            if(type === 'job') el.className = `badge-select ${getJobClass(el.value)}`;
             if(type === 'status') el.className = `badge-select ${getStatusClass(el.value)}`;
         }
 
@@ -461,8 +479,7 @@
                         <td data-label="PRIORITY" class="px-4 py-4 text-center align-middle"><span class="badge ${badgeClass}">${sub.priority}</span></td>
                         <td data-label="PROGRESS" class="px-4 py-4 text-center align-middle">
                             <div class="flex items-center gap-2 justify-center">
-                                <span class="text-slate-600 font-bold text-xs">${sub.progress_percent}%</span>
-                                <div class="w-12 bg-slate-200 h-2 rounded-full overflow-hidden"><div class="${subProgressColor} h-full" style="width:${sub.progress_percent}%"></div></div>
+                                <input type="number" id="sub-prog-${sub.id}" value="${sub.progress_percent||0}" class="table-input text-center font-bold text-blue-600">
                             </div>
                         </td>
                         <td data-label="START" class="px-4 py-4 text-center align-middle"><input type="datetime-local" id="sub-start-${sub.id}" value="${cleanTimestamp(sub.start_date)}" class="table-input text-xs text-center"></td>
