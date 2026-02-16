@@ -8,357 +8,121 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
-        
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
         .gradient-navy { background: linear-gradient(135deg, #001f3f 0%, #003366 100%); }
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .edit-input { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; width: 100%; font-size: 14px; outline: none; transition: all 0.2s; }
+        .edit-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
         
-        .edit-input { 
-            background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; 
-            padding: 10px 12px; width: 100%; font-size: 14px; outline: none; transition: all 0.2s; 
-        }
-        .edit-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+        .modal-content { background: white; margin: 2% auto; padding: 24px; border-radius: 20px; width: 95%; max-width: 800px; animation: slideIn 0.3s; max-height: 90vh; overflow-y: auto; }
         
-        /* --- MODAL STANDARD (Untuk Laptop & HP) --- */
-        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 1rem; }
-        .modal-content { 
-            background: white; padding: 24px; border-radius: 16px; 
-            width: 100%; max-width: 800px; /* Lebar nyaman di laptop */
-            position: relative; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        /* --- PICKER MODAL (RESPONSIVE) --- */
-        .picker-modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
+        /* STYLE KHUSUS POP-UP PICKER (Supaya enak di HP) */
+        .picker-modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
         .picker-box { 
-            background: white; position: absolute; display: flex; flex-direction: column; 
-            padding: 20px; 
+            background: white; position: absolute; bottom: 0; width: 100%; height: 85vh; 
+            border-radius: 24px 24px 0 0; padding: 20px; animation: slideUp 0.3s; display: flex; flex-direction: column; 
         }
-        .picker-list { overflow-y: auto; flex: 1; margin-top: 15px; -webkit-overflow-scrolling: touch; padding-bottom: 20px; }
-        .picker-item { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; font-weight: 600; font-size: 14px; color: #334155; cursor: pointer; transition: background 0.2s; border-radius: 6px; }
-        .picker-item:hover { background-color: #f8fafc; }
+        .picker-list { overflow-y: auto; flex: 1; margin-top: 10px; }
+        .picker-item { padding: 16px; border-bottom: 1px solid #f1f5f9; font-weight: 600; font-size: 14px; color: #334155; cursor: pointer; }
         .picker-item:active { background-color: #f0f9ff; color: #2563eb; }
 
-        /* Tampilan Picker di HP (Bottom Sheet) */
-        @media screen and (max-width: 768px) {
-            .picker-box {
-                bottom: 0; width: 100%; height: 85vh; 
-                border-radius: 24px 24px 0 0; 
-                animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            }
-        }
-
-        /* Tampilan Picker di Laptop (Center Modal) */
-        @media screen and (min-width: 769px) {
-            .picker-modal { align-items: center; justify-content: center; display: none; } /* Flex handled by JS toggle */
-            .picker-box {
-                position: relative; width: 500px; height: 600px; bottom: auto;
-                border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-                animation: popIn 0.2s ease-out;
-                margin: auto; top: 50%; transform: translateY(-50%);
-            }
-        }
-
         @keyframes slideUp { from {transform: translateY(100%);} to {transform: translateY(0);} }
-        @keyframes popIn { from {opacity: 0; transform: translateY(-50%) scale(0.95);} to {opacity: 1; transform: translateY(-50%) scale(1);} }
+        @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
         
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 8px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.5s ease-in-out; }
         
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Badge Styles */
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; white-space: nowrap;}
+        /* Badge Styles for Subtasks */
+        .badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block;}
         .badge-mid { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .badge-status { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
         .badge-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
         .badge-hold { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-prog { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
         .badge-pend { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
 
-        /* --- MOBILE RESPONSIVE TABLE CARD LAYOUT --- */
-        /* CSS ini mengubah tabel menjadi kartu-kartu HANYA di layar HP */
-        @media screen and (max-width: 768px) {
-            .responsive-table thead { display: none; }
-            .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td { display: block; width: 100%; }
-            .responsive-table tr { 
-                margin-bottom: 1rem; 
-                border: 1px solid #e2e8f0; 
-                border-radius: 1rem; 
-                background: white; 
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
-                overflow: hidden;
-            }
-            .responsive-table td { 
-                display: flex; 
-                justify-content: space-between; 
-                align-items: center; 
-                padding: 0.75rem 1rem; 
-                border-bottom: 1px solid #f1f5f9; 
-                text-align: right; 
-                font-size: 0.875rem;
-            }
-            .responsive-table td:last-child { 
-                border-bottom: none; 
-                justify-content: center; 
-                background: #f8fafc; 
-                padding: 1rem; 
-            }
-            .responsive-table td::before { 
-                content: attr(data-label); 
-                font-weight: 800; 
-                text-transform: uppercase; 
-                font-size: 0.7rem; 
-                color: #64748b; 
-                text-align: left; 
-                margin-right: 1rem;
-                flex-shrink: 0;
-            }
-            
-            /* Penyesuaian Layout HP */
-            .main-wrapper { padding-left: 1rem; padding-right: 1rem; }
-            .header-content { flex-direction: column; align-items: flex-start; gap: 1rem; }
-            .header-btn { width: 100%; justify-content: center; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-            .stat-card { padding: 1rem; }
-            .stat-val { font-size: 1.5rem; }
-        }
     </style>
 </head>
 <body class="min-h-screen pb-12">
 
-    <!-- Header Gradient -->
-    <div class="gradient-navy w-full pt-8 pb-24 px-4 md:px-8 mb-[-80px] shadow-xl">
-        <div class="max-w-[98%] mx-auto flex justify-between items-center md:items-end header-content">
+    <div class="gradient-navy w-full pt-12 pb-24 px-8 mb-[-80px] shadow-2xl">
+        <div class="max-w-[98%] mx-auto flex justify-between items-end">
             <div>
-                <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight uppercase">Project Control</h1>
-                <p class="text-blue-200 text-xs md:text-sm mt-1 font-medium tracking-wide opacity-90">Pemberian Tugas & Monitoring</p>
+                <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Project Control Panel</h1>
+                <p class="text-blue-200 text-sm mt-1 font-medium tracking-wide">Pemberian Tugas & Monitoring Real-time</p>
             </div>
-            <a href="management_tracker.html" class="header-btn flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase transition-all border border-white/20 backdrop-blur-sm">
-                <span>← Kembali</span>
-            </a>
+            <a href="management_tracker.html" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase transition-all border border-white/20">Kembali</a>
         </div>
     </div>
 
-    <!-- Main Container: Menggunakan max-w-[98%] agar lebar di laptop -->
-    <div class="max-w-[98%] mx-auto px-2 md:px-0 main-wrapper">
-        
-        <!-- Stats Grid: 4 Kolom di Laptop, 2 Kolom di HP -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8 relative z-10 stats-grid">
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-l-[6px] border-blue-500 stat-card">
-                <p class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p>
-                <h3 id="stat-progress" class="text-2xl md:text-3xl font-black text-slate-800 stat-val">0</h3>
+    <div class="max-w-[98%] mx-auto px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 relative z-10">
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-blue-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">In Progress</p>
+                <h3 id="stat-progress" class="text-3xl font-black text-slate-800">0</h3>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-l-[6px] border-amber-500 stat-card">
-                <p class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p>
-                <h3 id="stat-pending" class="text-2xl md:text-3xl font-black text-slate-800 stat-val">0</h3>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-amber-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pending</p>
+                <h3 id="stat-pending" class="text-3xl font-black text-slate-800">0</h3>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-l-[6px] border-rose-500 stat-card">
-                <p class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p>
-                <h3 id="stat-hold" class="text-2xl md:text-3xl font-black text-rose-600 stat-val">0</h3>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-rose-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Hold</p>
+                <h3 id="stat-hold" class="text-3xl font-black text-rose-600">0</h3>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-l-[6px] border-emerald-500 stat-card">
-                <p class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Selesai</p>
-                <h3 id="stat-done" class="text-2xl md:text-3xl font-black text-emerald-600 stat-val">0</h3>
+            <div class="bg-white p-6 rounded-3xl shadow-xl border-l-8 border-emerald-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Selesai</p>
+                <h3 id="stat-done" class="text-3xl font-black text-emerald-600">0</h3>
             </div>
         </div>
 
-        <!-- Assign Card: Layout Grid di Laptop, Stack di HP -->
-        <div class="glass-card p-5 md:p-8 rounded-3xl shadow-xl mb-8 relative z-10">
+        <div class="glass-card p-8 rounded-3xl shadow-xl mb-10 relative z-10">
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-1.5 h-6 bg-blue-600 rounded-full"></div>
-                <h2 class="text-base md:text-lg font-bold text-slate-800 uppercase tracking-wider">Assign Project Baru</h2>
+                <div class="w-2 h-6 bg-blue-600 rounded-full"></div>
+                <h2 class="text-lg font-bold text-slate-800 uppercase tracking-wider">Assign Project Baru</h2>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 
                 <div class="space-y-2 lg:col-span-2"> 
-                    <div class="flex flex-col sm:flex-row justify-between sm:items-end mb-1 gap-2">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Project / Mesin</label>
-                        <div class="flex bg-slate-100 p-1 rounded-lg w-full sm:w-auto">
-                            <label class="cursor-pointer flex-1 text-center">
+                    <div class="flex justify-between items-end mb-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase">Project / Mesin</label>
+                        <div class="flex bg-slate-100 p-1 rounded-lg">
+                            <label class="cursor-pointer">
                                 <input type="radio" name="proj_mode" value="existing" class="peer sr-only" checked onchange="toggleProjectMode()">
-                                <span class="block px-3 py-1.5 rounded-md text-[10px] font-bold uppercase text-slate-400 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition-all">List Project</span>
+                                <span class="px-3 py-1 rounded-md text-[10px] font-bold uppercase text-slate-400 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition-all">Pilih Project</span>
                             </label>
-                            <label class="cursor-pointer flex-1 text-center">
+                            <label class="cursor-pointer">
                                 <input type="radio" name="proj_mode" value="new" class="peer sr-only" onchange="toggleProjectMode()">
-                                <span class="block px-3 py-1.5 rounded-md text-[10px] font-bold uppercase text-slate-400 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition-all">Pilih Mesin</span>
+                                <span class="px-3 py-1 rounded-md text-[10px] font-bold uppercase text-slate-400 peer-checked:bg-white peer-checked:text-blue-600 peer-checked:shadow-sm transition-all">Nama Mesin</span>
                             </label>
                         </div>
                     </div>
                     
-                    <input type="text" id="in-project-existing" readonly onclick="openPicker('project')" class="edit-input font-bold uppercase text-slate-700 cursor-pointer bg-white border-blue-200" placeholder="PILIH PROJECT...">
+                    <input type="text" id="in-project-existing" readonly onclick="openPicker('project')" class="edit-input !p-3 !text-sm font-bold uppercase text-slate-700 cursor-pointer bg-white border-2 border-blue-50" placeholder="KETIK / PILIH PROJECT...">
 
-                    <input type="text" id="in-project-new" readonly onclick="openPicker('machine')" class="edit-input uppercase hidden border-blue-200 font-bold text-blue-600 cursor-pointer bg-white" placeholder="PILIH MESIN...">
+                    <input type="text" id="in-project-new" readonly onclick="openPicker('machine')" class="edit-input !p-3 !text-sm uppercase hidden border-2 border-blue-50 font-bold text-blue-600 cursor-pointer bg-white" placeholder="PILIH MESIN...">
                 </div>
 
                 <div class="space-y-2 lg:col-span-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Tugas / Task</label>
-                    <input type="text" id="in-tugas" onclick="openPicker('task')" class="edit-input" placeholder="Pilih atau Ketik Tugas...">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Tugas</label>
+                    <input type="text" id="in-tugas" onclick="openPicker('task')" class="edit-input !p-3 !text-sm" placeholder="Pilih Tugas Lama atau Ketik Baru...">
                 </div>
                 
-                <div class="lg:col-span-2 space-y-4">
-                    <div class="grid grid-cols-2 gap-4">
+                <div class="lg:col-span-2 space-y-3">
+                    <div class="grid grid-cols-2 gap-2">
                         <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Personil</label>
-                            <input type="text" id="in-name" readonly onclick="openPicker('personnel')" class="edit-input uppercase cursor-pointer bg-white text-xs font-bold" placeholder="PILIH...">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Assigned To</label>
+                            <input type="text" id="in-name" readonly onclick="openPicker('personnel')" class="edit-input !p-2 !text-sm uppercase cursor-pointer bg-white" placeholder="Pilih Personil...">
                         </div>
                         <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Jenis</label>
-                            <select id="in-job-type" class="edit-input cursor-pointer bg-slate-50 border-blue-100 text-xs font-bold">
-                                <option value="">- Pilih -</option>
-                                <option value="Improvement">Improvement</option>
-                                <option value="Overhaul">Overhaul</option>
-                                <option value="Perawatan">Perawatan</option>
-                                <option value="New Project">New Project</option>
-                                <option value="Trial">Trial</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-3">
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Prioritas</label>
-                            <select id="in-priority" class="edit-input text-xs font-bold cursor-pointer">
-                                <option value="Low">Low</option><option value="Mid" selected>Mid</option><option value="High">High</option>
-                            </select>
-                        </div>
-                        <div class="space-y-1 col-span-2">
-                            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Target Selesai</label>
-                            <input type="date" id="in-due" class="edit-input text-xs font-bold cursor-pointer text-slate-600">
-                        </div>
-                        <!-- Start date hidden, auto today -->
-                        <input type="hidden" id="in-start"> 
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mt-8 flex justify-end">
-                <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-extrabold text-xs uppercase shadow-lg shadow-blue-200 transition-all transform active:scale-95 flex items-center gap-2 w-full md:w-auto justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                    Simpan / Assign Task
-                </button>
-            </div>
-        </div>
-
-        <!-- Filter & Search -->
-        <div class="mb-6 sticky top-4 z-20 max-w-sm">
-            <div class="relative shadow-lg rounded-2xl">
-                <input type="text" id="search-input" oninput="renderTable()" placeholder="CARI PROJECT / MESIN..." class="w-full bg-white border border-slate-200 px-5 py-3.5 rounded-2xl text-sm outline-none focus:ring-4 focus:ring-blue-100 shadow-sm uppercase font-bold pl-12 transition-all">
-                <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            </div>
-        </div>
-
-        <!-- Project Table: CARD di HP, TABLE di Laptop -->
-        <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse responsive-table">
-                    <thead>
-                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest border-b border-slate-100">
-                            <th class="px-6 py-4">Project Name / Mesin</th>
-                            <th class="px-4 py-4 text-center">Jenis</th> 
-                            <th class="px-4 py-4 text-center">Total Task</th>
-                            <th class="px-4 py-4 text-center">Progress</th>
-                            <th class="px-4 py-4 text-center">Deadline</th>
-                            <th class="px-6 py-4 text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="project-body" class="divide-y divide-slate-50 text-sm"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- PICKER MODAL (Bottom Sheet HP / Center Laptop) -->
-    <div id="pickerModal" class="picker-modal" onclick="closePicker(event)">
-        <div class="picker-box" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-4 border-b pb-4">
-                <h3 id="picker-title" class="text-lg font-black text-slate-800 uppercase tracking-tight">Pilih Data</h3>
-                <button onclick="document.getElementById('pickerModal').style.display='none'" class="bg-slate-100 p-2 rounded-full hover:bg-slate-200 transition">
-                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            
-            <div class="relative mb-4">
-                <input type="text" id="picker-search" oninput="filterPicker()" class="w-full border-2 border-slate-100 rounded-xl p-3 pl-10 text-sm font-bold outline-none focus:border-blue-500 uppercase bg-slate-50 focus:bg-white transition-colors" placeholder="Cari...">
-                <svg class="w-5 h-5 absolute left-3 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            </div>
-            
-            <button id="btn-add-new" onclick="selectNewValue()" class="w-full bg-blue-50 text-blue-700 py-3.5 rounded-xl font-bold uppercase text-xs mb-3 hidden border border-blue-100 hover:bg-blue-100 transition-colors flex items-center justify-center gap-2">
-                <span>+</span> Gunakan Nama Ini
-            </button>
-
-            <div id="picker-list" class="picker-list space-y-1 custom-scroll"></div>
-        </div>
-    </div>
-    
-    <!-- TASK LIST MODAL -->
-    <div id="taskListModal" class="modal">
-        <div class="modal-content shadow-2xl flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-start mb-4 border-b pb-4 sticky top-0 bg-white z-10">
-                <div>
-                    <h2 class="text-lg font-black text-slate-800 uppercase leading-tight" id="modal-project-title">Project Name</h2>
-                    <p class="text-xs text-blue-600 font-bold uppercase mt-1 bg-blue-50 inline-block px-2 py-0.5 rounded border border-blue-100" id="modal-machine-name">Machine</p>
-                </div>
-                <button onclick="closeTaskListModal()" class="bg-slate-100 p-2 rounded-full hover:bg-slate-200 transition">
-                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            <div id="task-list-container" class="space-y-3 overflow-y-auto pr-1 custom-scroll flex-1 p-1"></div>
-        </div>
-    </div>
-
-    <!-- REVIEW / EDIT TASK MODAL -->
-    <div id="reviewModal" class="modal" style="z-index: 60;">
-        <div class="modal-content shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center mb-4 border-b pb-4 sticky top-0 bg-white z-10">
-                <h2 class="text-lg font-black text-slate-800 uppercase">Edit Task</h2>
-                <button onclick="closeReviewModal()" class="bg-slate-100 p-2 rounded-full hover:bg-slate-200 transition">
-                    <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            
-            <div class="overflow-y-auto custom-scroll flex-1 pr-1">
-                <!-- Alert Terlambat -->
-                <div id="rev-late-alert" class="hidden mb-4 bg-rose-50 border-l-4 border-rose-500 text-rose-700 p-3 rounded-r-lg">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-rose-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/></svg>
-                        <div>
-                            <p class="font-bold text-[10px] uppercase">Terlambat</p>
-                            <p class="text-xs font-semibold leading-tight" id="rev-late-text">Deadline terlewati!</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <input type="hidden" id="rev-id">
-                <div class="space-y-4">
-                    <!-- Info Project Readonly -->
-                    <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                        <div class="col-span-2">
-                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Deskripsi Tugas</label>
-                            <textarea id="rev-tugas" class="edit-input !text-sm h-20 resize-none font-medium"></textarea>
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Project</label>
-                            <input type="text" id="rev-project" class="edit-input !text-xs font-bold uppercase !bg-white">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Mesin</label>
-                            <input type="text" id="rev-machine" class="edit-input !text-xs font-bold uppercase !bg-white text-blue-600">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Personil</label>
-                            <input type="text" id="rev-name" class="edit-input font-bold uppercase text-xs">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Jenis</label>
-                            <select id="rev-job-type" class="edit-input font-bold text-xs">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Jenis Pekerjaan</label>
+                            <select id="in-job-type" class="edit-input !p-2 !text-xs cursor-pointer bg-slate-50 border-blue-200">
                                 <option value="">-- Pilih --</option>
                                 <option value="Improvement">Improvement</option>
                                 <option value="Overhaul">Overhaul</option>
@@ -367,52 +131,189 @@
                                 <option value="Trial">Trial</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Prioritas</label>
-                            <select id="rev-priority" class="edit-input font-bold text-xs">
-                                <option value="Low">Low</option><option value="Mid">Mid</option><option value="High">High</option>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Priority</label>
+                            <select id="in-priority" class="edit-input !p-2 !text-xs cursor-pointer">
+                                <option value="Low">Low</option><option value="Mid" selected>Mid</option><option value="High">High</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Progres (%)</label>
-                            <input type="number" id="rev-progress" min="0" max="100" class="edit-input font-bold text-blue-600 text-xs">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Start Date</label>
+                            <input type="date" id="in-start" class="edit-input !p-2 !text-xs cursor-pointer">
                         </div>
-                        <div class="col-span-2">
-                            <label class="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Deadline</label>
-                            <input type="date" id="rev-due" class="edit-input text-xs font-bold">
-                        </div>
-                    </div>
-
-                    <!-- Hold Reason -->
-                    <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
-                        <label class="text-[9px] font-black text-rose-400 uppercase tracking-wide">Keterangan (Hold Reason)</label>
-                        <textarea id="rev-hold" class="edit-input !bg-transparent border-none font-bold text-rose-600 italic h-12 w-full resize-none text-xs p-0 focus:ring-0 placeholder-rose-300" placeholder="Tidak ada..."></textarea>
-                    </div>
-
-                    <!-- Subtasks -->
-                    <div>
-                        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Sub-Task Monitoring</h3>
-                        <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden">
-                            <table class="w-full text-left text-[10px]">
-                                <thead class="bg-slate-100 font-bold text-slate-500 border-b">
-                                    <tr>
-                                        <th class="px-3 py-2">Sub-Task</th>
-                                        <th class="px-2 py-2 text-center">Status</th>
-                                        <th class="px-2 py-2 text-center">Prog.</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="rev-subtasks-body" class="divide-y divide-slate-200 text-xs bg-white">
-                                    <tr><td colspan="3" class="p-3 text-center text-slate-400 italic">Memuat...</td></tr>
-                                </tbody>
-                            </table>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase">Target Due</label>
+                            <input type="date" id="in-due" class="edit-input !p-2 !text-xs cursor-pointer">
                         </div>
                     </div>
                 </div>
             </div>
+            
+            <div class="mt-6 flex justify-end">
+                <button onclick="saveToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-extrabold text-xs uppercase shadow-lg transition-all transform active:scale-95 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                    Assign Task
+                </button>
+            </div>
+        </div>
 
-            <div class="flex gap-3 mt-6 pt-4 border-t sticky bottom-0 bg-white">
-                <button onclick="updateData()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold uppercase text-xs transition-all active:scale-95 shadow-md">Simpan Perubahan</button>
-                <button onclick="deleteDataInModal()" class="bg-white text-rose-600 border-2 border-rose-100 px-4 rounded-xl font-bold text-xs uppercase shadow-sm active:bg-rose-50">Hapus</button>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2 mb-1 block">Cari Project</label>
+                <input type="text" id="search-input" oninput="renderTable()" placeholder="Ketik nama project..." class="w-full bg-white border border-slate-200 px-4 py-3 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-blue-500 shadow-sm uppercase">
+            </div>
+        </div>
+
+        <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-widest border-b border-slate-100">
+                            <th class="px-6 py-5">Project Name / Mesin</th>
+                            <th class="px-4 py-5 text-center">Jenis</th> 
+                            <th class="px-4 py-5 text-center">Total Task</th>
+                            <th class="px-4 py-5 text-center">Avg Progress</th>
+                            <th class="px-4 py-5 text-center">Latest Due</th>
+                            <th class="px-6 py-5 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="project-body" class="divide-y divide-slate-50 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="pickerModal" class="picker-modal" onclick="closePicker(event)">
+        <div class="picker-box" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h3 id="picker-title" class="text-lg font-black text-slate-800 uppercase">Pilih Data</h3>
+                <button onclick="document.getElementById('pickerModal').style.display='none'" class="text-2xl text-slate-400">&times;</button>
+            </div>
+            
+            <div class="relative mb-3">
+                <input type="text" id="picker-search" oninput="filterPicker()" class="w-full border-2 border-slate-100 rounded-xl p-3 pl-10 text-sm font-bold outline-none focus:border-blue-500 uppercase" placeholder="Cari atau Ketik Baru...">
+                <svg class="w-5 h-5 absolute left-3 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            
+            <button id="btn-add-new" onclick="selectNewValue()" class="w-full bg-blue-100 text-blue-700 py-3 rounded-xl font-bold uppercase text-xs mb-3 hidden">
+                + Gunakan Nama Ini
+            </button>
+
+            <div id="picker-list" class="picker-list space-y-2"></div>
+        </div>
+    </div>
+    
+    <div id="taskListModal" class="modal">
+        <div class="modal-content shadow-2xl">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <div>
+                    <h2 class="text-xl font-black text-slate-800 uppercase" id="modal-project-title">Project Name</h2>
+                    <p class="text-xs text-blue-600 font-bold uppercase mt-1" id="modal-machine-name">Machine Name</p>
+                </div>
+                <button onclick="closeTaskListModal()" class="text-slate-400 hover:text-slate-600 text-3xl font-light">&times;</button>
+            </div>
+            <div id="task-list-container" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2"></div>
+        </div>
+    </div>
+
+    <div id="reviewModal" class="modal" style="z-index: 60;">
+        <div class="modal-content shadow-2xl">
+            <div class="flex justify-between items-center mb-2 border-b pb-4">
+                <h2 class="text-xl font-black text-slate-800 uppercase">Edit Task</h2>
+                <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+            </div>
+            <div id="rev-late-alert" class="hidden mb-6 bg-rose-100 border-l-4 border-rose-500 text-rose-700 p-4 rounded-r-lg shadow-sm animate-pulse">
+                <div class="flex items-center">
+                    <div class="py-1"><svg class="fill-current h-6 w-6 text-rose-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/></svg></div>
+                    <div>
+                        <p class="font-bold text-sm uppercase">PERINGATAN TERLAMBAT</p>
+                        <p class="text-xs font-semibold" id="rev-late-text">Tugas ini sudah melewati batas waktu!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="hidden" id="rev-id">
+                <div class="md:col-span-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Project Name</label>
+                            <input type="text" id="rev-project" class="edit-input !text-sm font-bold uppercase !bg-white">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase">Nama Mesin</label>
+                            <input type="text" id="rev-machine" class="edit-input !text-sm font-bold uppercase !bg-white text-blue-600">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Deskripsi Tugas</label>
+                    <textarea id="rev-tugas" class="edit-input !text-sm h-16 resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Assigned To</label>
+                    <input type="text" id="rev-name" class="edit-input font-bold uppercase">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Jenis Pekerjaan</label>
+                    <select id="rev-job-type" class="edit-input font-bold text-xs">
+                        <option value="">-- Pilih --</option>
+                        <option value="Improvement">Improvement</option>
+                        <option value="Overhaul">Overhaul</option>
+                        <option value="Perawatan">Perawatan</option>
+                        <option value="New Project">New Project</option>
+                        <option value="Trial">Trial</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Priority</label>
+                    <select id="rev-priority" class="edit-input font-bold">
+                        <option value="Low">Low</option><option value="Mid">Mid</option><option value="High">High</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Progres Kerja (%)</label>
+                    <input type="number" id="rev-progress" min="0" max="100" class="edit-input font-bold text-blue-600">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Due Date</label>
+                    <input type="date" id="rev-due" class="edit-input">
+                </div>
+                <div class="md:col-span-2 space-y-4 pt-2 border-t mt-2">
+                    <div class="bg-rose-50 p-3 rounded-xl border border-rose-100">
+                        <label class="text-[10px] font-black text-rose-400 uppercase">Keterangan (Hold Reason)</label>
+                        <textarea id="rev-hold" class="edit-input !bg-transparent border-none font-bold text-rose-600 italic h-16 w-full resize-none"></textarea>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 space-y-2 pt-2 border-t mt-2">
+                    <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Monitoring Sub-Task Personil</h3>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl max-h-48 overflow-y-auto">
+                        <table class="w-full text-left text-[11px]">
+                            <thead class="bg-slate-100 font-bold text-slate-500 border-b">
+                                <tr>
+                                    <th class="px-3 py-2">Sub-Task</th>
+                                    <th class="px-2 py-2 text-center">Status</th>
+                                    <th class="px-2 py-2 text-center">Prog.</th>
+                                    <th class="px-3 py-2">Catatan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rev-subtasks-body" class="divide-y divide-slate-200">
+                                <tr><td colspan="4" class="p-3 text-center text-slate-400 italic">Memuat sub-tasks...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flex gap-3 mt-8">
+                <button onclick="updateData()" class="flex-grow bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold uppercase text-xs transition-all active:scale-95 shadow-lg">Simpan Perubahan</button>
+                <button onclick="deleteDataInModal()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-6 rounded-xl border border-rose-100 font-bold text-xs uppercase shadow-md transition-all">Hapus</button>
             </div>
         </div>
     </div>
@@ -424,7 +325,7 @@
         let allData = [];
         let currentPickerTarget = ""; 
 
-        // DATA MASTER
+        // DATA MASTER (STATIC + DYNAMIC)
         const MASTER_DATA = {
             machine: [
                 "LIANXIN 80 T (TOAD)", "WIBA 270 T (NEBULA)", "WIBA 240 T (SPIDERMAN)", 
@@ -438,7 +339,8 @@
                 "FCS 100 T (NICK FURRY)", "FCS 250 T (CYCLOPS)", "NPC 260 T (HAWKEYE)", "EXTRUDER"
             ],
             personnel: ["RYAN", "ISYQI", "JUMAWAN", "EKO", "TATA", "BAROK"],
-            project: [], task: []
+            project: [], // Akan diisi dari database
+            task: []     // Akan diisi dari database
         };
 
         async function fetchProjectData() {
@@ -446,6 +348,7 @@
             if (error) return;
             allData = data;
             
+            // UPDATE DATA MASTER DARI DATABASE
             MASTER_DATA.project = [...new Set(data.map(i => (i.project_name || "").toUpperCase()))].sort();
             MASTER_DATA.task = [...new Set(data.map(i => (i.task_desc || "").trim()))].sort();
             const dbPersonnel = data.map(i => (i.assigned_to || "").toUpperCase());
@@ -455,14 +358,14 @@
             updateStats(allData);
         }
 
-        // --- PICKER FUNCTIONS ---
+        // --- FUNGSI PICKER POP-UP (SOLUSI ANDROID) ---
         function openPicker(type) {
             currentPickerTarget = type;
             const modal = document.getElementById('pickerModal');
             const title = document.getElementById('picker-title');
             const search = document.getElementById('picker-search');
             
-            search.value = ""; 
+            search.value = ""; // Reset pencarian
             document.getElementById('btn-add-new').classList.add('hidden'); 
 
             let items = [];
@@ -472,9 +375,8 @@
             else if(type === 'task') { title.innerText = "PILIH TUGAS"; items = MASTER_DATA.task; }
 
             renderPickerList(items);
-            // Flex for Desktop centering, Block for Mobile logic if needed but Flex works for both with media query
-            modal.style.display = 'flex'; 
-            search.focus();
+            modal.style.display = 'block';
+            search.focus(); // Fokus ke pencarian otomatis
         }
 
         function renderPickerList(items) {
@@ -499,6 +401,7 @@
             const filtered = source.filter(item => item.toUpperCase().includes(query));
             renderPickerList(filtered);
 
+            // Jika mengetik sesuatu yang tidak ada di list, munculkan tombol "Gunakan Nama Ini"
             if(query.length > 0) {
                 btnAdd.classList.remove('hidden');
                 btnAdd.innerText = `+ PAKAI: "${query}"`;
@@ -507,7 +410,10 @@
             }
         }
 
-        function selectValue(val) { applyValueToInput(val); }
+        function selectValue(val) {
+            applyValueToInput(val);
+        }
+
         function selectNewValue() {
             const val = document.getElementById('picker-search').value.toUpperCase();
             applyValueToInput(val);
@@ -522,9 +428,11 @@
             document.getElementById('pickerModal').style.display = 'none';
         }
 
-        function closePicker(e) { if(e.target.id === 'pickerModal') e.target.style.display = 'none'; }
+        function closePicker(e) {
+            if(e.target.id === 'pickerModal') e.target.style.display = 'none';
+        }
+        // -----------------------------------------------------
 
-        // --- CORE FUNCTIONS ---
         function toggleProjectMode() {
             const mode = document.querySelector('input[name="proj_mode"]:checked').value;
             const inputExisting = document.getElementById('in-project-existing');
@@ -580,15 +488,16 @@
 
                 return `
                     <tr class="hover:bg-slate-50 transition-colors cursor-pointer" onclick="openTaskListModal('${group.projectName}', '${group.machineName}')">
-                        <td data-label="PROJECT / MESIN" class="px-6 py-4">
-                            <div class="font-bold uppercase text-slate-800 text-sm leading-tight">${group.projectName}</div>
+                        <td class="px-6 py-6">
+                            <div class="font-bold uppercase text-slate-800 text-sm">${group.projectName}</div>
                             <div class="text-[10px] font-black text-blue-600 uppercase mt-1 tracking-wider bg-blue-50 px-2 py-0.5 rounded inline-block border border-blue-100">${group.machineName}</div>
                         </td>
-                        <td data-label="JENIS" class="px-4 py-4 text-center align-middle">${jobBadge}</td>
-                        <td data-label="TOTAL TASK" class="px-4 py-4 text-center font-bold text-slate-500 text-xs align-middle">${taskCount}</td>
-                        <td data-label="PROGRESS" class="px-4 py-4 align-middle">
-                            <div class="flex flex-col gap-1.5 w-full md:w-[120px] mx-auto">
+                        <td class="px-4 py-6 text-center align-middle">${jobBadge}</td>
+                        <td class="px-4 py-6 text-center font-bold text-slate-500 text-xs align-middle">${taskCount} Tasks</td>
+                        <td class="px-4 py-6 align-middle">
+                            <div class="flex flex-col gap-1.5 w-[140px] mx-auto">
                                 <div class="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase">
+                                    <span>Avg. Progress</span>
                                     <span>${avgProgress}%</span>
                                 </div>
                                 <div class="progress-bg">
@@ -596,10 +505,10 @@
                                 </div>
                             </div>
                         </td>
-                        <td data-label="DEADLINE" class="px-4 py-4 text-center font-bold text-slate-600 text-xs align-middle">${group.latestDue || '-'}</td>
-                        <td data-label="ACTION" class="px-6 py-4 text-center align-middle">
-                            <button class="bg-slate-800 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-black transition-all shadow-sm w-full md:w-auto">
-                                Detail
+                        <td class="px-4 py-6 text-center font-bold text-slate-600 text-xs align-middle">${group.latestDue || '-'}</td>
+                        <td class="px-6 py-6 text-center align-middle">
+                            <button class="bg-slate-800 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase hover:bg-black transition-all shadow-sm">
+                                Lihat Detail
                             </button>
                         </td>
                     </tr>
@@ -631,18 +540,18 @@
                     <div class="flex justify-between items-start mb-2">
                         <div>
                             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${t.assigned_to}</span>
-                            <p class="font-bold text-slate-700 text-sm mt-1 leading-snug">${t.task_desc || 'No Description'}</p>
+                            <p class="font-bold text-slate-700 text-sm mt-1">${t.task_desc || 'No Description'}</p>
                         </div>
-                        <span class="px-2 py-1 rounded-full font-black text-[9px] uppercase ${sClass} whitespace-nowrap ml-2">${t.status}</span>
+                        <span class="px-3 py-1 rounded-full font-black text-[9px] uppercase ${sClass}">${t.status}</span>
                     </div>
-                    <div class="flex justify-between items-end mt-2">
-                        <div class="text-[10px] text-slate-500 font-bold bg-white border px-2 py-0.5 rounded">Due: ${t.due_date || '-'}</div>
-                        <div class="text-[10px] font-black text-blue-600 group-hover:underline uppercase">Edit &rarr;</div>
+                    <div class="flex justify-between items-end mt-3">
+                        <div class="text-[10px] text-slate-500 font-bold">Due: ${t.due_date || '-'}</div>
+                        <div class="text-xs font-black text-blue-600 group-hover:underline">Edit Task &rarr;</div>
                     </div>
                 </div>`;
             }).join('');
 
-            document.getElementById('taskListModal').style.display = 'flex';
+            document.getElementById('taskListModal').style.display = 'block';
         }
 
         function closeTaskListModal() { document.getElementById('taskListModal').style.display = 'none'; }
@@ -657,9 +566,10 @@
             document.getElementById('rev-priority').value = row.priority || 'Mid';
             document.getElementById('rev-due').value = row.due_date;
             document.getElementById('rev-progress').value = row.progress_percent || 0;
+            // REMOVED activity population
+            // document.getElementById('rev-activity').value = row.worker_comment || ''; 
             document.getElementById('rev-hold').value = row.hold_reason || '';
             
-            // Check Late
             const alertBox = document.getElementById('rev-late-alert');
             const alertText = document.getElementById('rev-late-text');
             const today = new Date(); today.setHours(0,0,0,0);
@@ -668,15 +578,15 @@
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
             if (row.status !== 'Done' && diffDays > 0) {
-                alertText.innerText = `Terlambat ${diffDays} hari!`;
+                alertText.innerText = `Tugas ini sudah terlambat ${diffDays} hari! Segera selesaikan.`;
                 alertBox.classList.remove('hidden');
             } else {
                 alertBox.classList.add('hidden');
             }
 
-            // Subtasks
+            // --- FETCH SUBTASKS ---
             const tbody = document.getElementById('rev-subtasks-body');
-            tbody.innerHTML = '<tr><td colspan="3" class="p-3 text-center text-slate-400 italic">Memuat...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-slate-400 italic">Memuat sub-tasks...</td></tr>';
             
             const { data: subtasks, error } = await _sb.from('employee_subtasks').select('*').eq('parent_task_id', row.id).order('created_at', { ascending: true });
 
@@ -685,20 +595,18 @@
                     const badgeClass = sub.status === 'Done' ? 'badge-done' : (sub.status === 'Hold' ? 'badge-hold' : (sub.status === 'In Progress' ? 'badge-prog' : 'badge-pend'));
                     return `
                         <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                            <td class="px-3 py-2 font-bold text-slate-700">
-                                ${sub.subtask_desc}
-                                <div class="text-[9px] text-slate-400 font-normal italic mt-0.5">${sub.worker_notes || '-'}</div>
-                            </td>
-                            <td class="px-2 py-2 text-center align-top"><span class="badge ${badgeClass} text-[9px]">${sub.status}</span></td>
-                            <td class="px-2 py-2 text-center font-bold text-blue-600 align-top text-xs">${sub.progress_percent}%</td>
+                            <td class="px-3 py-2 font-bold text-slate-700 truncate max-w-[150px]">${sub.subtask_desc}</td>
+                            <td class="px-2 py-2 text-center"><span class="badge ${badgeClass} text-[9px]">${sub.status}</span></td>
+                            <td class="px-2 py-2 text-center font-bold text-blue-600">${sub.progress_percent}%</td>
+                            <td class="px-3 py-2 italic text-slate-500 truncate max-w-[150px]" title="${sub.worker_notes}">${sub.worker_notes || '-'}</td>
                         </tr>
                     `;
                 }).join('');
             } else {
-                tbody.innerHTML = '<tr><td colspan="3" class="p-3 text-center text-slate-400 italic text-xs">Belum ada sub-task.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-slate-400 italic text-xs">Belum ada sub-task.</td></tr>';
             }
 
-            document.getElementById('reviewModal').style.display = 'flex';
+            document.getElementById('reviewModal').style.display = 'block';
         }
 
         function closeReviewModal() { document.getElementById('reviewModal').style.display = 'none'; }
@@ -718,6 +626,7 @@
                 progress_percent: progress,
                 status: status,
                 due_date: document.getElementById('rev-due').value,
+                // Removed worker_comment update
                 hold_reason: document.getElementById('rev-hold').value
             }).eq('id', id);
 
