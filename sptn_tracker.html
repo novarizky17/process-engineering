@@ -626,6 +626,12 @@
             const container = document.getElementById('task-list-container');
             container.innerHTML = tasks.map(t => {
                 const sClass = t.status === 'Done' ? "bg-emerald-100 text-emerald-700" : (t.status === 'Hold' ? "bg-rose-100 text-rose-700" : "bg-blue-100 text-blue-700");
+                
+                // --- PERUBAHAN: Menambahkan Badge Prioritas ---
+                let pClass = "bg-blue-50 text-blue-600 border-blue-100"; // Default (Mid)
+                if(t.priority === 'High') pClass = "bg-rose-50 text-rose-600 border-rose-100";
+                if(t.priority === 'Low') pClass = "bg-emerald-50 text-emerald-600 border-emerald-100";
+
                 return `
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 hover:border-blue-400 transition-all cursor-pointer group" onclick='openReviewModal(${JSON.stringify(t)})'>
                     <div class="flex justify-between items-start mb-2">
@@ -636,7 +642,11 @@
                         <span class="px-2 py-1 rounded-full font-black text-[9px] uppercase ${sClass} whitespace-nowrap ml-2">${t.status}</span>
                     </div>
                     <div class="flex justify-between items-end mt-2">
-                        <div class="text-[10px] text-slate-500 font-bold bg-white border px-2 py-0.5 rounded">Due: ${t.due_date || '-'}</div>
+                        <!-- Grup Tanggal & Prioritas -->
+                        <div class="flex gap-2">
+                            <div class="text-[10px] text-slate-500 font-bold bg-white border px-2 py-0.5 rounded">Due: ${t.due_date || '-'}</div>
+                            <div class="text-[10px] font-bold border px-2 py-0.5 rounded uppercase ${pClass}">${t.priority || 'Mid'}</div>
+                        </div>
                         <div class="text-[10px] font-black text-blue-600 group-hover:underline uppercase">Edit &rarr;</div>
                     </div>
                 </div>`;
