@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <!-- Viewport settings crucial for touch gestures -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KARTU RIWAYAT - PT. AMARILYS KARISMA GEMILANG</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -14,15 +15,16 @@
             font-family: Arial, Helvetica, sans-serif;
             margin: 0;
             padding: 0;
-            background: #333; /* Background gelap agar kertas kontras */
+            background: #333;
             color: #000;
             display: flex;
             flex-direction: column;
             height: 100vh;
-            overflow: hidden; /* Scroll ditangani wrapper */
+            overflow: hidden;
+            touch-action: none; /* Mencegah zoom default browser yang mengganggu */
         }
 
-        /* === PANEL PENCARIAN (MODERN MOBILE LOOK) === */
+        /* === PANEL PENCARIAN === */
         .search-area {
             background: #1e293b;
             padding: 15px;
@@ -66,29 +68,30 @@
         .btn-kembali { background: #64748b; }
         .btn-action:active { transform: scale(0.96); }
 
-        /* === AREA DOKUMEN (WRAPPER SCROLL & ZOOM) === */
+        /* === AREA DOKUMEN (VIEWPORT) === */
         .document-viewport {
             flex-grow: 1;
             width: 100%;
-            overflow: auto; /* Scrollbar muncul di sini jika di-zoom in */
+            overflow: auto; /* Scroll native aktif */
             display: flex;
-            justify-content: center; /* Dokumen di tengah jika di-zoom out */
+            justify-content: center;
             align-items: flex-start;
             padding: 20px;
             position: relative;
             background: #525252;
             -webkit-overflow-scrolling: touch;
+            touch-action: pan-x pan-y; /* Izinkan geser 1 jari, zoom 2 jari ditangani JS */
         }
 
         /* Container Transformasi */
         .zoom-scaler {
-            transform-origin: top center; /* Zoom dari tengah atas */
-            transition: transform 0.1s ease-out;
+            transform-origin: top center;
+            transition: transform 0.1s ease-out; /* Smooth saat tombol, instan saat cubit */
         }
 
-        /* === KERTAS A4 LANDSCAPE (TIDAK BERUBAH DI HP) === */
+        /* === KERTAS A4 LANDSCAPE === */
         .container {
-            width: 280mm; /* Lebar TETAP (~1060px) */
+            width: 280mm; /* ~1060px */
             min-height: 210mm;
             background: white;
             padding: 10mm;
@@ -96,7 +99,7 @@
             position: relative;
         }
 
-        /* === ELEMENT DALAM KERTAS (TIDAK DIEDIT) === */
+        /* === ELEMENT DALAM KERTAS === */
         .header { position: relative; height: 70px; margin-top: 5px; }
         .logo-area { display: flex; align-items: center; gap: 12px; position: absolute; left: 0; top: 0; }
         .logo { width: 95px; height: auto; }
@@ -139,40 +142,13 @@
         }
         .zoom-text { color: white; font-weight: bold; font-size: 12px; min-width: 40px; text-align: center; }
 
-        /* === RESPONSIVE UTILITIES (LAYOUT HP) === */
+        /* === RESPONSIVE === */
         @media screen and (max-width: 768px) {
-            /* Ubah Search Area jadi Stack Vertikal */
-            .search-area { 
-                flex-direction: column; 
-                align-items: stretch; 
-                padding: 20px; 
-                gap: 12px; 
-            }
-            .search-area input, .search-area select { 
-                width: 100%; 
-                height: 45px; /* Input lebih tinggi biar enak ditekan */
-            }
-            .search-actions { 
-                width: 100%; 
-                display: flex; 
-                gap: 10px; 
-            }
-            .btn-action { 
-                height: 45px; 
-                display: flex; 
-                align-items: center; 
-                justify-content: center; 
-                width: 100%;
-            }
-            
-            /* Viewport dokumen di HP */
-            .document-viewport { 
-                padding: 10px; 
-                align-items: flex-start; 
-                background: #404040;
-            } 
-            
-            /* Di HP, kita mulai zoom dari kiri atas biar zoom out rapi */
+            .search-area { flex-direction: column; align-items: stretch; padding: 20px; gap: 12px; }
+            .search-area input, .search-area select { width: 100%; height: 45px; }
+            .search-actions { width: 100%; display: flex; gap: 10px; }
+            .btn-action { height: 45px; display: flex; align-items: center; justify-content: center; width: 100%; }
+            .document-viewport { padding: 10px; align-items: flex-start; background: #404040; } 
             .zoom-scaler { transform-origin: top left; }
         }
 
@@ -188,7 +164,7 @@
 </head>
 <body>
 
-<!-- PANEL ATAS (Mobile Friendly) -->
+<!-- PANEL ATAS -->
 <div class="search-area no-print">
     <input type="text" id="mesin_search" placeholder="🔍 Cari Nama Mesin...">
     <select id="bulan_search">
@@ -257,9 +233,7 @@
                         <th style="width: 12%">PIC</th>
                     </tr>
                 </thead>
-                <tbody id="table_content">
-                    <!-- Data Masuk Sini -->
-                </tbody>
+                <tbody id="table_content"></tbody>
             </table>
 
             <div class="signature-section">
@@ -290,28 +264,30 @@
     const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
     const _sb = supabase.createClient(SB_URL, SB_KEY);
 
-    // --- LOGIKA ZOOM ---
     let zoomLevel = 1.0;
-    const PAPER_WIDTH_PX = 1060; // Estimasi 280mm di layar
+    const PAPER_WIDTH_PX = 1060; 
 
-    function updateZoomUI() {
+    // --- TOUCH GESTURE VARIABLES ---
+    let initialPinchDistance = 0;
+    let initialZoom = 1.0;
+    const viewport = document.getElementById('viewport');
+
+    function updateZoomUI(isGesture = false) {
         const scaler = document.getElementById('scaler');
-        const viewport = document.getElementById('viewport');
         const paper = document.getElementById('paper');
         
         document.getElementById('zoomLevel').innerText = Math.round(zoomLevel * 100) + '%';
+        
+        // Hapus transisi saat gesture (pinch) agar responsif, aktifkan saat tombol
+        scaler.style.transition = isGesture ? 'none' : 'transform 0.2s ease-out';
         scaler.style.transform = `scale(${zoomLevel})`;
         
-        // PENTING: Update ukuran wrapper scaler agar scrollbar browser tahu ukuran aslinya
         if (window.innerWidth < 768) {
-            // Logic Khusus HP (Origin Top Left)
             scaler.style.width = `${PAPER_WIDTH_PX}px`;
             scaler.style.height = `${paper.offsetHeight}px`;
-            // Sesuaikan margin agar tidak ada ruang kosong berlebih saat zoom out
             scaler.style.marginBottom = `-${(1 - zoomLevel) * paper.offsetHeight}px`;
             scaler.style.marginRight = `-${(1 - zoomLevel) * PAPER_WIDTH_PX}px`;
         } else {
-            // Logic Laptop (Origin Top Center)
             scaler.style.width = `${PAPER_WIDTH_PX}px`;
             scaler.style.marginBottom = zoomLevel < 1 ? `-${(1-zoomLevel)*100}%` : '0px';
         }
@@ -326,7 +302,6 @@
 
     function autoFit() {
         const screenW = window.innerWidth;
-        // Padding sedikit biar ga mepet banget (40px)
         if (screenW < PAPER_WIDTH_PX) {
             zoomLevel = (screenW - 20) / PAPER_WIDTH_PX;
         } else {
@@ -335,7 +310,41 @@
         updateZoomUI();
     }
 
-    // Auto fit saat load pertama di HP
+    // --- LOGIKA SENTUH (PINCH TO ZOOM) ---
+    viewport.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+            // Deteksi 2 jari
+            e.preventDefault(); // Matikan zoom browser bawaan
+            initialPinchDistance = getDistance(e.touches[0], e.touches[1]);
+            initialZoom = zoomLevel;
+        }
+    }, { passive: false });
+
+    viewport.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const currentPinchDistance = getDistance(e.touches[0], e.touches[1]);
+            
+            if (initialPinchDistance > 0) {
+                // Hitung faktor skala baru
+                const scaleFactor = currentPinchDistance / initialPinchDistance;
+                zoomLevel = initialZoom * scaleFactor;
+
+                // Batas zoom
+                if(zoomLevel < 0.2) zoomLevel = 0.2;
+                if(zoomLevel > 3.0) zoomLevel = 3.0;
+
+                updateZoomUI(true); // True = mode gesture
+            }
+        }
+    }, { passive: false });
+
+    function getDistance(touch1, touch2) {
+        const dx = touch1.clientX - touch2.clientX;
+        const dy = touch1.clientY - touch2.clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
     window.addEventListener('load', () => {
         if(window.innerWidth < 1000) {
             autoFit();
@@ -388,18 +397,15 @@
             });
         }
 
-        // Isi sisa baris kosong (min 10)
         const targetRows = 10;
         const remaining = targetRows - (reports ? reports.length : 0);
         for (let i = 0; i < (remaining < 0 ? 0 : remaining); i++) {
             tbody.innerHTML += `<tr><td>&nbsp;</td><td></td><td></td><td></td><td>${selectHTML}</td><td></td></tr>`;
         }
         
-        // Re-calc zoom after content loaded
         setTimeout(updateZoomUI, 100);
     }
 
-    // Init rows kosong
     const tbody = document.getElementById('table_content');
     for(let i=0; i<10; i++) tbody.innerHTML += `<tr><td>&nbsp;</td><td></td><td></td><td></td><td>${selectHTML}</td><td></td></tr>`;
 </script>
