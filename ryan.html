@@ -13,17 +13,18 @@
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #eff6ff; /* Biru Muda Sekali */
+            background-color: #eff6ff; 
             color: #334155;
             font-size: 13px;
             overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Table Inputs - BLUE THEME */
+        /* Table Inputs */
         .table-input {
             background: #ffffff;
             border: 1px solid #e2e8f0;
@@ -46,6 +47,7 @@
             cursor: pointer;
             border: 1px solid transparent;
             text-align: center;
+            text-align-last: center;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.5rem center;
@@ -55,13 +57,11 @@
         }
         .badge-select:hover { transform: scale(1.02); }
 
-        /* Floating Buttons Container */
+        /* FAB */
         .fab-container {
             position: fixed; bottom: 30px; right: 30px;
             display: flex; gap: 15px; z-index: 50;
         }
-
-        /* FAB Common Style */
         .fab {
             width: 60px; height: 60px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -69,15 +69,13 @@
             transition: transform 0.2s; border: 4px solid white; cursor: pointer;
         }
         .fab:hover { transform: scale(1.1); }
-
-        /* Warna FAB Ryan (Blue & Green) */
         .fab-add { background: #2563eb; color: white; }
         .fab-save { background: #10b981; color: white; }
 
         /* Modal Styles */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(30, 58, 138, 0.7); /* Biru Gelap Transparan */
+            background: rgba(30, 58, 138, 0.7);
             backdrop-filter: blur(4px);
             z-index: 100; display: none; align-items: center; justify-content: center;
             padding: 20px;
@@ -96,19 +94,94 @@
 
         /* Badges */
         .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge-mid { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; } /* Blue Theme */
+        .badge-mid { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
         .badge-status { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
         .badge-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
         
         .tree-line { border-left: 2px dashed #cbd5e1; border-bottom: 2px dashed #cbd5e1; height: 25px; width: 15px; display: inline-block; margin-right: 5px; margin-bottom: 4px; }
+
+        /* --- MOBILE RESPONSIVE CSS --- */
+        @media screen and (max-width: 768px) {
+            /* Header adjustments */
+            .header-wrapper { flex-direction: column; gap: 15px; align-items: flex-start; }
+            .header-btn { width: 100%; justify-content: center; }
+            .content-wrapper { padding: 0 15px; margin-top: -20px; }
+            
+            /* Stats Grid */
+            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .stat-card { padding: 15px; }
+            .stat-val { font-size: 1.8rem; }
+
+            /* Table to Card Transformation */
+            thead { display: none; }
+            table, tbody, tr, td { display: block; width: 100%; }
+            
+            /* Main Task Card */
+            tr:not([data-type="sub"]) {
+                background: white;
+                margin-bottom: 20px;
+                border-radius: 16px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+                border: 1px solid #e2e8f0;
+                overflow: hidden;
+            }
+            
+            /* Sub Task Card */
+            tr[data-type="sub"] {
+                background: #f8fafc;
+                margin: 0 0 15px 15px;
+                border-radius: 12px;
+                border-left: 4px solid #cbd5e1;
+                border-top: 1px solid #f1f5f9;
+                border-right: 1px solid #f1f5f9;
+                border-bottom: 1px solid #f1f5f9;
+                width: auto;
+            }
+
+            /* Cells */
+            td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 16px;
+                border-bottom: 1px solid #f1f5f9;
+                text-align: right;
+            }
+            td:last-child { border-bottom: none; background: #f8fafc; justify-content: center; padding: 15px; }
+            
+            /* Labels */
+            td::before {
+                content: attr(data-label);
+                font-weight: 800;
+                text-transform: uppercase;
+                font-size: 10px;
+                color: #64748b;
+                text-align: left;
+                margin-right: 15px;
+                flex-shrink: 0;
+            }
+
+            /* Specific styling for inputs in cards */
+            .table-input, .badge-select { width: 100%; max-width: 60%; }
+            textarea.table-input { max-width: 100%; margin-top: 5px; }
+
+            /* Stack layout for text areas or large content */
+            td:has(textarea), td:has(.bg-blue-50) {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            td:has(textarea)::before, td:has(.bg-blue-50)::before {
+                margin-bottom: 5px;
+            }
+        }
     </style>
 </head>
 <body class="antialiased bg-slate-50">
 
-    <div class="bg-[#1e3a8a] border-b border-blue-950 pt-8 pb-36 px-8 shadow-xl w-full relative">
-        <div class="flex justify-between items-center w-full max-w-[100%] mx-auto">
+    <div class="bg-[#1e3a8a] border-b border-blue-950 pt-8 pb-20 px-8 shadow-xl w-full relative">
+        <div class="flex justify-between items-center w-full max-w-[100%] mx-auto header-wrapper">
             <div class="flex items-center gap-5">
                 <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-blue-900/50">R</div>
                 <div>
@@ -119,61 +192,40 @@
                     </div>
                 </div>
             </div>
-            <a href="employee_report.html" class="bg-blue-900 hover:bg-blue-800 text-white border border-blue-800 px-6 py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center gap-2 shadow-md">
+            <a href="employee_report.html" class="header-btn bg-blue-900 hover:bg-blue-800 text-white border border-blue-800 px-6 py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center gap-2 shadow-md">
                 <i class="fa-solid fa-arrow-left"></i> Kembali Menu
             </a>
         </div>
     </div>
 
-    <div class="w-full px-8 -mt-28 pb-32 relative z-10">
+    <div class="w-full px-8 -mt-10 pb-32 relative z-10 content-wrapper">
         
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 w-full">
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-blue-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
-                <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p><h3 id="stat-active" class="text-4xl font-black text-slate-800">0</h3></div>
-                <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 text-xl"><i class="fa-solid fa-spinner fa-spin"></i></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 w-full stats-grid">
+            <div class="bg-white p-5 md:p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-blue-500 flex justify-between items-center stat-card">
+                <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p><h3 id="stat-active" class="text-3xl font-black text-slate-800 stat-val">0</h3></div>
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 text-lg md:text-xl"><i class="fa-solid fa-spinner fa-spin"></i></div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-amber-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
-                <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p><h3 id="stat-pending" class="text-4xl font-black text-slate-800">0</h3></div>
-                <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 text-xl"><i class="fa-regular fa-clock"></i></div>
+            <div class="bg-white p-5 md:p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-amber-500 flex justify-between items-center stat-card">
+                <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p><h3 id="stat-pending" class="text-3xl font-black text-slate-800 stat-val">0</h3></div>
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 text-lg md:text-xl"><i class="fa-regular fa-clock"></i></div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-rose-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
-                <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p><h3 id="stat-hold" class="text-4xl font-black text-slate-800">0</h3></div>
-                <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 text-xl"><i class="fa-solid fa-pause"></i></div>
+            <div class="bg-white p-5 md:p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-rose-500 flex justify-between items-center stat-card">
+                <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p><h3 id="stat-hold" class="text-3xl font-black text-slate-800 stat-val">0</h3></div>
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 text-lg md:text-xl"><i class="fa-solid fa-pause"></i></div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-emerald-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
-                <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Selesai</p><h3 id="stat-finished" class="text-4xl font-black text-slate-800">0</h3></div>
-                <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 text-xl"><i class="fa-solid fa-check-double"></i></div>
+            <div class="bg-white p-5 md:p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-emerald-500 flex justify-between items-center stat-card">
+                <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Selesai</p><h3 id="stat-finished" class="text-3xl font-black text-slate-800 stat-val">0</h3></div>
+                <div class="w-10 h-10 md:w-12 md:h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 text-lg md:text-xl"><i class="fa-solid fa-check-double"></i></div>
             </div>
-        </div>
-
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row gap-4 justify-between items-center w-full">
-            <div class="flex gap-4 w-full md:w-2/3">
-                <div class="relative flex-grow">
-                    <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="text" id="search-input" oninput="filterTable()" placeholder="Cari Project, Mesin, atau Tugas..." class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:border-blue-500 outline-none transition-all">
-                </div>
-                <div class="relative w-1/4">
-                    <i class="fa-solid fa-filter absolute left-4 top-3.5 text-slate-400"></i>
-                    <select id="filter-priority" onchange="filterTable()" class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 outline-none cursor-pointer focus:bg-white focus:border-blue-500 appearance-none">
-                        <option value="">Semua Priority</option>
-                        <option value="Low">Low Priority</option>
-                        <option value="Mid">Mid Priority</option>
-                        <option value="High">High Priority</option>
-                    </select>
-                </div>
-            </div>
-            <button onclick="fetchRyanTasks()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-bold uppercase shadow-md hover:shadow-lg transition-all flex items-center gap-2">
-                <i class="fa-solid fa-arrows-rotate"></i> Refresh Data
-            </button>
         </div>
 
         <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden w-full">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[1200px]">
+                <table class="w-full text-left border-collapse min-w-[1200px] md:min-w-0">
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] uppercase font-bold tracking-wider">
                             <th class="px-6 py-4 w-[250px]">Project / Mesin</th>
-                            <th class="px-6 py-4 min-w-[400px]">Rincian Tugas & Sub-Task</th>
+                            <th class="px-6 py-4 min-w-[300px]">Rincian Tugas & Sub-Task</th>
                             <th class="px-4 py-4 text-center w-[100px]">Priority</th>
                             <th class="px-4 py-4 text-center w-[120px]">Progress (%)</th>
                             <th class="px-4 py-4 text-center w-[150px]">Start Date</th>
@@ -195,6 +247,7 @@
         <button onclick="openSubtaskModal()" class="fab fab-add" title="Tambah Sub-Task"><i class="fa-solid fa-plus"></i></button>
     </div>
 
+    <!-- MODAL ADD SUBTASK -->
     <div id="subtaskModal" class="modal-overlay">
         <div class="modal-box">
             <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50 rounded-t-2xl">
@@ -339,27 +392,27 @@
                 
                 let mainRow = `
                     <tr class="bg-white border-b border-slate-100 hover:bg-blue-50/30 transition-colors" data-id="${row.id}">
-                        <td class="px-6 py-5 align-top border-l-4 border-blue-500 pl-5">
+                        <td data-label="PROJECT" class="px-6 py-5 align-top border-l-4 border-blue-500 pl-5">
                             <div class="font-extrabold text-slate-800 text-sm uppercase tracking-tight">${row.project_name}</div>
                             <div class="text-[11px] text-slate-400 mt-1 font-bold bg-slate-100 inline-block px-2 py-0.5 rounded">${row.machine_name || '-'}</div>
                         </td>
-                        <td class="px-6 py-5 align-top">
+                        <td data-label="INSTRUCTION" class="px-6 py-5 align-top">
                             <div class="bg-blue-50 border border-blue-100 px-4 py-3 rounded-xl text-blue-900 font-medium relative shadow-sm">
                                 <span class="text-[9px] font-extrabold text-blue-500 uppercase block mb-1 tracking-widest">Instruksi Utama</span>
                                 "${row.task_desc || '-'}"
                             </div>
                         </td>
-                        <td class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
-                        <td class="px-4 py-5 align-top">
+                        <td data-label="PRIORITY" class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
+                        <td data-label="PROGRESS" class="px-4 py-5 align-top">
                             <div class="flex items-center gap-2 justify-center">
                                 <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
                             <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="${progressColor} h-full transition-all duration-500" style="width:${progress}%"></div></div>
                         </td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-center"></td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-center"></td>
-                        <td class="px-4 py-5 align-top text-center">
+                        <td data-label="START" class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-center"></td>
+                        <td data-label="END" class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-center"></td>
+                        <td data-label="TYPE" class="px-4 py-5 align-top text-center">
                             <select id="job-${row.id}" onchange="updateSelectColor(this, 'job')" class="badge-select ${jobClass}">
                                 <option value="-" ${row.job_type=='-'?'selected':''}>-</option>
                                 <option value="Improvement" ${row.job_type=='Improvement'?'selected':''}>Improvement</option>
@@ -369,10 +422,10 @@
                                 <option value="Trial" ${row.job_type=='Trial'?'selected':''}>Trial</option>
                             </select>
                         </td>
-                        <td class="px-4 py-5 align-top">
+                        <td data-label="NOTE" class="px-4 py-5 align-top">
                             <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold...">${row.hold_reason||''}</textarea>
                         </td>
-                        <td class="px-4 py-5 align-top text-center">
+                        <td data-label="STATUS" class="px-4 py-5 align-top text-center">
                             <select id="stat-${row.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusClass}">
                                 <option value="Pending" ${row.status=='Pending'?'selected':''}>PENDING</option>
                                 <option value="In Progress" ${row.status=='In Progress'?'selected':''}>IN PROGRESS</option>
@@ -380,7 +433,7 @@
                                 <option value="Done" ${row.status=='Done'?'selected':''}>DONE</option>
                             </select>
                         </td>
-                        <td class="px-4 py-5 align-top text-center">
+                        <td data-label="SAVE" class="px-4 py-5 align-top text-center">
                              <button class="w-10 h-10 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md flex items-center justify-center mx-auto hover:scale-105 active:scale-95" onclick="saveMain('${row.id}')" title="Simpan Satu">
                                 <i class="fa-solid fa-floppy-disk text-lg"></i>
                              </button>
@@ -398,35 +451,35 @@
                     
                     return `
                     <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white transition-colors" data-id="${sub.id}" data-type="sub">
-                        <td class="px-6 py-4 text-right align-middle">
+                        <td data-label="TYPE" class="px-6 py-4 text-right align-middle">
                             <div class="flex items-center justify-end gap-3">
                                 <div class="tree-line"></div>
                                 <span class="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest bg-slate-100 px-3 py-1 rounded">SUBTASK</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 align-middle font-bold text-slate-700 flex justify-between items-center gap-3">
+                        <td data-label="SUB-TASK" class="px-6 py-4 align-middle font-bold text-slate-700 flex justify-between items-center gap-3">
                             <span class="text-[15px]">${sub.subtask_desc}</span>
                             <div class="hidden group-hover:flex gap-2">
                                 <button onclick="editSubtask('${sub.id}', '${row.id}')" class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-500 hover:text-white transition-all flex items-center justify-center text-xs" title="Edit"><i class="fa-solid fa-pen"></i></button>
                                 <button onclick="deleteSubTask('${sub.id}')" class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-xs" title="Hapus"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </td>
-                        <td class="px-4 py-4 text-center align-middle"><span class="badge ${badgeClass}">${sub.priority}</span></td>
-                        <td class="px-4 py-4 text-center align-middle">
+                        <td data-label="PRIORITY" class="px-4 py-4 text-center align-middle"><span class="badge ${badgeClass}">${sub.priority}</span></td>
+                        <td data-label="PROGRESS" class="px-4 py-4 text-center align-middle">
                             <div class="flex items-center gap-2 justify-center">
                                 <span class="text-slate-600 font-bold text-xs">${sub.progress_percent}%</span>
                                 <div class="w-12 bg-slate-200 h-2 rounded-full overflow-hidden"><div class="${subProgressColor} h-full" style="width:${sub.progress_percent}%"></div></div>
                             </div>
                         </td>
-                        <td class="px-4 py-4 text-center align-middle text-[13px] font-mono text-slate-600 font-bold">${formatTime(sub.start_date)}</td>
-                        <td class="px-4 py-4 text-center align-middle text-[13px] font-mono text-slate-600 font-bold">${formatTime(sub.end_date)}</td>
-                        <td class="px-4 py-4 text-center align-middle">
+                        <td data-label="START" class="px-4 py-4 text-center align-middle text-[13px] font-mono text-slate-600 font-bold">${formatTime(sub.start_date)}</td>
+                        <td data-label="END" class="px-4 py-4 text-center align-middle text-[13px] font-mono text-slate-600 font-bold">${formatTime(sub.end_date)}</td>
+                        <td data-label="JOB" class="px-4 py-4 text-center align-middle">
                             ${sub.job_type && sub.job_type !== '-' ? `<span class="badge-select py-1.5 px-3 text-[12px] ${jobBadge} border-none pointer-events-none">${sub.job_type}</span>` : '-'}
                         </td>
-                        <td class="px-4 py-4 align-middle">
+                        <td data-label="NOTE" class="px-4 py-4 align-middle">
                             <textarea id="sub-note-${sub.id}" class="table-input text-[13px] resize-none h-10 placeholder:text-slate-300" placeholder="Catatan...">${sub.worker_notes || ''}</textarea>
                         </td>
-                        <td class="px-4 py-4 text-center align-middle">
+                        <td data-label="STATUS" class="px-4 py-4 text-center align-middle">
                             <select id="sub-stat-${sub.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusBadge}">
                                 <option value="Pending" ${sub.status=='Pending'?'selected':''}>PENDING</option>
                                 <option value="In Progress" ${sub.status=='In Progress'?'selected':''}>IN PROGRESS</option>
@@ -434,7 +487,7 @@
                                 <option value="Done" ${sub.status=='Done'?'selected':''}>DONE</option>
                             </select>
                         </td>
-                        <td class="px-4 py-4 text-center align-middle">
+                        <td data-label="SAVE" class="px-4 py-4 text-center align-middle">
                              <button class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
                                 <i class="fa-solid fa-floppy-disk text-xs"></i>
                              </button>
@@ -648,17 +701,6 @@
         
         async function deleteSubTask(id) {
             if(confirm("Hapus?")) { await _sb.from('employee_subtasks').delete().eq('id', id); fetchRyanTasks(); }
-        }
-
-        function filterTable() { 
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const priorityFilter = document.getElementById('filter-priority').value;
-            const filtered = allTasks.filter(task => {
-                const matchesSearch = task.project_name.toLowerCase().includes(query) || (task.task_desc && task.task_desc.toLowerCase().includes(query));
-                const matchesPriority = priorityFilter === "" || task.priority === priorityFilter;
-                return matchesSearch && matchesPriority;
-            });
-            renderTasks(filtered);
         }
 
         function updateStats(data) {
