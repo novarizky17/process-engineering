@@ -78,7 +78,7 @@
         .fab-add { background: #3b82f6; color: white; }
         .fab-save { background: #10b981; color: white; }
 
-        /* Modal */
+        /* Modal Base */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(15, 23, 42, 0.6);
@@ -88,6 +88,8 @@
             opacity: 0; transition: opacity 0.3s;
         }
         .modal-overlay.show { opacity: 1; }
+        
+        /* Modal Form (Input Subtask) */
         .modal-box {
             background: white; width: 100%; max-width: 600px;
             border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -99,6 +101,28 @@
         .modal-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
         .modal-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; }
         .modal-input:focus { border-color: #2563eb; background-color: #f8fafc; }
+
+        /* Confirmation Modal Specifics */
+        .confirm-box {
+            max-width: 400px;
+            text-align: center;
+            padding: 30px;
+        }
+        .confirm-icon {
+            width: 80px; height: 80px;
+            background: #fef3c7; color: #d97706;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; font-size: 40px;
+        }
+        .confirm-title { font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 10px; }
+        .confirm-text { font-size: 14px; color: #64748b; margin-bottom: 25px; line-height: 1.5; }
+        .confirm-actions { display: flex; gap: 15px; justify-content: center; }
+        
+        .btn-confirm { padding: 12px 24px; border-radius: 12px; font-weight: 700; transition: all 0.2s; font-size: 14px; flex: 1; }
+        .btn-confirm-yes { background: #2563eb; color: white; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3); }
+        .btn-confirm-yes:hover { background: #1d4ed8; transform: translateY(-2px); }
+        .btn-confirm-no { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+        .btn-confirm-no:hover { background: #e2e8f0; }
 
         /* Badges */
         .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
@@ -181,6 +205,8 @@
 
             #toast-container { left: 20px; right: 20px; top: 10px; }
             .toast { min-width: auto; width: 100%; }
+            
+            .confirm-actions { flex-direction: column-reverse; }
         }
     </style>
 </head>
@@ -309,7 +335,7 @@
     </div>
 
     <div class="fab-container">
-        <button onclick="saveAllChanges()" class="fab fab-save" title="Simpan Semua"><i class="fa-solid fa-floppy-disk"></i></button>
+        <button onclick="confirmSaveAll()" class="fab fab-save" title="Simpan Semua"><i class="fa-solid fa-floppy-disk"></i></button>
         <button onclick="openSubtaskModal()" class="fab fab-add" title="Tambah Sub-Task"><i class="fa-solid fa-plus"></i></button>
     </div>
 
@@ -364,51 +390,40 @@
         </div>
     </div>
 
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-box confirm-box p-6">
+            <div class="confirm-icon">
+                <i class="fa-solid fa-circle-question"></i>
+            </div>
+            <h3 class="confirm-title">Simpan Perubahan?</h3>
+            <p class="confirm-text">Apakah Anda yakin ingin menyimpan semua perubahan yang telah dilakukan?</p>
+            <div class="confirm-actions">
+                <button onclick="closeConfirmModal()" class="btn-confirm btn-confirm-no">Batal</button>
+                <button onclick="executeSaveAll()" class="btn-confirm btn-confirm-yes">Ya, Simpan</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
-        
         let allTasks = [], subTasksMap = {}; 
 
-        // --- UTILS ---
-        function showToast(msg, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const div = document.createElement('div');
-            let icon = 'fa-circle-info';
-            if (type === 'success') icon = 'fa-circle-check';
-            if (type === 'error') icon = 'fa-circle-exclamation';
-            
-            div.className = `toast toast-${type}`;
-            div.innerHTML = `<i class="fa-solid ${icon} text-lg"></i><span class="font-semibold text-slate-700 text-sm">${msg}</span>`;
-            
-            container.appendChild(div);
-            requestAnimationFrame(() => div.classList.add('show'));
-            
-            setTimeout(() => {
-                div.classList.remove('show');
-                setTimeout(() => div.remove(), 400);
-            }, 3000);
-        }
-
-        function triggerConfetti() {
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
-        }
-
         function cleanTimestamp(dateStr) { return dateStr ? dateStr.substring(0, 16) : ''; }
-        
-        function isDeadlineNear(dateStr, status) {
-            if(!dateStr || status === 'Done') return false;
-            const deadline = new Date(dateStr);
-            const now = new Date();
-            return deadline < now; // True if deadline passed
+        function formatTime(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            if(isNaN(date.getTime())) return '-';
+            const day = String(date.getUTCDate()).padStart(2, '0');
+            const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+            const year = date.getUTCFullYear().toString().substr(-2);
+            const hours = String(date.getUTCHours()).padStart(2, '0');
+            const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
         }
 
-        // --- STYLING ---
+        // --- HELPER WARNA ---
         function getJobClass(job) {
             switch(job) {
                 case 'Improvement': return 'bg-blue-50 text-blue-700 border-blue-200';
@@ -429,16 +444,11 @@
                 default: return 'bg-white text-slate-500 border-slate-200';
             }
         }
-
         function updateSelectColor(el, type) {
             if(type === 'job') el.className = `badge-select ${getJobClass(el.value)}`;
-            if(type === 'status') {
-                el.className = `badge-select ${getStatusClass(el.value)}`;
-                if(el.value === 'Done') triggerConfetti();
-            }
+            if(type === 'status') el.className = `badge-select ${getStatusClass(el.value)}`;
         }
 
-        // --- FETCHING ---
         async function fetchRyanTasks() {
             const btn = document.querySelector('.header-btn i.fa-arrows-rotate');
             if(btn) btn.classList.add('fa-spin');
@@ -479,6 +489,13 @@
             if(currentVal) select.value = currentVal;
         }
 
+        function isDeadlineNear(dateStr, status) {
+            if(!dateStr || status === 'Done') return false;
+            const deadline = new Date(dateStr);
+            const now = new Date();
+            return deadline < now; 
+        }
+
         // --- FILTERING & RENDERING ---
         function applyFilters() {
             const search = document.getElementById('searchInput').value.toLowerCase();
@@ -514,7 +531,6 @@
                 const statusClass = getStatusClass(row.status);
                 let progressColor = row.status === 'Done' ? "bg-emerald-500" : "bg-blue-500";
                 
-                // Deadline Logic for Main Task
                 const isOverdue = isDeadlineNear(row.work_end_time, row.status);
                 const dateClass = isOverdue ? "deadline-danger bg-red-50" : "";
                 const dateIcon = isOverdue ? '<i class="fa-solid fa-triangle-exclamation mr-1"></i>' : '';
@@ -580,7 +596,6 @@
                     let jobBadge = getJobClass(sub.job_type); 
                     let statusBadge = getStatusClass(sub.status);
                     
-                    // Subtask Deadline Logic
                     const isSubOverdue = isDeadlineNear(sub.end_date, sub.status);
                     const subDateClass = isSubOverdue ? "deadline-danger bg-red-50" : "";
                     
@@ -639,154 +654,144 @@
             }).join('');
         }
 
-        // --- SAVING LOGIC ---
-        async function saveAllChanges() {
-            const updatesMain = [];
-            const updatesSub = [];
-            let isValid = true; 
+        // --- CONFRIMATION MODAL LOGIC ---
+        function confirmSaveAll() {
+            let isValid = true;
             
             allTasks.forEach(task => {
                 const id = task.id;
                 const statVal = document.getElementById(`stat-${id}`)?.value;
                 const holdVal = document.getElementById(`hold-${id}`)?.value;
                 
-                if (statVal === 'Hold' && (!holdVal || !holdVal.trim())) { 
-                    showToast(`⚠️ Project "${task.project_name}" HOLD butuh catatan!`, 'error'); 
-                    isValid = false; 
-                    return; 
+                if (statVal === 'Hold' && (!holdVal || !holdVal.trim())) {
+                    showToast(`⚠️ Project "${task.project_name}" HOLD butuh catatan!`, 'error');
+                    isValid = false;
+                    return;
                 }
-                
-                if (statVal) updatesMain.push({ 
-                    id, 
-                    status: statVal, 
-                    progress_percent: document.getElementById(`prog-${id}`)?.value, 
-                    work_start_time: document.getElementById(`start-${id}`)?.value || null, 
-                    work_end_time: document.getElementById(`end-${id}`)?.value || null, 
-                    job_type: document.getElementById(`job-${id}`)?.value, 
-                    hold_reason: holdVal 
-                });
             });
-            
-            if (!isValid) return;
-            
+            if(!isValid) return;
+
             const subTaskArray = Object.values(subTasksMap).flat();
             for (const sub of subTaskArray) {
                 const id = sub.id;
                 const statVal = document.getElementById(`sub-stat-${id}`)?.value;
                 const noteVal = document.getElementById(`sub-note-${id}`)?.value;
                 
-                if (statVal === 'Hold' && (!noteVal || !noteVal.trim())) { 
-                    showToast(`⚠️ Subtask "${sub.subtask_desc}" HOLD butuh catatan!`, 'error'); 
-                    isValid = false; 
-                    break; 
+                if (statVal === 'Hold' && (!noteVal || !noteVal.trim())) {
+                    showToast(`⚠️ Subtask "${sub.subtask_desc}" HOLD butuh catatan!`, 'error');
+                    isValid = false;
+                    break;
                 }
-                
-                if (statVal) updatesSub.push({ id, status: statVal, worker_notes: noteVal });
             }
-            
-            if (!isValid) return;
-            if(!confirm("Simpan semua perubahan?")) return;
+            if(!isValid) return;
+
+            // Buka Modal
+            document.getElementById('confirmModal').style.display = 'flex';
+            requestAnimationFrame(() => document.getElementById('confirmModal').classList.add('show'));
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirmModal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        async function executeSaveAll() {
+            closeConfirmModal();
+
+            const updatesMain = [];
+            const updatesSub = [];
+
+            allTasks.forEach(task => {
+                const id = task.id;
+                const statVal = document.getElementById(`stat-${id}`)?.value;
+                const holdVal = document.getElementById(`hold-${id}`)?.value;
+                
+                if (statVal) {
+                    updatesMain.push({
+                        id,
+                        status: statVal,
+                        progress_percent: document.getElementById(`prog-${id}`)?.value,
+                        work_start_time: document.getElementById(`start-${id}`)?.value || null,
+                        work_end_time: document.getElementById(`end-${id}`)?.value || null,
+                        job_type: document.getElementById(`job-${id}`)?.value,
+                        hold_reason: holdVal
+                    });
+                }
+            });
+
+            const subTaskArray = Object.values(subTasksMap).flat();
+            for (const sub of subTaskArray) {
+                const id = sub.id;
+                const statVal = document.getElementById(`sub-stat-${id}`)?.value;
+                const noteVal = document.getElementById(`sub-note-${id}`)?.value;
+                
+                if (statVal) {
+                    updatesSub.push({
+                        id,
+                        status: statVal,
+                        worker_notes: noteVal
+                    });
+                }
+            }
 
             try {
                 showToast("Menyimpan data...", "info");
                 const promises = [
-                    ...updatesMain.map(i => _sb.from('management_tracker').update(i).eq('id', i.id)), 
+                    ...updatesMain.map(i => _sb.from('management_tracker').update(i).eq('id', i.id)),
                     ...updatesSub.map(i => _sb.from('employee_subtasks').update(i).eq('id', i.id))
                 ];
-                await Promise.all(promises); 
+                
+                await Promise.all(promises);
                 showToast("Semua data berhasil disimpan!", "success");
                 fetchRyanTasks();
-            } catch (err) { 
-                showToast("Terjadi kesalahan saat menyimpan", "error");
+            } catch (err) {
+                console.error(err);
+                showToast("Terjadi kesalahan saat menyimpan data.", "error");
             }
         }
+
+        // --- FUNGSI LAINNYA TETAP SAMA ---
 
         async function saveMain(id) {
             const sVal = document.getElementById(`start-${id}`).value;
             const eVal = document.getElementById(`end-${id}`).value;
             const statVal = document.getElementById(`stat-${id}`).value;
             const holdVal = document.getElementById(`hold-${id}`).value;
-            
             if (statVal === 'Hold' && !holdVal.trim()) return showToast("Status HOLD wajib isi catatan!", "error");
             
-            const payload = { 
-                status: statVal, 
-                progress_percent: document.getElementById(`prog-${id}`).value, 
-                work_start_time: sVal || null, 
-                work_end_time: eVal || null, 
-                job_type: document.getElementById(`job-${id}`).value, 
-                hold_reason: holdVal 
-            };
-            
+            const payload = { status: statVal, progress_percent: document.getElementById(`prog-${id}`).value, work_start_time: sVal || null, work_end_time: eVal || null, job_type: document.getElementById(`job-${id}`).value, hold_reason: holdVal };
             const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
-            
-            if (error) showToast("Gagal: " + error.message, "error"); 
-            else { 
-                showToast("Progress berhasil disimpan!", "success");
-                if(statVal === 'Done') triggerConfetti();
-                fetchRyanTasks(); 
-            }
+            if (error) showToast("Gagal: " + error.message, "error"); else { showToast("Tersimpan!", "success"); if(statVal === 'Done') triggerConfetti(); fetchRyanTasks(); }
         }
 
         async function saveSubtaskInline(subId) {
             const statusVal = document.getElementById(`sub-stat-${subId}`).value;
             const noteVal = document.getElementById(`sub-note-${subId}`).value;
-            
             if (statusVal === 'Hold' && !noteVal.trim()) return showToast("Status HOLD wajib isi catatan!", "error");
-            
             const { error } = await _sb.from('employee_subtasks').update({ status: statusVal, worker_notes: noteVal }).eq('id', subId);
-            
-            if (error) showToast("Gagal: " + error.message, "error"); 
-            else { 
-                showToast("Subtask tersimpan!", "success");
-                if(statusVal === 'Done') triggerConfetti();
-                fetchRyanTasks(); 
-            }
+            if (error) showToast("Gagal: " + error.message, "error"); else { showToast("Subtask Tersimpan!", "success"); if(statusVal === 'Done') triggerConfetti(); fetchRyanTasks(); }
         }
 
         async function saveSubtask() {
             const subId = document.getElementById('modal-subtask-id').value;
             const parentId = document.getElementById('modal-parent-id').value;
             const desc = document.getElementById('modal-desc').value;
-            
             if(!parentId || !desc) return showToast("Pilih Project & Isi Nama Tugas!", "error");
 
-            const payload = { 
-                parent_task_id: parentId, 
-                subtask_desc: desc, 
-                priority: document.getElementById('modal-prio').value, 
-                progress_percent: document.getElementById('modal-prog').value, 
-                start_date: document.getElementById('modal-start').value || null, 
-                end_date: document.getElementById('modal-finish').value || null, 
-                job_type: document.getElementById('modal-job').value, 
-                worker_notes: document.getElementById('modal-note').value, 
-                status: document.getElementById('modal-status').value 
-            };
+            const payload = { parent_task_id: parentId, subtask_desc: desc, priority: document.getElementById('modal-prio').value, progress_percent: document.getElementById('modal-prog').value, start_date: document.getElementById('modal-start').value || null, end_date: document.getElementById('modal-finish').value || null, job_type: document.getElementById('modal-job').value, worker_notes: document.getElementById('modal-note').value, status: document.getElementById('modal-status').value };
             
             let res = subId ? await _sb.from('employee_subtasks').update(payload).eq('id', subId) : await _sb.from('employee_subtasks').insert([payload]);
-            
-            if(res.error) showToast("Gagal: " + res.error.message, "error"); 
-            else { 
-                showToast("Data Subtask Berhasil Disimpan", "success");
-                closeModal(); 
-                fetchRyanTasks(); 
-            }
+            if(res.error) showToast("Gagal: " + res.error.message, "error"); else { showToast("Berhasil!", "success"); closeModal(); fetchRyanTasks(); }
         }
 
-        // --- MODAL FUNCTIONS ---
         function openSubtaskModal() {
             document.getElementById('modal-title').innerText = "Tambah Rincian";
-            document.getElementById('modal-subtask-id').value = ""; 
-            document.getElementById('modal-parent-id').value = ''; 
-            document.getElementById('modal-parent-id').disabled = false;
-            document.getElementById('modal-desc').value = ''; 
-            document.getElementById('modal-prio').value = 'Mid'; 
-            document.getElementById('modal-prog').value = '0';
-            
+            document.getElementById('modal-subtask-id').value = ""; document.getElementById('modal-parent-id').value = ''; document.getElementById('modal-parent-id').disabled = false;
+            document.getElementById('modal-desc').value = ''; document.getElementById('modal-prio').value = 'Mid'; document.getElementById('modal-prog').value = '0';
             const now = new Date();
             const nowString = now.toISOString().slice(0, 16);
             document.getElementById('modal-start').value = nowString;
-            
             document.getElementById('subtaskModal').style.display = 'flex';
             setTimeout(() => document.getElementById('subtaskModal').classList.add('show'), 10);
         }
@@ -794,18 +799,10 @@
         function editSubtask(subId, parentId) {
             const task = subTasksMap[parentId].find(t => t.id == subId);
             document.getElementById('modal-title').innerText = "Edit Rincian";
-            document.getElementById('modal-subtask-id').value = subId; 
-            document.getElementById('modal-parent-id').value = parentId; 
-            document.getElementById('modal-parent-id').disabled = true;
-            document.getElementById('modal-desc').value = task.subtask_desc; 
-            document.getElementById('modal-prio').value = task.priority; 
-            document.getElementById('modal-prog').value = task.progress_percent;
-            document.getElementById('modal-start').value = cleanTimestamp(task.start_date); 
-            document.getElementById('modal-finish').value = cleanTimestamp(task.end_date);
-            document.getElementById('modal-job').value = task.job_type; 
-            document.getElementById('modal-status').value = task.status; 
-            document.getElementById('modal-note').value = task.worker_notes;
-            
+            document.getElementById('modal-subtask-id').value = subId; document.getElementById('modal-parent-id').value = parentId; document.getElementById('modal-parent-id').disabled = true;
+            document.getElementById('modal-desc').value = task.subtask_desc; document.getElementById('modal-prio').value = task.priority; document.getElementById('modal-prog').value = task.progress_percent;
+            document.getElementById('modal-start').value = cleanTimestamp(task.start_date); document.getElementById('modal-finish').value = cleanTimestamp(task.end_date);
+            document.getElementById('modal-job').value = task.job_type; document.getElementById('modal-status').value = task.status; document.getElementById('modal-note').value = task.worker_notes;
             document.getElementById('subtaskModal').style.display = 'flex';
             setTimeout(() => document.getElementById('subtaskModal').classList.add('show'), 10);
         }
@@ -815,7 +812,7 @@
             modal.classList.remove('show');
             setTimeout(() => modal.style.display = 'none', 300);
         }
-        
+
         async function deleteSubTask(id) { 
             if(confirm("Hapus item ini selamanya?")) { 
                 await _sb.from('employee_subtasks').delete().eq('id', id); 
@@ -826,16 +823,27 @@
 
         function updateStats(data) {
              let p=0, i=0, h=0, d=0;
-             data.forEach(item => { 
-                 if(item.status==='Pending') p++; 
-                 else if(item.status==='In Progress') i++; 
-                 else if(item.status==='Hold') h++; 
-                 else if(item.status==='Done') d++; 
-             });
-             document.getElementById('stat-active').innerText = i; 
-             document.getElementById('stat-pending').innerText = p;
-             document.getElementById('stat-hold').innerText = h; 
-             document.getElementById('stat-finished').innerText = d;
+             data.forEach(item => { if(item.status==='Pending') p++; else if(item.status==='In Progress') i++; else if(item.status==='Hold') h++; else if(item.status==='Done') d++; });
+             document.getElementById('stat-active').innerText = i; document.getElementById('stat-pending').innerText = p;
+             document.getElementById('stat-hold').innerText = h; document.getElementById('stat-finished').innerText = d;
+        }
+        
+        // --- TOAST FUNCTION ---
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const div = document.createElement('div');
+            let icon = 'fa-circle-info';
+            if (type === 'success') icon = 'fa-circle-check';
+            if (type === 'error') icon = 'fa-circle-exclamation';
+            div.className = `toast toast-${type}`;
+            div.innerHTML = `<i class="fa-solid ${icon} text-lg"></i><span class="font-semibold text-slate-700 text-sm">${msg}</span>`;
+            container.appendChild(div);
+            requestAnimationFrame(() => div.classList.add('show'));
+            setTimeout(() => { div.classList.remove('show'); setTimeout(() => div.remove(), 400); }, 3000);
+        }
+
+        function triggerConfetti() {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         }
 
         window.onload = fetchRyanTasks;
