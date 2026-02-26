@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -264,7 +263,6 @@
             /* Modal HP */
             .modal-content { width: 100%; height: 100%; margin: 0; border-radius: 0; max-height: 100vh; overflow-y: auto; padding: 20px; }
             .info-grid { grid-template-columns: 1fr; } 
-            canvas { width: 100% !important; }
 
             #toast-container { left: 20px; right: 20px; top: 10px; }
             .toast { min-width: auto; width: 100%; }
@@ -492,7 +490,6 @@
             if(type === 'job') el.className = `badge-select ${getJobClass(el.value)}`;
             if(type === 'status') {
                 el.className = `badge-select ${getStatusClass(el.value)}`;
-                if(el.value === 'Done') triggerConfetti();
             }
         }
 
@@ -663,7 +660,7 @@
                              </div>
                         </td>
                         <td data-label="TIPE" class="px-4 py-4 text-center align-middle">
-                            ${sub.job_type && sub.job_type !== '-' ? `<span class="badge-select py-1 px-2 text-[10px] ${jobBadge} border-none pointer-events-none w-auto inline-block">${sub.job_type}</span>` : '-'}
+                            ${sub.job_type && sub.job_type !== '-' ? `<span class="badge-select py-1.5 px-3 text-[11px] ${jobBadge} border-none pointer-events-none w-auto inline-block">${sub.job_type}</span>` : '-'}
                         </td>
                         <td data-label="CATATAN" class="px-4 py-4 align-middle">
                             <textarea id="sub-note-${sub.id}" class="table-input text-xs resize-none h-10 placeholder:text-slate-300 focus:h-16 transition-all focus:border-cyan-500" placeholder="Catatan...">${sub.worker_notes || ''}</textarea>
@@ -713,7 +710,6 @@
             }
             
             const btnYes = document.getElementById('btnConfirmAction');
-            // Clone button to clear previous listeners
             const newBtn = btnYes.cloneNode(true);
             btnYes.parentNode.replaceChild(newBtn, btnYes);
             
@@ -820,7 +816,6 @@
             }
         }
 
-        // --- SINGLE SAVE LOGIC ---
         async function saveMain(id) {
             const sVal = document.getElementById(`start-${id}`).value;
             const eVal = document.getElementById(`end-${id}`).value;
@@ -840,7 +835,7 @@
             
             const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
             if (error) showToast("Gagal: " + error.message, "error"); 
-            else { showToast("Data tersimpan!", "success"); if(statVal === 'Done') triggerConfetti(); fetchIsyqiTasks(); }
+            else { showToast("Data tersimpan!", "success"); fetchIsyqiTasks(); }
         }
 
         async function saveSubtaskInline(subId) {
@@ -851,7 +846,7 @@
             
             const { error } = await _sb.from('employee_subtasks').update({ status: statusVal, worker_notes: noteVal }).eq('id', subId);
             if (error) showToast("Gagal: " + error.message, "error"); 
-            else { showToast("Subtask tersimpan!", "success"); if(statusVal === 'Done') triggerConfetti(); fetchIsyqiTasks(); }
+            else { showToast("Subtask tersimpan!", "success"); fetchIsyqiTasks(); }
         }
 
         async function saveSubtask() {
@@ -959,8 +954,6 @@
             requestAnimationFrame(() => div.classList.add('show'));
             setTimeout(() => { div.classList.remove('show'); setTimeout(() => div.remove(), 400); }, 3000);
         }
-
-        function triggerConfetti() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
 
         window.onload = fetchIsyqiTasks;
     </script>
