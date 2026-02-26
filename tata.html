@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Tata (Manual Save Only)</title>
+    <title>Work Panel - Tata (Pro V2)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,213 +11,420 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         
+        /* RESET TOTAL AGAR FULL WIDTH */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #faf5ff; /* Ungu Muda Sekali (Pinkish-Purple base) */
+            background-color: #f8fafc; 
             color: #334155;
             font-size: 13px;
             overflow-x: hidden;
+            width: 100vw;
         }
 
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
-        /* Table Inputs - PURPLE/PINK THEME */
+        /* Form Inputs - PINK THEME */
         .table-input {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 6px;
+            border-radius: 8px;
             padding: 8px 10px;
             width: 100%;
             font-size: 13px; 
             color: #334155;
             transition: all 0.2s;
         }
-        .table-input:focus { border-color: #db2777; outline: none; box-shadow: 0 0 0 2px rgba(219, 39, 119, 0.1); }
+        .table-input:focus { border-color: #db2777; outline: none; box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.1); }
 
         /* Badge Select */
         .badge-select {
             appearance: none;
-            padding: 6px 20px 6px 10px;
-            border-radius: 6px;
+            padding: 8px 25px 8px 12px;
+            border-radius: 8px;
             font-size: 12px; 
             font-weight: 700;
             cursor: pointer;
             border: 1px solid transparent;
             text-align: center;
+            text-align-last: center;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.5rem center;
             background-size: 1em;
             text-transform: capitalize;
             width: 100%;
+            transition: transform 0.1s;
         }
-        .badge-select:hover { transform: scale(1.02); }
+        .badge-select:hover { transform: translateY(-1px); }
 
-        /* Floating Buttons Container */
+        /* Floating Action Buttons */
         .fab-container {
             position: fixed; bottom: 30px; right: 30px;
             display: flex; gap: 15px; z-index: 50;
         }
-
-        /* FAB Common Style */
         .fab {
-            width: 60px; height: 60px;
+            width: 56px; height: 56px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 24px; box-shadow: 0 10px 25px -5px rgba(0,0,0, 0.3);
-            transition: transform 0.2s; border: 4px solid white; cursor: pointer;
+            font-size: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0, 0.3);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            border: 4px solid white; cursor: pointer;
         }
-        .fab:hover { transform: scale(1.1); }
+        .fab:hover { transform: scale(1.1) rotate(5deg); }
+        .fab:active { transform: scale(0.9); }
 
-        /* Warna FAB Tata (Pink & Green) */
-        .fab-add { background: #db2777; color: white; }
+        .fab-add { background: #db2777; color: white; } /* Pink 600 */
         .fab-save { background: #10b981; color: white; }
 
-        /* Modal Styles */
+        /* Modal Base */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(80, 7, 36, 0.7); /* Pink Gelap Transparan */
+            background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(4px);
-            z-index: 100; display: none; align-items: center; justify-content: center;
+            z-index: 2000; display: none; align-items: center; justify-content: center;
             padding: 20px;
+            opacity: 0; transition: opacity 0.3s;
         }
+        .modal-overlay.show { opacity: 1; }
+        
+        /* Modal Form (Input Subtask) */
         .modal-box {
             background: white; width: 100%; max-width: 600px;
-            border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             max-height: 90vh; overflow-y: auto;
-            animation: popUp 0.3s ease-out;
+            transform: scale(0.95); transition: transform 0.2s;
+            position: relative;
         }
-        @keyframes popUp { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .modal-overlay.show .modal-box { transform: scale(1); }
 
-        .modal-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; display: block; }
-        .modal-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; }
-        .modal-input:focus { border-color: #db2777; background-color: #fce7f3; }
+        .modal-label { font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+        .modal-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; }
+        .modal-input:focus { border-color: #db2777; background-color: #fdf2f8; }
 
-        /* Badges */
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .badge-mid { background: #fce7f3; color: #be185d; border: 1px solid #fbcfe8; } 
+        /* Confirmation Modal Specifics */
+        .confirm-content { padding: 30px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .confirm-icon-box { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 30px; }
+        .icon-warning { background: #fef9c3; color: #d97706; }
+        .icon-save { background: #d1fae5; color: #059669; }
+        .icon-delete { background: #fee2e2; color: #dc2626; }
+
+        .confirm-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
+        .confirm-text { font-size: 14px; color: #64748b; margin-bottom: 25px; line-height: 1.5; max-width: 80%; }
+        
+        .confirm-actions { display: flex; gap: 12px; width: 100%; flex-direction: row; }
+        .confirm-btn { padding: 12px 20px; border-radius: 10px; font-weight: 700; flex: 1; font-size: 14px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;}
+        .btn-yes { background: #db2777; color: white; box-shadow: 0 4px 6px -1px rgba(219, 39, 119, 0.4); }
+        .btn-yes:active { transform: translateY(2px); background: #be185d; }
+        .btn-no { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+        .btn-no:hover { background: #e2e8f0; }
+        .btn-delete { background: #ef4444; color: white; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.4); }
+
+        /* Badges & Lines */
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
+        .badge-mid { background: #fce7f3; color: #be185d; border: 1px solid #fbcfe8; } /* Pink */
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
-        .badge-status { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
-        .badge-done { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
         
-        .tree-line { border-left: 2px dashed #cbd5e1; border-bottom: 2px dashed #cbd5e1; height: 25px; width: 15px; display: inline-block; margin-right: 5px; margin-bottom: 4px; }
+        .tree-line { border-left: 2px dashed #cbd5e1; border-bottom: 2px dashed #cbd5e1; height: 25px; width: 15px; display: inline-block; margin-right: 8px; margin-bottom: 5px; opacity: 0.5; }
+
+        /* TOAST NOTIFICATION */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { 
+            background: white; border-left: 5px solid; padding: 15px 20px; border-radius: 8px; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px;
+            min-width: 300px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); pointer-events: auto;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast-success { border-color: #10b981; } .toast-success i { color: #10b981; }
+        .toast-error { border-color: #ef4444; } .toast-error i { color: #ef4444; }
+        .toast-info { border-color: #db2777; } .toast-info i { color: #db2777; } /* Pink */
+
+        /* Deadline Red Pulse */
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        .deadline-danger { border-color: #ef4444 !important; color: #ef4444 !important; animation: pulse-red 2s infinite; }
+
+        /* TABLE CARD DEFAULT (DESKTOP) */
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; width: 100%; }
+        
+        @media screen and (min-width: 769px) {
+            table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+            th { background: #f8f9fa; padding: 18px; text-align: left; font-size: 13px; color: #555; text-transform: uppercase; border-bottom: 2px solid #eee; font-weight: 700; }
+            td { padding: 16px; border-top: 1px solid #eee; font-size: 14px; vertical-align: middle; color: #444; }
+            .row-ng td { border-top: 1px solid #ffebeb; }
+        }
+
+        /* ==========================================================
+           MOBILE RESPONSIVE (FULL WIDTH + STACKED RATA TENGAH)
+           ========================================================== */
+        @media screen and (max-width: 768px) {
+            /* Container Mentok Kiri-Kanan */
+            .container { padding: 0 !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box; overflow-x: hidden; }
+            
+            /* Header & Search */
+            header { flex-direction: column; text-align: center; gap: 10px; padding: 15px; }
+            .header-controls { justify-content: center; width: 100%; }
+            .header-controls button, .header-controls a { width: 100%; margin-bottom: 5px; }
+            .search-section { border-radius: 0; margin: 0; border-bottom: 1px solid #eee; padding: 15px; width: 100%; }
+            .tab-menu { padding: 10px; margin: 0; background: #fff; border-bottom: 1px solid #eee; width: 100%; }
+            .btn-excel { margin-left: 0; width: 100%; margin-top: 10px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); padding: 0 15px; margin-top: 10px;}
+            
+            /* Card & Table Reset */
+            #mainTableParent { width: 100%; display: block; margin: 0; padding: 0; }
+            #mainTableParent thead { display: none; } 
+            .card { border-radius: 0 !important; box-shadow: none !important; background: transparent; width: 100%; margin: 0; padding: 0; }
+
+            /* --- BARIS TABEL (KARTU) --- */
+            #mainTable tr { 
+                display: block; 
+                margin-bottom: 15px; 
+                background: #fff;
+                border-top: 1px solid #e2e8f0;
+                border-bottom: 1px solid #e2e8f0;
+                width: 100%; 
+            }
+            
+            #mainTable tr[data-type="sub"] {
+                margin-top: -15px; 
+                border-top: none;
+                border-left: 4px solid #cbd5e1;
+                background: #f8fafc;
+            }
+
+            /* --- SEL TABEL (STACKED DI TENGAH) --- */
+            #mainTable td { 
+                display: flex !important;
+                flex-direction: column !important; /* BERTUMPUK KE BAWAH */
+                justify-content: center !important; 
+                align-items: center !important; 
+                padding: 15px 20px !important; 
+                border-bottom: 1px solid #f1f5f9; 
+                text-align: center !important; /* Konten rata tengah */
+                width: 100%; 
+            }
+            
+            /* Label Header Kolom */
+            #mainTable td::before { 
+                content: attr(data-label); 
+                font-weight: 800; 
+                text-transform: uppercase; 
+                font-size: 11px; 
+                color: #64748b; 
+                display: block;
+                width: 100%;
+                text-align: center !important; /* Label rata tengah di atas input */
+                margin-bottom: 10px !important;
+                letter-spacing: 1px;
+            }
+            
+            /* Pengecualian: Project Info Rata Kiri & Background Beda */
+            #mainTable td[data-label="PROJECT INFO"] { 
+                background: #fdf2f8 !important; /* Tema Pink Muda */
+                text-align: left !important; 
+                align-items: flex-start !important; /* Rata Kiri khusus Judul */
+                border-bottom: 2px solid #fce7f3 !important;
+            }
+            #mainTable td[data-label="PROJECT INFO"]::before { display: none !important; }
+
+            /* Tombol Simpan Full Width di HP */
+            #mainTable td:last-child { 
+                border-bottom: none !important; 
+                padding: 15px 20px !important; 
+                background: #fff !important; 
+            }
+            #mainTable td:last-child button { width: 100% !important; padding: 12px !important; }
+            
+            /* Inputs Lebar Penuh & Rata Tengah */
+            .table-input, .badge-select { 
+                width: 100% !important; 
+                max-width: 100% !important; 
+                padding: 12px !important; 
+                font-size: 14px !important; 
+                text-align: center !important; 
+                text-align-last: center !important; 
+            }
+            textarea.table-input { min-height: 80px; text-align: left !important; }
+
+            /* Perbaikan Tombol Aksi Edit/Delete di Subtask */
+            td[data-label="SUB-TASK"] .flex {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: center !important;
+                gap: 10px;
+                width: 100%;
+                margin-top: 12px;
+                opacity: 1 !important; /* Selalu tampil di HP */
+                position: relative !important; 
+                top: auto !important; right: auto !important;
+            }
+
+            /* Modal HP */
+            .modal-content { width: 100%; height: 100%; margin: 0; border-radius: 0; max-height: 100vh; overflow-y: auto; padding: 20px; }
+            .info-grid { grid-template-columns: 1fr; } 
+            canvas { width: 100% !important; }
+
+            #toast-container { left: 20px; right: 20px; top: 10px; }
+            .toast { min-width: auto; width: 100%; }
+            .confirm-actions { flex-direction: column-reverse; }
+        }
     </style>
 </head>
-<body class="antialiased bg-slate-50">
+<body class="antialiased">
 
-    <div class="bg-[#831843] border-b border-pink-950 pt-8 pb-36 px-8 shadow-xl w-full relative">
-        <div class="flex justify-between items-center w-full max-w-[100%] mx-auto">
+    <div id="toast-container"></div>
+
+    <div class="bg-gradient-to-r from-pink-900 to-pink-800 border-b border-pink-950 pt-8 pb-24 px-8 shadow-xl w-full relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
+        <div class="absolute -bottom-8 -left-8 w-64 h-64 bg-rose-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center w-full max-w-[98%] mx-auto header-content gap-4 relative z-10">
             <div class="flex items-center gap-5">
-                <div class="w-12 h-12 bg-pink-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-pink-900/50">T</div>
+                <div class="w-14 h-14 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl flex items-center justify-center text-white font-bold text-3xl shadow-xl">T</div>
                 <div>
-                    <h1 class="text-2xl font-extrabold text-white tracking-tight">Panel Kerja Tata</h1>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="w-2 h-2 rounded-full bg-pink-400 animate-pulse"></span>
-                        <p class="text-xs text-pink-200 font-semibold tracking-wide">Online &bull; Monitoring Tugas</p>
+                    <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight">Panel Kerja Tata</h1>
+                    <div class="flex items-center gap-2 mt-1.5">
+                        <span class="relative flex h-2.5 w-2.5">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-pink-400"></span>
+                        </span>
+                        <p class="text-xs text-pink-100 font-semibold tracking-wide">Live Dashboard V2</p>
                     </div>
                 </div>
             </div>
-            <a href="employee_report.html" class="bg-pink-900 hover:bg-pink-800 text-white border border-pink-800 px-6 py-3 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center gap-2 shadow-md">
-                <i class="fa-solid fa-arrow-left"></i> Kembali Menu
-            </a>
+            <div class="flex gap-3 w-full md:w-auto">
+                <button onclick="fetchTataTasks()" class="flex-1 md:flex-none bg-white/10 hover:bg-white/20 text-white border border-white/10 px-6 py-3 rounded-xl text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-2 backdrop-blur-md shadow-lg header-btn group">
+                    <i class="fa-solid fa-arrows-rotate group-hover:rotate-180 transition-transform duration-500"></i> Refresh
+                </button>
+                <a href="employee_report.html" class="flex-1 md:flex-none bg-pink-600 hover:bg-pink-500 text-white border border-pink-500 px-6 py-3 rounded-xl text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-pink-900/20 header-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Menu
+                </a>
+            </div>
         </div>
     </div>
 
-    <div class="w-full px-8 -mt-28 pb-32 relative z-10">
+    <div class="w-full max-w-[98%] mx-auto px-0 md:px-0 -mt-16 pb-32 relative z-10 content-wrapper">
         
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 w-full">
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-pink-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
-                <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p><h3 id="stat-active" class="text-4xl font-black text-slate-800">0</h3></div>
-                <div class="w-12 h-12 bg-pink-50 rounded-full flex items-center justify-center text-pink-500 text-xl"><i class="fa-solid fa-spinner fa-spin"></i></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 w-full stats-grid">
+            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-pink-500 hover:-translate-y-1 transition-transform">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p>
+                        <h3 id="stat-active" class="text-3xl font-black text-slate-800">0</h3>
+                    </div>
+                    <div class="p-2 bg-pink-50 text-pink-500 rounded-lg"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-amber-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
-                <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p><h3 id="stat-pending" class="text-4xl font-black text-slate-800">0</h3></div>
-                <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 text-xl"><i class="fa-regular fa-clock"></i></div>
+            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-amber-500 hover:-translate-y-1 transition-transform">
+                 <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p>
+                        <h3 id="stat-pending" class="text-3xl font-black text-slate-800">0</h3>
+                    </div>
+                    <div class="p-2 bg-amber-50 rounded-lg text-amber-500"><i class="fa-regular fa-clock"></i></div>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-rose-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
-                <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p><h3 id="stat-hold" class="text-4xl font-black text-slate-800">0</h3></div>
-                <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-rose-500 text-xl"><i class="fa-solid fa-pause"></i></div>
+            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-rose-500 hover:-translate-y-1 transition-transform">
+                 <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p>
+                        <h3 id="stat-hold" class="text-3xl font-black text-slate-800">0</h3>
+                    </div>
+                    <div class="p-2 bg-rose-50 rounded-lg text-rose-500"><i class="fa-solid fa-pause"></i></div>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4 border-l-emerald-500 flex justify-between items-center transform hover:-translate-y-1 transition-transform duration-300">
-                <div><p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Selesai</p><h3 id="stat-finished" class="text-4xl font-black text-slate-800">0</h3></div>
-                <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 text-xl"><i class="fa-solid fa-check-double"></i></div>
+            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-emerald-500 hover:-translate-y-1 transition-transform">
+                 <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Done</p>
+                        <h3 id="stat-finished" class="text-3xl font-black text-slate-800">0</h3>
+                    </div>
+                    <div class="p-2 bg-emerald-50 rounded-lg text-emerald-500"><i class="fa-solid fa-check-double"></i></div>
+                </div>
             </div>
         </div>
 
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row gap-4 justify-between items-center w-full">
-            <div class="flex gap-4 w-full md:w-2/3">
-                <div class="relative flex-grow">
-                    <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="text" id="search-input" oninput="filterTable()" placeholder="Cari Project, Mesin, atau Tugas..." class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold focus:bg-white focus:border-pink-500 outline-none transition-all">
+        <div class="px-4 md:px-0 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-md border border-slate-100 flex flex-col md:flex-row gap-4 items-center">
+                <div class="relative w-full md:w-96">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
+                    <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Cari project atau mesin..." class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:border-pink-500 focus:ring-1 focus:ring-pink-500 outline-none transition-all">
                 </div>
-                <div class="relative w-1/4">
-                    <i class="fa-solid fa-filter absolute left-4 top-3.5 text-slate-400"></i>
-                    <select id="filter-priority" onchange="filterTable()" class="pl-10 pr-4 py-3 w-full bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 outline-none cursor-pointer focus:bg-white focus:border-pink-500 appearance-none">
-                        <option value="">Semua Priority</option>
-                        <option value="Low">Low Priority</option>
-                        <option value="Mid">Mid Priority</option>
-                        <option value="High">High Priority</option>
+                <div class="w-full md:w-48">
+                    <select id="statusFilter" onchange="applyFilters()" class="block w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:border-pink-500 outline-none cursor-pointer">
+                        <option value="All">Semua Status</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Hold">Hold</option>
+                        <option value="Done">Done</option>
                     </select>
                 </div>
             </div>
-            <button onclick="fetchTataTasks()" class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-lg text-sm font-bold uppercase shadow-md hover:shadow-lg transition-all flex items-center gap-2">
-                <i class="fa-solid fa-arrows-rotate"></i> Refresh Data
-            </button>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden w-full">
+        <div class="bg-white md:rounded-2xl shadow-lg border-t border-b md:border border-slate-200 overflow-hidden w-full min-h-[400px]">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[1200px]">
+                <table class="w-full text-left border-collapse md:min-w-[1500px]" id="mainTableParent">
                     <thead>
-                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] uppercase font-bold tracking-wider">
-                            <th class="px-6 py-4 w-[250px]">Project / Mesin</th>
-                            <th class="px-6 py-4 min-w-[400px]">Rincian Tugas & Sub-Task</th>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] uppercase font-extrabold tracking-wider">
+                            <th class="px-6 py-4 w-[250px]">Project Info</th>
+                            <th class="px-6 py-4 min-w-[300px]">Instruksi Kerja</th>
                             <th class="px-4 py-4 text-center w-[100px]">Priority</th>
                             <th class="px-4 py-4 text-center w-[120px]">Progress (%)</th>
-                            <th class="px-4 py-4 text-center w-[150px]">Start Date</th>
-                            <th class="px-4 py-4 text-center w-[150px]">Finish Date</th>
-                            <th class="px-4 py-4 text-center w-[140px]">Jenis Pekerjaan</th>
-                            <th class="px-4 py-4 text-left w-[220px]">Keterangan</th>
-                            <th class="px-4 py-4 text-center w-[130px]">Status</th>
+                            <th class="px-4 py-4 text-center w-[160px]">Start Date</th>
+                            <th class="px-4 py-4 text-center w-[160px]">Finish Date</th>
+                            <th class="px-4 py-4 text-center w-[140px]">Tipe</th>
+                            <th class="px-4 py-4 text-left w-[200px]">Catatan Hold</th>
+                            <th class="px-4 py-4 text-center w-[140px]">Status</th>
                             <th class="px-4 py-4 text-center w-[70px]">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="ryan-work-body" class="divide-y divide-slate-100 bg-white text-sm"></tbody>
+                    <tbody id="tata-work-body" class="divide-y divide-slate-100 bg-white text-sm" id="mainTable">
+                        </tbody>
                 </table>
+            </div>
+            
+            <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-center">
+                <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-300 text-3xl">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-700">Belum ada tugas</h3>
+                <p class="text-slate-400 text-sm mt-1 px-10">Data untuk 'Tata' belum ditemukan di database.</p>
             </div>
         </div>
     </div>
 
     <div class="fab-container">
-        <button onclick="saveAllChanges()" class="fab fab-save" title="Simpan Semua"><i class="fa-solid fa-floppy-disk"></i></button>
+        <button onclick="confirmSaveAll()" class="fab fab-save" title="Simpan Semua"><i class="fa-solid fa-floppy-disk"></i></button>
         <button onclick="openSubtaskModal()" class="fab fab-add" title="Tambah Sub-Task"><i class="fa-solid fa-plus"></i></button>
     </div>
 
     <div id="subtaskModal" class="modal-overlay">
         <div class="modal-box">
             <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50 rounded-t-2xl">
-                <div><h3 id="modal-title" class="text-lg font-extrabold text-slate-800">TAMBAH RINCIAN</h3><p class="text-xs text-slate-500 mt-1">Input sub-task pekerjaan baru</p></div>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 text-xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                <div><h3 class="text-lg font-extrabold text-slate-800 uppercase">Input Sub-Task</h3></div>
+                <button onclick="closeModal('subtaskModal')" class="text-slate-400 hover:text-red-500 text-2xl"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="p-6 space-y-5">
                 <input type="hidden" id="modal-subtask-id">
                 <div class="bg-pink-50 p-4 rounded-xl border border-pink-100">
-                    <label class="modal-label text-pink-700 uppercase tracking-wide">PILIH PROJECT UTAMA (WAJIB)</label>
+                    <label class="modal-label text-pink-700">PILIH PROJECT UTAMA</label>
                     <select id="modal-parent-id" class="modal-input font-bold text-pink-900 border-pink-200 h-12"><option value="">-- Pilih Project --</option></select>
                 </div>
-                <div><label class="modal-label">Nama Pekerjaan / Sub-Task</label><input type="text" id="modal-desc" class="modal-input" placeholder="Contoh: Bongkar Cylinder..."></div>
+                <div><label class="modal-label">Nama Pekerjaan</label><input type="text" id="modal-desc" class="modal-input" placeholder="Detail pekerjaan..."></div>
                 <div class="grid grid-cols-2 gap-5">
                     <div><label class="modal-label">Priority</label><select id="modal-prio" class="modal-input"><option value="Low">Low</option><option value="Mid">Mid</option><option value="High">High</option></select></div>
                     <div><label class="modal-label">Progress (%)</label><input type="number" id="modal-prog" class="modal-input" value="0" min="0" max="100"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-5">
-                    <div><label class="modal-label">Start Date</label><input type="datetime-local" id="modal-start" class="modal-input"></div>
-                    <div><label class="modal-label">Finish Date</label><input type="datetime-local" id="modal-finish" class="modal-input"></div>
+                    <div><label class="modal-label">Start</label><input type="datetime-local" id="modal-start" class="modal-input"></div>
+                    <div><label class="modal-label">Finish</label><input type="datetime-local" id="modal-finish" class="modal-input"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-5">
-                    <div>
+                      <div>
                         <label class="modal-label">Kategori</label>
                         <select id="modal-job" class="modal-input">
                             <option value="-">-</option>
@@ -246,17 +453,30 @@
         </div>
     </div>
 
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-box confirm-box">
+            <div class="confirm-content">
+                <div class="confirm-icon-box icon-warning" id="confirmIconBox">
+                    <i class="fa-solid fa-question" id="confirmIcon"></i>
+                </div>
+                <h3 class="confirm-title" id="confirmTitle">Konfirmasi</h3>
+                <p class="confirm-text" id="confirmText">Apakah Anda yakin?</p>
+                <div class="confirm-actions">
+                    <button onclick="closeModal('confirmModal')" class="confirm-btn btn-no">Batal</button>
+                    <button id="btnConfirmAction" class="confirm-btn btn-yes">Ya, Lanjutkan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let allTasks = [], subTasksMap = {}; 
 
-        // CLEAN & FORMAT DATE
-        function cleanTimestamp(dateStr) { 
-            if (!dateStr) return '';
-            return dateStr.substring(0, 16); 
-        }
+        // UTILS
+        function cleanTimestamp(dateStr) { return dateStr ? dateStr.substring(0, 16) : ''; }
         function formatTime(dateStr) {
             if (!dateStr) return '-';
             const date = new Date(dateStr);
@@ -268,11 +488,15 @@
             const minutes = String(date.getUTCMinutes()).padStart(2, '0');
             return `${day}/${month}/${year} ${hours}:${minutes}`;
         }
+        function isDeadlineNear(dateStr, status) {
+            if(!dateStr || status === 'Done') return false;
+            return new Date(dateStr) < new Date(); 
+        }
 
-        // --- HELPER WARNA ---
+        // STYLING
         function getJobClass(job) {
             switch(job) {
-                case 'Improvement': return 'bg-pink-50 text-pink-700 border-pink-200'; /* PINK */
+                case 'Improvement': return 'bg-pink-50 text-pink-700 border-pink-200';
                 case 'Overhaul': return 'bg-purple-50 text-purple-700 border-purple-200';
                 case 'Perawatan': return 'bg-amber-50 text-amber-700 border-amber-200';
                 case 'New Project': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
@@ -280,25 +504,36 @@
                 default: return 'bg-slate-50 text-slate-500 border-slate-200';
             }
         }
-        
-        // --- UPDATE STATUS CLASS: IN PROGRESS JADI BIRU ---
         function getStatusClass(status) {
             switch(status) {
                 case 'Pending': return 'bg-amber-100 text-amber-700 border-amber-200';
-                case 'In Progress': return 'bg-blue-100 text-blue-700 border-blue-200'; /* BIRU UNTUK IN PROGRESS */
+                case 'In Progress': return 'bg-pink-100 text-pink-700 border-pink-200';
                 case 'Hold': return 'bg-rose-100 text-rose-700 border-rose-200';
-                case 'Done': return 'bg-emerald-100 text-emerald-700 border-emerald-200'; /* HIJAU UNTUK DONE */
+                case 'Done': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
                 default: return 'bg-white text-slate-500 border-slate-200';
             }
         }
         function updateSelectColor(el, type) {
             if(type === 'job') el.className = `badge-select ${getJobClass(el.value)}`;
-            if(type === 'status') el.className = `badge-select ${getStatusClass(el.value)}`;
+            if(type === 'status') {
+                el.className = `badge-select ${getStatusClass(el.value)}`;
+            }
         }
 
+        // FETCHING DATA (FILTER: TATA)
         async function fetchTataTasks() {
+            const btn = document.querySelector('.header-btn i.fa-arrows-rotate');
+            if(btn) btn.classList.add('fa-spin');
+
             const { data: mainData, error } = await _sb.from('management_tracker').select('*').ilike('assigned_to', 'tata').order('created_at', { ascending: false });
-            if (error) return console.error(error);
+            
+            if (error) {
+                console.error(error);
+                showToast("Gagal koneksi database", "error");
+                if(btn) btn.classList.remove('fa-spin');
+                return;
+            }
+
             allTasks = mainData || [];
             fillProjectDropdown(allTasks);
 
@@ -312,8 +547,9 @@
                 });
             } else subTasksMap = {};
 
-            renderTasks(allTasks);
+            applyFilters();
             updateStats(allTasks);
+            if(btn) setTimeout(() => btn.classList.remove('fa-spin'), 500);
         }
 
         function fillProjectDropdown(tasks) {
@@ -324,43 +560,69 @@
             if(currentVal) select.value = currentVal;
         }
 
+        function applyFilters() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+            const filtered = allTasks.filter(task => {
+                const matchesSearch = task.project_name.toLowerCase().includes(search) || (task.machine_name && task.machine_name.toLowerCase().includes(search));
+                const matchesStatus = status === 'All' || task.status === status;
+                return matchesSearch && matchesStatus;
+            });
+            renderTasks(filtered);
+        }
+
         function renderTasks(dataList) {
-            const tbody = document.getElementById('ryan-work-body');
+            const tbody = document.getElementById('tata-work-body');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (dataList.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            }
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+
             tbody.innerHTML = dataList.map(row => {
                 const progress = row.progress_percent || 0; 
                 const mySubtasks = subTasksMap[row.id] || [];
                 const jobClass = getJobClass(row.job_type); 
                 const statusClass = getStatusClass(row.status);
+                let progressColor = row.status === 'Done' ? "bg-emerald-500" : "bg-pink-500";
                 
-                // PROGRESS BAR COLOR LOGIC
-                let progressColor = "bg-pink-600";
-                if(row.status === 'In Progress') progressColor = "bg-blue-600"; 
-                if(row.status === 'Done') progressColor = "bg-emerald-600";
-                
+                const isOverdue = isDeadlineNear(row.work_end_time, row.status);
+                const dateClass = isOverdue ? "deadline-danger bg-red-50" : "";
+                const dateIcon = isOverdue ? '<i class="fa-solid fa-triangle-exclamation mr-1"></i>' : '';
+
                 let mainRow = `
-                    <tr class="bg-white border-b border-slate-100 hover:bg-pink-50/30 transition-colors" data-id="${row.id}">
-                        <td class="px-6 py-5 align-top border-l-4 border-pink-500 pl-5">
-                            <div class="font-extrabold text-slate-800 text-sm uppercase tracking-tight">${row.project_name}</div>
-                            <div class="text-[11px] text-slate-400 mt-1 font-bold bg-slate-100 inline-block px-2 py-0.5 rounded">${row.machine_name || '-'}</div>
+                    <tr class="bg-white border-b border-slate-100 hover:bg-pink-50/60 transition-colors group" id="mainTable" data-id="${row.id}">
+                        <td data-label="PROJECT INFO">
+                            <div class="font-extrabold text-slate-800 text-lg uppercase tracking-tight group-hover:text-pink-700 transition-colors">${row.project_name}</div>
+                            <div class="text-[12px] text-pink-600 mt-2 font-bold bg-pink-100 inline-block px-3 py-1 rounded-full border border-pink-200">${row.machine_name || '-'}</div>
                         </td>
-                        <td class="px-6 py-5 align-top">
-                            <div class="bg-pink-50 border border-pink-100 px-4 py-3 rounded-xl text-pink-900 font-medium relative shadow-sm">
-                                <span class="text-[9px] font-extrabold text-pink-500 uppercase block mb-1 tracking-widest">Instruksi Utama</span>
+                        <td data-label="INSTRUKSI" class="px-6 py-5 align-top">
+                            <div class="bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-slate-600 font-medium relative text-sm leading-relaxed text-center md:text-left w-full mx-auto md:w-auto">
                                 "${row.task_desc || '-'}"
                             </div>
                         </td>
-                        <td class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
-                        <td class="px-4 py-5 align-top">
-                            <div class="flex items-center gap-2 justify-center">
-                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-14 bg-slate-50 font-bold">
-                                <span class="text-xs font-bold text-slate-400">%</span>
+                        <td data-label="PRIORITY" class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
+                        <td data-label="PROGRESS" class="px-4 py-5 align-top">
+                            <div class="flex items-center gap-2 justify-end md:justify-center w-full md:w-auto">
+                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center font-black text-lg border-transparent focus:bg-white focus:border-pink-500" style="width: 80px !important; flex: none;">
+                                <span class="text-sm font-bold text-slate-400">%</span>
                             </div>
-                            <div class="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden"><div class="${progressColor} h-full transition-all duration-500" style="width:${progress}%"></div></div>
+                            <div class="w-full bg-slate-200 h-1.5 rounded-full mt-3 overflow-hidden hidden md:block"><div class="${progressColor} h-full transition-all duration-1000 ease-out" style="width:${progress}%"></div></div>
                         </td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-center"></td>
-                        <td class="px-4 py-5 align-top text-center"><input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-center"></td>
-                        <td class="px-4 py-5 align-top text-center">
-                            <select id="job-${row.id}" onchange="updateSelectColor(this, 'job')" class="badge-select ${jobClass}">
+                        <td data-label="START" class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-xs text-center focus:border-pink-500"></td>
+                        <td data-label="FINISH" class="px-4 py-5 align-top text-center">
+                             <div class="relative ${dateClass} rounded-lg transition-all p-1">
+                                ${dateIcon}
+                                <input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-xs text-center bg-transparent border-none focus:bg-white focus:border-pink-500">
+                             </div>
+                        </td>
+                        <td data-label="TIPE" class="px-4 py-5 align-top text-center">
+                            <select id="job-${row.id}" onchange="updateSelectColor(this, 'job')" class="badge-select ${jobClass} focus:border-pink-500">
                                 <option value="-" ${row.job_type=='-'?'selected':''}>-</option>
                                 <option value="Improvement" ${row.job_type=='Improvement'?'selected':''}>Improvement</option>
                                 <option value="Overhaul" ${row.job_type=='Overhaul'?'selected':''}>Overhaul</option>
@@ -369,20 +631,20 @@
                                 <option value="Trial" ${row.job_type=='Trial'?'selected':''}>Trial</option>
                             </select>
                         </td>
-                        <td class="px-4 py-5 align-top">
-                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-16 placeholder:text-slate-300" placeholder="Catatan Hold...">${row.hold_reason||''}</textarea>
+                        <td data-label="CATATAN / HOLD" class="px-4 py-5 align-top">
+                            <textarea id="hold-${row.id}" class="table-input text-xs resize-none h-20 placeholder:text-slate-300 focus:h-24 transition-all focus:border-pink-500" placeholder="Catatan Hold...">${row.hold_reason||''}</textarea>
                         </td>
-                        <td class="px-4 py-5 align-top text-center">
-                            <select id="stat-${row.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusClass}">
+                        <td data-label="STATUS" class="px-4 py-5 align-top text-center">
+                            <select id="stat-${row.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusClass} focus:border-pink-500">
                                 <option value="Pending" ${row.status=='Pending'?'selected':''}>PENDING</option>
                                 <option value="In Progress" ${row.status=='In Progress'?'selected':''}>IN PROGRESS</option>
                                 <option value="Hold" ${row.status=='Hold'?'selected':''}>HOLD</option>
                                 <option value="Done" ${row.status=='Done'?'selected':''}>DONE</option>
                             </select>
                         </td>
-                        <td class="px-4 py-5 align-top text-center">
-                             <button class="w-10 h-10 rounded-xl bg-pink-600 text-white hover:bg-pink-700 transition-all shadow-md flex items-center justify-center mx-auto hover:scale-105 active:scale-95" onclick="saveMain('${row.id}')" title="Simpan Satu">
-                                <i class="fa-solid fa-floppy-disk text-lg"></i>
+                        <td data-label="AKSI" class="px-4 py-5 align-top text-center">
+                             <button class="w-full md:w-12 h-12 rounded-xl bg-pink-600 text-white hover:bg-pink-700 transition-all shadow-lg flex items-center justify-center mx-auto hover:scale-110 active:scale-95 uppercase font-black text-xs" onclick="saveMain('${row.id}')" title="Simpan Satu">
+                                <i class="fa-solid fa-floppy-disk text-lg md:mr-0 mr-2"></i> <span class="md:hidden">SIMPAN PERUBAHAN</span>
                              </button>
                         </td>
                     </tr>
@@ -392,51 +654,55 @@
                     let badgeClass = sub.priority === 'High' ? 'badge-high' : (sub.priority === 'Mid' ? 'badge-mid' : 'badge-low');
                     let jobBadge = getJobClass(sub.job_type); 
                     let statusBadge = getStatusClass(sub.status);
-                    let subProgressColor = "bg-pink-600";
-                    if(sub.status === 'In Progress') subProgressColor = "bg-blue-600";
-                    if(sub.status === 'Done') subProgressColor = "bg-emerald-600";
+                    
+                    const isSubOverdue = isDeadlineNear(sub.end_date, sub.status);
+                    const subDateClass = isSubOverdue ? "deadline-danger bg-red-50" : "";
                     
                     return `
-                    <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white transition-colors" data-id="${sub.id}" data-type="sub">
-                        <td class="px-6 py-4 text-right align-middle">
-                            <div class="flex items-center justify-end gap-3">
-                                <div class="tree-line"></div>
-                                <span class="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest bg-slate-100 px-3 py-1 rounded">SUBTASK</span>
+                    <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white transition-colors" id="mainTable" data-id="${sub.id}" data-type="sub">
+                        <td data-label="TYPE" class="px-6 py-4 text-right align-middle">
+                            <div class="flex items-center justify-end gap-3 md:justify-end justify-center">
+                                <div class="tree-line hidden md:block"></div>
+                                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest bg-slate-200 px-2 py-0.5 rounded">SUBTASK</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 align-middle font-bold text-slate-700 flex justify-between items-center gap-3">
-                            <span class="text-[15px]">${sub.subtask_desc}</span>
-                            <div class="hidden group-hover:flex gap-2">
-                                <button onclick="editSubtask('${sub.id}', '${row.id}')" class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-500 hover:text-white transition-all flex items-center justify-center text-xs" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="deleteSubTask('${sub.id}')" class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-xs" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                        <td data-label="SUB-TASK" class="px-6 py-4 align-middle font-bold text-slate-700 md:flex md:justify-between md:items-center gap-3">
+                            <span class="text-[14px] text-center md:text-left block w-full mb-3 md:mb-0">${sub.subtask_desc}</span>
+                            <div class="flex justify-center gap-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity w-full md:w-auto mt-2 md:mt-0">
+                                <button onclick="editSubtask('${sub.id}', '${row.id}')" class="w-10 h-10 md:w-8 md:h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-500 hover:text-white transition-all flex items-center justify-center text-sm md:text-xs shadow-sm"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="confirmDelete('${sub.id}')" class="w-10 h-10 md:w-8 md:h-8 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-sm md:text-xs shadow-sm"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </td>
-                        <td class="px-4 py-4 text-center align-middle"><span class="badge ${badgeClass}">${sub.priority}</span></td>
-                        <td class="px-4 py-4 text-center align-middle">
-                            <div class="flex items-center gap-2 justify-center">
-                                <span class="text-slate-600 font-bold text-xs">${sub.progress_percent}%</span>
-                                <div class="w-12 bg-slate-200 h-2 rounded-full overflow-hidden"><div class="${subProgressColor} h-full" style="width:${sub.progress_percent}%"></div></div>
+                        <td data-label="PRIORITY" class="px-4 py-4 text-center align-middle"><span class="badge ${badgeClass}">${sub.priority}</span></td>
+                        <td data-label="PROGRESS" class="px-4 py-4 text-center align-middle">
+                            <div class="flex items-center gap-1 w-full justify-end md:justify-center md:w-auto">
+                                <input type="number" id="sub-prog-${sub.id}" value="${sub.progress_percent||0}" class="table-input text-center font-bold text-pink-600 p-1 focus:border-pink-500" style="width: 70px !important; flex: none;">
+                                <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
                         </td>
-                        <td class="px-4 py-4 text-center align-middle text-[13px] font-mono text-slate-600 font-bold">${formatTime(sub.start_date)}</td>
-                        <td class="px-4 py-4 text-center align-middle text-[13px] font-mono text-slate-600 font-bold">${formatTime(sub.end_date)}</td>
-                        <td class="px-4 py-4 text-center align-middle">
-                            ${sub.job_type && sub.job_type !== '-' ? `<span class="badge-select py-1.5 px-3 text-[12px] ${jobBadge} border-none pointer-events-none">${sub.job_type}</span>` : '-'}
+                        <td data-label="START" class="px-4 py-4 text-center align-middle"><input type="datetime-local" id="sub-start-${sub.id}" value="${cleanTimestamp(sub.start_date)}" class="table-input text-xs text-center p-1 focus:border-pink-500"></td>
+                        <td data-label="FINISH" class="px-4 py-4 text-center align-middle">
+                             <div class="${subDateClass} rounded transition-all">
+                                <input type="datetime-local" id="sub-end-${sub.id}" value="${cleanTimestamp(sub.end_date)}" class="table-input text-xs text-center p-1 bg-transparent border-none focus:border-pink-500 focus:bg-white">
+                             </div>
                         </td>
-                        <td class="px-4 py-4 align-middle">
-                            <textarea id="sub-note-${sub.id}" class="table-input text-[13px] resize-none h-10 placeholder:text-slate-300" placeholder="Catatan...">${sub.worker_notes || ''}</textarea>
+                        <td data-label="TIPE" class="px-4 py-4 text-center align-middle">
+                            ${sub.job_type && sub.job_type !== '-' ? `<span class="badge-select py-1.5 px-3 text-[11px] ${jobBadge} border-none pointer-events-none w-auto inline-block">${sub.job_type}</span>` : '-'}
                         </td>
-                        <td class="px-4 py-4 text-center align-middle">
-                            <select id="sub-stat-${sub.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusBadge}">
+                        <td data-label="CATATAN" class="px-4 py-4 align-middle">
+                            <textarea id="sub-note-${sub.id}" class="table-input text-xs resize-none h-12 placeholder:text-slate-300 focus:h-20 transition-all focus:border-pink-500" placeholder="Catatan subtask...">${sub.worker_notes || ''}</textarea>
+                        </td>
+                        <td data-label="STATUS" class="px-4 py-4 text-center align-middle">
+                            <select id="sub-stat-${sub.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusBadge} py-2 focus:border-pink-500">
                                 <option value="Pending" ${sub.status=='Pending'?'selected':''}>PENDING</option>
                                 <option value="In Progress" ${sub.status=='In Progress'?'selected':''}>IN PROGRESS</option>
                                 <option value="Hold" ${sub.status=='Hold'?'selected':''}>HOLD</option>
                                 <option value="Done" ${sub.status=='Done'?'selected':''}>DONE</option>
                             </select>
                         </td>
-                        <td class="px-4 py-4 text-center align-middle">
-                             <button class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
-                                <i class="fa-solid fa-floppy-disk text-xs"></i>
+                        <td data-label="AKSI" class="px-4 py-4 text-center align-middle">
+                             <button class="w-full md:w-8 h-8 rounded-lg bg-pink-100 text-pink-600 hover:bg-pink-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto uppercase font-bold text-xs" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
+                                <i class="fa-solid fa-floppy-disk text-xs mr-2 md:mr-0"></i> <span class="md:hidden">SIMPAN</span>
                              </button>
                         </td>
                     </tr>
@@ -447,97 +713,144 @@
             }).join('');
         }
 
-        // --- NEW: SAVE ALL FUNCTION WITH VALIDATION ---
-        async function saveAllChanges() {
-            const updatesMain = [];
-            const updatesSub = [];
-            let isValid = true; 
+        // --- POPUP CONFIRMATION (CUSTOM) ---
+        function showConfirm(title, text, iconType, onYes) {
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmText').innerText = text;
+            
+            const iconBox = document.getElementById('confirmIconBox');
+            const icon = document.getElementById('confirmIcon');
+            
+            // Reset classes
+            iconBox.className = 'confirm-icon-box';
+            icon.className = 'fa-solid';
+            
+            if(iconType === 'save') {
+                iconBox.classList.add('icon-save');
+                icon.classList.add('fa-floppy-disk');
+            } else if (iconType === 'delete') {
+                iconBox.classList.add('icon-delete');
+                icon.classList.add('fa-trash-can');
+            } else {
+                iconBox.classList.add('icon-warning');
+                icon.classList.add('fa-question');
+            }
+            
+            const btnYes = document.getElementById('btnConfirmAction');
+            const newBtn = btnYes.cloneNode(true);
+            btnYes.parentNode.replaceChild(newBtn, btnYes);
+            
+            newBtn.className = iconType === 'delete' ? 'confirm-btn btn-delete' : 'confirm-btn btn-yes';
+            newBtn.innerText = iconType === 'delete' ? 'Hapus' : 'Ya, Simpan';
+            
+            newBtn.onclick = async () => {
+                closeModal('confirmModal');
+                await onYes();
+            };
 
-            // 1. Loop & Validate MAIN TASKS
+            document.getElementById('confirmModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('confirmModal').classList.add('show'), 10);
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 200);
+        }
+
+        // --- ACTIONS ---
+        function confirmSaveAll() {
+            let isValid = true;
+            
+            // Validate Main
             allTasks.forEach(task => {
                 const id = task.id;
                 const statVal = document.getElementById(`stat-${id}`)?.value;
                 const holdVal = document.getElementById(`hold-${id}`)?.value;
-                
-                // VALIDASI HOLD PARENT
                 if (statVal === 'Hold' && (!holdVal || !holdVal.trim())) {
-                    alert(`⚠️ Keterangan Project "${task.project_name}" wajib diisi karena status HOLD!`);
-                    document.getElementById(`hold-${id}`).focus();
+                    showToast(`⚠️ Project "${task.project_name}" HOLD butuh catatan!`, 'error');
                     isValid = false;
-                    return; 
-                }
-
-                if (statVal) {
-                    updatesMain.push({
-                        id: id,
-                        status: statVal,
-                        progress_percent: document.getElementById(`prog-${id}`)?.value,
-                        work_start_time: document.getElementById(`start-${id}`)?.value || null,
-                        work_end_time: document.getElementById(`end-${id}`)?.value || null,
-                        job_type: document.getElementById(`job-${id}`)?.value,
-                        hold_reason: holdVal
-                    });
+                    return;
                 }
             });
+            if(!isValid) return;
 
-            if (!isValid) return; 
-
-            // 2. Loop & Validate SUB TASKS
+            // Validate Sub
             const subTaskArray = Object.values(subTasksMap).flat();
             for (const sub of subTaskArray) {
                 const id = sub.id;
                 const statVal = document.getElementById(`sub-stat-${id}`)?.value;
                 const noteVal = document.getElementById(`sub-note-${id}`)?.value;
-
-                // VALIDASI HOLD SUBTASK
                 if (statVal === 'Hold' && (!noteVal || !noteVal.trim())) {
-                    alert(`⚠️ Catatan Subtask "${sub.subtask_desc}" wajib diisi karena status HOLD!`);
-                    document.getElementById(`sub-note-${id}`).focus();
+                    showToast(`⚠️ Subtask "${sub.subtask_desc}" HOLD butuh catatan!`, 'error');
                     isValid = false;
-                    break; 
+                    break;
                 }
+            }
+            if(!isValid) return;
 
+            // Buka Custom Modal 
+            showConfirm("Simpan Semua?", "Pastikan semua data progres sudah benar sebelum disimpan.", "save", executeSaveAll);
+        }
+
+        function confirmDelete(id) {
+            showConfirm("Hapus Subtask?", "Data yang dihapus tidak bisa dikembalikan.", "delete", async () => {
+                await _sb.from('employee_subtasks').delete().eq('id', id);
+                showToast("Subtask dihapus.", "success");
+                fetchTataTasks();
+            });
+        }
+
+        async function executeSaveAll() {
+            const updatesMain = [];
+            const updatesSub = [];
+
+            allTasks.forEach(task => {
+                const id = task.id;
+                const statVal = document.getElementById(`stat-${id}`)?.value;
                 if (statVal) {
-                    updatesSub.push({
-                        id: id,
-                        status: statVal,
-                        worker_notes: noteVal
+                    updatesMain.push({
+                        id, status: statVal,
+                        progress_percent: document.getElementById(`prog-${id}`)?.value,
+                        work_start_time: document.getElementById(`start-${id}`)?.value || null,
+                        work_end_time: document.getElementById(`end-${id}`)?.value || null,
+                        job_type: document.getElementById(`job-${id}`)?.value,
+                        hold_reason: document.getElementById(`hold-${id}`)?.value
                     });
+                }
+            });
+
+            const subTaskArray = Object.values(subTasksMap).flat();
+            for (const sub of subTaskArray) {
+                const id = sub.id;
+                const statVal = document.getElementById(`sub-stat-${id}`)?.value;
+                if (statVal) {
+                    updatesSub.push({ id, status: statVal, worker_notes: document.getElementById(`sub-note-${id}`)?.value });
                 }
             }
 
-            if (!isValid) return; 
-
-            if(!confirm("Simpan semua perubahan pada tabel?")) return;
-
             try {
-                const promises = [];
-                updatesMain.forEach(item => { promises.push(_sb.from('management_tracker').update(item).eq('id', item.id)); });
-                updatesSub.forEach(item => { promises.push(_sb.from('employee_subtasks').update(item).eq('id', item.id)); });
-
+                showToast("Menyimpan data...", "info");
+                const promises = [
+                    ...updatesMain.map(i => _sb.from('management_tracker').update(i).eq('id', i.id)),
+                    ...updatesSub.map(i => _sb.from('employee_subtasks').update(i).eq('id', i.id))
+                ];
                 await Promise.all(promises);
-                alert("Semua data berhasil disimpan!");
+                showToast("Semua data berhasil disimpan!", "success");
                 fetchTataTasks();
-
             } catch (err) {
-                console.error(err);
-                alert("Terjadi kesalahan saat menyimpan data massal.");
+                showToast("Error saat menyimpan.", "error");
             }
         }
 
-        // --- SINGLE SAVE LOGIC ---
         async function saveMain(id) {
             const sVal = document.getElementById(`start-${id}`).value;
             const eVal = document.getElementById(`end-${id}`).value;
             const statVal = document.getElementById(`stat-${id}`).value;
             const holdVal = document.getElementById(`hold-${id}`).value;
-
-            if (statVal === 'Hold' && !holdVal.trim()) {
-                alert("⚠️ Jika Status HOLD, kolom Keterangan WAJIB diisi!");
-                document.getElementById(`hold-${id}`).focus();
-                return;
-            }
-
+            
+            if (statVal === 'Hold' && !holdVal.trim()) return showToast("Status HOLD wajib isi catatan!", "error");
+            
             const payload = {
                 status: statVal,
                 progress_percent: document.getElementById(`prog-${id}`).value,
@@ -546,27 +859,29 @@
                 job_type: document.getElementById(`job-${id}`).value,
                 hold_reason: holdVal
             };
-            const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
             
-            if (error) alert("Gagal menyimpan: " + error.message);
-            else { alert("Data berhasil disimpan!"); fetchTataTasks(); }
+            const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
+            if (error) showToast("Gagal: " + error.message, "error"); 
+            else { 
+                showToast("Data tersimpan!", "success"); 
+                // Fitur kembang api dicopot
+                fetchTataTasks(); 
+            }
         }
 
         async function saveSubtaskInline(subId) {
             const statusVal = document.getElementById(`sub-stat-${subId}`).value;
             const noteVal = document.getElementById(`sub-note-${subId}`).value;
-
-            if (statusVal === 'Hold' && !noteVal.trim()) {
-                alert("⚠️ Jika Status HOLD, Catatan WAJIB diisi!");
-                document.getElementById(`sub-note-${subId}`).focus();
-                return;
+            
+            if (statusVal === 'Hold' && !noteVal.trim()) return showToast("Status HOLD wajib isi catatan!", "error");
+            
+            const { error } = await _sb.from('employee_subtasks').update({ status: statusVal, worker_notes: noteVal }).eq('id', subId);
+            if (error) showToast("Gagal: " + error.message, "error"); 
+            else { 
+                showToast("Subtask tersimpan!", "success"); 
+                // Fitur kembang api dicopot
+                fetchTataTasks(); 
             }
-
-            const payload = { status: statusVal, worker_notes: noteVal };
-            const { error } = await _sb.from('employee_subtasks').update(payload).eq('id', subId);
-
-            if (error) alert("Gagal menyimpan subtask: " + error.message);
-            else { alert("Subtask berhasil disimpan!"); fetchTataTasks(); }
         }
 
         async function saveSubtask() {
@@ -576,10 +891,10 @@
             const statusVal = document.getElementById('modal-status').value;
             const noteVal = document.getElementById('modal-note').value;
 
-            if(!parentId || !desc) return alert("Lengkapi data project dan nama tugas!");
+            if(!parentId || !desc) return showToast("Pilih Project & Isi Nama Tugas!", "error");
 
             if (statusVal === 'Hold' && !noteVal.trim()) {
-                alert("⚠️ Jika Status HOLD, Catatan Tambahan WAJIB diisi!");
+                showToast("⚠️ Status HOLD, Catatan wajib diisi!", "error");
                 document.getElementById('modal-note').focus();
                 return;
             }
@@ -608,32 +923,31 @@
                 error = res.error;
             }
 
-            if(error) alert("Gagal menyimpan: " + error.message);
-            else { alert("Subtask berhasil disimpan!"); closeModal(); fetchTataTasks(); }
+            if(error) showToast("Gagal menyimpan: " + error.message, "error");
+            else { showToast("Subtask berhasil disimpan!", "success"); closeModal('subtaskModal'); fetchTataTasks(); }
         }
 
-        // --- COMMON FUNCTIONS ---
         function openSubtaskModal() {
             document.getElementById('modal-title').innerText = "Tambah Rincian";
             document.getElementById('modal-subtask-id').value = ""; 
-            document.getElementById('modal-parent-id').value = '';
             document.getElementById('modal-parent-id').disabled = false;
             document.getElementById('modal-desc').value = '';
             document.getElementById('modal-prio').value = 'Mid';
             document.getElementById('modal-prog').value = '0';
-            document.getElementById('modal-start').value = '';
-            document.getElementById('modal-finish').value = '';
-            document.getElementById('modal-job').value = '-';
-            document.getElementById('modal-note').value = '';
-            document.getElementById('modal-status').value = 'Pending';
-            document.getElementById('subtaskModal').style.display = 'flex';
+            const now = new Date(); document.getElementById('modal-start').value = now.toISOString().slice(0, 16);
+            
+            const modal = document.getElementById('subtaskModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
         }
+
         function editSubtask(subId, parentId) {
             const task = subTasksMap[parentId].find(t => t.id == subId);
             document.getElementById('modal-title').innerText = "Edit Rincian";
             document.getElementById('modal-subtask-id').value = subId;
-            document.getElementById('modal-parent-id').value = parentId;
-            document.getElementById('modal-parent-id').disabled = true;
+            const parentSelect = document.getElementById('modal-parent-id');
+            parentSelect.value = parentId;
+            parentSelect.disabled = true;
             document.getElementById('modal-desc').value = task.subtask_desc;
             document.getElementById('modal-prio').value = task.priority;
             document.getElementById('modal-prog').value = task.progress_percent;
@@ -642,27 +956,14 @@
             document.getElementById('modal-job').value = task.job_type;
             document.getElementById('modal-status').value = task.status;
             document.getElementById('modal-note').value = task.worker_notes;
-            document.getElementById('subtaskModal').style.display = 'flex';
-        }
-        function closeModal() { document.getElementById('subtaskModal').style.display = 'none'; }
-        
-        async function deleteSubTask(id) {
-            if(confirm("Hapus?")) { await _sb.from('employee_subtasks').delete().eq('id', id); fetchTataTasks(); }
-        }
-
-        function filterTable() { 
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const priorityFilter = document.getElementById('filter-priority').value;
-            const filtered = allTasks.filter(task => {
-                const matchesSearch = task.project_name.toLowerCase().includes(query) || (task.task_desc && task.task_desc.toLowerCase().includes(query));
-                const matchesPriority = priorityFilter === "" || task.priority === priorityFilter;
-                return matchesSearch && matchesPriority;
-            });
-            renderTasks(filtered);
+            
+            const modal = document.getElementById('subtaskModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
         }
 
         function updateStats(data) {
-             let p = 0, i = 0, h = 0, d = 0;
+             let p=0, i=0, h=0, d=0;
              data.forEach(item => {
                  const status = item.status;
                  if(status === 'Pending') p++;
@@ -674,6 +975,19 @@
              document.getElementById('stat-pending').innerText = p;
              document.getElementById('stat-hold').innerText = h;
              document.getElementById('stat-finished').innerText = d;
+        }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const div = document.createElement('div');
+            let icon = 'fa-circle-info';
+            if (type === 'success') icon = 'fa-circle-check';
+            if (type === 'error') icon = 'fa-circle-exclamation';
+            div.className = `toast toast-${type}`;
+            div.innerHTML = `<i class="fa-solid ${icon} text-lg"></i><span class="font-semibold text-slate-700 text-sm">${msg}</span>`;
+            container.appendChild(div);
+            requestAnimationFrame(() => div.classList.add('show'));
+            setTimeout(() => { div.classList.remove('show'); setTimeout(() => div.remove(), 400); }, 3000);
         }
 
         window.onload = fetchTataTasks;
