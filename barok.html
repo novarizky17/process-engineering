@@ -785,14 +785,6 @@
             showConfirm("Simpan Semua?", "Apakah Anda yakin ingin menyimpan semua perubahan yang telah dilakukan?", "save", executeSaveAll);
         }
 
-        function confirmDelete(id) {
-            showConfirm("Hapus Subtask?", "Data yang dihapus tidak bisa dikembalikan.", "delete", async () => {
-                await _sb.from('employee_subtasks').delete().eq('id', id);
-                showToast("Subtask dihapus.", "success");
-                fetchBarokTasks();
-            });
-        }
-
         async function executeSaveAll() {
             const updatesMain = [];
             const updatesSub = [];
