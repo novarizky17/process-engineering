@@ -100,7 +100,7 @@
 
         .modal-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
         .modal-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; }
-        .modal-input:focus { border-color: #ea580c; background-color: #f8fafc; }
+        .modal-input:focus { border-color: #f97316; background-color: #f8fafc; }
 
         /* Confirmation Modal Specifics */
         .confirm-box {
@@ -110,7 +110,7 @@
         }
         .confirm-icon {
             width: 80px; height: 80px;
-            background: #ffedd5; color: #ea580c; /* Orange */
+            background: #ffedd5; color: #ea580c;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             margin: 0 auto 20px; font-size: 40px;
         }
@@ -120,13 +120,13 @@
         
         .btn-confirm { padding: 12px 24px; border-radius: 12px; font-weight: 700; transition: all 0.2s; font-size: 14px; flex: 1; }
         .btn-confirm-yes { background: #f97316; color: white; box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3); }
-        .btn-confirm-yes:hover { background: #c2410c; transform: translateY(-2px); }
+        .btn-confirm-yes:hover { background: #ea580c; transform: translateY(-2px); }
         .btn-confirm-no { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
         .btn-confirm-no:hover { background: #e2e8f0; }
 
         /* Badges */
         .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .badge-mid { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; } 
+        .badge-mid { background: #ffedd5; color: #ea580c; border: 1px solid #fed7aa; } 
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
         
@@ -392,14 +392,14 @@
 
     <div id="confirmModal" class="modal-overlay">
         <div class="modal-box confirm-box p-6">
-            <div class="confirm-icon">
-                <i class="fa-solid fa-circle-question"></i>
+            <div class="confirm-icon" id="confirmIconContainer">
+                <i class="fa-solid fa-circle-question" id="confirmIcon"></i>
             </div>
-            <h3 class="confirm-title">Simpan Perubahan?</h3>
-            <p class="confirm-text">Apakah Anda yakin ingin menyimpan semua perubahan yang telah dilakukan?</p>
+            <h3 class="confirm-title" id="confirmTitle">Konfirmasi?</h3>
+            <p class="confirm-text" id="confirmText">Apakah Anda yakin?</p>
             <div class="confirm-actions">
                 <button onclick="closeConfirmModal()" class="btn-confirm btn-confirm-no">Batal</button>
-                <button onclick="executeSaveAll()" class="btn-confirm btn-confirm-yes">Ya, Simpan</button>
+                <button id="btnConfirmAction" class="btn-confirm btn-confirm-yes">Ya, Simpan</button>
             </div>
         </div>
     </div>
@@ -549,7 +549,7 @@
                         </td>
                         <td data-label="PRIORITY" class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
                         <td data-label="PROGRESS" class="px-4 py-5 align-top">
-                            <div class="flex items-center gap-2 justify-end md:justify-center">
+                            <div class="flex items-center gap-2 justify-center">
                                 <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-16 bg-slate-50 font-bold border-transparent focus:bg-white focus:border-orange-500">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
@@ -611,12 +611,12 @@
                             <span class="text-[13px]">${sub.subtask_desc}</span>
                             <div class="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                 <button onclick="editSubtask('${sub.id}', '${row.id}')" class="w-7 h-7 rounded bg-amber-100 text-amber-600 hover:bg-amber-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="deleteSubTask('${sub.id}')" class="w-7 h-7 rounded bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="confirmDelete('${sub.id}')" class="w-7 h-7 rounded bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </td>
                         <td data-label="PRIORITY" class="px-4 py-4 text-center align-middle"><span class="badge ${badgeClass}">${sub.priority}</span></td>
                         <td data-label="PROGRESS" class="px-4 py-4 text-center align-middle">
-                            <div class="flex items-center gap-1 justify-end md:justify-center">
+                            <div class="flex items-center gap-1 justify-center">
                                 <input type="number" id="sub-prog-${sub.id}" value="${sub.progress_percent||0}" class="table-input text-center font-bold text-orange-600 w-14 p-1">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
@@ -642,7 +642,7 @@
                             </select>
                         </td>
                         <td data-label="AKSI" class="px-4 py-4 text-center align-middle">
-                             <button class="w-full md:w-8 h-8 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto uppercase font-bold text-xs" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
+                             <button class="w-full md:w-8 h-8 rounded-lg bg-orange-100 text-orange-600 hover:bg-orange-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto uppercase font-bold text-xs" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
                                 <i class="fa-solid fa-floppy-disk text-xs mr-2 md:mr-0"></i> <span class="md:hidden">SIMPAN</span>
                              </button>
                         </td>
@@ -654,30 +654,42 @@
             }).join('');
         }
 
-        async function saveAllChanges() {
-            const updatesMain = [];
-            const updatesSub = [];
-            let isValid = true; 
-            allTasks.forEach(task => {
-                const id = task.id;
-                const statVal = document.getElementById(`stat-${id}`)?.value;
-                const holdVal = document.getElementById(`hold-${id}`)?.value;
-                if (statVal === 'Hold' && (!holdVal || !holdVal.trim())) { alert(`⚠️ Project "${task.project_name}" HOLD butuh catatan!`); isValid = false; return; }
-                if (statVal) updatesMain.push({ id, status: statVal, progress_percent: document.getElementById(`prog-${id}`)?.value, work_start_time: document.getElementById(`start-${id}`)?.value || null, work_end_time: document.getElementById(`end-${id}`)?.value || null, job_type: document.getElementById(`job-${id}`)?.value, hold_reason: holdVal });
-            });
-            if (!isValid) return;
-            const subTaskArray = Object.values(subTasksMap).flat();
-            for (const sub of subTaskArray) {
-                const id = sub.id;
-                const statVal = document.getElementById(`sub-stat-${id}`)?.value;
-                const noteVal = document.getElementById(`sub-note-${id}`)?.value;
-                if (statVal === 'Hold' && (!noteVal || !noteVal.trim())) { alert(`⚠️ Subtask "${sub.subtask_desc}" HOLD butuh catatan!`); isValid = false; break; }
-                if (statVal) updatesSub.push({ id, status: statVal, worker_notes: noteVal });
-            }
-            if (!isValid) return;
+        // --- FUNGSI CUSTOM POP UP UNTUK KONFIRMASI ---
+        function showConfirm(title, text, type, actionFunc) {
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmText').innerText = text;
             
+            const icon = document.getElementById('confirmIconInfo');
+            const iconContainer = document.getElementById('confirmIconContainer');
+            const btnYes = document.getElementById('btnConfirmAction');
+            
+            // Recreate button untuk hapus event listener lama
+            const newBtnYes = btnYes.cloneNode(true);
+            btnYes.parentNode.replaceChild(newBtnYes, btnYes);
+            
+            if (type === 'delete') {
+                icon.className = 'fa-solid fa-trash-can';
+                iconContainer.style.background = '#fee2e2';
+                iconContainer.style.color = '#dc2626';
+                newBtnYes.className = 'btn-confirm btn-confirm-yes';
+                newBtnYes.style.background = '#ef4444';
+                newBtnYes.innerText = 'Hapus';
+            } else {
+                icon.className = 'fa-solid fa-circle-question';
+                iconContainer.style.background = '#ffedd5';
+                iconContainer.style.color = '#ea580c';
+                newBtnYes.className = 'btn-confirm btn-confirm-yes';
+                newBtnYes.style.background = '#ea580c';
+                newBtnYes.innerText = 'Ya, Simpan';
+            }
+
+            newBtnYes.onclick = () => {
+                closeConfirmModal();
+                actionFunc();
+            };
+
             document.getElementById('confirmModal').style.display = 'flex';
-            document.getElementById('confirmModal').classList.add('show');
+            setTimeout(() => document.getElementById('confirmModal').classList.add('show'), 10);
         }
 
         function closeConfirmModal() {
@@ -685,8 +697,49 @@
             setTimeout(() => document.getElementById('confirmModal').style.display = 'none', 300);
         }
 
+        function confirmSaveAll() {
+            let isValid = true; 
+            
+            // Validasi Main Tasks
+            allTasks.forEach(task => {
+                const id = task.id;
+                const statVal = document.getElementById(`stat-${id}`)?.value;
+                const holdVal = document.getElementById(`hold-${id}`)?.value;
+                if (statVal === 'Hold' && (!holdVal || !holdVal.trim())) { 
+                    showToast(`⚠️ Project "${task.project_name}" HOLD butuh catatan!`, 'error'); 
+                    isValid = false; 
+                    return; 
+                }
+            });
+            if (!isValid) return;
+            
+            // Validasi Sub Tasks
+            const subTaskArray = Object.values(subTasksMap).flat();
+            for (const sub of subTaskArray) {
+                const id = sub.id;
+                const statVal = document.getElementById(`sub-stat-${id}`)?.value;
+                const noteVal = document.getElementById(`sub-note-${id}`)?.value;
+                if (statVal === 'Hold' && (!noteVal || !noteVal.trim())) { 
+                    showToast(`⚠️ Subtask "${sub.subtask_desc}" HOLD butuh catatan!`, 'error'); 
+                    isValid = false; 
+                    break; 
+                }
+            }
+            if (!isValid) return;
+            
+            // Panggil Custom Modal
+            showConfirm("Simpan Semua?", "Apakah Anda yakin ingin menyimpan semua perubahan yang telah dilakukan?", "save", executeSaveAll);
+        }
+
+        function confirmDelete(id) {
+            showConfirm("Hapus Subtask?", "Data yang dihapus tidak bisa dikembalikan.", "delete", async () => {
+                await _sb.from('employee_subtasks').delete().eq('id', id);
+                showToast("Subtask dihapus.", "success");
+                fetchJumawanTasks();
+            });
+        }
+
         async function executeSaveAll() {
-            closeConfirmModal();
             const updatesMain = [];
             const updatesSub = [];
             
@@ -694,19 +747,45 @@
                 const id = task.id;
                 const statVal = document.getElementById(`stat-${id}`)?.value;
                 const holdVal = document.getElementById(`hold-${id}`)?.value;
-                if (statVal) updatesMain.push({ id, status: statVal, progress_percent: document.getElementById(`prog-${id}`)?.value, work_start_time: document.getElementById(`start-${id}`)?.value || null, work_end_time: document.getElementById(`end-${id}`)?.value || null, job_type: document.getElementById(`job-${id}`)?.value, hold_reason: holdVal });
+                if (statVal) {
+                    updatesMain.push({ 
+                        id, 
+                        status: statVal, 
+                        progress_percent: document.getElementById(`prog-${id}`)?.value, 
+                        work_start_time: document.getElementById(`start-${id}`)?.value || null, 
+                        work_end_time: document.getElementById(`end-${id}`)?.value || null, 
+                        job_type: document.getElementById(`job-${id}`)?.value, 
+                        hold_reason: holdVal 
+                    });
+                }
             });
+            
             const subTaskArray = Object.values(subTasksMap).flat();
             for (const sub of subTaskArray) {
                 const id = sub.id;
                 const statVal = document.getElementById(`sub-stat-${id}`)?.value;
-                if (statVal) updatesSub.push({ id, status: statVal, worker_notes: document.getElementById(`sub-note-${id}`)?.value });
+                if (statVal) {
+                    updatesSub.push({ 
+                        id, 
+                        status: statVal, 
+                        worker_notes: document.getElementById(`sub-note-${id}`)?.value 
+                    });
+                }
             }
 
             try {
-                const promises = [...updatesMain.map(i => _sb.from('management_tracker').update(i).eq('id', i.id)), ...updatesSub.map(i => _sb.from('employee_subtasks').update(i).eq('id', i.id))];
-                await Promise.all(promises); alert("Tersimpan!"); fetchJumawanTasks();
-            } catch (err) { alert("Error saving."); }
+                showToast("Menyimpan data...", "info");
+                const promises = [
+                    ...updatesMain.map(i => _sb.from('management_tracker').update(i).eq('id', i.id)), 
+                    ...updatesSub.map(i => _sb.from('employee_subtasks').update(i).eq('id', i.id))
+                ];
+                await Promise.all(promises); 
+                showToast("Semua data berhasil disimpan!", "success"); 
+                fetchJumawanTasks();
+            } catch (err) { 
+                showToast("Terjadi kesalahan saat menyimpan data.", "error"); 
+                console.error(err);
+            }
         }
 
         async function saveMain(id) {
@@ -714,40 +793,97 @@
             const eVal = document.getElementById(`end-${id}`).value;
             const statVal = document.getElementById(`stat-${id}`).value;
             const holdVal = document.getElementById(`hold-${id}`).value;
-            if (statVal === 'Hold' && !holdVal.trim()) return alert("Status HOLD wajib isi catatan!");
             
-            const payload = { status: statVal, progress_percent: document.getElementById(`prog-${id}`).value, work_start_time: sVal || null, work_end_time: eVal || null, job_type: document.getElementById(`job-${id}`).value, hold_reason: holdVal };
+            if (statVal === 'Hold' && !holdVal.trim()) {
+                return showToast("Status HOLD wajib isi catatan!", "error");
+            }
+            
+            const payload = { 
+                status: statVal, 
+                progress_percent: document.getElementById(`prog-${id}`).value, 
+                work_start_time: sVal || null, 
+                work_end_time: eVal || null, 
+                job_type: document.getElementById(`job-${id}`).value, 
+                hold_reason: holdVal 
+            };
             const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
-            if (error) alert("Gagal: " + error.message); else { alert("Tersimpan!"); if(statVal === 'Done') triggerConfetti(); fetchJumawanTasks(); }
+            
+            if (error) {
+                showToast("Gagal: " + error.message, "error"); 
+            } else { 
+                showToast("Tersimpan!", "success"); 
+                if(statVal === 'Done') triggerConfetti(); 
+                fetchJumawanTasks(); 
+            }
         }
 
         async function saveSubtaskInline(subId) {
             const statusVal = document.getElementById(`sub-stat-${subId}`).value;
             const noteVal = document.getElementById(`sub-note-${subId}`).value;
-            if (statusVal === 'Hold' && !noteVal.trim()) return alert("Status HOLD wajib isi catatan!");
+            
+            if (statusVal === 'Hold' && !noteVal.trim()) {
+                return showToast("Status HOLD wajib isi catatan!", "error");
+            }
+            
             const { error } = await _sb.from('employee_subtasks').update({ status: statusVal, worker_notes: noteVal }).eq('id', subId);
-            if (error) alert("Gagal: " + error.message); else { alert("Subtask Tersimpan!"); if(statusVal === 'Done') triggerConfetti(); fetchJumawanTasks(); }
+            if (error) {
+                showToast("Gagal: " + error.message, "error"); 
+            } else { 
+                showToast("Subtask Tersimpan!", "success"); 
+                if(statusVal === 'Done') triggerConfetti(); 
+                fetchJumawanTasks(); 
+            }
         }
 
         async function saveSubtask() {
             const subId = document.getElementById('modal-subtask-id').value;
             const parentId = document.getElementById('modal-parent-id').value;
             const desc = document.getElementById('modal-desc').value;
-            if(!parentId || !desc) return alert("Pilih Project & Isi Nama Tugas!");
+            const statVal = document.getElementById('modal-status').value;
+            const noteVal = document.getElementById('modal-note').value;
+            
+            if(!parentId || !desc) {
+                return showToast("Pilih Project & Isi Nama Tugas!", "error");
+            }
+            
+            if (statVal === 'Hold' && !noteVal.trim()) {
+                return showToast("Status HOLD wajib isi catatan tambahan!", "error");
+            }
 
-            const payload = { parent_task_id: parentId, subtask_desc: desc, priority: document.getElementById('modal-prio').value, progress_percent: document.getElementById('modal-prog').value, start_date: document.getElementById('modal-start').value || null, end_date: document.getElementById('modal-finish').value || null, job_type: document.getElementById('modal-job').value, worker_notes: document.getElementById('modal-note').value, status: document.getElementById('modal-status').value };
+            const payload = { 
+                parent_task_id: parentId, 
+                subtask_desc: desc, 
+                priority: document.getElementById('modal-prio').value, 
+                progress_percent: document.getElementById('modal-prog').value, 
+                start_date: document.getElementById('modal-start').value || null, 
+                end_date: document.getElementById('modal-finish').value || null, 
+                job_type: document.getElementById('modal-job').value, 
+                worker_notes: noteVal, 
+                status: statVal 
+            };
             
             let res = subId ? await _sb.from('employee_subtasks').update(payload).eq('id', subId) : await _sb.from('employee_subtasks').insert([payload]);
-            if(res.error) alert("Gagal: " + res.error.message); else { alert("Berhasil!"); closeModal(); fetchJumawanTasks(); }
+            if(res.error) {
+                showToast("Gagal: " + res.error.message, "error"); 
+            } else { 
+                showToast("Berhasil Disimpan!", "success"); 
+                closeModal(); 
+                fetchJumawanTasks(); 
+            }
         }
 
         function openSubtaskModal() {
             document.getElementById('modal-title').innerText = "Tambah Rincian";
-            document.getElementById('modal-subtask-id').value = ""; document.getElementById('modal-parent-id').value = ''; document.getElementById('modal-parent-id').disabled = false;
-            document.getElementById('modal-desc').value = ''; document.getElementById('modal-prio').value = 'Mid'; document.getElementById('modal-prog').value = '0';
+            document.getElementById('modal-subtask-id').value = ""; 
+            document.getElementById('modal-parent-id').value = ''; 
+            document.getElementById('modal-parent-id').disabled = false;
+            document.getElementById('modal-desc').value = ''; 
+            document.getElementById('modal-prio').value = 'Mid'; 
+            document.getElementById('modal-prog').value = '0';
             const now = new Date();
             const nowString = now.toISOString().slice(0, 16);
             document.getElementById('modal-start').value = nowString;
+            
             document.getElementById('subtaskModal').style.display = 'flex';
             setTimeout(() => document.getElementById('subtaskModal').classList.add('show'), 10);
         }
@@ -755,10 +891,18 @@
         function editSubtask(subId, parentId) {
             const task = subTasksMap[parentId].find(t => t.id == subId);
             document.getElementById('modal-title').innerText = "Edit Rincian";
-            document.getElementById('modal-subtask-id').value = subId; document.getElementById('modal-parent-id').value = parentId; document.getElementById('modal-parent-id').disabled = true;
-            document.getElementById('modal-desc').value = task.subtask_desc; document.getElementById('modal-prio').value = task.priority; document.getElementById('modal-prog').value = task.progress_percent;
-            document.getElementById('modal-start').value = cleanTimestamp(task.start_date); document.getElementById('modal-finish').value = cleanTimestamp(task.end_date);
-            document.getElementById('modal-job').value = task.job_type; document.getElementById('modal-status').value = task.status; document.getElementById('modal-note').value = task.worker_notes;
+            document.getElementById('modal-subtask-id').value = subId; 
+            document.getElementById('modal-parent-id').value = parentId; 
+            document.getElementById('modal-parent-id').disabled = true;
+            document.getElementById('modal-desc').value = task.subtask_desc; 
+            document.getElementById('modal-prio').value = task.priority; 
+            document.getElementById('modal-prog').value = task.progress_percent;
+            document.getElementById('modal-start').value = cleanTimestamp(task.start_date); 
+            document.getElementById('modal-finish').value = cleanTimestamp(task.end_date);
+            document.getElementById('modal-job').value = task.job_type; 
+            document.getElementById('modal-status').value = task.status; 
+            document.getElementById('modal-note').value = task.worker_notes;
+            
             document.getElementById('subtaskModal').style.display = 'flex';
             setTimeout(() => document.getElementById('subtaskModal').classList.add('show'), 10);
         }
@@ -768,19 +912,13 @@
             setTimeout(() => document.getElementById('subtaskModal').style.display = 'none', 300);
         }
 
-        async function deleteSubTask(id) { 
-            if(confirm("Hapus item ini selamanya?")) { 
-                await _sb.from('employee_subtasks').delete().eq('id', id); 
-                alert("Item dihapus.");
-                fetchJumawanTasks(); 
-            } 
-        }
-
         function updateStats(data) {
              let p=0, i=0, h=0, d=0;
              data.forEach(item => { if(item.status==='Pending') p++; else if(item.status==='In Progress') i++; else if(item.status==='Hold') h++; else if(item.status==='Done') d++; });
-             document.getElementById('stat-active').innerText = i; document.getElementById('stat-pending').innerText = p;
-             document.getElementById('stat-hold').innerText = h; document.getElementById('stat-finished').innerText = d;
+             document.getElementById('stat-active').innerText = i; 
+             document.getElementById('stat-pending').innerText = p;
+             document.getElementById('stat-hold').innerText = h; 
+             document.getElementById('stat-finished').innerText = d;
         }
         
         // --- TOAST FUNCTION ---
