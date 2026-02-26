@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Work Panel - Isyqi (Pro V2)</title>
+    <title>Work Panel - Jumawan (Pro V2)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -37,7 +37,7 @@
             color: #334155;
             transition: all 0.2s;
         }
-        .table-input:focus { border-color: #06b6d4; outline: none; box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1); }
+        .table-input:focus { border-color: #ea580c; outline: none; box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1); }
 
         /* Badge Select */
         .badge-select {
@@ -75,7 +75,7 @@
         .fab:hover { transform: scale(1.1) rotate(5deg); }
         .fab:active { transform: scale(0.9); }
 
-        .fab-add { background: #06b6d4; color: white; } /* Cyan */
+        .fab-add { background: #ea580c; color: white; }
         .fab-save { background: #10b981; color: white; }
 
         /* Modal Base */
@@ -89,6 +89,7 @@
         }
         .modal-overlay.show { opacity: 1; }
         
+        /* Modal Form (Input Subtask) */
         .modal-box {
             background: white; width: 100%; max-width: 600px;
             border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -99,7 +100,7 @@
 
         .modal-label { font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
         .modal-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; }
-        .modal-input:focus { border-color: #06b6d4; background-color: #f8fafc; }
+        .modal-input:focus { border-color: #ea580c; background-color: #f8fafc; }
 
         /* Confirmation Modal Specifics */
         .confirm-box {
@@ -109,23 +110,23 @@
         }
         .confirm-icon {
             width: 80px; height: 80px;
-            background: #cffafe; color: #0891b2; /* Cyan theme */
+            background: #fef3c7; color: #d97706;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             margin: 0 auto 20px; font-size: 40px;
         }
         .confirm-title { font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 10px; }
-        .confirm-text { font-size: 14px; color: #64748b; margin-bottom: 25px; line-height: 1.5; max-width: 80%; margin-left:auto; margin-right:auto; }
+        .confirm-text { font-size: 14px; color: #64748b; margin-bottom: 25px; line-height: 1.5; }
         .confirm-actions { display: flex; gap: 15px; justify-content: center; }
         
         .btn-confirm { padding: 12px 24px; border-radius: 12px; font-weight: 700; transition: all 0.2s; font-size: 14px; flex: 1; }
-        .btn-confirm-yes { background: #06b6d4; color: white; box-shadow: 0 4px 6px -1px rgba(6, 182, 212, 0.3); }
-        .btn-confirm-yes:hover { background: #0891b2; transform: translateY(-2px); }
+        .btn-confirm-yes { background: #ea580c; color: white; box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.3); }
+        .btn-confirm-yes:hover { background: #c2410c; transform: translateY(-2px); }
         .btn-confirm-no { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
         .btn-confirm-no:hover { background: #e2e8f0; }
 
         /* Badges */
         .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .badge-mid { background: #cffafe; color: #0e7490; border: 1px solid #a5f3fc; } /* Cyan theme */
+        .badge-mid { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; } 
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
         
@@ -136,97 +137,76 @@
         .toast { 
             background: white; border-left: 5px solid; padding: 15px 20px; border-radius: 8px; 
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px;
-            min-width: 300px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); pointer-events: auto;
+            min-width: 300px; transform: translateX(100%); transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); pointer-events: auto;
         }
         .toast.show { transform: translateX(0); }
         .toast-success { border-color: #10b981; } .toast-success i { color: #10b981; }
         .toast-error { border-color: #ef4444; } .toast-error i { color: #ef4444; }
-        .toast-info { border-color: #06b6d4; } .toast-info i { color: #06b6d4; }
+        .toast-info { border-color: #ea580c; } .toast-info i { color: #ea580c; }
 
         /* DEADLINE WARNING ANIMATION */
         @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
         .deadline-danger { border-color: #ef4444 !important; color: #ef4444 !important; animation: pulse-red 2s infinite; }
 
-        /* ==========================================================================
-           MOBILE RESPONSIVE CSS (DIKEMBALIKAN KE GAYA BERTUMPUK / STACKED)
-           ========================================================================== */
+        /* --- MOBILE RESPONSIVE CSS --- */
         @media screen and (max-width: 768px) {
             .header-content { flex-direction: column; align-items: flex-start; gap: 15px; }
             .header-btn { width: 100%; justify-content: center; }
-            .content-wrapper { padding: 0 10px; margin-top: -30px; }
+            .content-wrapper { padding: 0 16px; margin-top: -30px; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             
             thead { display: none; }
             table, tbody, tr, td { display: block; width: 100%; }
             table { min-width: 0 !important; }
             
-            /* Card Style */
             tr {
                 background: white;
-                margin-bottom: 20px;
-                border-radius: 12px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+                margin-bottom: 15px;
+                border-radius: 16px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.03);
                 border: 1px solid #f1f5f9;
                 overflow: hidden;
             }
             
             tr[data-type="sub"] {
                 background: #f8fafc;
-                margin: -10px 10px 20px 10px;
+                margin: -5px 10px 15px 10px;
                 border-radius: 12px;
                 border: 1px solid #e2e8f0;
-                border-left: 4px solid #cbd5e1;
+                border-left: 4px solid #94a3b8;
             }
 
-            /* Cells di HP: Ditumpuk ke bawah (Stacked) & Center */
             td {
-                padding: 15px;
+                padding: 12px 16px;
                 border-bottom: 1px solid #f1f5f9;
-                text-align: center; /* Rata tengah seperti gambar referensi */
+                position: relative;
+                text-align: left;
             }
             
-            /* Label Header Kolom di HP */
             td::before {
                 content: attr(data-label);
-                font-size: 10px;
+                font-size: 9px;
                 font-weight: 800;
                 color: #94a3b8;
                 text-transform: uppercase;
                 display: block;
-                margin-bottom: 8px;
+                margin-bottom: 4px;
                 letter-spacing: 0.5px;
-                text-align: center; /* Rata tengah */
             }
             
-            /* Pengecualian: Project Info tetap rata kiri agar terlihat seperti judul card */
-            td[data-label="PROJECT INFO"] { 
-                background: #f8fafc; 
-                border-bottom: 1px solid #e2e8f0; 
-                padding: 20px 15px; 
-                text-align: left; /* Rata Kiri */
-            }
+            td[data-label="PROJECT INFO"] { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 20px 16px; }
             td[data-label="PROJECT INFO"]::before { display: none; }
 
-            td:last-child { 
-                border-bottom: none; 
-                background: #f8fafc; 
-                padding: 15px; 
-            }
+            td:last-child { border-bottom: none; background: #f8fafc; padding: 16px; }
             td:last-child button { width: 100%; }
             
-            /* Input Full Width */
-            .table-input, .badge-select { 
-                width: 100%; 
-                max-width: none; 
-                padding: 12px; 
-                font-size: 14px; 
-                text-align: center; /* Teks di dalam input rata tengah */
-            }
-            .badge-select { text-align-last: center; }
-            textarea.table-input { min-height: 80px; text-align: left; }
+            .table-input, .badge-select { width: 100%; max-width: none; padding: 12px; font-size: 14px; }
+            textarea.table-input { min-height: 80px; }
 
             #toast-container { left: 20px; right: 20px; top: 10px; }
             .toast { min-width: auto; width: 100%; }
+            
+            .confirm-actions { flex-direction: column-reverse; }
         }
     </style>
 </head>
@@ -234,29 +214,29 @@
 
     <div id="toast-container"></div>
 
-    <div class="bg-gradient-to-r from-cyan-900 to-cyan-700 border-b border-cyan-950 pt-8 pb-24 px-8 shadow-xl w-full relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
-        <div class="absolute -bottom-8 -left-8 w-64 h-64 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
+    <div class="bg-gradient-to-r from-orange-900 to-orange-800 border-b border-orange-950 pt-8 pb-24 px-8 shadow-xl w-full relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
+        <div class="absolute -bottom-8 -left-8 w-64 h-64 bg-amber-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
 
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center w-full max-w-[98%] mx-auto header-content gap-4 relative z-10">
             <div class="flex items-center gap-5">
-                <div class="w-14 h-14 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl flex items-center justify-center text-white font-bold text-3xl shadow-xl">I</div>
+                <div class="w-14 h-14 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl flex items-center justify-center text-white font-bold text-3xl shadow-xl">J</div>
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight">Panel Kerja Isyqi</h1>
+                    <h1 class="text-2xl md:text-3xl font-black text-white tracking-tight">Panel Kerja Jumawan</h1>
                     <div class="flex items-center gap-2 mt-1.5">
-                        <span class="relative flex h-2.5 w-2.5">
-                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400"></span>
+                        <span class="flex h-2.5 w-2.5 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                         </span>
-                        <p class="text-xs text-cyan-100 font-semibold tracking-wide">Live Dashboard V2</p>
+                        <p class="text-xs text-orange-200 font-semibold tracking-wide">Live Dashboard • V2.0 Pro</p>
                     </div>
                 </div>
             </div>
             <div class="flex gap-3 w-full md:w-auto">
-                <button onclick="fetchIsyqiTasks()" class="flex-1 md:flex-none bg-white/10 hover:bg-white/20 text-white border border-white/10 px-6 py-3 rounded-xl text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-2 backdrop-blur-md shadow-lg header-btn group">
+                <button onclick="fetchJumawanTasks()" class="flex-1 md:flex-none bg-white/10 hover:bg-white/20 text-white border border-white/10 px-6 py-3 rounded-xl text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-2 backdrop-blur-md shadow-lg header-btn group">
                     <i class="fa-solid fa-arrows-rotate group-hover:rotate-180 transition-transform duration-500"></i> Refresh
                 </button>
-                <a href="employee_report.html" class="flex-1 md:flex-none bg-cyan-600 hover:bg-cyan-500 text-white border border-cyan-500 px-6 py-3 rounded-xl text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-cyan-900/20 header-btn">
+                <a href="employee_report.html" class="flex-1 md:flex-none bg-orange-600 hover:bg-orange-500 text-white border border-orange-500 px-6 py-3 rounded-xl text-xs font-bold transition-all uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-orange-900/20 header-btn">
                     <i class="fa-solid fa-arrow-left"></i> Menu
                 </a>
             </div>
@@ -266,17 +246,41 @@
     <div class="w-full max-w-[98%] mx-auto px-4 md:px-0 -mt-16 pb-32 relative z-10 content-wrapper">
         
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 w-full stats-grid">
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-cyan-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p><h3 id="stat-active" class="text-3xl font-black text-slate-800">0</h3>
+            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-orange-500 hover:-translate-y-1 transition-transform">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p>
+                        <h3 id="stat-active" class="text-3xl font-black text-slate-800">0</h3>
+                    </div>
+                    <div class="p-2 bg-orange-50 rounded-lg text-orange-500"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-amber-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p><h3 id="stat-pending" class="text-3xl font-black text-slate-800">0</h3>
+            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-amber-500 hover:-translate-y-1 transition-transform">
+                 <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p>
+                        <h3 id="stat-pending" class="text-3xl font-black text-slate-800">0</h3>
+                    </div>
+                    <div class="p-2 bg-amber-50 rounded-lg text-amber-500"><i class="fa-regular fa-clock"></i></div>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-rose-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p><h3 id="stat-hold" class="text-3xl font-black text-slate-800">0</h3>
+            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-rose-500 hover:-translate-y-1 transition-transform">
+                 <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p>
+                        <h3 id="stat-hold" class="text-3xl font-black text-slate-800">0</h3>
+                    </div>
+                    <div class="p-2 bg-rose-50 rounded-lg text-rose-500"><i class="fa-solid fa-pause"></i></div>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-emerald-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Done</p><h3 id="stat-finished" class="text-3xl font-black text-slate-800">0</h3>
+            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-emerald-500 hover:-translate-y-1 transition-transform">
+                 <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Done</p>
+                        <h3 id="stat-finished" class="text-3xl font-black text-slate-800">0</h3>
+                    </div>
+                    <div class="p-2 bg-emerald-50 rounded-lg text-emerald-500"><i class="fa-solid fa-check-double"></i></div>
+                </div>
             </div>
         </div>
 
@@ -285,7 +289,7 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
                 </div>
-                <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Cari project atau mesin..." class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all">
+                <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Cari project atau mesin..." class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all">
             </div>
             <div class="w-full md:w-48">
                 <select id="statusFilter" onchange="applyFilters()" class="block w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white outline-none cursor-pointer">
@@ -315,7 +319,7 @@
                             <th class="px-4 py-4 text-center w-[70px]">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="isyqi-work-body" class="divide-y divide-slate-100 bg-white text-sm">
+                    <tbody id="jumawan-work-body" class="divide-y divide-slate-100 bg-white text-sm">
                         </tbody>
                 </table>
             </div>
@@ -343,9 +347,9 @@
             </div>
             <div class="p-6 space-y-5">
                 <input type="hidden" id="modal-subtask-id">
-                <div class="bg-cyan-50 p-4 rounded-xl border border-cyan-100">
-                    <label class="modal-label text-cyan-700 uppercase tracking-wide">PILIH PROJECT UTAMA (WAJIB)</label>
-                    <select id="modal-parent-id" class="modal-input font-bold text-cyan-900 border-cyan-200 h-12"><option value="">-- Pilih Project --</option></select>
+                <div class="bg-orange-50 p-4 rounded-xl border border-orange-100">
+                    <label class="modal-label text-orange-700 uppercase tracking-wide">PILIH PROJECT UTAMA (WAJIB)</label>
+                    <select id="modal-parent-id" class="modal-input font-bold text-orange-900 border-orange-200 h-12"><option value="">-- Pilih Project --</option></select>
                 </div>
                 <div><label class="modal-label">Nama Pekerjaan / Sub-Task</label><input type="text" id="modal-desc" class="modal-input" placeholder="Isi detail pekerjaan..."></div>
                 <div class="grid grid-cols-2 gap-5">
@@ -370,7 +374,7 @@
                     </div>
                     <div>
                         <label class="modal-label">Status</label>
-                        <select id="modal-status" class="modal-input font-bold text-cyan-600">
+                        <select id="modal-status" class="modal-input font-bold text-orange-600">
                             <option value="Pending">Pending</option>
                             <option value="In Progress">In Progress</option>
                             <option value="Hold">Hold</option>
@@ -381,23 +385,21 @@
                 <div><label class="modal-label">Catatan Tambahan (Wajib jika HOLD)</label><textarea id="modal-note" class="modal-input h-20 resize-none" placeholder="Tulis catatan..."></textarea></div>
             </div>
             <div class="p-6 border-t border-slate-100 bg-slate-50">
-                <button onclick="saveSubtask()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg transition-all text-sm tracking-wide">Simpan Data</button>
+                <button onclick="saveSubtask()" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-xl font-bold uppercase shadow-lg transition-all text-sm tracking-wide">Simpan Data</button>
             </div>
         </div>
     </div>
 
     <div id="confirmModal" class="modal-overlay">
-        <div class="modal-box confirm-box">
-            <div class="confirm-content">
-                <div class="confirm-icon-box icon-warning" id="confirmIconBox">
-                    <i class="fa-solid fa-question" id="confirmIcon"></i>
-                </div>
-                <h3 class="confirm-title" id="confirmTitle">Konfirmasi</h3>
-                <p class="confirm-text" id="confirmText">Apakah Anda yakin?</p>
-                <div class="confirm-actions">
-                    <button onclick="closeModal('confirmModal')" class="btn-confirm btn-no">Batal</button>
-                    <button id="btnConfirmAction" class="btn-confirm btn-yes">Ya, Lanjutkan</button>
-                </div>
+        <div class="modal-box confirm-box p-6">
+            <div class="confirm-icon">
+                <i class="fa-solid fa-circle-question"></i>
+            </div>
+            <h3 class="confirm-title">Simpan Perubahan?</h3>
+            <p class="confirm-text">Apakah Anda yakin ingin menyimpan semua perubahan yang telah dilakukan?</p>
+            <div class="confirm-actions">
+                <button onclick="closeConfirmModal()" class="btn-confirm btn-confirm-no">Batal</button>
+                <button onclick="executeSaveAll()" class="btn-confirm btn-confirm-yes">Ya, Simpan</button>
             </div>
         </div>
     </div>
@@ -408,47 +410,22 @@
         const _sb = supabase.createClient(SB_URL, SB_KEY);
         let allTasks = [], subTasksMap = {}; 
 
-        // --- UTILS ---
-        function showToast(msg, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const div = document.createElement('div');
-            let icon = 'fa-circle-info';
-            if (type === 'success') icon = 'fa-circle-check';
-            if (type === 'error') icon = 'fa-circle-exclamation';
-            
-            div.className = `toast toast-${type}`;
-            div.innerHTML = `<i class="fa-solid ${icon} text-lg"></i><span class="font-semibold text-slate-700 text-sm">${msg}</span>`;
-            
-            container.appendChild(div);
-            requestAnimationFrame(() => div.classList.add('show'));
-            
-            setTimeout(() => {
-                div.classList.remove('show');
-                setTimeout(() => div.remove(), 400);
-            }, 3000);
-        }
-
-        function triggerConfetti() {
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
-        }
-
         function cleanTimestamp(dateStr) { return dateStr ? dateStr.substring(0, 16) : ''; }
-        
-        function isDeadlineNear(dateStr, status) {
-            if(!dateStr || status === 'Done') return false;
-            const deadline = new Date(dateStr);
-            const now = new Date();
-            return deadline < now; // True if deadline passed
+        function formatTime(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            if(isNaN(date.getTime())) return '-';
+            const day = String(date.getUTCDate()).padStart(2, '0');
+            const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+            const year = date.getUTCFullYear().toString().substr(-2);
+            const hours = String(date.getUTCHours()).padStart(2, '0');
+            const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
         }
 
-        // --- STYLING ---
         function getJobClass(job) {
             switch(job) {
-                case 'Improvement': return 'bg-cyan-50 text-cyan-700 border-cyan-200';
+                case 'Improvement': return 'bg-orange-50 text-orange-700 border-orange-200';
                 case 'Overhaul': return 'bg-purple-50 text-purple-700 border-purple-200';
                 case 'Perawatan': return 'bg-amber-50 text-amber-700 border-amber-200';
                 case 'New Project': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
@@ -460,27 +437,22 @@
         function getStatusClass(status) {
             switch(status) {
                 case 'Pending': return 'bg-amber-100 text-amber-700 border-amber-200';
-                case 'In Progress': return 'bg-cyan-100 text-cyan-700 border-cyan-200';
+                case 'In Progress': return 'bg-orange-100 text-orange-700 border-orange-200';
                 case 'Hold': return 'bg-rose-100 text-rose-700 border-rose-200';
                 case 'Done': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
                 default: return 'bg-white text-slate-500 border-slate-200';
             }
         }
-
         function updateSelectColor(el, type) {
             if(type === 'job') el.className = `badge-select ${getJobClass(el.value)}`;
-            if(type === 'status') {
-                el.className = `badge-select ${getStatusClass(el.value)}`;
-                if(el.value === 'Done') triggerConfetti();
-            }
+            if(type === 'status') el.className = `badge-select ${getStatusClass(el.value)}`;
         }
 
-        // --- FETCHING ---
-        async function fetchIsyqiTasks() {
+        async function fetchJumawanTasks() {
             const btn = document.querySelector('.header-btn i.fa-arrows-rotate');
             if(btn) btn.classList.add('fa-spin');
 
-            const { data: mainData, error } = await _sb.from('management_tracker').select('*').ilike('assigned_to', 'isyqi').order('created_at', { ascending: false });
+            const { data: mainData, error } = await _sb.from('management_tracker').select('*').ilike('assigned_to', 'jumawan').order('created_at', { ascending: false });
             
             if (error) {
                 console.error(error);
@@ -516,7 +488,13 @@
             if(currentVal) select.value = currentVal;
         }
 
-        // --- FILTERING & RENDERING ---
+        function isDeadlineNear(dateStr, status) {
+            if(!dateStr || status === 'Done') return false;
+            const deadline = new Date(dateStr);
+            const now = new Date();
+            return deadline < now; 
+        }
+
         function applyFilters() {
             const search = document.getElementById('searchInput').value.toLowerCase();
             const status = document.getElementById('statusFilter').value;
@@ -531,7 +509,7 @@
         }
 
         function renderTasks(dataList) {
-            const tbody = document.getElementById('isyqi-work-body');
+            const tbody = document.getElementById('jumawan-work-body');
             const emptyState = document.getElementById('empty-state');
             
             if (dataList.length === 0) {
@@ -549,37 +527,37 @@
                 const mySubtasks = subTasksMap[row.id] || [];
                 const jobClass = getJobClass(row.job_type); 
                 const statusClass = getStatusClass(row.status);
-                let progressColor = row.status === 'Done' ? "bg-emerald-500" : "bg-cyan-500";
+                let progressColor = row.status === 'Done' ? "bg-emerald-500" : "bg-orange-500";
                 
-                // Deadline Logic for Main Task
                 const isOverdue = isDeadlineNear(row.work_end_time, row.status);
                 const dateClass = isOverdue ? "deadline-danger bg-red-50" : "";
                 const dateIcon = isOverdue ? '<i class="fa-solid fa-triangle-exclamation mr-1"></i>' : '';
 
                 let mainRow = `
-                    <tr class="bg-white border-b border-slate-100 hover:bg-cyan-50/30 transition-colors group" data-id="${row.id}">
-                        <td data-label="PROJECT INFO" class="px-6 py-5 align-top border-l-4 border-cyan-500 pl-5">
-                            <div class="font-extrabold text-slate-800 text-sm uppercase tracking-tight group-hover:text-cyan-700 transition-colors">${row.project_name}</div>
+                    <tr class="bg-white border-b border-slate-100 hover:bg-orange-50/30 transition-colors group" data-id="${row.id}">
+                        <td data-label="PROJECT INFO" class="px-6 py-5 align-top border-l-4 border-orange-600 pl-5">
+                            <div class="font-extrabold text-slate-800 text-sm uppercase tracking-tight group-hover:text-orange-700 transition-colors">${row.project_name}</div>
                             <div class="text-[11px] text-slate-400 mt-1 font-bold bg-slate-100 inline-block px-2 py-0.5 rounded border border-slate-200">${row.machine_name || '-'}</div>
                         </td>
-                        <td data-label="INSTRUKSI" class="px-6 py-5 align-top text-center md:text-left">
-                            <div class="bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-slate-600 font-medium relative text-sm leading-relaxed text-center">
+                        <td data-label="INSTRUKSI" class="px-6 py-5 align-top">
+                            <div class="bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl text-slate-600 font-medium relative text-sm leading-relaxed">
+                                <span class="text-[9px] font-extrabold text-slate-400 uppercase block mb-1 tracking-widest md:hidden">Instruksi</span>
                                 "${row.task_desc || '-'}"
                             </div>
                         </td>
                         <td data-label="PRIORITY" class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
                         <td data-label="PROGRESS" class="px-4 py-5 align-top">
                             <div class="flex items-center gap-2 justify-center">
-                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-16 bg-slate-50 font-bold border-transparent focus:bg-white focus:border-cyan-500">
+                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-16 bg-slate-50 font-bold border-transparent focus:bg-white focus:border-orange-500">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
-                            <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden hidden md:block"><div class="${progressColor} h-full transition-all duration-1000 ease-out" style="width:${progress}%"></div></div>
+                            <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden"><div class="${progressColor} h-full transition-all duration-1000 ease-out" style="width:${progress}%"></div></div>
                         </td>
                         <td data-label="START" class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-xs text-center"></td>
                         <td data-label="FINISH" class="px-4 py-5 align-top text-center">
                              <div class="relative ${dateClass} rounded-lg transition-all">
                                 ${dateIcon}
-                                <input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-xs text-center bg-transparent border-none focus:bg-white focus:border-cyan-500">
+                                <input type="datetime-local" id="end-${row.id}" value="${cleanTimestamp(row.work_end_time)}" class="table-input text-xs text-center bg-transparent border-none focus:bg-white focus:border-orange-500">
                              </div>
                         </td>
                         <td data-label="TIPE" class="px-4 py-5 align-top text-center">
@@ -604,7 +582,7 @@
                             </select>
                         </td>
                         <td data-label="AKSI" class="px-4 py-5 align-top text-center">
-                             <button class="w-full md:w-10 h-10 rounded-xl bg-cyan-600 text-white hover:bg-cyan-700 transition-all shadow-md flex items-center justify-center mx-auto hover:scale-110 active:scale-95 uppercase font-bold text-xs" onclick="saveMain('${row.id}')" title="Simpan Satu">
+                             <button class="w-full md:w-10 h-10 rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition-all shadow-md flex items-center justify-center mx-auto hover:scale-110 active:scale-95 uppercase font-bold text-xs" onclick="saveMain('${row.id}')" title="Simpan Satu">
                                 <i class="fa-solid fa-floppy-disk text-lg mr-2 md:mr-0"></i> <span class="md:hidden">SIMPAN</span>
                              </button>
                         </td>
@@ -616,29 +594,28 @@
                     let jobBadge = getJobClass(sub.job_type); 
                     let statusBadge = getStatusClass(sub.status);
                     
-                    // Subtask Deadline Logic
                     const isSubOverdue = isDeadlineNear(sub.end_date, sub.status);
                     const subDateClass = isSubOverdue ? "deadline-danger bg-red-50" : "";
                     
                     return `
                     <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white transition-colors" data-id="${sub.id}" data-type="sub">
                         <td data-label="TYPE" class="px-6 py-4 text-right align-middle">
-                            <div class="flex items-center justify-end gap-3 md:justify-end justify-center">
-                                <div class="tree-line hidden md:block"></div>
-                                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest bg-slate-200 px-2 py-0.5 rounded">SUBTASK</span>
+                            <div class="flex items-center justify-end gap-3">
+                                <div class="tree-line"></div>
+                                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest bg-slate-200 px-2 py-0.5 rounded">SUB</span>
                             </div>
                         </td>
                         <td data-label="SUB-TASK" class="px-6 py-4 align-middle font-bold text-slate-700 flex justify-between items-center gap-3">
-                            <span class="text-[13px] text-center md:text-left w-full">${sub.subtask_desc}</span>
-                            <div class="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity absolute top-4 right-4 md:relative md:top-0 md:right-0">
+                            <span class="text-[13px]">${sub.subtask_desc}</span>
+                            <div class="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                 <button onclick="editSubtask('${sub.id}', '${row.id}')" class="w-7 h-7 rounded bg-amber-100 text-amber-600 hover:bg-amber-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="confirmDelete('${sub.id}')" class="w-7 h-7 rounded bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="deleteSubTask('${sub.id}')" class="w-7 h-7 rounded bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </td>
                         <td data-label="PRIORITY" class="px-4 py-4 text-center align-middle"><span class="badge ${badgeClass}">${sub.priority}</span></td>
                         <td data-label="PROGRESS" class="px-4 py-4 text-center align-middle">
                             <div class="flex items-center gap-1 justify-center">
-                                <input type="number" id="sub-prog-${sub.id}" value="${sub.progress_percent||0}" class="table-input text-center font-bold text-cyan-600 w-14 p-1">
+                                <input type="number" id="sub-prog-${sub.id}" value="${sub.progress_percent||0}" class="table-input text-center font-bold text-orange-600 w-14 p-1">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
                         </td>
@@ -663,7 +640,7 @@
                             </select>
                         </td>
                         <td data-label="AKSI" class="px-4 py-4 text-center align-middle">
-                             <button class="w-full md:w-8 h-8 rounded-lg bg-cyan-50 text-cyan-600 hover:bg-cyan-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto uppercase font-bold text-xs" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
+                             <button class="w-full md:w-8 h-8 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto uppercase font-bold text-xs" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
                                 <i class="fa-solid fa-floppy-disk text-xs mr-2 md:mr-0"></i> <span class="md:hidden">SIMPAN</span>
                              </button>
                         </td>
@@ -675,269 +652,124 @@
             }).join('');
         }
 
-        // --- POPUP CONFIRMATION (CUSTOM) ---
-        function showConfirm(title, text, iconType, onYes) {
-            document.getElementById('confirmTitle').innerText = title;
-            document.getElementById('confirmText').innerText = text;
-            
-            const iconBox = document.getElementById('confirmIconBox');
-            const icon = document.getElementById('confirmIcon');
-            
-            // Reset classes
-            iconBox.className = 'confirm-icon-box';
-            icon.className = 'fa-solid';
-            
-            if(iconType === 'save') {
-                iconBox.classList.add('icon-save');
-                icon.classList.add('fa-floppy-disk');
-            } else if (iconType === 'delete') {
-                iconBox.classList.add('icon-delete');
-                icon.classList.add('fa-trash-can');
-            } else {
-                iconBox.classList.add('icon-warning');
-                icon.classList.add('fa-question');
-            }
-            
-            const btnYes = document.getElementById('btnConfirmAction');
-            // Clone button to clear previous event listeners
-            const newBtn = btnYes.cloneNode(true);
-            btnYes.parentNode.replaceChild(newBtn, btnYes);
-            
-            newBtn.className = iconType === 'delete' ? 'btn-confirm btn-delete' : 'btn-confirm btn-yes';
-            newBtn.innerText = iconType === 'delete' ? 'Hapus' : 'Ya, Simpan';
-            
-            newBtn.onclick = async () => {
-                closeModal('confirmModal');
-                await onYes();
-            };
-
-            document.getElementById('confirmModal').style.display = 'flex';
-            setTimeout(() => document.getElementById('confirmModal').classList.add('show'), 10);
-        }
-
-        // --- ACTIONS ---
-        function confirmSaveAll() {
-            // Validation
-            let isValid = true;
-            
-            // Validate Main
+        async function saveAllChanges() {
+            const updatesMain = [];
+            const updatesSub = [];
+            let isValid = true; 
             allTasks.forEach(task => {
                 const id = task.id;
                 const statVal = document.getElementById(`stat-${id}`)?.value;
                 const holdVal = document.getElementById(`hold-${id}`)?.value;
-                
-                if (statVal === 'Hold' && (!holdVal || !holdVal.trim())) {
-                    showToast(`⚠️ Project "${task.project_name}" HOLD butuh catatan!`, 'error');
-                    isValid = false;
-                    return;
-                }
+                if (statVal === 'Hold' && (!holdVal || !holdVal.trim())) { alert(`⚠️ Project "${task.project_name}" HOLD butuh catatan!`); isValid = false; return; }
+                if (statVal) updatesMain.push({ id, status: statVal, progress_percent: document.getElementById(`prog-${id}`)?.value, work_start_time: document.getElementById(`start-${id}`)?.value || null, work_end_time: document.getElementById(`end-${id}`)?.value || null, job_type: document.getElementById(`job-${id}`)?.value, hold_reason: holdVal });
             });
-            if(!isValid) return;
-
-            // Validate Sub
+            if (!isValid) return;
             const subTaskArray = Object.values(subTasksMap).flat();
             for (const sub of subTaskArray) {
                 const id = sub.id;
                 const statVal = document.getElementById(`sub-stat-${id}`)?.value;
                 const noteVal = document.getElementById(`sub-note-${id}`)?.value;
-                
-                if (statVal === 'Hold' && (!noteVal || !noteVal.trim())) {
-                    showToast(`⚠️ Subtask "${sub.subtask_desc}" HOLD butuh catatan!`, 'error');
-                    isValid = false;
-                    break;
-                }
+                if (statVal === 'Hold' && (!noteVal || !noteVal.trim())) { alert(`⚠️ Subtask "${sub.subtask_desc}" HOLD butuh catatan!`); isValid = false; break; }
+                if (statVal) updatesSub.push({ id, status: statVal, worker_notes: noteVal });
             }
-            if(!isValid) return;
-
-            // Buka Custom Modal (Menggantikan confirm browser)
-            showConfirm("Simpan Semua?", "Pastikan semua data progres sudah benar sebelum disimpan.", "save", executeSaveAll);
+            if (!isValid) return;
+            
+            document.getElementById('confirmModal').style.display = 'flex';
+            document.getElementById('confirmModal').classList.add('show');
         }
 
-        function confirmDelete(id) {
-            showConfirm("Hapus Subtask?", "Data yang dihapus tidak bisa dikembalikan.", "delete", async () => {
-                await _sb.from('employee_subtasks').delete().eq('id', id);
-                showToast("Subtask dihapus.", "success");
-                fetchIsyqiTasks();
-            });
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+            setTimeout(() => document.getElementById('confirmModal').style.display = 'none', 300);
         }
 
         async function executeSaveAll() {
+            closeConfirmModal();
             const updatesMain = [];
             const updatesSub = [];
-
+            
             allTasks.forEach(task => {
                 const id = task.id;
                 const statVal = document.getElementById(`stat-${id}`)?.value;
-                if (statVal) {
-                    updatesMain.push({
-                        id, status: statVal,
-                        progress_percent: document.getElementById(`prog-${id}`)?.value,
-                        work_start_time: document.getElementById(`start-${id}`)?.value || null,
-                        work_end_time: document.getElementById(`end-${id}`)?.value || null,
-                        job_type: document.getElementById(`job-${id}`)?.value,
-                        hold_reason: document.getElementById(`hold-${id}`)?.value
-                    });
-                }
+                const holdVal = document.getElementById(`hold-${id}`)?.value;
+                if (statVal) updatesMain.push({ id, status: statVal, progress_percent: document.getElementById(`prog-${id}`)?.value, work_start_time: document.getElementById(`start-${id}`)?.value || null, work_end_time: document.getElementById(`end-${id}`)?.value || null, job_type: document.getElementById(`job-${id}`)?.value, hold_reason: holdVal });
             });
-
             const subTaskArray = Object.values(subTasksMap).flat();
             for (const sub of subTaskArray) {
                 const id = sub.id;
                 const statVal = document.getElementById(`sub-stat-${id}`)?.value;
-                if (statVal) {
-                    updatesSub.push({ id, status: statVal, worker_notes: document.getElementById(`sub-note-${id}`)?.value });
-                }
+                if (statVal) updatesSub.push({ id, status: statVal, worker_notes: document.getElementById(`sub-note-${id}`)?.value });
             }
 
             try {
-                showToast("Menyimpan data...", "info");
-                const promises = [
-                    ...updatesMain.map(i => _sb.from('management_tracker').update(i).eq('id', i.id)),
-                    ...updatesSub.map(i => _sb.from('employee_subtasks').update(i).eq('id', i.id))
-                ];
-                await Promise.all(promises);
-                showToast("Semua data berhasil disimpan!", "success");
-                fetchIsyqiTasks();
-            } catch (err) {
-                showToast("Error saat menyimpan.", "error");
-            }
+                const promises = [...updatesMain.map(i => _sb.from('management_tracker').update(i).eq('id', i.id)), ...updatesSub.map(i => _sb.from('employee_subtasks').update(i).eq('id', i.id))];
+                await Promise.all(promises); alert("Tersimpan!"); fetchJumawanTasks();
+            } catch (err) { alert("Error saving."); }
         }
 
-        // --- SINGLE SAVE LOGIC ---
         async function saveMain(id) {
             const sVal = document.getElementById(`start-${id}`).value;
             const eVal = document.getElementById(`end-${id}`).value;
             const statVal = document.getElementById(`stat-${id}`).value;
             const holdVal = document.getElementById(`hold-${id}`).value;
+            if (statVal === 'Hold' && !holdVal.trim()) return alert("Status HOLD wajib isi catatan!");
             
-            if (statVal === 'Hold' && !holdVal.trim()) return showToast("Status HOLD wajib isi catatan!", "error");
-            
-            const payload = {
-                status: statVal,
-                progress_percent: document.getElementById(`prog-${id}`).value,
-                work_start_time: sVal ? sVal : null,
-                work_end_time: eVal ? eVal : null,
-                job_type: document.getElementById(`job-${id}`).value,
-                hold_reason: holdVal
-            };
-            
+            const payload = { status: statVal, progress_percent: document.getElementById(`prog-${id}`).value, work_start_time: sVal || null, work_end_time: eVal || null, job_type: document.getElementById(`job-${id}`).value, hold_reason: holdVal };
             const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
-            if (error) showToast("Gagal: " + error.message, "error"); 
-            else { showToast("Data tersimpan!", "success"); if(statVal === 'Done') triggerConfetti(); fetchIsyqiTasks(); }
+            if (error) alert("Gagal: " + error.message); else { alert("Tersimpan!"); fetchJumawanTasks(); }
         }
 
         async function saveSubtaskInline(subId) {
             const statusVal = document.getElementById(`sub-stat-${subId}`).value;
             const noteVal = document.getElementById(`sub-note-${subId}`).value;
-            
-            if (statusVal === 'Hold' && !noteVal.trim()) return showToast("Status HOLD wajib isi catatan!", "error");
-            
+            if (statusVal === 'Hold' && !noteVal.trim()) return alert("Status HOLD wajib isi catatan!");
             const { error } = await _sb.from('employee_subtasks').update({ status: statusVal, worker_notes: noteVal }).eq('id', subId);
-            if (error) showToast("Gagal: " + error.message, "error"); 
-            else { showToast("Subtask tersimpan!", "success"); if(statusVal === 'Done') triggerConfetti(); fetchIsyqiTasks(); }
+            if (error) alert("Gagal: " + error.message); else { alert("Subtask Tersimpan!"); fetchJumawanTasks(); }
         }
 
         async function saveSubtask() {
             const subId = document.getElementById('modal-subtask-id').value;
             const parentId = document.getElementById('modal-parent-id').value;
             const desc = document.getElementById('modal-desc').value;
-            const statusVal = document.getElementById('modal-status').value;
-            const noteVal = document.getElementById('modal-note').value;
+            if(!parentId || !desc) return alert("Pilih Project & Isi Nama Tugas!");
 
-            if(!parentId || !desc) return showToast("Pilih Project & Isi Nama Tugas!", "error");
-
-            if (statusVal === 'Hold' && !noteVal.trim()) {
-                showToast("⚠️ Status HOLD, Catatan wajib diisi!", "error");
-                document.getElementById('modal-note').focus();
-                return;
-            }
-
-            const sVal = document.getElementById('modal-start').value;
-            const eVal = document.getElementById('modal-finish').value;
-
-            const payload = {
-                parent_task_id: parentId,
-                subtask_desc: desc,
-                priority: document.getElementById('modal-prio').value,
-                progress_percent: document.getElementById('modal-prog').value,
-                start_date: sVal ? sVal : null,
-                end_date: eVal ? eVal : null,
-                job_type: document.getElementById('modal-job').value,
-                worker_notes: noteVal,
-                status: statusVal
-            };
+            const payload = { parent_task_id: parentId, subtask_desc: desc, priority: document.getElementById('modal-prio').value, progress_percent: document.getElementById('modal-prog').value, start_date: document.getElementById('modal-start').value || null, end_date: document.getElementById('modal-finish').value || null, job_type: document.getElementById('modal-job').value, worker_notes: document.getElementById('modal-note').value, status: document.getElementById('modal-status').value };
             
-            let error;
-            if(subId) {
-                const res = await _sb.from('employee_subtasks').update(payload).eq('id', subId);
-                error = res.error;
-            } else {
-                const res = await _sb.from('employee_subtasks').insert([payload]);
-                error = res.error;
-            }
-
-            if(error) showToast("Gagal menyimpan: " + error.message, "error");
-            else { showToast("Subtask berhasil disimpan!", "success"); closeModal('subtaskModal'); fetchIsyqiTasks(); }
+            let res = subId ? await _sb.from('employee_subtasks').update(payload).eq('id', subId) : await _sb.from('employee_subtasks').insert([payload]);
+            if(res.error) alert("Gagal: " + res.error.message); else { alert("Berhasil!"); closeModal('subtaskModal'); fetchJumawanTasks(); }
         }
 
-        // --- SUBTASK MODAL ---
         function openSubtaskModal() {
             document.getElementById('modal-title').innerText = "Tambah Rincian";
-            document.getElementById('modal-subtask-id').value = ""; 
-            document.getElementById('modal-parent-id').disabled = false;
-            document.getElementById('modal-desc').value = '';
-            document.getElementById('modal-prio').value = 'Mid';
-            document.getElementById('modal-prog').value = '0';
-            const now = new Date(); document.getElementById('modal-start').value = now.toISOString().slice(0, 16);
-            
-            const modal = document.getElementById('subtaskModal');
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('show'), 10);
+            document.getElementById('modal-subtask-id').value = ""; document.getElementById('modal-parent-id').value = ''; document.getElementById('modal-parent-id').disabled = false;
+            document.getElementById('modal-desc').value = ''; document.getElementById('modal-prio').value = 'Mid'; document.getElementById('modal-prog').value = '0';
+            document.getElementById('subtaskModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('subtaskModal').classList.add('show'), 10);
         }
-
         function editSubtask(subId, parentId) {
             const task = subTasksMap[parentId].find(t => t.id == subId);
             document.getElementById('modal-title').innerText = "Edit Rincian";
-            document.getElementById('modal-subtask-id').value = subId;
-            const parentSelect = document.getElementById('modal-parent-id');
-            parentSelect.value = parentId;
-            parentSelect.disabled = true;
-            document.getElementById('modal-desc').value = task.subtask_desc;
-            document.getElementById('modal-prio').value = task.priority;
-            document.getElementById('modal-prog').value = task.progress_percent;
-            document.getElementById('modal-start').value = cleanTimestamp(task.start_date);
-            document.getElementById('modal-finish').value = cleanTimestamp(task.end_date);
-            document.getElementById('modal-job').value = task.job_type;
-            document.getElementById('modal-status').value = task.status;
-            document.getElementById('modal-note').value = task.worker_notes;
-            
-            const modal = document.getElementById('subtaskModal');
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('show'), 10);
+            document.getElementById('modal-subtask-id').value = subId; document.getElementById('modal-parent-id').value = parentId; document.getElementById('modal-parent-id').disabled = true;
+            document.getElementById('modal-desc').value = task.subtask_desc; document.getElementById('modal-prio').value = task.priority; document.getElementById('modal-prog').value = task.progress_percent;
+            document.getElementById('modal-start').value = cleanTimestamp(task.start_date); document.getElementById('modal-finish').value = cleanTimestamp(task.end_date);
+            document.getElementById('modal-job').value = task.job_type; document.getElementById('modal-status').value = task.status; document.getElementById('modal-note').value = task.worker_notes;
+            document.getElementById('subtaskModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('subtaskModal').classList.add('show'), 10);
         }
-
-        function closeModal(id) {
-            const modal = document.getElementById(id);
-            modal.classList.remove('show');
-            setTimeout(() => modal.style.display = 'none', 200);
+        function closeModal(modalId) { 
+            document.getElementById(modalId).classList.remove('show');
+            setTimeout(() => document.getElementById(modalId).style.display = 'none', 300);
         }
+        async function deleteSubTask(id) { if(confirm("Hapus?")) { await _sb.from('employee_subtasks').delete().eq('id', id); fetchJumawanTasks(); } }
 
         function updateStats(data) {
              let p=0, i=0, h=0, d=0;
-             data.forEach(item => {
-                 const status = item.status;
-                 if(status === 'Pending') p++;
-                 else if(status === 'In Progress') i++;
-                 else if(status === 'Hold') h++;
-                 else if(status === 'Done') d++;
-             });
-             document.getElementById('stat-active').innerText = i;
-             document.getElementById('stat-pending').innerText = p;
-             document.getElementById('stat-hold').innerText = h;
-             document.getElementById('stat-finished').innerText = d;
+             data.forEach(item => { if(item.status==='Pending') p++; else if(item.status==='In Progress') i++; else if(item.status==='Hold') h++; else if(item.status==='Done') d++; });
+             document.getElementById('stat-active').innerText = i; document.getElementById('stat-pending').innerText = p;
+             document.getElementById('stat-hold').innerText = h; document.getElementById('stat-finished').innerText = d;
         }
 
-        window.onload = fetchIsyqiTasks;
+        window.onload = fetchJumawanTasks;
     </script>
 </body>
 </html>
