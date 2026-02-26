@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -265,7 +264,6 @@
             /* Modal HP */
             .modal-content { width: 100%; height: 100%; margin: 0; border-radius: 0; max-height: 100vh; overflow-y: auto; padding: 20px; }
             .info-grid { grid-template-columns: 1fr; } 
-            canvas { width: 100% !important; }
 
             #toast-container { left: 20px; right: 20px; top: 10px; }
             .toast { min-width: auto; width: 100%; }
@@ -371,7 +369,7 @@
                     <thead>
                         <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] uppercase font-extrabold tracking-wider">
                             <th class="px-6 py-4 w-[250px]">Project Info</th>
-                            <th class="px-6 py-4 min-w-[300px]">Instruksi Kerja</th>
+                            <th class="px-6 py-4 min-w-[300px]">Instru Kerja</th>
                             <th class="px-4 py-4 text-center w-[100px]">Priority</th>
                             <th class="px-4 py-4 text-center w-[120px]">Progress (%)</th>
                             <th class="px-4 py-4 text-center w-[160px]">Start Date</th>
@@ -517,7 +515,6 @@
             if(type === 'job') el.className = `badge-select ${getJobClass(el.value)}`;
             if(type === 'status') {
                 el.className = `badge-select ${getStatusClass(el.value)}`;
-                if(el.value === 'Done') triggerConfetti();
             }
         }
 
@@ -702,8 +699,8 @@
                             </select>
                         </td>
                         <td data-label="AKSI" class="px-4 py-4 text-center align-middle">
-                             <button class="w-full md:w-8 h-8 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto uppercase font-bold text-xs" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
-                                <i class="fa-solid fa-floppy-disk text-xs mr-2 md:mr-0"></i> <span class="md:hidden">SIMPAN</span>
+                             <button class="w-full md:w-10 h-10 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto uppercase font-bold text-xs" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
+                                <i class="fa-solid fa-floppy-disk text-sm mr-2 md:mr-0"></i> <span class="md:hidden">SIMPAN</span>
                              </button>
                         </td>
                     </tr>
@@ -756,7 +753,7 @@
         function closeModal(id) {
             const modal = document.getElementById(id);
             modal.classList.remove('show');
-            setTimeout(() => modal.style.display = 'none', 300);
+            setTimeout(() => modal.style.display = 'none', 200);
         }
 
         // --- ACTIONS ---
@@ -863,7 +860,7 @@
             
             const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
             if (error) showToast("Gagal: " + error.message, "error"); 
-            else { showToast("Data tersimpan!", "success"); if(statVal === 'Done') triggerConfetti(); fetchRyanTasks(); }
+            else { showToast("Data tersimpan!", "success"); fetchRyanTasks(); }
         }
 
         async function saveSubtaskInline(subId) {
@@ -874,7 +871,7 @@
             
             const { error } = await _sb.from('employee_subtasks').update({ status: statusVal, worker_notes: noteVal }).eq('id', subId);
             if (error) showToast("Gagal: " + error.message, "error"); 
-            else { showToast("Subtask tersimpan!", "success"); if(statusVal === 'Done') triggerConfetti(); fetchRyanTasks(); }
+            else { showToast("Subtask tersimpan!", "success"); fetchRyanTasks(); }
         }
 
         async function saveSubtask() {
@@ -982,8 +979,6 @@
             requestAnimationFrame(() => div.classList.add('show'));
             setTimeout(() => { div.classList.remove('show'); setTimeout(() => div.remove(), 400); }, 3000);
         }
-
-        function triggerConfetti() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); }
 
         window.onload = fetchRyanTasks;
     </script>
