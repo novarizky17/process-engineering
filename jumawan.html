@@ -37,7 +37,7 @@
             color: #334155;
             transition: all 0.2s;
         }
-        .table-input:focus { border-color: #ea580c; outline: none; box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1); }
+        .table-input:focus { border-color: #f97316; outline: none; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1); }
 
         /* Badge Select */
         .badge-select {
@@ -89,6 +89,7 @@
         }
         .modal-overlay.show { opacity: 1; }
         
+        /* Modal Form (Input Subtask) */
         .modal-box {
             background: white; width: 100%; max-width: 600px;
             border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -101,7 +102,7 @@
         .modal-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; }
         .modal-input:focus { border-color: #ea580c; background-color: #f8fafc; }
 
-        /* --- FITUR POP-UP CONFIRM --- */
+        /* Confirmation Modal Specifics */
         .confirm-box {
             max-width: 400px;
             text-align: center;
@@ -117,45 +118,37 @@
         .confirm-text { font-size: 14px; color: #64748b; margin-bottom: 25px; line-height: 1.5; }
         .confirm-actions { display: flex; gap: 15px; justify-content: center; }
         
-        .btn-confirm { padding: 12px 24px; border-radius: 12px; font-weight: 700; transition: all 0.2s; font-size: 14px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;}
-        .btn-confirm-yes { background: #ea580c; color: white; box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.3); }
+        .btn-confirm { padding: 12px 24px; border-radius: 12px; font-weight: 700; transition: all 0.2s; font-size: 14px; flex: 1; }
+        .btn-confirm-yes { background: #f97316; color: white; box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3); }
         .btn-confirm-yes:hover { background: #c2410c; transform: translateY(-2px); }
-        .btn-confirm-delete { background: #ef4444; color: white; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3); }
-        .btn-confirm-delete:hover { background: #dc2626; transform: translateY(-2px); }
         .btn-confirm-no { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
         .btn-confirm-no:hover { background: #e2e8f0; }
 
         /* Badges */
         .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .badge-mid { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; } /* Orange */
+        .badge-mid { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; } 
         .badge-high { background: #ffe4e6; color: #be123c; border: 1px solid #fecdd3; }
         .badge-low { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
         
         .tree-line { border-left: 2px dashed #cbd5e1; border-bottom: 2px dashed #cbd5e1; height: 25px; width: 20px; display: inline-block; margin-right: 8px; margin-bottom: 5px; opacity: 0.5; }
 
-        /* --- FITUR TOAST NOTIFICATION --- */
+        /* TOAST NOTIFICATION */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { 
             background: white; border-left: 5px solid; padding: 15px 20px; border-radius: 8px; 
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px;
-            min-width: 300px; transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); pointer-events: auto;
+            min-width: 300px; transform: translateX(100%); transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); pointer-events: auto;
         }
         .toast.show { transform: translateX(0); }
         .toast-success { border-color: #10b981; } .toast-success i { color: #10b981; }
         .toast-error { border-color: #ef4444; } .toast-error i { color: #ef4444; }
-        .toast-info { border-color: #ea580c; } .toast-info i { color: #ea580c; }
+        .toast-info { border-color: #f97316; } .toast-info i { color: #f97316; }
 
-        /* --- CSS TABEL DESKTOP --- */
-        .card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
-        
-        @media screen and (min-width: 769px) {
-            table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-            th { background: #f8f9fa; padding: 18px; text-align: left; font-size: 13px; color: #555; text-transform: uppercase; border-bottom: 2px solid #eee; font-weight: 700; }
-            td { padding: 16px; border-top: 1px solid #eee; font-size: 14px; vertical-align: middle; color: #444; }
-            .row-ng td { border-top: 1px solid #ffebeb; }
-        }
+        /* DEADLINE WARNING ANIMATION */
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+        .deadline-danger { border-color: #ef4444 !important; color: #ef4444 !important; animation: pulse-red 2s infinite; }
 
-        /* --- MOBILE RESPONSIVE CSS (STYLE RYAN.HTML - STACKED KIRI/TENGAH) --- */
+        /* --- MOBILE RESPONSIVE CSS --- */
         @media screen and (max-width: 768px) {
             .header-content { flex-direction: column; align-items: flex-start; gap: 15px; }
             .header-btn { width: 100%; justify-content: center; }
@@ -183,12 +176,11 @@
                 border-left: 4px solid #94a3b8;
             }
 
-            /* Stacked Layout */
             td {
                 padding: 12px 16px;
                 border-bottom: 1px solid #f1f5f9;
                 position: relative;
-                text-align: left; /* Rata Kiri sesuai ryan.html */
+                text-align: left;
             }
             
             td::before {
@@ -213,6 +205,7 @@
 
             #toast-container { left: 20px; right: 20px; top: 10px; }
             .toast { min-width: auto; width: 100%; }
+            
             .confirm-actions { flex-direction: column-reverse; }
         }
     </style>
@@ -350,7 +343,7 @@
         <div class="modal-box">
             <div class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50 rounded-t-2xl">
                 <div><h3 id="modal-title" class="text-lg font-extrabold text-slate-800 uppercase">Input Sub-Task</h3></div>
-                <button onclick="closeModal('subtaskModal')" class="text-slate-400 hover:text-red-500 text-2xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 text-2xl transition-colors"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="p-6 space-y-5">
                 <input type="hidden" id="modal-subtask-id">
@@ -398,15 +391,15 @@
     </div>
 
     <div id="confirmModal" class="modal-overlay">
-        <div class="modal-box confirm-box">
+        <div class="modal-box confirm-box p-6">
             <div class="confirm-icon">
-                <i class="fa-solid fa-circle-question" id="confirmIconInfo"></i>
+                <i class="fa-solid fa-circle-question"></i>
             </div>
-            <h3 class="confirm-title" id="confirmTitle">Konfirmasi</h3>
-            <p class="confirm-text" id="confirmText">Apakah Anda yakin?</p>
+            <h3 class="confirm-title">Simpan Perubahan?</h3>
+            <p class="confirm-text">Apakah Anda yakin ingin menyimpan semua perubahan yang telah dilakukan?</p>
             <div class="confirm-actions">
                 <button onclick="closeConfirmModal()" class="btn-confirm btn-confirm-no">Batal</button>
-                <button id="btnConfirmAction" class="btn-confirm btn-confirm-yes">Ya, Simpan</button>
+                <button onclick="executeSaveAll()" class="btn-confirm btn-confirm-yes">Ya, Simpan</button>
             </div>
         </div>
     </div>
@@ -437,7 +430,7 @@
                 case 'Overhaul': return 'bg-purple-50 text-purple-700 border-purple-200';
                 case 'Perawatan': return 'bg-amber-50 text-amber-700 border-amber-200';
                 case 'New Project': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                case 'Trial': return 'bg-orange-50 text-orange-700 border-orange-200';
+                case 'Trial': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
                 default: return 'bg-slate-50 text-slate-500 border-slate-200';
             }
         }
@@ -453,10 +446,7 @@
         }
         function updateSelectColor(el, type) {
             if(type === 'job') el.className = `badge-select ${getJobClass(el.value)}`;
-            if(type === 'status') {
-                el.className = `badge-select ${getStatusClass(el.value)}`;
-                if(el.value === 'Done') triggerConfetti();
-            }
+            if(type === 'status') el.className = `badge-select ${getStatusClass(el.value)}`;
         }
 
         async function fetchJumawanTasks() {
@@ -559,11 +549,11 @@
                         </td>
                         <td data-label="PRIORITY" class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
                         <td data-label="PROGRESS" class="px-4 py-5 align-top">
-                            <div class="flex items-center gap-2 justify-center">
+                            <div class="flex items-center gap-2 justify-end md:justify-center">
                                 <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-16 bg-slate-50 font-bold border-transparent focus:bg-white focus:border-orange-500">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
-                            <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden hidden md:block"><div class="${progressColor} h-full transition-all duration-1000 ease-out" style="width:${progress}%"></div></div>
+                            <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden"><div class="${progressColor} h-full transition-all duration-1000 ease-out" style="width:${progress}%"></div></div>
                         </td>
                         <td data-label="START" class="px-4 py-5 align-top text-center"><input type="datetime-local" id="start-${row.id}" value="${cleanTimestamp(row.work_start_time)}" class="table-input text-xs text-center"></td>
                         <td data-label="FINISH" class="px-4 py-5 align-top text-center">
@@ -621,12 +611,12 @@
                             <span class="text-[13px]">${sub.subtask_desc}</span>
                             <div class="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                 <button onclick="editSubtask('${sub.id}', '${row.id}')" class="w-7 h-7 rounded bg-amber-100 text-amber-600 hover:bg-amber-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="confirmDelete('${sub.id}')" class="w-7 h-7 rounded bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
+                                <button onclick="deleteSubTask('${sub.id}')" class="w-7 h-7 rounded bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </td>
                         <td data-label="PRIORITY" class="px-4 py-4 text-center align-middle"><span class="badge ${badgeClass}">${sub.priority}</span></td>
                         <td data-label="PROGRESS" class="px-4 py-4 text-center align-middle">
-                            <div class="flex items-center gap-1 justify-center">
+                            <div class="flex items-center gap-1 justify-end md:justify-center">
                                 <input type="number" id="sub-prog-${sub.id}" value="${sub.progress_percent||0}" class="table-input text-center font-bold text-orange-600 w-14 p-1">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
@@ -664,30 +654,30 @@
             }).join('');
         }
 
-        // --- POPUP CUSTOM (CONFIRM) ---
-        function showConfirm(title, text, type, action) {
-            document.getElementById('confirmTitle').innerText = title;
-            document.getElementById('confirmText').innerText = text;
-            
-            const btnYes = document.getElementById('btnConfirmAction');
-            const newBtn = btnYes.cloneNode(true);
-            btnYes.parentNode.replaceChild(newBtn, btnYes);
-            
-            if (type === 'delete') {
-                newBtn.className = 'btn-confirm btn-confirm-delete';
-                newBtn.innerText = 'Hapus';
-            } else {
-                newBtn.className = 'btn-confirm btn-confirm-yes';
-                newBtn.innerText = 'Ya, Simpan';
+        async function saveAllChanges() {
+            const updatesMain = [];
+            const updatesSub = [];
+            let isValid = true; 
+            allTasks.forEach(task => {
+                const id = task.id;
+                const statVal = document.getElementById(`stat-${id}`)?.value;
+                const holdVal = document.getElementById(`hold-${id}`)?.value;
+                if (statVal === 'Hold' && (!holdVal || !holdVal.trim())) { alert(`⚠️ Project "${task.project_name}" HOLD butuh catatan!`); isValid = false; return; }
+                if (statVal) updatesMain.push({ id, status: statVal, progress_percent: document.getElementById(`prog-${id}`)?.value, work_start_time: document.getElementById(`start-${id}`)?.value || null, work_end_time: document.getElementById(`end-${id}`)?.value || null, job_type: document.getElementById(`job-${id}`)?.value, hold_reason: holdVal });
+            });
+            if (!isValid) return;
+            const subTaskArray = Object.values(subTasksMap).flat();
+            for (const sub of subTaskArray) {
+                const id = sub.id;
+                const statVal = document.getElementById(`sub-stat-${id}`)?.value;
+                const noteVal = document.getElementById(`sub-note-${id}`)?.value;
+                if (statVal === 'Hold' && (!noteVal || !noteVal.trim())) { alert(`⚠️ Subtask "${sub.subtask_desc}" HOLD butuh catatan!`); isValid = false; break; }
+                if (statVal) updatesSub.push({ id, status: statVal, worker_notes: noteVal });
             }
-            
-            newBtn.onclick = () => {
-                closeConfirmModal();
-                action();
-            };
+            if (!isValid) return;
             
             document.getElementById('confirmModal').style.display = 'flex';
-            setTimeout(() => document.getElementById('confirmModal').classList.add('show'), 10);
+            document.getElementById('confirmModal').classList.add('show');
         }
 
         function closeConfirmModal() {
@@ -695,37 +685,8 @@
             setTimeout(() => document.getElementById('confirmModal').style.display = 'none', 300);
         }
 
-        function confirmSaveAll() {
-            let isValid = true; 
-            allTasks.forEach(task => {
-                const id = task.id;
-                const statVal = document.getElementById(`stat-${id}`)?.value;
-                const holdVal = document.getElementById(`hold-${id}`)?.value;
-                if (statVal === 'Hold' && (!holdVal || !holdVal.trim())) { showToast(`⚠️ Project "${task.project_name}" HOLD butuh catatan!`, 'error'); isValid = false; return; }
-            });
-            if (!isValid) return;
-            
-            const subTaskArray = Object.values(subTasksMap).flat();
-            for (const sub of subTaskArray) {
-                const id = sub.id;
-                const statVal = document.getElementById(`sub-stat-${id}`)?.value;
-                const noteVal = document.getElementById(`sub-note-${id}`)?.value;
-                if (statVal === 'Hold' && (!noteVal || !noteVal.trim())) { showToast(`⚠️ Subtask "${sub.subtask_desc}" HOLD butuh catatan!`, 'error'); isValid = false; break; }
-            }
-            if (!isValid) return;
-            
-            showConfirm("Simpan Semua?", "Pastikan progres sudah benar.", "save", executeSaveAll);
-        }
-
-        function confirmDelete(id) {
-            showConfirm("Hapus Subtask?", "Data akan dihapus permanen.", "delete", async () => {
-                await _sb.from('employee_subtasks').delete().eq('id', id);
-                showToast("Subtask dihapus.", "success");
-                fetchJumawanTasks();
-            });
-        }
-
         async function executeSaveAll() {
+            closeConfirmModal();
             const updatesMain = [];
             const updatesSub = [];
             
@@ -743,12 +704,9 @@
             }
 
             try {
-                showToast("Menyimpan...", "info");
                 const promises = [...updatesMain.map(i => _sb.from('management_tracker').update(i).eq('id', i.id)), ...updatesSub.map(i => _sb.from('employee_subtasks').update(i).eq('id', i.id))];
-                await Promise.all(promises); 
-                showToast("Semua data tersimpan!", "success"); 
-                fetchJumawanTasks();
-            } catch (err) { showToast("Error saat menyimpan.", "error"); }
+                await Promise.all(promises); alert("Tersimpan!"); fetchJumawanTasks();
+            } catch (err) { alert("Error saving."); }
         }
 
         async function saveMain(id) {
@@ -756,31 +714,31 @@
             const eVal = document.getElementById(`end-${id}`).value;
             const statVal = document.getElementById(`stat-${id}`).value;
             const holdVal = document.getElementById(`hold-${id}`).value;
-            if (statVal === 'Hold' && !holdVal.trim()) return showToast("Status HOLD wajib isi catatan!", "error");
+            if (statVal === 'Hold' && !holdVal.trim()) return alert("Status HOLD wajib isi catatan!");
             
             const payload = { status: statVal, progress_percent: document.getElementById(`prog-${id}`).value, work_start_time: sVal || null, work_end_time: eVal || null, job_type: document.getElementById(`job-${id}`).value, hold_reason: holdVal };
             const { error } = await _sb.from('management_tracker').update(payload).eq('id', id);
-            if (error) showToast("Gagal: " + error.message, "error"); else { showToast("Data Tersimpan!", "success"); if(statVal === 'Done') triggerConfetti(); fetchJumawanTasks(); }
+            if (error) alert("Gagal: " + error.message); else { alert("Tersimpan!"); if(statVal === 'Done') triggerConfetti(); fetchJumawanTasks(); }
         }
 
         async function saveSubtaskInline(subId) {
             const statusVal = document.getElementById(`sub-stat-${subId}`).value;
             const noteVal = document.getElementById(`sub-note-${subId}`).value;
-            if (statusVal === 'Hold' && !noteVal.trim()) return showToast("Status HOLD wajib isi catatan!", "error");
+            if (statusVal === 'Hold' && !noteVal.trim()) return alert("Status HOLD wajib isi catatan!");
             const { error } = await _sb.from('employee_subtasks').update({ status: statusVal, worker_notes: noteVal }).eq('id', subId);
-            if (error) showToast("Gagal: " + error.message, "error"); else { showToast("Subtask Tersimpan!", "success"); if(statusVal === 'Done') triggerConfetti(); fetchJumawanTasks(); }
+            if (error) alert("Gagal: " + error.message); else { alert("Subtask Tersimpan!"); if(statusVal === 'Done') triggerConfetti(); fetchJumawanTasks(); }
         }
 
         async function saveSubtask() {
             const subId = document.getElementById('modal-subtask-id').value;
             const parentId = document.getElementById('modal-parent-id').value;
             const desc = document.getElementById('modal-desc').value;
-            if(!parentId || !desc) return showToast("Pilih Project & Isi Nama Tugas!", "error");
+            if(!parentId || !desc) return alert("Pilih Project & Isi Nama Tugas!");
 
             const payload = { parent_task_id: parentId, subtask_desc: desc, priority: document.getElementById('modal-prio').value, progress_percent: document.getElementById('modal-prog').value, start_date: document.getElementById('modal-start').value || null, end_date: document.getElementById('modal-finish').value || null, job_type: document.getElementById('modal-job').value, worker_notes: document.getElementById('modal-note').value, status: document.getElementById('modal-status').value };
             
             let res = subId ? await _sb.from('employee_subtasks').update(payload).eq('id', subId) : await _sb.from('employee_subtasks').insert([payload]);
-            if(res.error) showToast("Gagal: " + res.error.message, "error"); else { showToast("Berhasil Disimpan!", "success"); closeModal(); fetchJumawanTasks(); }
+            if(res.error) alert("Gagal: " + res.error.message); else { alert("Berhasil!"); closeModal(); fetchJumawanTasks(); }
         }
 
         function openSubtaskModal() {
@@ -808,6 +766,14 @@
         function closeModal() { 
             document.getElementById('subtaskModal').classList.remove('show');
             setTimeout(() => document.getElementById('subtaskModal').style.display = 'none', 300);
+        }
+
+        async function deleteSubTask(id) { 
+            if(confirm("Hapus item ini selamanya?")) { 
+                await _sb.from('employee_subtasks').delete().eq('id', id); 
+                alert("Item dihapus.");
+                fetchJumawanTasks(); 
+            } 
         }
 
         function updateStats(data) {
