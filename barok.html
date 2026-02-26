@@ -179,7 +179,7 @@
             .card { border-radius: 0 !important; box-shadow: none !important; background: transparent; width: 100%; margin: 0; padding: 0; }
 
             /* --- BARIS TABEL (KARTU) --- */
-            #mainTable tr { 
+            .data-row { 
                 display: block; 
                 margin-bottom: 15px; 
                 background: #fff;
@@ -188,7 +188,7 @@
                 width: 100%; 
             }
             
-            #mainTable tr[data-type="sub"] {
+            .data-row[data-type="sub"] {
                 margin-top: -15px; 
                 border-top: none;
                 border-left: 4px solid #cbd5e1;
@@ -196,7 +196,7 @@
             }
 
             /* --- SEL TABEL (STACKED DI TENGAH) --- */
-            #mainTable td { 
+            .data-row td { 
                 display: flex !important;
                 flex-direction: column !important; /* BERTUMPUK KE BAWAH */
                 justify-content: center !important; 
@@ -208,7 +208,7 @@
             }
             
             /* Label Header Kolom */
-            #mainTable td::before { 
+            .data-row td::before { 
                 content: attr(data-label); 
                 font-weight: 800; 
                 text-transform: uppercase; 
@@ -222,21 +222,21 @@
             }
             
             /* Pengecualian: Project Info Rata Kiri & Background Beda */
-            #mainTable td[data-label="PROJECT INFO"] { 
+            .data-row td[data-label="PROJECT INFO"] { 
                 background: #f8fafc !important; /* Tema Gray Muda */
                 text-align: left !important; 
                 align-items: flex-start !important; /* Rata Kiri khusus Judul */
                 border-bottom: 2px solid #e2e8f0 !important;
             }
-            #mainTable td[data-label="PROJECT INFO"]::before { display: none !important; }
+            .data-row td[data-label="PROJECT INFO"]::before { display: none !important; }
 
             /* Tombol Simpan Full Width di HP */
-            #mainTable td:last-child { 
+            .data-row td:last-child { 
                 border-bottom: none !important; 
                 padding: 15px 20px !important; 
                 background: #fff !important; 
             }
-            #mainTable td:last-child button { width: 100% !important; padding: 12px !important; }
+            .data-row td:last-child button { width: 100% !important; padding: 12px !important; }
             
             /* Inputs Lebar Penuh & Rata Tengah */
             .table-input, .badge-select { 
@@ -381,7 +381,7 @@
                             <th class="px-4 py-4 text-center w-[70px]">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="barok-work-body" class="divide-y divide-slate-100 bg-white text-sm" id="mainTable">
+                    <tbody id="barok-work-body" class="divide-y divide-slate-100 bg-white text-sm">
                         </tbody>
                 </table>
             </div>
@@ -516,7 +516,6 @@
             if(type === 'job') el.className = `badge-select ${getJobClass(el.value)}`;
             if(type === 'status') {
                 el.className = `badge-select ${getStatusClass(el.value)}`;
-                // Kembang api dihilangkan
             }
         }
 
@@ -596,7 +595,7 @@
                 const dateIcon = isOverdue ? '<i class="fa-solid fa-triangle-exclamation mr-1"></i>' : '';
 
                 let mainRow = `
-                    <tr class="bg-white border-b border-slate-100 hover:bg-slate-50/60 transition-colors group" id="mainTable" data-id="${row.id}">
+                    <tr class="data-row bg-white hover:bg-slate-50/60 transition-colors group" data-id="${row.id}">
                         <td data-label="PROJECT INFO" class="px-6 py-5 align-top border-l-4 border-slate-600 pl-5">
                             <div class="font-extrabold text-slate-800 text-lg uppercase tracking-tight group-hover:text-slate-700 transition-colors">${row.project_name}</div>
                             <div class="text-[12px] text-slate-600 mt-2 font-bold bg-slate-100 inline-block px-3 py-1 rounded-full border border-slate-200">${row.machine_name || '-'}</div>
@@ -659,7 +658,7 @@
                     const subDateClass = isSubOverdue ? "deadline-danger bg-red-50" : "";
                     
                     return `
-                    <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white transition-colors" id="mainTable" data-id="${sub.id}" data-type="sub">
+                    <tr class="data-row bg-slate-50/50 hover:bg-white transition-colors" data-id="${sub.id}" data-type="sub">
                         <td data-label="TYPE" class="px-6 py-4 text-right align-middle">
                             <div class="flex items-center justify-end gap-3 md:justify-end justify-center">
                                 <div class="tree-line hidden md:block"></div>
@@ -701,7 +700,7 @@
                             </select>
                         </td>
                         <td data-label="AKSI" class="px-4 py-4 text-center align-middle">
-                             <button class="w-full md:w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto uppercase font-bold text-xs" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
+                             <button class="w-full md:w-8 h-8 rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-600 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto uppercase font-bold text-xs" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
                                 <i class="fa-solid fa-floppy-disk text-xs mr-2 md:mr-0"></i> <span class="md:hidden">SIMPAN</span>
                              </button>
                         </td>
@@ -801,8 +800,8 @@
             allTasks.forEach(task => {
                 const id = task.id;
                 const statVal = document.getElementById(`stat-${id}`)?.value;
-                const holdVal = document.getElementById(`hold-${id}`)?.value;
                 
+                // Pastikan element exist di layar sebelum diambil nilainya
                 if (statVal) {
                     updatesMain.push({
                         id: id, 
@@ -836,16 +835,29 @@
             try {
                 showToast("Menyimpan data...", "info");
                 
-                const promises = [];
-                updatesMain.forEach(data => promises.push(_sb.from('management_tracker').update(data).eq('id', data.id)));
-                updatesSub.forEach(data => promises.push(_sb.from('employee_subtasks').update(data).eq('id', data.id)));
-
-                const results = await Promise.all(promises);
+                // Sequential save (satu-satu) agar tidak kena limit rate API Supabase/PostgREST
+                let hasError = false;
                 
-                const hasError = results.some(res => res.error);
+                for (const data of updatesMain) {
+                    const idToUpdate = data.id;
+                    const payload = { ...data };
+                    delete payload.id; // Bersihkan ID dari payload agar tidak konflik
+                    
+                    const { error } = await _sb.from('management_tracker').update(payload).eq('id', idToUpdate);
+                    if (error) { console.error(error); hasError = true; }
+                }
+                
+                for (const data of updatesSub) {
+                    const idToUpdate = data.id;
+                    const payload = { ...data };
+                    delete payload.id;
+                    
+                    const { error } = await _sb.from('employee_subtasks').update(payload).eq('id', idToUpdate);
+                    if (error) { console.error(error); hasError = true; }
+                }
+
                 if(hasError) {
                     showToast("Sebagian data gagal disimpan", "error");
-                    console.error("Save errors:", results);
                 } else {
                     showToast("Semua data berhasil disimpan!", "success");
                 }
