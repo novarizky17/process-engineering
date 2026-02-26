@@ -389,14 +389,12 @@
 
                 return `
                 <tr class="data-row group">
-                    <td data-label="NAMA PROJECT">
+                    <td data-label="NAMA PROJECT" class="px-6 py-5 uppercase text-slate-800">
                         <div class="font-black text-sm md:text-base text-slate-900 leading-tight">${name}</div>
                         ${lateIndicator}
                     </td>
-                    <td data-label="TOTAL TASK">
-                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-xs font-black border border-slate-200">${data.count} Tasks</span>
-                    </td>
-                    <td data-label="AVG PROGRESS">
+                    <td data-label="TOTAL TASK" class="px-4 py-5 text-center text-slate-500 font-black bg-slate-50/50">${data.count} Tasks</td>
+                    <td data-label="AVG PROGRESS" class="px-4 py-5 text-center">
                         <div class="flex items-center justify-center md:justify-start gap-2 w-full max-w-[150px] mx-auto">
                             <span class="text-blue-600 font-black text-sm w-10 text-right">${avgProgress}%</span>
                             <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden shadow-inner">
@@ -561,7 +559,7 @@
 
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
-        // EXPORT TO EXCEL ROBUST LOGIC
+        // --- SISTEM DOWNLOAD EXCEL UNTUK WEB-TO-APP MOBILE ---
         function exportToExcel() {
             if (!rawData || rawData.length === 0) {
                 alert("Tidak ada data untuk di-export!");
@@ -587,7 +585,6 @@
 
                 const ws = XLSX.utils.json_to_sheet(exportData);
                 
-                // Set default column widths for safety
                 const colWidths = [
                     { wch: 5 }, { wch: 30 }, { wch: 15 }, { wch: 15 }, 
                     { wch: 40 }, { wch: 10 }, { wch: 15 }, { wch: 15 }, 
@@ -597,12 +594,47 @@
 
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "Laporan_Harian");
-                XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
+                
+                // Konversi menjadi Blob
+                const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                const dataBlob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const fileName = "Resume_Daily_Report.xlsx";
+
+                // DETEKSI SHARE API KHUSUS MOBILE APP / WEBVIEW
+                if (navigator.share && navigator.canShare) {
+                    const file = new File([dataBlob], fileName, { type: dataBlob.type });
+                    if (navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            files: [file],
+                            title: 'Resume Daily Report',
+                            text: 'Berikut adalah file Excel Resume Daily Report.'
+                        }).catch(err => {
+                            console.log("Share dibatalkan/Gagal:", err);
+                            fallbackDownload(dataBlob, fileName);
+                        });
+                        return;
+                    }
+                }
+                
+                // Fallback untuk Desktop PC biasa
+                fallbackDownload(dataBlob, fileName);
 
             } catch (err) {
                 console.error("Gagal mendownload Excel:", err);
                 alert("Terjadi masalah saat membuat file Excel. Silakan coba lagi.");
             }
+        }
+
+        // FUNGSI STANDAR DOWNLOAD (BROWSER PC)
+        function fallbackDownload(blob, fileName) {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
         }
 
         function switchChart(type) {
