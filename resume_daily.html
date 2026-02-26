@@ -8,13 +8,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
         .gradient-orange { background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%); }
         .toggle-container { background-color: #f1f5f9; border-radius: 16px; padding: 6px; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
-        .btn-toggle { padding: 8px 16px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; transition: all 0.3s ease; color: #64748b; border: none; cursor: pointer; }
+        .btn-toggle { padding: 8px 16px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; transition: all 0.3s ease; color: #64748b; border: none; cursor: pointer; flex: 1; min-width: 80px; text-align: center;}
         .btn-active { background-color: #ea580c; color: white; box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.4); }
         .person-card { transition: all 0.3s ease; cursor: pointer; border-radius: 1rem; padding: 1rem; text-align: center; border: 1px solid transparent; }
         .person-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); filter: brightness(0.95); }
@@ -26,8 +26,8 @@
         .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
         .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; max-height: 90vh; }
-        .popup-modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); justify-content: center; align-items: center; }
-        .popup-content { background: white; border-radius: 20px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; position: relative; animation: zoomIn 0.2s ease-out; padding: 25px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .popup-modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); justify-content: center; align-items: center; padding: 15px; }
+        .popup-content { background: white; border-radius: 20px; width: 100%; max-width: 600px; max-height: 85vh; overflow-y: auto; position: relative; animation: zoomIn 0.2s ease-out; padding: 25px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 8px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.8s ease-out; }
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
@@ -38,10 +38,7 @@
         .task-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.1); border-color: #cbd5e1; }
         .left-border { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; }
 
-        /* ==========================================================
-           HANYA CSS KHUSUS TAMPILAN MOBILE (HP)
-           Desktop sama sekali tidak disentuh / tidak berubah
-           ========================================================== */
+        /* TAMPILAN MOBILE KHUSUS */
         @media screen and (max-width: 768px) {
             header > div { flex-direction: column; align-items: flex-start !important; gap: 15px; }
             .header-buttons { flex-direction: column; width: 100%; }
@@ -50,7 +47,7 @@
             thead { display: none; }
             table, tbody, tr, td { display: block; width: 100%; }
             
-            tr {
+            tr.data-row {
                 background: white;
                 margin-bottom: 15px;
                 border-radius: 16px;
@@ -103,74 +100,79 @@
 </head>
 <body class="min-h-screen pb-12">
 
-    <header class="gradient-orange w-full pt-12 pb-24 px-8 mb-[-80px] shadow-2xl">
-        <div class="max-w-[98%] mx-auto flex justify-between items-end">
-            <div>
-                <h1 class="text-3xl font-extrabold text-white tracking-tight uppercase">Resume Daily Report</h1>
-                <p class="text-orange-100 text-sm mt-1 font-medium tracking-wide">Monitoring Progres & Analisis Data Terintegrasi</p>
+    <header class="gradient-orange w-full pt-12 pb-24 px-6 md:px-8 mb-[-80px] shadow-2xl">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center md:items-end gap-5">
+            <div class="text-center md:text-left w-full md:w-auto">
+                <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight uppercase">Resume Daily Report</h1>
+                <p class="text-orange-100 text-xs md:text-sm mt-1 font-medium tracking-wide">Monitoring Progres & Analisis Data Terintegrasi</p>
             </div>
-            <div class="flex gap-3 header-buttons">
-                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-emerald-500 transition-all shadow-lg">Download Excel All Task</button>
-                <a href="management_tracker.html" class="bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-xl font-bold text-xs uppercase border border-white/20 transition-all flex items-center justify-center">Kembali</a>
+            <div class="flex header-buttons w-full md:w-auto gap-3">
+                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase border border-emerald-500 transition-all shadow-lg flex items-center gap-2">
+                    <i class="fa-solid fa-file-excel"></i> Download Excel
+                </button>
+                <a href="management_tracker.html" class="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white px-6 py-3 rounded-xl font-bold text-xs uppercase border border-white/20 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </a>
             </div>
         </div>
     </header>
 
-    <main class="max-w-[98%] mx-auto px-4 mt-20">
-        <section class="mb-8 relative z-10">
-            <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
-                <div class="flex flex-col gap-4">
+    <main class="max-w-7xl mx-auto px-4 mt-20">
+        <section class="mb-6 relative z-10">
+            <div class="bg-white p-5 md:p-6 rounded-[2rem] shadow-xl border border-slate-100">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                     <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
                         <span class="w-2 h-6 bg-blue-600 rounded-full"></span>
                         Project Aggregated Progress
                     </h3>
-                    <div class="flex justify-start">
-                        <button onclick="openProjectAggregateModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-black text-[10px] uppercase shadow-md flex items-center gap-2 transition-all active:scale-95">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                            Review Semua Project
-                        </button>
-                    </div>
+                    <button onclick="openProjectAggregateModal()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-black text-[11px] uppercase shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95">
+                        <i class="fa-solid fa-chart-pie"></i> Review Semua Project
+                    </button>
                 </div>
             </div>
         </section>
 
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 relative z-10">
-            <div class="lg:col-span-2 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
+            <div class="lg:col-span-2 bg-white p-5 md:p-6 rounded-[2rem] shadow-xl border border-slate-100">
                 <div class="flex flex-col gap-4 mb-6">
-                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest">Visualisasi Diagram</h3>
+                    <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest text-center md:text-left">Visualisasi Diagram</h3>
                     <div class="toggle-container">
-                        <button id="btn-person" onclick="switchChart('person')" class="btn-toggle btn-active">Per Personil</button>
+                        <button id="btn-person" onclick="switchChart('person')" class="btn-toggle btn-active">Personil</button>
                         <button id="btn-Pending" onclick="switchChart('Pending')" class="btn-toggle">Pending</button>
-                        <button id="btn-In Progress" onclick="switchChart('In Progress')" class="btn-toggle">In Progress</button>
+                        <button id="btn-In Progress" onclick="switchChart('In Progress')" class="btn-toggle">Progress</button>
                         <button id="btn-Hold" onclick="switchChart('Hold')" class="btn-toggle">Hold</button>
                         <button id="btn-Done" onclick="switchChart('Done')" class="btn-toggle">Done</button>
                     </div>
                 </div>
-                <div class="h-[350px] w-full"><canvas id="projectChart"></canvas></div>
+                <div class="h-[300px] md:h-[350px] w-full"><canvas id="projectChart"></canvas></div>
             </div>
-            <div class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 flex flex-col">
+            
+            <div class="bg-white p-5 md:p-6 rounded-[2rem] shadow-xl border border-slate-100 flex flex-col">
                 <h3 class="text-sm font-black text-slate-700 uppercase tracking-widest mb-6 text-center">Summary Task</h3>
-                <div id="personnel-stats" class="grid grid-cols-2 gap-3 flex-grow"></div>
+                <div id="personnel-stats" class="grid grid-cols-3 md:grid-cols-2 gap-2 md:gap-3 flex-grow"></div>
                 <div class="mt-6 pt-4 border-t border-slate-100 text-center">
-                    <div class="bg-slate-900 text-white p-4 rounded-2xl inline-block w-full">
-                        <p class="text-[10px] font-black uppercase text-slate-400">Grand Total Tasks</p>
-                        <h4 id="grand-total-tasks" class="text-2xl font-black mt-1">0</h4>
+                    <div class="bg-slate-900 text-white p-4 rounded-2xl inline-block w-full shadow-lg">
+                        <p class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Grand Total Tasks</p>
+                        <h4 id="grand-total-tasks" class="text-3xl font-black mt-1 text-orange-400">0</h4>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="relative">
-                <input type="text" id="search-report" list="project-list" oninput="applyFilters()" placeholder="Cari atau Pilih Project..." class="w-full bg-slate-50 border border-slate-200 pl-4 pr-4 py-3 rounded-2xl text-sm outline-none font-bold">
-                <datalist id="project-list"></datalist>
-            </div>
-            <div class="flex items-center justify-end px-4 text-xs text-slate-500 italic font-medium">
-                * Data dikelompokkan per Project. Perhatikan notif LATE.
+        <section class="bg-white p-5 md:p-6 rounded-[2rem] shadow-xl border border-slate-100 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                <div class="relative w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
+                    <input type="text" id="search-report" list="project-list" oninput="applyFilters()" placeholder="Cari atau Pilih Project..." class="w-full bg-slate-50 border border-slate-200 pl-11 pr-4 py-3 rounded-2xl text-sm outline-none font-bold focus:border-orange-500 focus:bg-white transition-all">
+                    <datalist id="project-list"></datalist>
+                </div>
+                <div class="flex items-center justify-center md:justify-end px-2 text-xs text-slate-500 italic font-medium">
+                    <i class="fa-solid fa-circle-info mr-2 text-orange-500"></i> Data dikelompokkan per Project
+                </div>
             </div>
         </section>
 
-        <section class="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden text-sm">
+        <section class="bg-white md:rounded-[2rem] shadow-xl border-t border-b md:border border-slate-100 overflow-hidden text-sm">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -188,90 +190,91 @@
     </main>
 
     <div id="projectAggregateModal" class="modal">
-        <div class="modal-content shadow-2xl" style="max-width: 1100px;">
-            <div class="bg-blue-900 p-6 text-white flex justify-between items-center flex-shrink-0">
+        <div class="modal-content shadow-2xl">
+            <div class="bg-blue-900 p-5 md:p-6 text-white flex justify-between items-center flex-shrink-0">
                 <div>
                     <h2 class="text-lg font-black uppercase tracking-tight">Review Semua Project</h2>
                     <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest">Akumulasi Seluruh Project</p>
                 </div>
-                <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none">&times;</button>
+                <button onclick="closeProjectAggregateModal()" class="text-white/70 hover:text-white text-3xl font-light leading-none transition-colors">&times;</button>
             </div>
-            <div class="p-8 overflow-y-auto custom-scroll bg-slate-50 text-center flex-grow">
-                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8 inline-block w-full max-w-[450px]">
+            <div class="p-4 md:p-8 overflow-y-auto custom-scroll bg-slate-50 text-center flex-grow">
+                <div class="bg-white p-5 md:p-8 rounded-[2rem] shadow-sm border border-slate-200 mb-8 inline-block w-full max-w-[450px]">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Akumulasi Progres</h3>
                         <span id="overall-prog-label" class="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100">0%</span>
                     </div>
-                    <div class="h-[250px] w-full relative"><canvas id="projectPieChart"></canvas></div>
+                    <div class="h-[200px] md:h-[250px] w-full relative"><canvas id="projectPieChart"></canvas></div>
                 </div>
-                <div class="max-w-xl mx-auto mb-6">
-                    <input type="text" id="search-modal-project" list="project-list" oninput="renderAggregateProjects()" placeholder="Filter Judul Project..." class="w-full bg-white border border-slate-200 pl-4 pr-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
+                <div class="max-w-xl mx-auto mb-6 relative">
+                    <i class="fa-solid fa-filter absolute left-4 top-3.5 text-slate-400"></i>
+                    <input type="text" id="search-modal-project" list="project-list" oninput="renderAggregateProjects()" placeholder="Filter Judul Project..." class="w-full bg-white border border-slate-200 pl-10 pr-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm focus:border-blue-500 transition-all uppercase">
                 </div>
-                <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left"></div>
+                <div id="modal-project-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 text-left"></div>
             </div>
-            <div class="p-6 bg-white border-t flex justify-center gap-4 flex-shrink-0">
-                <button onclick="closeProjectAggregateModal()" class="bg-slate-800 text-white px-8 py-3 rounded-xl font-black uppercase text-[10px]">Tutup</button>
+            <div class="p-4 md:p-6 bg-white border-t flex justify-center flex-shrink-0">
+                <button onclick="closeProjectAggregateModal()" class="bg-slate-800 hover:bg-slate-900 text-white w-full md:w-auto px-12 py-3.5 rounded-xl font-black uppercase text-xs transition-all shadow-md">Tutup Panel</button>
             </div>
         </div>
     </div>
 
     <div id="detailModal" class="modal">
         <div class="modal-content shadow-2xl bg-slate-50">
-            <div class="bg-slate-900 p-6 text-white flex justify-between items-center border-b border-slate-800 flex-shrink-0">
-                <div>
-                    <h2 class="text-xl font-black uppercase flex items-center gap-3">Detail Project</h2>
-                    <p id="det-project-name" class="text-blue-400 text-xs font-bold uppercase tracking-wider mt-1"></p>
+            <div class="bg-slate-900 p-5 md:p-6 text-white flex justify-between items-center border-b border-slate-800 flex-shrink-0">
+                <div class="w-[85%]">
+                    <h2 class="text-sm md:text-xl font-black uppercase flex items-center gap-2 md:gap-3">Detail Project</h2>
+                    <p id="det-project-name" class="text-orange-400 text-[10px] md:text-xs font-bold uppercase tracking-wider mt-1 truncate"></p>
                 </div>
                 <button onclick="closeModal()" class="text-white/50 hover:text-white text-3xl transition-colors">&times;</button>
             </div>
-            <div class="p-8 overflow-y-auto custom-scroll flex-grow">
-                 <div id="grouped-tasks-container" class="flex flex-col gap-5"></div>
+            <div class="p-4 md:p-8 overflow-y-auto custom-scroll flex-grow">
+                 <div id="grouped-tasks-container" class="flex flex-col gap-4 md:gap-5"></div>
             </div>
-            <div class="p-6 bg-white border-t flex justify-center flex-shrink-0">
-                <button onclick="closeModal()" class="bg-slate-800 hover:bg-slate-900 text-white w-full max-w-md py-4 rounded-xl font-black uppercase text-xs shadow-lg transition-all">Tutup</button>
+            <div class="p-4 md:p-6 bg-white border-t flex justify-center flex-shrink-0">
+                <button onclick="closeModal()" class="bg-slate-800 hover:bg-slate-900 text-white w-full max-w-md py-3.5 md:py-4 rounded-xl font-black uppercase text-xs shadow-lg transition-all">Kembali</button>
             </div>
         </div>
     </div>
 
     <div id="singleTaskPopup" class="popup-modal">
         <div class="popup-content">
-            <div class="flex justify-between items-start mb-6 border-b border-slate-100 pb-4">
-                <div>
-                    <span id="popup-person" class="bg-blue-100 text-blue-700 text-[10px] font-black px-3 py-1 rounded-md uppercase tracking-wide">PERSONIL</span>
-                    <h3 id="popup-desc" class="text-lg font-black text-slate-800 mt-2 leading-snug">Task Description</h3>
+            <div class="flex justify-between items-start mb-5 md:mb-6 border-b border-slate-100 pb-4">
+                <div class="w-[90%]">
+                    <span id="popup-person" class="bg-blue-100 text-blue-700 text-[9px] md:text-[10px] font-black px-3 py-1 rounded-md uppercase tracking-wide">PERSONIL</span>
+                    <h3 id="popup-desc" class="text-sm md:text-lg font-black text-slate-800 mt-2.5 leading-snug break-words">Task Description</h3>
                     <div id="popup-late-badge" class="hidden mt-2"></div>
                 </div>
                 <button onclick="closePopup()" class="text-slate-400 hover:text-red-500 text-2xl transition-colors">&times;</button>
             </div>
-            <div class="space-y-5">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <label class="text-[9px] font-bold text-slate-400 uppercase">Status</label>
-                        <p id="popup-status" class="text-sm font-black text-slate-700 uppercase">PENDING</p>
+            <div class="space-y-4 md:space-y-5">
+                <div class="grid grid-cols-2 gap-3 md:gap-4">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+                        <label class="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase">Status</label>
+                        <p id="popup-status" class="text-xs md:text-sm font-black text-slate-700 uppercase mt-0.5">PENDING</p>
                     </div>
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                        <label class="text-[9px] font-bold text-slate-400 uppercase">Progress</label>
-                        <p id="popup-progress" class="text-sm font-black text-blue-600">0%</p>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center">
+                        <label class="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase">Progress</label>
+                        <p id="popup-progress" class="text-xs md:text-sm font-black text-blue-600 mt-0.5">0%</p>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4 text-xs">
-                    <div>
-                        <label class="text-[9px] font-bold text-slate-400 uppercase">Start Date</label>
+                <div class="grid grid-cols-2 gap-3 md:gap-4 text-xs">
+                    <div class="bg-slate-50/50 p-2 rounded-lg border border-slate-100">
+                        <label class="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase block mb-1">Start Date</label>
                         <p id="popup-start" class="font-bold text-slate-600">-</p>
                     </div>
-                    <div class="text-right">
-                        <label class="text-[9px] font-bold text-slate-400 uppercase">Target Finish</label>
+                    <div class="bg-slate-50/50 p-2 rounded-lg border border-slate-100 text-right">
+                        <label class="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase block mb-1">Target Finish</label>
                         <p id="popup-finish" class="font-bold text-slate-600">-</p>
                     </div>
                 </div>
-                <div class="bg-slate-50 rounded-xl border border-slate-200 p-4">
-                    <h4 class="text-xs font-black text-slate-500 uppercase mb-3 border-b border-slate-200 pb-2">Rincian Sub-Task</h4>
-                    <div id="popup-subtasks" class="space-y-3 max-h-40 overflow-y-auto custom-scroll pr-1"></div>
+                <div class="bg-slate-50 rounded-xl border border-slate-200 p-3 md:p-4">
+                    <h4 class="text-[10px] md:text-xs font-black text-slate-500 uppercase mb-3 border-b border-slate-200 pb-2"><i class="fa-solid fa-list-check mr-1"></i> Rincian Sub-Task</h4>
+                    <div id="popup-subtasks" class="space-y-2 md:space-y-3 max-h-40 overflow-y-auto custom-scroll pr-1"></div>
                 </div>
-                <div id="popup-notes-container" class="space-y-3"></div>
+                <div id="popup-notes-container" class="space-y-2 md:space-y-3"></div>
             </div>
-            <div class="mt-6 pt-4 border-t border-slate-100 text-center">
-                <button onclick="closePopup()" class="bg-slate-800 text-white w-full py-3 rounded-xl font-bold text-xs hover:bg-slate-900 transition-all">Tutup Detail</button>
+            <div class="mt-5 md:mt-6 pt-4 border-t border-slate-100 text-center">
+                <button onclick="closePopup()" class="bg-slate-800 text-white w-full py-3 rounded-xl font-bold text-xs hover:bg-slate-900 transition-all shadow-md">Tutup Detail</button>
             </div>
         </div>
     </div>
@@ -323,7 +326,7 @@
             updatePersonnelGrid();
             switchChart('person'); 
             renderGroupedTable();
-            populateProjectList(); // ISI DATALIST (DROPDOWN SEARCH)
+            populateProjectList(); 
         }
 
         function processGroupedData() {
@@ -336,17 +339,17 @@
                 groupedData[name].tasks.push(item);
                 groupedData[name].totalProgress += parseFloat(item.progress_percent || 0);
                 groupedData[name].count += 1;
-                if(getDaysLate(item.due_date, item.status) > 0) groupedData[name].hasLate = true;
+                // FIX: Menyesuaikan pemanggilan database agar notifikasi Late berfungsi
+                if(getDaysLate(item.work_end_time, item.status) > 0) groupedData[name].hasLate = true;
             });
         }
 
-        // --- FUNGSI MENGISI DATALIST (DROPDOWN SEARCH) ---
         function populateProjectList() {
             const dataList = document.getElementById('project-list');
             if(!dataList) return;
             
-            dataList.innerHTML = ''; // Reset list
-            const projectNames = Object.keys(groupedData).sort(); // Urut Abjad
+            dataList.innerHTML = ''; 
+            const projectNames = Object.keys(groupedData).sort(); 
 
             projectNames.forEach(name => {
                 const option = document.createElement('option');
@@ -367,13 +370,12 @@
             renderGroupedTable(search);
         }
 
-        // --- RENDER TABEL ---
         function renderGroupedTable(searchTerm = "") {
             const tbody = document.getElementById('resume-body');
             const projectNames = Object.keys(groupedData).filter(name => name.toLowerCase().includes(searchTerm));
             
             if (projectNames.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-400 italic">Tidak ada project ditemukan</td></tr>';
+                tbody.innerHTML = '<tr class="data-row"><td colspan="4" class="text-center py-8 text-slate-400 italic">Tidak ada project ditemukan</td></tr>';
                 return;
             }
 
@@ -382,34 +384,35 @@
                 const avgProgress = (data.totalProgress / data.count).toFixed(1);
                 
                 const lateIndicator = data.hasLate 
-                    ? `<div class="text-[9px] text-red-600 font-bold mt-1 animate-pulse">⚠️ Overdue Item Detected</div>` 
-                    : `<div class="text-[10px] text-slate-400 normal-case mt-1 font-medium group-hover:text-orange-500 transition-colors">Klik review untuk detail</div>`;
+                    ? `<div class="text-[9px] text-red-600 font-bold mt-1.5 bg-red-50 inline-block px-2 py-0.5 rounded animate-pulse"><i class="fa-solid fa-triangle-exclamation"></i> Overdue Item Detected</div>` 
+                    : `<div class="text-[9px] text-slate-400 normal-case mt-1.5 font-medium group-hover:text-orange-500 transition-colors">Semua tugas on-track</div>`;
 
                 return `
-                <tr class="hover:bg-slate-50 transition-all text-xs font-bold border-b border-slate-100 group">
-                    <td data-label="NAMA PROJECT" class="px-6 py-5 uppercase text-slate-800">
-                        <div class="font-black text-sm text-slate-900">${name}</div>
+                <tr class="data-row group">
+                    <td data-label="NAMA PROJECT">
+                        <div class="font-black text-sm md:text-base text-slate-900 leading-tight">${name}</div>
                         ${lateIndicator}
                     </td>
-                    <td data-label="TOTAL TASK" class="px-4 py-5 text-center text-slate-500 font-black bg-slate-50/50">${data.count} Tasks</td>
-                    <td data-label="AVG PROGRESS" class="px-4 py-5 text-center">
-                        <div class="flex items-center justify-center gap-2">
-                            <span class="text-blue-600 font-black w-8 text-right">${avgProgress}%</span>
-                            <div class="w-24 h-2 bg-slate-200 rounded-full overflow-hidden shadow-inner">
+                    <td data-label="TOTAL TASK">
+                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-xs font-black border border-slate-200">${data.count} Tasks</span>
+                    </td>
+                    <td data-label="AVG PROGRESS">
+                        <div class="flex items-center justify-center md:justify-start gap-2 w-full max-w-[150px] mx-auto">
+                            <span class="text-blue-600 font-black text-sm w-10 text-right">${avgProgress}%</span>
+                            <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden shadow-inner">
                                 <div class="h-full ${getProgressColor(avgProgress)}" style="width: ${avgProgress}%"></div>
                             </div>
                         </div>
                     </td>
-                    <td data-label="AKSI" class="px-6 py-5 text-center">
-                        <button onclick="openGroupDetail('${name.replace(/'/g, "\\'")}')" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 mx-auto">
-                             Review
+                    <td data-label="AKSI">
+                        <button onclick="openGroupDetail('${name.replace(/'/g, "\\'")}')" class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl text-[10px] md:text-xs font-black uppercase shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 mx-auto">
+                             <i class="fa-solid fa-folder-open"></i> Review
                         </button>
                     </td>
                 </tr>`;
             }).join('');
         }
 
-        // --- GROUP DETAIL MODAL (WITH PRIORITY) ---
         function openGroupDetail(projName) {
             document.getElementById('det-project-name').innerText = projName;
             const tasks = groupedData[projName].tasks;
@@ -422,39 +425,38 @@
                 else if(t.priority === 'Mid') borderColor = 'bg-blue-500';
                 else if(t.priority === 'Low') borderColor = 'bg-emerald-500';
                 
-                // PRIORITY CLASS FOR BADGE
                 let prioClass = 'bg-slate-100 text-slate-600 border-slate-200';
                 if(t.priority === 'High') prioClass = 'bg-rose-100 text-rose-700 border-rose-200';
                 else if(t.priority === 'Mid') prioClass = 'bg-blue-50 text-blue-700 border-blue-200';
                 else if(t.priority === 'Low') prioClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
 
-                const subtaskCount = subtasks.length > 0 ? `${subtasks.length} Subtask` : 'Tidak ada subtask';
+                const subtaskCount = subtasks.length > 0 ? `<i class="fa-solid fa-diagram-project mr-1"></i> ${subtasks.length} Subtask` : 'Tidak ada subtask';
                 const taskData = encodeURIComponent(JSON.stringify(t));
-                const daysLate = getDaysLate(t.due_date, t.status);
-                const lateBadge = daysLate > 0 ? `<span class="bg-red-500 text-white text-[9px] px-2 py-0.5 rounded font-black animate-pulse shadow-sm ml-2">LATE ${daysLate} DAYS</span>` : '';
+                const daysLate = getDaysLate(t.work_end_time, t.status); // FIXED CALL
+                const lateBadge = daysLate > 0 ? `<span class="bg-red-500 text-white text-[8px] md:text-[9px] px-2 py-0.5 rounded font-black animate-pulse shadow-sm ml-2">LATE ${daysLate} DAYS</span>` : '';
 
                 return `
-                <div onclick="openPopup('${taskData}')" class="task-card group hover:bg-blue-50/30 transition-colors">
+                <div onclick="openPopup('${taskData}')" class="task-card group hover:bg-blue-50/40">
                     <div class="left-border ${borderColor}"></div>
-                    <div class="flex justify-between items-start mb-3 pl-2 task-card-inner">
-                        <div class="flex flex-col">
-                            <div class="flex gap-2 mb-2">
-                                <span class="bg-blue-100 text-blue-700 text-[9px] font-black px-3 py-1 rounded-md uppercase tracking-wide w-fit">👤 ${t.assigned_to}</span>
-                                <span class="${prioClass} text-[9px] font-black px-3 py-1 rounded-md uppercase tracking-wide border">${t.priority || 'Mid'}</span>
+                    <div class="flex flex-col md:flex-row justify-between md:items-start mb-3 pl-3 md:pl-2 gap-3 md:gap-0 task-card-inner">
+                        <div class="flex flex-col w-full md:w-[75%]">
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                <span class="bg-slate-800 text-white text-[8px] md:text-[9px] font-black px-2.5 py-1 rounded-md uppercase tracking-wide w-fit"><i class="fa-regular fa-user mr-1"></i> ${t.assigned_to}</span>
+                                <span class="${prioClass} text-[8px] md:text-[9px] font-black px-2.5 py-1 rounded-md uppercase tracking-wide border">${t.priority || 'Mid'}</span>
                             </div>
-                            <h3 class="text-sm font-bold text-slate-800 uppercase leading-snug">${t.task_desc || 'Tidak ada deskripsi'}</h3>
+                            <h3 class="text-xs md:text-sm font-bold text-slate-800 uppercase leading-snug break-words pr-2">${t.task_desc || 'Tidak ada deskripsi'}</h3>
                         </div>
-                        <div class="text-right flex-shrink-0 ml-4 task-stats">
-                             <span class="text-[9px] font-black px-2 py-1 rounded ${t.status === 'Done' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'} uppercase border border-slate-200">${t.status}</span>
-                             <div class="text-sm font-black text-slate-800 mt-1">${t.progress_percent}%</div>
+                        <div class="flex flex-row md:flex-col justify-between items-center md:items-end w-full md:w-[25%] bg-slate-50 md:bg-transparent p-2 md:p-0 rounded-lg md:rounded-none border md:border-none border-slate-100 task-stats">
+                             <span class="text-[9px] font-black px-2 py-1 rounded ${t.status === 'Done' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'} uppercase">${t.status}</span>
+                             <div class="text-sm md:text-base font-black text-slate-800 mt-0 md:mt-1">${t.progress_percent}%</div>
                         </div>
                     </div>
-                    <div class="flex justify-between items-center text-[10px] font-medium text-slate-500 mx-2 mt-2 bg-slate-50 p-2 rounded-lg">
-                        <div class="flex items-center">Target: <span class="font-bold text-slate-700 ml-1">${formatDateTimeClean(t.due_date)}</span> ${lateBadge}</div>
+                    <div class="flex justify-between items-center text-[9px] md:text-[10px] font-medium text-slate-500 mx-2 md:mt-2 bg-slate-50 p-2 md:p-2.5 rounded-lg border border-slate-100">
+                        <div class="flex items-center"><i class="fa-regular fa-calendar-check mr-1.5 opacity-70"></i> Target: <span class="font-bold text-slate-700 ml-1">${formatDateTimeClean(t.work_end_time)}</span> ${lateBadge}</div>
                     </div>
-                    <div class="mt-3 mx-2 pt-2 border-t border-slate-100 flex justify-between items-center">
-                        <span class="text-[10px] text-slate-400 italic">${subtaskCount}</span>
-                        <span class="text-[10px] font-bold text-blue-600 group-hover:underline">Klik detail ></span>
+                    <div class="mt-3 mx-2 pt-2.5 border-t border-slate-100 flex justify-between items-center">
+                        <span class="text-[9px] md:text-[10px] text-slate-400 font-bold">${subtaskCount}</span>
+                        <span class="text-[9px] md:text-[10px] font-bold text-orange-500 group-hover:text-orange-600 transition-colors flex items-center gap-1">Lihat Rincian <i class="fa-solid fa-chevron-right text-[8px]"></i></span>
                     </div>
                 </div>`;
             }).join('');
@@ -462,22 +464,21 @@
             document.getElementById('detailModal').style.display = 'block';
         }
 
-        // --- POP-UP DETAIL SATUAN ---
         function openPopup(encodedTask) {
             const t = JSON.parse(decodeURIComponent(encodedTask));
             const subtasks = allSubtasks.filter(s => s.parent_task_id == t.id);
 
-            document.getElementById('popup-person').innerText = t.assigned_to;
+            document.getElementById('popup-person').innerHTML = `<i class="fa-regular fa-user mr-1"></i> ${t.assigned_to}`;
             document.getElementById('popup-desc').innerText = t.task_desc;
             document.getElementById('popup-status').innerText = t.status;
             document.getElementById('popup-progress').innerText = t.progress_percent + '%';
-            document.getElementById('popup-start').innerText = formatDateTimeClean(t.start_date);
-            document.getElementById('popup-finish').innerText = formatDateTimeClean(t.due_date);
+            document.getElementById('popup-start').innerText = formatDateTimeClean(t.work_start_time);
+            document.getElementById('popup-finish').innerText = formatDateTimeClean(t.work_end_time);
 
-            const daysLate = getDaysLate(t.due_date, t.status);
+            const daysLate = getDaysLate(t.work_end_time, t.status);
             const badgeContainer = document.getElementById('popup-late-badge');
             if(daysLate > 0) {
-                badgeContainer.innerHTML = `<span class="bg-red-500 text-white text-xs px-3 py-1 rounded-full font-black animate-pulse">⚠️ OVERDUE BY ${daysLate} DAYS</span>`;
+                badgeContainer.innerHTML = `<span class="bg-red-500 text-white text-[10px] md:text-xs px-3 py-1 rounded-full font-black animate-pulse shadow-sm inline-block mt-1"><i class="fa-solid fa-circle-exclamation mr-1"></i> OVERDUE BY ${daysLate} DAYS</span>`;
                 badgeContainer.classList.remove('hidden');
             } else {
                 badgeContainer.classList.add('hidden');
@@ -486,28 +487,31 @@
             const subContainer = document.getElementById('popup-subtasks');
             if (subtasks.length > 0) {
                 subContainer.innerHTML = subtasks.map(s => `
-                    <div class="bg-white p-2.5 rounded-lg border border-slate-100 shadow-sm flex flex-col gap-1">
-                        <div class="flex justify-between">
-                            <span class="text-[10px] font-bold text-slate-700">${s.subtask_desc}</span>
-                            <span class="text-[9px] font-black ${s.status==='Done'?'text-emerald-500':'text-orange-500'}">${s.status}</span>
+                    <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-1.5">
+                        <div class="flex justify-between items-start gap-2">
+                            <span class="text-[10px] md:text-[11px] font-bold text-slate-700 leading-tight">${s.subtask_desc}</span>
+                            <span class="text-[8px] md:text-[9px] font-black px-2 py-0.5 rounded bg-slate-50 border border-slate-100 ${s.status==='Done'?'text-emerald-500':'text-orange-500'}">${s.status}</span>
                         </div>
-                        ${s.worker_notes ? `<p class="text-[9px] text-slate-400 italic">"${s.worker_notes}"</p>` : ''}
-                        <div class="w-full bg-slate-100 h-1.5 rounded-full mt-1 overflow-hidden">
-                            <div class="h-full bg-blue-500" style="width: ${s.progress_percent}%"></div>
+                        ${s.worker_notes ? `<p class="text-[9px] md:text-[10px] text-slate-400 italic bg-slate-50 p-1.5 rounded">"${s.worker_notes}"</p>` : ''}
+                        <div class="flex items-center gap-2 mt-1">
+                            <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                <div class="h-full ${s.progress_percent >= 100 ? 'bg-emerald-500' : 'bg-blue-500'}" style="width: ${s.progress_percent}%"></div>
+                            </div>
+                            <span class="text-[8px] font-black text-slate-400 w-6 text-right">${s.progress_percent}%</span>
                         </div>
                     </div>
                 `).join('');
             } else {
-                subContainer.innerHTML = '<p class="text-xs text-slate-400 italic">Tidak ada rincian subtask.</p>';
+                subContainer.innerHTML = '<p class="text-xs text-slate-400 italic bg-white p-3 rounded-xl border border-slate-100 text-center">Tidak ada rincian subtask tersimpan.</p>';
             }
 
             const noteContainer = document.getElementById('popup-notes-container');
             let notesHtml = '';
             if(t.worker_comment && t.worker_comment !== '-') {
-                notesHtml += `<div class="bg-indigo-50 p-3 rounded-xl text-xs text-indigo-800 italic border border-indigo-100"><span class="font-bold not-italic block mb-1">Komentar:</span> "${t.worker_comment}"</div>`;
+                notesHtml += `<div class="bg-indigo-50 p-3.5 rounded-xl text-[11px] text-indigo-800 italic border border-indigo-100"><span class="font-black not-italic block mb-1 text-[9px] uppercase tracking-wider text-indigo-400"><i class="fa-regular fa-comment-dots mr-1"></i> Komentar Pekerja:</span> "${t.worker_comment}"</div>`;
             }
             if(t.hold_reason) {
-                notesHtml += `<div class="bg-rose-50 p-3 rounded-xl text-xs text-rose-800 font-bold border border-rose-100"><span class="block mb-1 text-rose-500">ALASAN HOLD:</span> ${t.hold_reason}</div>`;
+                notesHtml += `<div class="bg-rose-50 p-3.5 rounded-xl text-[11px] text-rose-800 font-bold border border-rose-100"><span class="block mb-1 text-[9px] text-rose-500 uppercase tracking-wider font-black"><i class="fa-solid fa-hand-paper mr-1"></i> ALASAN HOLD:</span> ${t.hold_reason}</div>`;
             }
             noteContainer.innerHTML = notesHtml;
 
@@ -517,14 +521,13 @@
         function closePopup() { document.getElementById('singleTaskPopup').style.display = 'none'; }
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
 
-        // --- GLOBAL REVIEW (AGREGAT) ---
         function renderAggregateProjects() {
             const searchVal = document.getElementById('search-modal-project')?.value.toLowerCase() || "";
             const container = document.getElementById('modal-project-list');
             const projectKeys = Object.keys(groupedData).filter(name => name.toLowerCase().includes(searchVal));
 
             if (projectKeys.length === 0) {
-                container.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 font-bold italic">Project tidak ditemukan...</div>`;
+                container.innerHTML = `<div class="col-span-full py-10 text-center text-slate-400 font-bold italic bg-white rounded-2xl border border-dashed border-slate-300">Project tidak ditemukan...</div>`;
                 return;
             }
 
@@ -533,13 +536,18 @@
                 const avgProgress = (data.totalProgress / data.count).toFixed(1);
                 const displayAvg = parseFloat(avgProgress);
 
-                return `<div onclick="openGroupDetail('${projName.replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm">
-                    <div class="flex justify-between items-start mb-4">
-                        <h4 class="text-xs font-black text-slate-800 uppercase truncate max-w-[180px]">${projName}</h4>
-                        <span class="text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 ${displayAvg >= 50 ? 'text-blue-700' : 'text-rose-700'}">${displayAvg}%</span>
+                return `<div onclick="openGroupDetail('${projName.replace(/'/g, "\\'")}')" class="bg-white p-5 md:p-6 rounded-3xl border border-slate-200 hover:border-blue-500 hover:shadow-xl transition-all cursor-pointer group shadow-sm flex flex-col justify-between h-full">
+                    <div>
+                        <div class="flex justify-between items-start mb-4 gap-3">
+                            <h4 class="text-[11px] md:text-xs font-black text-slate-800 uppercase leading-snug break-words">${projName}</h4>
+                            <span class="text-[9px] md:text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 flex-shrink-0 ${displayAvg >= 100 ? 'text-emerald-600 bg-emerald-50 border-emerald-100' : (displayAvg >= 50 ? 'text-blue-600' : 'text-rose-600')}">${displayAvg}%</span>
+                        </div>
+                        <div class="progress-bg h-2 mb-5 shadow-inner"><div class="progress-fill ${getProgressColor(displayAvg)}" style="width: ${displayAvg}%"></div></div>
                     </div>
-                    <div class="progress-bg h-2 mb-4"><div class="progress-fill ${getProgressColor(displayAvg)}" style="width: ${displayAvg}%"></div></div>
-                    <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 uppercase"><span>${data.count} Tasks Total</span><span class="group-hover:text-blue-600 transition-colors">Lihat Detail &rarr;</span></div>
+                    <div class="flex justify-between items-center text-[9px] font-bold text-slate-400 uppercase mt-auto pt-3 border-t border-slate-50">
+                        <span class="bg-slate-100 px-2 py-1 rounded-md text-slate-500"><i class="fa-solid fa-layer-group mr-1"></i> ${data.count} Tasks</span>
+                        <span class="group-hover:text-blue-600 transition-colors flex items-center gap-1 bg-blue-50 text-blue-500 px-2 py-1 rounded-md opacity-0 group-hover:opacity-100">Review <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
                 </div>`;
             }).join('');
         }
@@ -553,44 +561,50 @@
 
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
-        // EXPORT TO EXCEL: PARENT ONLY + PRIORITY
+        // EXPORT TO EXCEL ROBUST LOGIC
         function exportToExcel() {
-            if (rawData.length === 0) return alert("Tidak ada data untuk di-export!");
+            if (!rawData || rawData.length === 0) {
+                alert("Tidak ada data untuk di-export!");
+                return;
+            }
             
-            const exportData = rawData.map((parent, index) => ({
-                'No': index + 1,
-                'Project Name': (parent.project_name || "").toUpperCase(),
-                'PIC': parent.assigned_to,
-                'Task Description': parent.task_desc,
-                'Priority': parent.priority || "Mid", // ADDED PRIORITY HERE
-                'Status': parent.status,
-                'Progress (%)': parent.progress_percent,
-                'Start Date': formatDateTimeClean(parent.start_date),
-                'Due Date': formatDateTimeClean(parent.due_date),
-                'Actual Finish': formatDateTimeClean(parent.actual_finish || parent.work_end_time),
-                'Hold Reason': parent.hold_reason || "-",
-                'Worker Comment': parent.worker_comment || "-"
-            }));
+            try {
+                const exportData = rawData.map((parent, index) => ({
+                    'No': index + 1,
+                    'Project Name': (parent.project_name || "-").toUpperCase(),
+                    'Mesin / Item': parent.machine_name || "-",
+                    'PIC': (parent.assigned_to || "-").toUpperCase(),
+                    'Task Description': parent.task_desc || "-",
+                    'Priority': parent.priority || "Mid", 
+                    'Kategori': parent.job_type || "-",
+                    'Status': parent.status || "-",
+                    'Progress (%)': parent.progress_percent || 0,
+                    'Start Date': formatDateTimeClean(parent.work_start_time),
+                    'Finish Date': formatDateTimeClean(parent.work_end_time),
+                    'Hold Reason': parent.hold_reason || "-",
+                    'Worker Comment': parent.worker_comment || "-"
+                }));
 
-            const ws = XLSX.utils.json_to_sheet(exportData);
-            
-            const colWidths = Object.keys(exportData[0]).map(key => {
-                let maxLen = key.length; 
-                exportData.forEach(row => {
-                    let cellVal = row[key] ? String(row[key]) : "";
-                    if (cellVal.length > maxLen) maxLen = cellVal.length;
-                });
-                return { wch: maxLen + 2 }; 
-            });
+                const ws = XLSX.utils.json_to_sheet(exportData);
+                
+                // Set default column widths for safety
+                const colWidths = [
+                    { wch: 5 }, { wch: 30 }, { wch: 15 }, { wch: 15 }, 
+                    { wch: 40 }, { wch: 10 }, { wch: 15 }, { wch: 15 }, 
+                    { wch: 15 }, { wch: 20 }, { wch: 20 }, { wch: 25 }, { wch: 25 }
+                ];
+                ws['!cols'] = colWidths;
 
-            ws['!cols'] = colWidths;
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Laporan_Harian");
+                XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
 
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Laporan Harian");
-            XLSX.writeFile(wb, "Resume_Daily_Report.xlsx");
+            } catch (err) {
+                console.error("Gagal mendownload Excel:", err);
+                alert("Terjadi masalah saat membuat file Excel. Silakan coba lagi.");
+            }
         }
 
-        // CHARTS & STATS WITH LABELS
         function switchChart(type) {
             document.querySelectorAll('.btn-toggle').forEach(btn => btn.classList.remove('btn-active'));
             document.getElementById('btn-' + type)?.classList.add('btn-active');
@@ -613,12 +627,15 @@
                     plugins: { 
                         legend: {display: false},
                         datalabels: {
-                            anchor: 'end', align: 'top', color: '#1e293b', font: { weight: '900', size: 14 },
+                            anchor: 'end', align: 'top', color: '#1e293b', font: { weight: '900', size: 12 },
                             backgroundColor: 'rgba(255,255,255,0.8)', borderRadius: 4, padding: 4,
                             formatter: (value) => value > 0 ? value : ''
                         }
                     },
-                    scales: { y: { beginAtZero: true, grace: '5%' } }
+                    scales: { 
+                        y: { beginAtZero: true, grace: '5%', ticks: { precision: 0 } },
+                        x: { ticks: { font: {size: 10, weight: 'bold'} } }
+                    }
                 } 
             });
         }
@@ -642,12 +659,12 @@
                     plugins: { 
                         legend: { display: false },
                         datalabels: {
-                            color: '#1e293b', font: { weight: '900', size: 16 },
+                            color: '#1e293b', font: { weight: '900', size: 14 },
                             formatter: (val, ctx) => ctx.dataIndex === 0 ? val + '%' : ''
                         }
                     } 
                 }, 
-                plugins: [{ id: 'centerText', beforeDraw: function(chart) { var width = chart.width, height = chart.height, ctx = chart.ctx; ctx.restore(); ctx.font = "bold 2.5em sans-serif"; ctx.textBaseline = "middle"; ctx.fillStyle = "#1e293b"; var text = displayValue + "%", textX = Math.round((width - ctx.measureText(text).width) / 2), textY = height / 2; ctx.fillText(text, textX, textY); ctx.save(); } }] 
+                plugins: [{ id: 'centerText', beforeDraw: function(chart) { var width = chart.width, height = chart.height, ctx = chart.ctx; ctx.restore(); ctx.font = "bold 2em sans-serif"; ctx.textBaseline = "middle"; ctx.fillStyle = "#1e293b"; var text = displayValue + "%", textX = Math.round((width - ctx.measureText(text).width) / 2), textY = height / 2; ctx.fillText(text, textX, textY); ctx.save(); } }] 
             });
         }
 
@@ -656,7 +673,10 @@
             let total = 0;
             document.getElementById('personnel-stats').innerHTML = personnel.map(name => {
                 const c = rawData.filter(r => r.assigned_to === name).length; total += c;
-                return `<div class="person-card card-${name.toLowerCase()}"><p class="text-[9px] font-black opacity-70">${name}</p><h4 class="text-xl font-black">${c}</h4></div>`;
+                return `<div class="person-card card-${name.toLowerCase()} flex flex-col justify-center shadow-sm">
+                            <p class="text-[9px] md:text-[10px] font-black opacity-70 tracking-widest">${name}</p>
+                            <h4 class="text-xl md:text-2xl font-black mt-1">${c}</h4>
+                        </div>`;
             }).join('');
             document.getElementById('grand-total-tasks').innerText = total;
         }
