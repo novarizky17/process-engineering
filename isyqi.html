@@ -78,7 +78,7 @@
         .fab:hover { transform: scale(1.1) rotate(5deg); }
         .fab:active { transform: scale(0.9); }
 
-        .fab-add { background: #0891b2; color: white; } /* Cyan 600 */
+        .fab-add { background: #06b6d4; color: white; } /* Cyan */
         .fab-save { background: #10b981; color: white; }
 
         /* Modal Base */
@@ -88,14 +88,13 @@
             backdrop-filter: blur(4px);
             z-index: 2000; display: none; align-items: center; justify-content: center;
             padding: 20px;
-            opacity: 0; transition: opacity 0.3s;
+            opacity: 0; transition: opacity 0.2s;
         }
         .modal-overlay.show { opacity: 1; }
         
-        /* Modal Form (Input Subtask) */
         .modal-box {
-            background: white; width: 100%; max-width: 600px;
-            border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            background: white; width: 100%; max-width: 500px;
+            border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             max-height: 90vh; overflow-y: auto;
             transform: scale(0.95); transition: transform 0.2s;
             position: relative;
@@ -106,7 +105,7 @@
         .modal-input { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; font-size: 13px; font-weight: 600; color: #1e293b; outline: none; }
         .modal-input:focus { border-color: #06b6d4; background-color: #ecfeff; }
 
-        /* Confirmation Modal Specifics */
+        /* Confirm Box Specifics */
         .confirm-content { padding: 30px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .confirm-icon-box { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 30px; }
         .icon-warning { background: #fef9c3; color: #d97706; }
@@ -181,7 +180,7 @@
             /* --- BARIS TABEL (KARTU) --- */
             #mainTable tr { 
                 display: block; 
-                margin-bottom: 15px; /* Jarak antar kartu */
+                margin-bottom: 15px; 
                 background: #fff;
                 border-top: 1px solid #e2e8f0;
                 border-bottom: 1px solid #e2e8f0;
@@ -189,7 +188,7 @@
             }
             
             #mainTable tr[data-type="sub"] {
-                margin-top: -15px; /* Nempel ke parent */
+                margin-top: -15px; 
                 border-top: none;
                 border-left: 4px solid #cbd5e1;
                 background: #f8fafc;
@@ -207,7 +206,7 @@
                 width: 100%; 
             }
             
-            /* Label Header Kolom */
+            /* Label Header Kolom di HP */
             #mainTable td::before { 
                 content: attr(data-label); 
                 font-weight: 800; 
@@ -216,16 +215,16 @@
                 color: #64748b; 
                 display: block;
                 width: 100%;
-                text-align: center !important; /* Label rata tengah di atas input */
+                text-align: center !important; 
                 margin-bottom: 10px !important;
                 letter-spacing: 1px;
             }
             
-            /* Pengecualian: Project Info Rata Kiri & Background Beda */
+            /* Pengecualian: Project Info Rata Kiri & Background Cyan */
             #mainTable td[data-label="PROJECT INFO"] { 
-                background: #ecfeff !important; /* Tema Cyan Muda */
+                background: #ecfeff !important; /* Tema Cyan */
                 text-align: left !important; 
-                align-items: flex-start !important; /* Rata Kiri khusus Judul */
+                align-items: flex-start !important;
                 border-bottom: 2px solid #cffafe !important;
             }
             #mainTable td[data-label="PROJECT INFO"]::before { display: none !important; }
@@ -248,7 +247,7 @@
                 text-align-last: center !important; 
             }
             textarea.table-input { min-height: 80px; text-align: left !important; }
-
+            
             /* Perbaikan Tombol Aksi Edit/Delete di Subtask */
             td[data-label="SUB-TASK"] .flex {
                 display: flex !important;
@@ -256,8 +255,8 @@
                 justify-content: center !important;
                 gap: 10px;
                 width: 100%;
-                margin-top: 12px;
-                opacity: 1 !important; /* Selalu tampil di HP */
+                margin-top: 15px;
+                opacity: 1 !important; 
                 position: relative !important; 
                 top: auto !important; right: auto !important;
             }
@@ -309,41 +308,17 @@
     <div class="w-full max-w-[98%] mx-auto px-0 md:px-0 -mt-16 pb-32 relative z-10 content-wrapper">
         
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-6 w-full stats-grid">
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-cyan-500 hover:-translate-y-1 transition-transform">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p>
-                        <h3 id="stat-active" class="text-3xl font-black text-slate-800">0</h3>
-                    </div>
-                    <div class="p-2 bg-cyan-50 rounded-lg text-cyan-500"><i class="fa-solid fa-spinner fa-spin"></i></div>
-                </div>
+            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-cyan-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">In Progress</p><h3 id="stat-active" class="text-3xl font-black text-slate-800">0</h3>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-amber-500 hover:-translate-y-1 transition-transform">
-                 <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p>
-                        <h3 id="stat-pending" class="text-3xl font-black text-slate-800">0</h3>
-                    </div>
-                    <div class="p-2 bg-amber-50 rounded-lg text-amber-500"><i class="fa-regular fa-clock"></i></div>
-                </div>
+            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-amber-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pending</p><h3 id="stat-pending" class="text-3xl font-black text-slate-800">0</h3>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-rose-500 hover:-translate-y-1 transition-transform">
-                 <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p>
-                        <h3 id="stat-hold" class="text-3xl font-black text-slate-800">0</h3>
-                    </div>
-                    <div class="p-2 bg-rose-50 rounded-lg text-rose-500"><i class="fa-solid fa-pause"></i></div>
-                </div>
+            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-rose-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hold</p><h3 id="stat-hold" class="text-3xl font-black text-slate-800">0</h3>
             </div>
-            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-emerald-500 hover:-translate-y-1 transition-transform">
-                 <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Done</p>
-                        <h3 id="stat-finished" class="text-3xl font-black text-slate-800">0</h3>
-                    </div>
-                    <div class="p-2 bg-emerald-50 rounded-lg text-emerald-500"><i class="fa-solid fa-check-double"></i></div>
-                </div>
+            <div class="bg-white p-5 rounded-2xl shadow-lg border-b-4 border-emerald-500">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Done</p><h3 id="stat-finished" class="text-3xl font-black text-slate-800">0</h3>
             </div>
         </div>
 
@@ -351,7 +326,7 @@
             <div class="bg-white p-4 rounded-xl shadow-md border border-slate-100 flex flex-col md:flex-row gap-4 items-center">
                 <div class="relative w-full md:w-96">
                     <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Cari project atau mesin..." class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-all">
+                    <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Cari project / mesin..." class="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:border-cyan-500 outline-none transition-all">
                 </div>
                 <div class="w-full md:w-48">
                     <select id="statusFilter" onchange="applyFilters()" class="block w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:bg-white focus:border-cyan-500 outline-none cursor-pointer">
@@ -500,7 +475,7 @@
                 case 'Overhaul': return 'bg-purple-50 text-purple-700 border-purple-200';
                 case 'Perawatan': return 'bg-amber-50 text-amber-700 border-amber-200';
                 case 'New Project': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                case 'Trial': return 'bg-pink-50 text-pink-700 border-pink-200';
+                case 'Trial': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
                 default: return 'bg-slate-50 text-slate-500 border-slate-200';
             }
         }
@@ -609,8 +584,8 @@
                         </td>
                         <td data-label="PRIORITY" class="px-4 py-5 align-top text-center"><span class="badge ${row.priority=='High'?'badge-high':(row.priority=='Mid'?'badge-mid':'badge-low')}">${row.priority || '-'}</span></td>
                         <td data-label="PROGRESS" class="px-4 py-5 align-top">
-                            <div class="flex items-center gap-2 justify-center">
-                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center w-20 bg-slate-50 font-black text-lg border-transparent focus:bg-white focus:border-cyan-500">
+                            <div class="flex items-center gap-2 justify-end md:justify-center w-full md:w-auto">
+                                <input type="number" id="prog-${row.id}" value="${progress}" class="table-input text-center font-black text-lg border-transparent focus:bg-white focus:border-cyan-500" style="width: 80px !important; flex: none;">
                                 <span class="text-sm font-bold text-slate-400">%</span>
                             </div>
                             <div class="w-full bg-slate-200 h-1.5 rounded-full mt-3 overflow-hidden hidden md:block"><div class="${progressColor} h-full transition-all duration-1000 ease-out" style="width:${progress}%"></div></div>
@@ -660,41 +635,41 @@
                     const subDateClass = isSubOverdue ? "deadline-danger bg-red-50" : "";
                     
                     return `
-                    <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white transition-colors" id="mainTable" data-id="${sub.id}" data-type="sub">
+                    <tr class="bg-slate-50/50 border-b border-slate-100 group hover:bg-white transition-colors" data-id="${sub.id}" data-type="sub">
                         <td data-label="TYPE" class="px-6 py-4 text-right align-middle">
                             <div class="flex items-center justify-end gap-3 md:justify-end justify-center">
                                 <div class="tree-line hidden md:block"></div>
                                 <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest bg-slate-200 px-2 py-0.5 rounded">SUBTASK</span>
                             </div>
                         </td>
-                        <td data-label="SUB-TASK" class="px-6 py-4 align-middle font-bold text-slate-700 md:flex md:justify-between md:items-center gap-3">
-                            <span class="text-[14px] text-center md:text-left block w-full mb-3 md:mb-0">${sub.subtask_desc}</span>
-                            <div class="flex justify-center gap-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity w-full md:w-auto mt-2 md:mt-0">
-                                <button onclick="editSubtask('${sub.id}', '${row.id}')" class="w-10 h-10 md:w-8 md:h-8 rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-500 hover:text-white transition-all flex items-center justify-center text-sm md:text-xs shadow-sm"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="confirmDelete('${sub.id}')" class="w-10 h-10 md:w-8 md:h-8 rounded-lg bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-sm md:text-xs shadow-sm"><i class="fa-solid fa-trash"></i></button>
+                        <td data-label="SUB-TASK" class="px-6 py-4 align-middle font-bold text-slate-700 flex justify-between items-center gap-3">
+                            <span class="text-[13px] text-center md:text-left w-full">${sub.subtask_desc}</span>
+                            <div class="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity absolute top-4 right-4 md:relative md:top-0 md:right-0">
+                                <button onclick="editSubtask('${sub.id}', '${row.id}')" class="w-7 h-7 rounded bg-amber-100 text-amber-600 hover:bg-amber-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="confirmDelete('${sub.id}')" class="w-7 h-7 rounded bg-rose-100 text-rose-600 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </td>
                         <td data-label="PRIORITY" class="px-4 py-4 text-center align-middle"><span class="badge ${badgeClass}">${sub.priority}</span></td>
                         <td data-label="PROGRESS" class="px-4 py-4 text-center align-middle">
-                            <div class="flex items-center gap-1 justify-center">
-                                <input type="number" id="sub-prog-${sub.id}" value="${sub.progress_percent||0}" class="table-input text-center font-bold text-cyan-600 w-16 p-2 focus:border-cyan-500">
+                            <div class="flex items-center gap-1 w-full justify-end md:justify-center md:w-auto">
+                                <input type="number" id="sub-prog-${sub.id}" value="${sub.progress_percent||0}" class="table-input text-center font-bold text-cyan-600 p-1 focus:border-cyan-500" style="width: 70px !important; flex: none;">
                                 <span class="text-xs font-bold text-slate-400">%</span>
                             </div>
                         </td>
-                        <td data-label="START" class="px-4 py-4 text-center align-middle"><input type="datetime-local" id="sub-start-${sub.id}" value="${cleanTimestamp(sub.start_date)}" class="table-input text-xs text-center p-2 focus:border-cyan-500"></td>
+                        <td data-label="START" class="px-4 py-4 text-center align-middle"><input type="datetime-local" id="sub-start-${sub.id}" value="${cleanTimestamp(sub.start_date)}" class="table-input text-xs text-center p-1 focus:border-cyan-500"></td>
                         <td data-label="FINISH" class="px-4 py-4 text-center align-middle">
                              <div class="${subDateClass} rounded transition-all">
-                                <input type="datetime-local" id="sub-end-${sub.id}" value="${cleanTimestamp(sub.end_date)}" class="table-input text-xs text-center p-2 bg-transparent border-none focus:border-cyan-500 focus:bg-white">
+                                <input type="datetime-local" id="sub-end-${sub.id}" value="${cleanTimestamp(sub.end_date)}" class="table-input text-xs text-center p-1 bg-transparent border-none focus:border-cyan-500 focus:bg-white">
                              </div>
                         </td>
                         <td data-label="TIPE" class="px-4 py-4 text-center align-middle">
-                            ${sub.job_type && sub.job_type !== '-' ? `<span class="badge-select py-1.5 px-3 text-[11px] ${jobBadge} border-none pointer-events-none w-auto inline-block">${sub.job_type}</span>` : '-'}
+                            ${sub.job_type && sub.job_type !== '-' ? `<span class="badge-select py-1 px-2 text-[10px] ${jobBadge} border-none pointer-events-none w-auto inline-block">${sub.job_type}</span>` : '-'}
                         </td>
                         <td data-label="CATATAN" class="px-4 py-4 align-middle">
-                            <textarea id="sub-note-${sub.id}" class="table-input text-xs resize-none h-12 placeholder:text-slate-300 focus:h-20 transition-all focus:border-cyan-500" placeholder="Catatan subtask...">${sub.worker_notes || ''}</textarea>
+                            <textarea id="sub-note-${sub.id}" class="table-input text-xs resize-none h-10 placeholder:text-slate-300 focus:h-16 transition-all focus:border-cyan-500" placeholder="Catatan...">${sub.worker_notes || ''}</textarea>
                         </td>
                         <td data-label="STATUS" class="px-4 py-4 text-center align-middle">
-                            <select id="sub-stat-${sub.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusBadge} py-2 focus:border-cyan-500">
+                            <select id="sub-stat-${sub.id}" onchange="updateSelectColor(this, 'status')" class="badge-select ${statusBadge} py-1 focus:border-cyan-500">
                                 <option value="Pending" ${sub.status=='Pending'?'selected':''}>PENDING</option>
                                 <option value="In Progress" ${sub.status=='In Progress'?'selected':''}>IN PROGRESS</option>
                                 <option value="Hold" ${sub.status=='Hold'?'selected':''}>HOLD</option>
@@ -702,8 +677,8 @@
                             </select>
                         </td>
                         <td data-label="AKSI" class="px-4 py-4 text-center align-middle">
-                             <button class="w-full md:w-10 h-10 rounded-lg bg-cyan-50 text-cyan-600 hover:bg-cyan-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto uppercase font-bold text-xs" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
-                                <i class="fa-solid fa-floppy-disk text-sm mr-2 md:mr-0"></i> <span class="md:hidden">SIMPAN</span>
+                             <button class="w-full md:w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-500 hover:text-white transition-all shadow-sm flex items-center justify-center mx-auto uppercase font-bold text-xs" onclick="saveSubtaskInline('${sub.id}')" title="Simpan Satu">
+                                <i class="fa-solid fa-floppy-disk text-xs mr-2 md:mr-0"></i> <span class="md:hidden">SIMPAN</span>
                              </button>
                         </td>
                     </tr>
@@ -738,6 +713,7 @@
             }
             
             const btnYes = document.getElementById('btnConfirmAction');
+            // Clone button to clear previous listeners
             const newBtn = btnYes.cloneNode(true);
             btnYes.parentNode.replaceChild(newBtn, btnYes);
             
@@ -756,7 +732,7 @@
         function closeModal(id) {
             const modal = document.getElementById(id);
             modal.classList.remove('show');
-            setTimeout(() => modal.style.display = 'none', 200);
+            setTimeout(() => modal.style.display = 'none', 300);
         }
 
         // --- ACTIONS ---
@@ -844,6 +820,7 @@
             }
         }
 
+        // --- SINGLE SAVE LOGIC ---
         async function saveMain(id) {
             const sVal = document.getElementById(`start-${id}`).value;
             const eVal = document.getElementById(`end-${id}`).value;
