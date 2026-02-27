@@ -2,27 +2,20 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Resume Daily Report - Responsive Mobile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Daily Report - Final Fixed</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-    
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; overflow-x: hidden; }
-        
         .gradient-orange { background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%); }
         .toggle-container { background-color: #f1f5f9; border-radius: 16px; padding: 6px; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
-        .btn-toggle { padding: 8px 16px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; transition: all 0.3s ease; color: #64748b; border: none; cursor: pointer; flex: 1; min-width: 80px; text-align: center; }
+        .btn-toggle { padding: 8px 16px; border-radius: 12px; font-size: 10px; font-weight: 800; text-transform: uppercase; transition: all 0.3s ease; color: #64748b; border: none; cursor: pointer; flex: 1; min-width: 80px; text-align: center;}
         .btn-active { background-color: #ea580c; color: white; box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.4); }
-        
         .person-card { transition: all 0.3s ease; cursor: pointer; border-radius: 1rem; padding: 1rem; text-align: center; border: 1px solid transparent; }
         .person-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); filter: brightness(0.95); }
         .card-ryan { background-color: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
@@ -31,34 +24,25 @@
         .card-eko { background-color: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
         .card-tata { background-color: #fff1f2; border-color: #fecdd3; color: #9f1239; }
         .card-barok { background-color: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
-        
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
         .modal-content { background: white; margin: 2% auto; border-radius: 24px; width: 95%; max-width: 1100px; overflow: hidden; animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; max-height: 90vh; }
-        
-        .popup-modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); justify-content: center; align-items: center; padding: 15px; }
+        .popup-modal { display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); justify-content: center; align-items: center; padding: 15px; }
         .popup-content { background: white; border-radius: 20px; width: 100%; max-width: 600px; max-height: 85vh; overflow-y: auto; position: relative; animation: zoomIn 0.2s ease-out; padding: 25px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-        
         .progress-bg { width: 100%; background-color: #e2e8f0; border-radius: 9999px; height: 8px; overflow: hidden; }
         .progress-fill { height: 100%; transition: width 0.8s ease-out; }
-        
         @keyframes slideIn { from {transform: scale(0.9) translateY(20px); opacity: 0;} to {transform: scale(1) translateY(0); opacity: 1;} }
         @keyframes zoomIn { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
-        
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
         .task-card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px md:padding: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); position: relative; overflow: hidden; transition: all 0.2s; cursor: pointer; }
         .task-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.1); border-color: #cbd5e1; }
         .left-border { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; }
 
-        /* ==========================================================
-           HANYA CSS KHUSUS TAMPILAN MOBILE (HP)
-           ========================================================== */
+        /* TAMPILAN MOBILE KHUSUS */
         @media screen and (max-width: 768px) {
-            header { padding-bottom: 120px !important; }
             header > div { flex-direction: column; align-items: flex-start !important; gap: 15px; }
-            .header-buttons { flex-direction: column; width: 100%; position: relative; z-index: 50; }
-            .header-buttons button, .header-buttons a { width: 100%; text-align: center; justify-content: center; padding: 15px 0 !important; }
+            .header-buttons { flex-direction: column; width: 100%; }
+            .header-buttons button, .header-buttons a { width: 100%; text-align: center; justify-content: center; }
             
             thead { display: none; }
             table, tbody, tr, td { display: block; width: 100%; }
@@ -78,7 +62,7 @@
                 flex-direction: column !important;
                 justify-content: center !important;
                 align-items: center !important;
-                padding: 15px !important;
+                padding: 15px 20px !important;
                 border-bottom: 1px solid #f1f5f9;
                 text-align: center !important;
             }
@@ -105,35 +89,19 @@
             td:last-child { border-bottom: none !important; background: #fafafa !important;}
             td:last-child button { width: 100% !important; }
 
-            /* Modal Styling Khusus HP */
-            .modal-content { width: 100%; margin: 0; border-radius: 0; height: 100%; max-height: 100vh; }
+            .modal-content { width: 100%; height: 100%; margin: 0; border-radius: 0; max-height: 100vh; }
             .popup-content { width: 95%; padding: 20px; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             
             .task-card-inner { flex-direction: column; align-items: flex-start !important; gap: 10px; }
             .task-stats { text-align: left !important; margin-left: 0 !important; margin-top: 5px; display: flex; align-items: center; gap: 10px; flex-direction: row-reverse; justify-content: flex-end; }
             .task-stats div { margin-top: 0 !important; }
         }
-
-        /* TOAST NOTIFICATION */
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { 
-            background: white; border-left: 5px solid; padding: 15px 20px; border-radius: 8px; 
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px;
-            min-width: 300px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); pointer-events: auto;
-        }
-        .toast.show { transform: translateX(0); }
-        .toast-success { border-color: #10b981; } .toast-success i { color: #10b981; }
-        .toast-error { border-color: #ef4444; } .toast-error i { color: #ef4444; }
-        .toast-info { border-color: #ea580c; } .toast-info i { color: #ea580c; }
     </style>
 </head>
 <body class="min-h-screen pb-12">
 
-    <div id="toast-container"></div>
-
-    <header class="gradient-orange w-full pt-10 pb-24 px-6 md:px-8 mb-[-80px] shadow-2xl">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center md:items-end gap-5 relative z-50">
+    <header class="gradient-orange w-full pt-12 pb-24 px-6 md:px-8 mb-[-80px] shadow-2xl">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center md:items-end gap-5">
             <div class="text-center md:text-left w-full md:w-auto">
                 <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight uppercase">Resume Daily Report</h1>
                 <p class="text-orange-100 text-xs md:text-sm mt-1 font-medium tracking-wide">Monitoring Progres & Analisis Data</p>
@@ -149,7 +117,7 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 mt-20 relative z-10">
+    <main class="max-w-7xl mx-auto px-4 mt-20">
         <section class="mb-6 relative z-10">
             <div class="bg-white p-5 md:p-6 rounded-[2rem] shadow-xl border border-slate-100">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -311,6 +279,8 @@
         </div>
     </div>
 
+    <div id="toast-container"></div>
+
     <script>
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
@@ -384,6 +354,7 @@
                 groupedData[name].tasks.push(item);
                 groupedData[name].totalProgress += parseFloat(item.progress_percent || 0);
                 groupedData[name].count += 1;
+                // Menggunakan work_end_time sebagai acuan late
                 if(getDaysLate(item.work_end_time, item.status) > 0) groupedData[name].hasLate = true;
             });
         }
@@ -391,10 +362,8 @@
         function populateProjectList() {
             const dataList = document.getElementById('project-list');
             if(!dataList) return;
-            
             dataList.innerHTML = ''; 
             const projectNames = Object.keys(groupedData).sort(); 
-
             projectNames.forEach(name => {
                 const option = document.createElement('option');
                 option.value = name;
@@ -474,7 +443,7 @@
 
                 const subtaskCount = subtasks.length > 0 ? `<i class="fa-solid fa-diagram-project mr-1"></i> ${subtasks.length} Subtask` : 'Tidak ada subtask';
                 const taskData = encodeURIComponent(JSON.stringify(t));
-                const daysLate = getDaysLate(t.work_end_time, t.status); 
+                const daysLate = getDaysLate(t.work_end_time, t.status);
                 const lateBadge = daysLate > 0 ? `<span class="bg-red-500 text-white text-[8px] md:text-[9px] px-2 py-0.5 rounded font-black animate-pulse shadow-sm ml-2">LATE ${daysLate} DAYS</span>` : '';
 
                 return `
@@ -606,7 +575,7 @@
         // --- SISTEM DOWNLOAD EXCEL ANTI-BLOCK (WEB-TO-APP) ---
         function exportToExcel() {
             if (typeof XLSX === 'undefined') {
-                alert("Library Excel belum dimuat sepenuhnya. Mohon tunggu sebentar atau pastikan internet stabil.");
+                alert("Library Excel belum dimuat sepenuhnya. Mohon pastikan internet stabil.");
                 return;
             }
             if (!rawData || rawData.length === 0) {
@@ -645,50 +614,54 @@
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "Laporan_Harian");
                 
-                // Konversi menjadi Base64 (Aman dari blokir WebView)
-                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
-                const mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-                const uri = `data:${mimeType};base64,${wbout}`;
+                // --- KUNCI PERBAIKAN: Gunakan Blob Langsung, Jangan Base64 String ---
+                const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                const dataBlob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const fileName = "Resume_Daily_Report.xlsx";
 
-                // EKSEKUSI DOWNLOAD / SHARE
+                // DETEKSI SHARE API KHUSUS MOBILE APP / WEBVIEW
                 if (navigator.share && navigator.canShare && window.innerWidth <= 768) {
-                    // Deteksi App Mobile: Pakai fitur Share (Bagikan)
-                    fetch(uri)
-                    .then(res => res.blob())
-                    .then(blob => {
-                        const file = new File([blob], "Resume_Daily_Report.xlsx", { type: mimeType });
+                    const file = new File([dataBlob], fileName, { type: dataBlob.type });
+                    
+                    if (navigator.canShare({ files: [file] })) {
                         navigator.share({
                             files: [file],
                             title: 'Resume Daily Report',
                             text: 'Berikut adalah file Excel Laporan Harian.'
+                        }).then(() => {
+                            showToast("Berhasil dibagikan!", "success");
                         }).catch(err => {
-                            console.log("Share dibatalkan:", err);
-                            fallbackDownload(uri); // Jika batal, paksa download standar
+                            console.log("Share dibatalkan/Gagal:", err);
+                            // Jika user membatalkan share, coba download fallback (tapi ini bisa di block oleh app)
+                            fallbackDownload(dataBlob, fileName);
                         });
-                    });
-                } else {
-                    // Buka di Browser PC/Laptop biasa
-                    fallbackDownload(uri);
+                        return; // Berhenti di sini kalau share berhasil dipanggil
+                    }
                 }
-
-                setTimeout(() => { showToast("Selesai diproses!", "success"); }, 1000);
+                
+                // Jika di PC atau Share API gagal diload
+                fallbackDownload(dataBlob, fileName);
 
             } catch (err) {
                 console.error("Gagal mendownload Excel:", err);
-                alert("Terjadi masalah sistem: " + err.message);
+                alert("Terjadi masalah saat membuat file Excel. Silakan coba lagi.");
             }
         }
 
-        function fallbackDownload(uri) {
+        // FUNGSI STANDAR DOWNLOAD (Disesuaikan agar aman dari String Base64)
+        function fallbackDownload(blob, fileName) {
             try {
+                const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = uri;
-                a.download = "Resume_Daily_Report.xlsx";
+                a.href = url;
+                a.download = fileName;
                 document.body.appendChild(a);
                 a.click();
+                window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
+                setTimeout(() => { showToast("File terdownload", "success"); }, 500);
             } catch (e) {
-                alert("Aplikasi HP memblokir unduhan. Silakan buka aplikasi ini melalui Google Chrome / Safari.");
+                alert("Aplikasi memblokir proses unduhan. Buka lewat Browser Chrome/Safari.");
             }
         }
 
