@@ -36,7 +36,7 @@
         }
 
         /* LAYAR DESKTOP & WADAH PDF */
-        #pdf-content { background: #525252; }
+        #pdf-content { background: #525252; transition: all 0.3s; }
         
         .sheet {
             background: white;
@@ -47,6 +47,7 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
+            transition: all 0.3s;
         }
 
         .outer-border {
@@ -56,6 +57,7 @@
             display: flex;
             flex-direction: column;
             padding: 5px;
+            transition: all 0.3s;
         }
 
         /* HEADER */
@@ -137,6 +139,11 @@
         .toast { background: white; border-left: 5px solid #2563eb; padding: 15px 20px; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; min-width: 250px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); pointer-events: auto; }
         .toast.show { transform: translateX(0); }
 
+        /* OVERLAY LOADING PDF */
+        #pdf-loading { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 99999; justify-content: center; align-items: center; flex-direction: column; }
+        .loader-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #1e3a8a; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         /* RESPONSIVE MOBILE TWEAKS */
         @media screen and (max-width: 768px) {
             body { padding: 10px; }
@@ -152,15 +159,13 @@
                 box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             }
             
-            /* Membuat area laporan bisa digeser horizontal di HP */
             .outer-border {
                 overflow-x: auto; 
                 -webkit-overflow-scrolling: touch;
                 padding: 10px;
-                border-width: 1px; /* border lebih tipis di HP */
+                border-width: 1px; 
             }
             
-            /* Memaksa lebar agar desain tabel tidak hancur */
             .header-tbl, .info-wrapper, .data-tbl, .super-area {
                 min-width: 700px;
             }
@@ -170,6 +175,12 @@
 <body>
 
     <div id="toast-container"></div>
+    
+    <div id="pdf-loading">
+        <div class="loader-spinner"></div>
+        <p class="text-sm font-bold text-slate-700">Mempersiapkan PDF...</p>
+        <p class="text-xs text-slate-500 mt-1 text-center px-4">Jangan sentuh layar, sedang merender tampilan ke format kertas A4.</p>
+    </div>
 
     <div class="ctl-pnl no-print">
         <input type="text" id="input-merk" list="machine-list" placeholder="NAMA MESIN" class="inp" oninput="autoFillCapacity()">
@@ -191,7 +202,7 @@
     </div>
 
     <div id="pdf-content">
-        <div class="sheet">
+        <div class="sheet" id="sheet-1">
             <div class="outer-border">
                 <table class="header-tbl">
                     <tr>
@@ -233,7 +244,7 @@
             </div>
         </div>
 
-        <div class="sheet">
+        <div class="sheet" id="sheet-2">
             <div class="outer-border">
                 <table class="header-tbl">
                     <tr>
@@ -484,107 +495,138 @@
             document.querySelectorAll('.super-name').forEach(e => e.innerText = (latest && latest.nama_superintendent) ? `( ${latest.nama_superintendent} )` : "( ... )");
         }
 
-        // --- SISTEM GENERATE PDF FIX ANTI-BLANK UNTUK HP ---
+        // ==========================================
+        // SISTEM GENERATE PDF - IN PLACE TRANSFORMATION
+        // (Dijamin tidak blank)
+        // ==========================================
         async function downloadPDF() {
-            // Validasi: Apakah tabel sudah diisi?
             if (document.getElementById('tbody-status').innerHTML === "") {
                 alert("Silakan Cari data terlebih dahulu sebelum mendownload PDF.");
                 return;
             }
 
-            showToast("Memproses PDF... (Mohon jangan sentuh layar)", "info");
+            // Tampilkan layar loading putih (menutupi perubahan CSS kasar di background)
+            const loadingScreen = document.getElementById('pdf-loading');
+            loadingScreen.style.display = 'flex';
             
+            // Matikan scroll HP sebentar
+            document.body.style.overflow = 'hidden';
+
             const element = document.getElementById('pdf-content');
             const sheets = document.querySelectorAll('.sheet');
             const borders = document.querySelectorAll('.outer-border');
 
-            // 1. Simpan CSS bawaan HP
-            const originalStyles = [];
-            sheets.forEach((el, i) => {
-                originalStyles[i] = { width: el.style.width, margin: el.style.margin, padding: el.style.padding };
-                // PAKSA JADI UKURAN KERTAS A4 DESKTOP
+            // 1. Simpan Style Original
+            const originalElementStyle = { width: element.style.width, background: element.style.background };
+            const originalSheetStyles = [];
+            const originalBorderStyles = [];
+
+            // 2. Manipulasi Asli DOM (IN-PLACE) - Ini memaksa WebView merender ulang
+            element.style.width = '210mm';
+            element.style.background = '#ffffff';
+
+            sheets.forEach(el => {
+                originalSheetStyles.push({ width: el.style.width, minWidth: el.style.minWidth, padding: el.style.padding, margin: el.style.margin, boxShadow: el.style.boxShadow, height: el.style.height });
                 el.style.width = '210mm';
                 el.style.minWidth = '210mm';
                 el.style.padding = '10mm';
                 el.style.margin = '0';
+                el.style.boxShadow = 'none';
+                el.style.height = '296mm'; 
             });
-            borders.forEach(el => { el.style.overflowX = 'visible'; el.style.overflow = 'visible'; });
 
-            // 2. Scroll paksa ke paling atas agar capture HTML2Canvas tidak meleset
+            borders.forEach(el => {
+                originalBorderStyles.push({ overflowX: el.style.overflowX, overflow: el.style.overflow, borderWidth: el.style.borderWidth, width: el.style.width });
+                el.style.overflowX = 'visible';
+                el.style.overflow = 'visible';
+                el.style.borderWidth = '2px';
+                el.style.width = '100%';
+            });
+
+            // Scroll ke atas
             window.scrollTo(0, 0);
 
-            // 3. BERIKAN JEDA 0.5 DETIK AGAR BROWSER HP MENGGAMBAR ULANG (MENCEGAH BLANK PUTIH)
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Jeda waktu 800ms agar browser HP benar-benar menggambar ulang layout ukuran besar
+            await new Promise(resolve => setTimeout(resolve, 800));
 
             const merk = document.getElementById('input-merk').value.trim() || 'MESIN';
             const bln = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text || 'BULAN';
             const thn = document.getElementById('filter-tahun').value || 'TAHUN';
             const fileName = `Checklist_${merk}_${bln}_${thn}.pdf`;
 
-            // 4. Konfigurasi ketat HTML2Canvas agar logo dan teks tidak hilang
+            // Konfigurasi dengan Scale yang lebih rendah agar RAM WebView tidak nge-hang (Scale 1.5)
             const opt = {
                 margin:       0,
                 filename:     fileName,
-                image:        { type: 'jpeg', quality: 0.98 },
+                image:        { type: 'jpeg', quality: 0.95 },
                 html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true, 
-                    allowTaint: true, // Izin masukkan logo dari web luar
-                    backgroundColor: '#ffffff', // Background paksa putih
-                    windowWidth: 1024, // Membohongi sistem seolah dibuka di PC
+                    scale: 1.5, 
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    windowWidth: 1024,
                     scrollY: 0
                 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // 5. Eksekusi pembuatan PDF
-            html2pdf().set(opt).from(element).output('blob').then(function(blob) {
-                // 6. Kembalikan Tampilan ke versi HP seperti semula
-                sheets.forEach((el, i) => {
-                    el.style.width = originalStyles[i].width;
-                    el.style.minWidth = '';
-                    el.style.padding = originalStyles[i].padding;
-                    el.style.margin = originalStyles[i].margin;
-                });
-                borders.forEach(el => { el.style.overflowX = ''; el.style.overflow = ''; });
+            try {
+                // Eksekusi Pembuatan PDF
+                const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+                
+                // 3. KEMBALIKAN STYLE KE SEMULA SEBELUM MEMBUKA POPUP SHARE
+                restoreOriginalStyles();
 
-                // 7. Download / Share
+                // 4. Logika Bagikan (Mobile) / Download (PC)
                 if (navigator.share && window.innerWidth <= 768) {
-                    const file = new File([blob], fileName, { type: 'application/pdf' });
+                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        navigator.share({
+                        await navigator.share({
                             files: [file],
                             title: 'Laporan PDF',
                             text: 'Berikut Laporan PDF Checklist Mesin.'
-                        }).then(() => {
-                            showToast("PDF siap dibagikan!", "success");
-                        }).catch(err => {
-                            console.log("Share dibatalkan", err);
-                            fallbackDownload(blob, fileName);
                         });
+                        showToast("PDF Berhasil dibagikan!", "success");
                         return;
                     }
                 }
                 
-                fallbackDownload(blob, fileName);
+                fallbackDownloadPDF(pdfBlob, fileName);
 
-            }).catch(err => {
-                alert("Sistem Gagal Memproses PDF.");
-                console.error(err);
-                
-                // Jika error, tetap kembalikan tampilan
+            } catch (err) {
+                console.error("Generate error: ", err);
+                restoreOriginalStyles();
+                alert("Gagal memproses PDF karena batasan memori HP.");
+            }
+
+            // Fungsi pengembali CSS
+            function restoreOriginalStyles() {
+                document.body.style.overflow = '';
+                element.style.width = originalElementStyle.width;
+                element.style.background = originalElementStyle.background;
+
                 sheets.forEach((el, i) => {
-                    el.style.width = originalStyles[i].width;
-                    el.style.minWidth = '';
-                    el.style.padding = originalStyles[i].padding;
-                    el.style.margin = originalStyles[i].margin;
+                    el.style.width = originalSheetStyles[i].width;
+                    el.style.minWidth = originalSheetStyles[i].minWidth;
+                    el.style.padding = originalSheetStyles[i].padding;
+                    el.style.margin = originalSheetStyles[i].margin;
+                    el.style.boxShadow = originalSheetStyles[i].boxShadow;
+                    el.style.height = originalSheetStyles[i].height;
                 });
-                borders.forEach(el => { el.style.overflowX = ''; el.style.overflow = ''; });
-            });
+
+                borders.forEach((el, i) => {
+                    el.style.overflowX = originalBorderStyles[i].overflowX;
+                    el.style.overflow = originalBorderStyles[i].overflow;
+                    el.style.borderWidth = originalBorderStyles[i].borderWidth;
+                    el.style.width = originalBorderStyles[i].width;
+                });
+
+                // Tutup layar loading
+                loadingScreen.style.display = 'none';
+            }
         }
 
-        // FUNGSI DOWNLOAD CADANGAN JIKA SHARE DIBATALKAN ATAU DI PC
-        function fallbackDownload(blob, fileName) {
+        // FUNGSI DOWNLOAD CADANGAN
+        function fallbackDownloadPDF(blob, fileName) {
             try {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -599,7 +641,7 @@
                     showToast("PDF Terdownload!", "success");
                 }, 100);
             } catch(e) {
-                alert("Aplikasi HP memblokir unduhan. Silakan buka web di Google Chrome.");
+                alert("Aplikasi HP memblokir unduhan. Buka lewat Google Chrome.");
             }
         }
 
