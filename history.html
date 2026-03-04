@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HISTORY CHECKLIST - TOOLING SUPPORT</title>
+    <title>HISTORY CHECKLIST - TOOLING SUPPORT (ANTI CRASH)</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         /* --- PRINT SETTINGS --- */
@@ -29,11 +31,11 @@
             .header-tbl, .info-wrapper, .data-tbl, .super-area { min-width: 100% !important; }
         }
 
-        #pdf-content { background: #525252; transition: all 0.2s ease; }
+        #pdf-content { background: #525252; }
         
         /* STANDAR DESKTOP / A4 */
-        .sheet { background: white; width: 210mm; height: 297mm; margin: 0 auto 30px auto; padding: 10mm; box-shadow: 0 0 10px rgba(0,0,0,0.5); display: flex; flex-direction: column; transition: all 0.2s ease; }
-        .outer-border { border: 2px solid black; width: 100%; height: 100%; display: flex; flex-direction: column; padding: 5px; transition: all 0.2s ease; }
+        .sheet { background: white; width: 210mm; height: 297mm; margin: 0 auto 30px auto; padding: 10mm; box-shadow: 0 0 10px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+        .outer-border { border: 2px solid black; width: 100%; height: 100%; display: flex; flex-direction: column; padding: 5px; }
 
         .header-tbl { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
         .header-tbl td { border: 1px solid black; padding: 3px; vertical-align: middle; }
@@ -94,20 +96,19 @@
         #pdf-loading { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.95); z-index: 99999; justify-content: center; align-items: center; flex-direction: column; }
         .loader-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #ea580c; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 
-        /* ==============================================
-           CSS KHUSUS MOBILE (AKAN DIMATIKAN SAAT RENDER)
-           ============================================== */
+    <style id="mobile-css">
         @media screen and (max-width: 768px) {
             body { padding: 10px; }
             .ctl-pnl { flex-direction: column; }
             .inp, .btn { width: 100%; flex: none; padding: 12px; font-size: 14px; }
             
-            .mobile-active { width: 100% !important; height: auto !important; padding: 5px !important; margin-bottom: 20px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important; }
-            .mobile-active .outer-border { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; padding: 10px !important; border-width: 1px !important; }
-            .mobile-active .header-tbl, .mobile-active .info-wrapper, .mobile-active .data-tbl, .mobile-active .super-area { min-width: 700px !important; }
+            #pdf-content { background: transparent; }
+            .sheet { width: 100%; height: auto; padding: 5px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
             
-            #pdf-content.mobile-bg { background: transparent !important; }
+            .outer-border { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 10px; border-width: 1px; }
+            .header-tbl, .info-wrapper, .data-tbl, .super-area { min-width: 700px; }
         }
     </style>
 </head>
@@ -117,8 +118,8 @@
     
     <div id="pdf-loading">
         <div class="loader-spinner"></div>
-        <p class="text-sm font-bold text-slate-800">Menyimpan PDF...</p>
-        <p class="text-xs text-slate-500 mt-1 text-center font-bold">Harap tunggu & jangan tutup aplikasi.</p>
+        <p id="loading-text" class="text-sm font-bold text-slate-800 mt-2">Memproses Halaman 1...</p>
+        <p class="text-xs text-slate-500 mt-1 text-center font-bold px-4 text-rose-500">Mode Ringan: Harap jangan sentuh layar atau tutup aplikasi.</p>
     </div>
 
     <div class="ctl-pnl no-print">
@@ -136,16 +137,16 @@
             <script>for(let y=2024; y<=2030; y++) document.write(`<option value="${y}" ${y===2026?'selected':''}>${y}</option>`);</script>
         </select>
         <button onclick="renderReport(true)" class="btn" style="background:#1e3a8a;">CARI</button>
-        <button onclick="downloadPDFLite()" class="btn" style="background:#ea580c;">📥 DOWNLOAD PDF</button>
+        <button onclick="downloadSuperLitePDF()" class="btn" style="background:#ea580c;">📥 DOWNLOAD PDF</button>
         <button onclick="window.location.href='dashboard.html'" class="btn" style="background:#4b5563;">KEMBALI</button>
     </div>
 
-    <div id="pdf-content" class="mobile-bg">
-        <div class="sheet mobile-active">
+    <div id="pdf-content">
+        <div class="sheet" id="sheet-1">
             <div class="outer-border">
                 <table class="header-tbl">
                     <tr>
-                        <td width="15%" align="center"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo" crossorigin="anonymous"></td>
+                        <td width="15%" align="center"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo"></td>
                         <td width="60%" align="center" class="judul-dok">CHECKLIST MONITORING TOOLING SUPPORT</td>
                         <td width="25%">
                             <div class="meta-row"><div class="meta-lbl">NO DOKUMEN</div><div class="meta-val">: </div></div>
@@ -183,11 +184,11 @@
             </div>
         </div>
 
-        <div class="sheet mobile-active" style="margin-top:20px;">
+        <div class="sheet" id="sheet-2">
             <div class="outer-border">
                 <table class="header-tbl">
                     <tr>
-                        <td width="15%" align="center"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo" crossorigin="anonymous"></td>
+                        <td width="15%" align="center"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo"></td>
                         <td width="60%" align="center" class="judul-dok">CHECKLIST MONITORING TOOLING SUPPORT</td>
                         <td width="25%">
                             <div class="meta-row"><div class="meta-lbl">NO DOKUMEN</div><div class="meta-val">: </div></div>
@@ -397,7 +398,7 @@
 
         function renderSignatures(dataMap) {
             for(let w=1; w<=5; w++) {
-                const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" class="sig-img" crossorigin="anonymous">` : "";
+                const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" class="sig-img">` : "";
                 document.getElementById(`sig-s-w${w}`).innerHTML = img;
                 document.getElementById(`sig-k-w${w}`).innerHTML = img;
             }
@@ -412,7 +413,7 @@
             
             document.querySelectorAll('.super-sig').forEach(e => {
                 if (latest && latest.signature) {
-                    e.innerHTML = `<img src="${latest.signature}" class="super-img" crossorigin="anonymous">`;
+                    e.innerHTML = `<img src="${latest.signature}" class="super-img">`;
                 } else {
                     e.innerHTML = ""; 
                 }
@@ -421,68 +422,89 @@
             document.querySelectorAll('.super-name').forEach(e => e.innerText = (latest && latest.nama_superintendent) ? `( ${latest.nama_superintendent} )` : "( ... )");
         }
 
-        // ==========================================
-        // SISTEM LITE (MENCEGAH APLIKASI KEPENTAL)
-        // ==========================================
-        async function downloadPDFLite() {
+        // ==============================================================
+        // SISTEM GENERATE PDF SUPER LITE (DIJAMIN 1000% ANTI KEPENTAL)
+        // ==============================================================
+        async function downloadSuperLitePDF() {
             if (document.getElementById('tbody-status').innerHTML === "") {
                 alert("Silakan Cari data terlebih dahulu sebelum mendownload PDF.");
                 return;
             }
 
             const loadingScreen = document.getElementById('pdf-loading');
+            const loadingText = document.getElementById('loading-text');
             loadingScreen.style.display = 'flex';
             
-            // 1. MATIKAN SEMENTARA CSS MOBILE AGAR KEMBALI KE UKURAN A4
-            const sheets = document.querySelectorAll('.sheet');
-            sheets.forEach(s => s.classList.remove('mobile-active'));
-            document.getElementById('pdf-content').classList.remove('mobile-bg');
-            
-            // Kunci layar agar tidak bisa digeser saat foto diambil
+            // Matikan CSS Mobile & Kunci Layar
+            const mobileCss = document.getElementById('mobile-css');
+            if(mobileCss) mobileCss.disabled = true;
             document.body.style.overflow = 'hidden';
             window.scrollTo(0, 0);
 
-            // JEDA AGAK LAMA (800ms) agar HP tidak kaget memuat ukuran besar
+            // JEDA agar browser selesai merender ukuran A4
             await new Promise(resolve => setTimeout(resolve, 800));
 
-            const element = document.getElementById('pdf-content');
-            const merk = document.getElementById('input-merk').value.trim() || 'MESIN';
-            const bln = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text || 'BULAN';
-            const thn = document.getElementById('filter-tahun').value || 'TAHUN';
-            const fileName = `Checklist_${merk}_${bln}_${thn}.pdf`;
-
-            // 2. SETTING SUPER RINGAN (DIJAMIN TIDAK KEPENTAL)
-            const opt = {
-                margin:       0,
-                filename:     fileName,
-                image:        { type: 'jpeg', quality: 0.6 }, // Kualitas dikurangi jadi 60% (Sangat hemat RAM)
-                html2canvas:  { 
-                    scale: 1, // Turunkan scale jadi 1x (Beban RAM turun drastis)
-                    useCORS: true,
-                    windowWidth: 1024 
-                },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
             try {
-                // 3. LANGSUNG SAVE (Menghindari proses convert Data URI panjang yang bikin ngehang)
-                await html2pdf().set(opt).from(element).save();
+                // Inisialisasi Library jsPDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+
+                const sheet1 = document.getElementById('sheet-1');
+                const sheet2 = document.getElementById('sheet-2');
+
+                // FOTO HALAMAN 1 (Scale 1 - RAM Super Hemat)
+                loadingText.innerText = "Memproses Halaman 1...";
+                const canvas1 = await html2canvas(sheet1, { 
+                    scale: 1, 
+                    useCORS: false, // Matikan CORS agar anti crash
+                    logging: false,
+                    backgroundColor: '#ffffff' 
+                });
+                const img1 = canvas1.toDataURL('image/jpeg', 0.6); // Kompresi tinggi
+                pdf.addImage(img1, 'JPEG', 0, 0, pdfWidth, pdfHeight);
                 
-                // 4. KEMBALIKAN TAMPILAN KE VERSI HP
-                restoreMobileView();
+                // Bersihkan memori canvas 1
+                canvas1.width = 0; canvas1.height = 0;
+
+                // FOTO HALAMAN 2
+                loadingText.innerText = "Memproses Halaman 2...";
+                const canvas2 = await html2canvas(sheet2, { 
+                    scale: 1, 
+                    useCORS: false, 
+                    logging: false,
+                    backgroundColor: '#ffffff' 
+                });
+                const img2 = canvas2.toDataURL('image/jpeg', 0.6);
+                pdf.addPage();
+                pdf.addImage(img2, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                
+                // Bersihkan memori canvas 2
+                canvas2.width = 0; canvas2.height = 0;
+
+                loadingText.innerText = "Menyimpan File...";
+                const merk = document.getElementById('input-merk').value.trim() || 'MESIN';
+                const bln = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text || 'BULAN';
+                const thn = document.getElementById('filter-tahun').value || 'TAHUN';
+                const fileName = `Checklist_${merk}_${bln}_${thn}.pdf`;
+
+                // EKSEKUSI DOWNLOAD LANGSUNG (TANPA POPUP SHARE)
+                pdf.save(fileName);
+
+                // Kembalikan Layar HP
+                if(mobileCss) mobileCss.disabled = false;
+                document.body.style.overflow = '';
+                loadingScreen.style.display = 'none';
+                
                 showToast("PDF Berhasil Diunduh!", "success");
 
             } catch (err) {
-                restoreMobileView();
-                console.error(err);
-                alert("Proses dibatalkan oleh perangkat. Memori RAM HP tidak cukup.");
-            }
-
-            function restoreMobileView() {
-                sheets.forEach(s => s.classList.add('mobile-active'));
-                document.getElementById('pdf-content').classList.add('mobile-bg');
+                if(mobileCss) mobileCss.disabled = false;
                 document.body.style.overflow = '';
                 loadingScreen.style.display = 'none';
+                console.error(err);
+                alert("Terjadi kesalahan memori pada HP Anda. Silakan coba lewat PC/Laptop.");
             }
         }
 
