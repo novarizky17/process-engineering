@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HISTORY CHECKLIST - TOOLING SUPPORT (PDF IMAGE MODE)</title>
+    <title>HISTORY CHECKLIST - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         /* --- PRINT SETTINGS --- */
@@ -30,11 +29,11 @@
             .header-tbl, .info-wrapper, .data-tbl, .super-area { min-width: 100% !important; }
         }
 
-        #pdf-content { background: #525252; transition: all 0.3s ease; }
+        #pdf-content { background: #525252; transition: all 0.2s ease; }
         
         /* STANDAR DESKTOP / A4 */
-        .sheet { background: white; width: 210mm; height: 297mm; margin: 0 auto 30px auto; padding: 10mm; box-shadow: 0 0 10px rgba(0,0,0,0.5); display: flex; flex-direction: column; transition: all 0.3s ease; }
-        .outer-border { border: 2px solid black; width: 100%; height: 100%; display: flex; flex-direction: column; padding: 5px; transition: all 0.3s ease; }
+        .sheet { background: white; width: 210mm; height: 297mm; margin: 0 auto 30px auto; padding: 10mm; box-shadow: 0 0 10px rgba(0,0,0,0.5); display: flex; flex-direction: column; transition: all 0.2s ease; }
+        .outer-border { border: 2px solid black; width: 100%; height: 100%; display: flex; flex-direction: column; padding: 5px; transition: all 0.2s ease; }
 
         .header-tbl { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
         .header-tbl td { border: 1px solid black; padding: 3px; vertical-align: middle; }
@@ -92,27 +91,24 @@
         .toast { background: white; border-left: 5px solid #10b981; padding: 15px 20px; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; min-width: 250px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); pointer-events: auto; }
         .toast.show { transform: translateX(0); }
 
-        #pdf-loading { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 99999; justify-content: center; align-items: center; flex-direction: column; }
+        #pdf-loading { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.95); z-index: 99999; justify-content: center; align-items: center; flex-direction: column; }
         .loader-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #ea580c; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* CSS KHUSUS MOBILE */
+        /* ==============================================
+           CSS KHUSUS MOBILE (AKAN DIMATIKAN SAAT RENDER)
+           ============================================== */
         @media screen and (max-width: 768px) {
             body { padding: 10px; }
             .ctl-pnl { flex-direction: column; }
             .inp, .btn { width: 100%; flex: none; padding: 12px; font-size: 14px; }
             
-            /* Class ini dimatikan saat PDF dirender */
             .mobile-active { width: 100% !important; height: auto !important; padding: 5px !important; margin-bottom: 20px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important; }
             .mobile-active .outer-border { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; padding: 10px !important; border-width: 1px !important; }
             .mobile-active .header-tbl, .mobile-active .info-wrapper, .mobile-active .data-tbl, .mobile-active .super-area { min-width: 700px !important; }
             
             #pdf-content.mobile-bg { background: transparent !important; }
         }
-
-        /* MODAL HASIL PDF */
-        #screenshot-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 999999; justify-content: center; align-items: center; padding: 20px; flex-direction: column; }
-        .action-btns { display: flex; gap: 10px; width: 100%; max-width: 400px; flex-direction: column; background: white; padding: 20px; border-radius: 16px; text-align: center; }
     </style>
 </head>
 <body>
@@ -121,23 +117,8 @@
     
     <div id="pdf-loading">
         <div class="loader-spinner"></div>
-        <p class="text-sm font-bold text-slate-700">Membuat Dokumen PDF...</p>
-        <p class="text-xs text-slate-500 mt-1 text-center px-4 font-bold text-rose-500">Tolong jangan sentuh layar Anda!</p>
-    </div>
-
-    <div id="screenshot-modal">
-        <div class="action-btns">
-            <div style="width:50px; height:50px; background:#dcfce7; color:#16a34a; border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:24px; margin:0 auto 10px;">✓</div>
-            <h3 class="font-black text-slate-800 text-lg mb-1">PDF Siap Diunduh!</h3>
-            <p class="text-xs text-slate-500 mb-4">Laporan berhasil di-convert ke format A4.</p>
-            
-            <button id="btn-share-img" class="bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg w-full flex items-center justify-center gap-2 uppercase tracking-wide">
-                <i class="fa-solid fa-file-pdf"></i> Download / Bagikan PDF
-            </button>
-            <button onclick="document.getElementById('screenshot-modal').style.display='none'" class="bg-slate-100 text-slate-600 font-bold py-3.5 rounded-xl w-full border border-slate-200 mt-2">
-                Tutup Jendela Ini
-            </button>
-        </div>
+        <p class="text-sm font-bold text-slate-800">Menyimpan PDF...</p>
+        <p class="text-xs text-slate-500 mt-1 text-center font-bold">Harap tunggu & jangan tutup aplikasi.</p>
     </div>
 
     <div class="ctl-pnl no-print">
@@ -155,12 +136,12 @@
             <script>for(let y=2024; y<=2030; y++) document.write(`<option value="${y}" ${y===2026?'selected':''}>${y}</option>`);</script>
         </select>
         <button onclick="renderReport(true)" class="btn" style="background:#1e3a8a;">CARI</button>
-        <button onclick="downloadSecurePDF()" class="btn" style="background:#ea580c;">📥 DOWNLOAD PDF</button>
+        <button onclick="downloadPDFLite()" class="btn" style="background:#ea580c;">📥 DOWNLOAD PDF</button>
         <button onclick="window.location.href='dashboard.html'" class="btn" style="background:#4b5563;">KEMBALI</button>
     </div>
 
     <div id="pdf-content" class="mobile-bg">
-        <div class="sheet mobile-active" id="sheet-1">
+        <div class="sheet mobile-active">
             <div class="outer-border">
                 <table class="header-tbl">
                     <tr>
@@ -202,7 +183,7 @@
             </div>
         </div>
 
-        <div class="sheet mobile-active" id="sheet-2" style="margin-top:20px;">
+        <div class="sheet mobile-active" style="margin-top:20px;">
             <div class="outer-border">
                 <table class="header-tbl">
                     <tr>
@@ -441,116 +422,68 @@
         }
 
         // ==========================================
-        // SISTEM FOTO LALU JADIKAN PDF (PALING AMAN)
+        // SISTEM LITE (MENCEGAH APLIKASI KEPENTAL)
         // ==========================================
-        async function downloadSecurePDF() {
+        async function downloadPDFLite() {
             if (document.getElementById('tbody-status').innerHTML === "") {
-                alert("Silakan Cari data terlebih dahulu sebelum membuat PDF.");
+                alert("Silakan Cari data terlebih dahulu sebelum mendownload PDF.");
                 return;
             }
 
             const loadingScreen = document.getElementById('pdf-loading');
             loadingScreen.style.display = 'flex';
             
-            // 1. MATIKAN CSS MOBILE SESAAT AGAR TAMPILAN FULL PC
+            // 1. MATIKAN SEMENTARA CSS MOBILE AGAR KEMBALI KE UKURAN A4
             const sheets = document.querySelectorAll('.sheet');
             sheets.forEach(s => s.classList.remove('mobile-active'));
             document.getElementById('pdf-content').classList.remove('mobile-bg');
             
+            // Kunci layar agar tidak bisa digeser saat foto diambil
             document.body.style.overflow = 'hidden';
             window.scrollTo(0, 0);
 
-            // Jeda 800ms agar rendering sempurna di WebView
+            // JEDA AGAK LAMA (800ms) agar HP tidak kaget memuat ukuran besar
             await new Promise(resolve => setTimeout(resolve, 800));
 
+            const element = document.getElementById('pdf-content');
+            const merk = document.getElementById('input-merk').value.trim() || 'MESIN';
+            const bln = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text || 'BULAN';
+            const thn = document.getElementById('filter-tahun').value || 'TAHUN';
+            const fileName = `Checklist_${merk}_${bln}_${thn}.pdf`;
+
+            // 2. SETTING SUPER RINGAN (DIJAMIN TIDAK KEPENTAL)
+            const opt = {
+                margin:       0,
+                filename:     fileName,
+                image:        { type: 'jpeg', quality: 0.6 }, // Kualitas dikurangi jadi 60% (Sangat hemat RAM)
+                html2canvas:  { 
+                    scale: 1, // Turunkan scale jadi 1x (Beban RAM turun drastis)
+                    useCORS: true,
+                    windowWidth: 1024 
+                },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
             try {
-                // Instansiasi JSPDF (Library Pembungkus PDF)
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-
-                // FOTO HALAMAN 1
-                const sheet1 = document.getElementById('sheet-1');
-                const canvas1 = await html2canvas(sheet1, { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 1024 });
-                const imgData1 = canvas1.toDataURL('image/jpeg', 0.95);
-                pdf.addImage(imgData1, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-
-                // FOTO HALAMAN 2
-                const sheet2 = document.getElementById('sheet-2');
-                const canvas2 = await html2canvas(sheet2, { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 1024 });
-                const imgData2 = canvas2.toDataURL('image/jpeg', 0.95);
-                pdf.addPage();
-                pdf.addImage(imgData2, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-
-                // Kembalikan Tampilan HP Normal
-                sheets.forEach(s => s.classList.add('mobile-active'));
-                document.getElementById('pdf-content').classList.add('mobile-bg');
-                document.body.style.overflow = '';
-                loadingScreen.style.display = 'none';
-
-                // NAMA FILE
-                const merk = document.getElementById('input-merk').value.trim() || 'MESIN';
-                const bln = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text || 'BULAN';
-                const thn = document.getElementById('filter-tahun').value || 'TAHUN';
-                const fileName = `Checklist_${merk}_${bln}_${thn}.pdf`;
-
-                // OUTPUT MENJADI BASE64 DATA URI (Agar WebView tidak nge-block Blob Download)
-                const pdfBase64 = pdf.output('datauristring');
-
-                // TAMPILKAN POPUP DOWNLOAD/SHARE MANAUAL
-                document.getElementById('screenshot-modal').style.display = 'flex';
-                const btnShare = document.getElementById('btn-share-img');
-
-                btnShare.onclick = () => {
-                    // Konversi Base64 ke File Object jika mau pakai Share API
-                    const arr = pdfBase64.split(',');
-                    const mime = arr[0].match(/:(.*?);/)[1];
-                    const bstr = atob(arr[1]);
-                    let n = bstr.length;
-                    const u8arr = new Uint8Array(n);
-                    while(n--) { u8arr[n] = bstr.charCodeAt(n); }
-                    const blob = new Blob([u8arr], {type: mime});
-
-                    // Logika Eksekusi
-                    if (navigator.share && navigator.canShare && window.innerWidth <= 768) {
-                        const file = new File([blob], fileName, { type: 'application/pdf' });
-                        navigator.share({
-                            files: [file],
-                            title: 'Laporan PDF',
-                            text: 'Berikut Laporan PDF Checklist Mesin.'
-                        }).catch(err => {
-                            console.log("Share dibatalkan", err);
-                            triggerDirectDownload(pdfBase64, fileName);
-                        });
-                    } else {
-                        // Jika di PC atau Share ditolak
-                        triggerDirectDownload(pdfBase64, fileName);
-                    }
-                };
-
-                // Coba Auto-Download di background
-                triggerDirectDownload(pdfBase64, fileName);
+                // 3. LANGSUNG SAVE (Menghindari proses convert Data URI panjang yang bikin ngehang)
+                await html2pdf().set(opt).from(element).save();
+                
+                // 4. KEMBALIKAN TAMPILAN KE VERSI HP
+                restoreMobileView();
+                showToast("PDF Berhasil Diunduh!", "success");
 
             } catch (err) {
+                restoreMobileView();
+                console.error(err);
+                alert("Proses dibatalkan oleh perangkat. Memori RAM HP tidak cukup.");
+            }
+
+            function restoreMobileView() {
                 sheets.forEach(s => s.classList.add('mobile-active'));
                 document.getElementById('pdf-content').classList.add('mobile-bg');
                 document.body.style.overflow = '';
                 loadingScreen.style.display = 'none';
-                console.error(err);
-                alert("Sistem Gagal Memproses PDF. Memori HP mungkin tidak mencukupi.");
             }
-        }
-
-        // FUNGSI PAKSA DOWNLOAD
-        function triggerDirectDownload(uri, name) {
-            const a = document.createElement("a");
-            a.style.display = "none";
-            a.href = uri;
-            a.download = name;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => { document.body.removeChild(a); }, 100);
         }
 
         window.onload = initMachineList;
