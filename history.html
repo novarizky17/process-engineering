@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HISTORY CHECKLIST (CLEAN TITLE) - TOOLING SUPPORT</title>
+    <title>HISTORY CHECKLIST - TOOLING SUPPORT (SCREENSHOT MODE)</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
-        /* --- PRINT & DESKTOP SETTINGS --- */
+        /* --- PRINT SETTINGS --- */
         * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         html, body { max-width: 100%; overflow-x: hidden; }
         body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #525252; }
@@ -29,10 +29,11 @@
             .header-tbl, .info-wrapper, .data-tbl, .super-area { min-width: 100% !important; }
         }
 
-        #pdf-content { background: #525252; }
+        #pdf-content { background: #525252; transition: all 0.3s ease; }
         
-        .sheet { background: white; width: 210mm; height: 297mm; margin: 0 auto 30px auto; padding: 10mm; box-shadow: 0 0 10px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
-        .outer-border { border: 2px solid black; width: 100%; height: 100%; display: flex; flex-direction: column; padding: 5px; }
+        /* STANDAR DESKTOP / A4 */
+        .sheet { background: white; width: 210mm; height: 297mm; margin: 0 auto 30px auto; padding: 10mm; box-shadow: 0 0 10px rgba(0,0,0,0.5); display: flex; flex-direction: column; transition: all 0.3s ease; }
+        .outer-border { border: 2px solid black; width: 100%; height: 100%; display: flex; flex-direction: column; padding: 5px; transition: all 0.3s ease; }
 
         .header-tbl { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
         .header-tbl td { border: 1px solid black; padding: 3px; vertical-align: middle; }
@@ -79,6 +80,7 @@
         .super-sig-box { border: 1px solid black; height: 50px; margin: 2px auto; display: flex; align-items: center; justify-content: center; }
         .super-img { max-height: 45px; }
 
+        /* UI PANEL */
         .ctl-pnl { width: 100%; max-width: 800px; margin: 0 auto 20px; background: white; padding: 15px; border-radius: 8px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .inp { flex: 1 1 140px; border: 1px solid #ccc; padding: 8px; border-radius: 4px; text-transform: uppercase; font-size: 12px; outline: none; }
         .inp:focus { border-color: #1e3a8a; }
@@ -86,27 +88,34 @@
         .btn:active { transform: scale(0.98); }
 
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast { background: white; border-left: 5px solid #2563eb; padding: 15px 20px; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; min-width: 250px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); pointer-events: auto; }
+        .toast { background: white; border-left: 5px solid #10b981; padding: 15px 20px; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; min-width: 250px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); pointer-events: auto; }
         .toast.show { transform: translateX(0); }
 
         #pdf-loading { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 99999; justify-content: center; align-items: center; flex-direction: column; }
-        .loader-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #1e3a8a; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        .loader-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #ea580c; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
 
-    <style id="mobile-css">
+        /* ==============================================
+           CSS KHUSUS MOBILE (AKAN DIMATIKAN SAAT FOTO DIAMBIL)
+           ============================================== */
         @media screen and (max-width: 768px) {
             body { padding: 10px; }
             .ctl-pnl { flex-direction: column; }
             .inp, .btn { width: 100%; flex: none; padding: 12px; font-size: 14px; }
             
-            #pdf-content { background: transparent; }
-            .sheet { width: 100%; height: auto; padding: 5px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+            /* Class ini hanya aktif saat user melihat layar HP */
+            .mobile-active { width: 100% !important; height: auto !important; padding: 5px !important; margin-bottom: 20px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important; }
+            .mobile-active .outer-border { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; padding: 10px !important; border-width: 1px !important; }
+            .mobile-active .header-tbl, .mobile-active .info-wrapper, .mobile-active .data-tbl, .mobile-active .super-area { min-width: 700px !important; }
             
-            /* Area tabel bisa scroll di HP */
-            .outer-border { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 10px; border-width: 1px; }
-            .header-tbl, .info-wrapper, .data-tbl, .super-area { min-width: 700px; }
+            #pdf-content.mobile-bg { background: transparent !important; }
         }
+
+        /* MODAL SCREENSHOT RESULT */
+        #screenshot-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 999999; justify-content: center; align-items: center; padding: 20px; flex-direction: column; }
+        .img-container { width: 100%; max-width: 500px; height: 70vh; overflow-y: auto; background: white; padding: 10px; border-radius: 12px; margin-bottom: 15px; }
+        #img-result { width: 100%; height: auto; }
+        .action-btns { display: flex; gap: 10px; width: 100%; max-width: 500px; flex-direction: column; }
     </style>
 </head>
 <body>
@@ -115,8 +124,24 @@
     
     <div id="pdf-loading">
         <div class="loader-spinner"></div>
-        <p class="text-sm font-bold text-slate-700">Mempersiapkan PDF...</p>
-        <p class="text-xs text-slate-500 mt-1 text-center px-4">Mengonversi data ke format A4.</p>
+        <p class="text-sm font-bold text-slate-700">Mengambil Gambar Laporan...</p>
+        <p class="text-xs text-slate-500 mt-1 text-center px-4 font-bold text-rose-500">Tolong jangan sentuh layar Anda!</p>
+    </div>
+
+    <div id="screenshot-modal">
+        <h3 class="text-white font-bold mb-2 text-center text-sm"><i class="fa-solid fa-circle-check text-green-400 mr-1"></i> Gambar Berhasil Dibuat</h3>
+        <div class="img-container custom-scroll">
+            <img id="img-result" src="" alt="Hasil Screenshot">
+        </div>
+        <div class="action-btns">
+            <button id="btn-share-img" class="bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-lg w-full flex items-center justify-center gap-2">
+                <i class="fa-solid fa-share-nodes"></i> Bagikan / Simpan Gambar
+            </button>
+            <p class="text-xs text-white/70 text-center italic mt-1 mb-2">*Atau tekan & tahan gambar di atas untuk "Save Image / Simpan"</p>
+            <button onclick="document.getElementById('screenshot-modal').style.display='none'" class="bg-slate-700 text-white font-bold py-3 rounded-xl w-full">
+                Tutup Peringatan
+            </button>
+        </div>
     </div>
 
     <div class="ctl-pnl no-print">
@@ -134,12 +159,12 @@
             <script>for(let y=2024; y<=2030; y++) document.write(`<option value="${y}" ${y===2026?'selected':''}>${y}</option>`);</script>
         </select>
         <button onclick="renderReport(true)" class="btn" style="background:#1e3a8a;">CARI</button>
-        <button onclick="downloadPDF()" class="btn" style="background:#1f2937;">DOWNLOAD PDF</button>
+        <button onclick="captureScreenshot()" class="btn" style="background:#ea580c;">📸 AMBIL GAMBAR</button>
         <button onclick="window.location.href='dashboard.html'" class="btn" style="background:#4b5563;">KEMBALI</button>
     </div>
 
-    <div id="pdf-content">
-        <div class="sheet">
+    <div id="pdf-content" class="mobile-bg">
+        <div class="sheet mobile-active">
             <div class="outer-border">
                 <table class="header-tbl">
                     <tr>
@@ -181,7 +206,7 @@
             </div>
         </div>
 
-        <div class="sheet">
+        <div class="sheet mobile-active" style="margin-top:20px;">
             <div class="outer-border">
                 <table class="header-tbl">
                     <tr>
@@ -225,6 +250,7 @@
             </div>
         </div>
     </div>
+
     <script>
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
@@ -273,33 +299,15 @@
         ];
 
         const machineData = [
-            { name: "LIANXIN 80 T (TOAD)", cap: "80 TON" },
-            { name: "WIBA 270 T (NEBULA)", cap: "270 TON" },
-            { name: "WIBA 240 T (SPIDERMAN)", cap: "240 TON" },
-            { name: "WIBA 210 T (THOR)", cap: "210 TON" },
-            { name: "WIBA 350 T (IRON MAN)", cap: "350 TON" },
-            { name: "ARBURG 320 T (STAR LORD)", cap: "320 TON" },
-            { name: "WIBA 500 T (STEVE ROGERS)", cap: "500 TON" },
-            { name: "WIBA 500 T (THANOS)", cap: "500 TON" },
-            { name: "FCS 220 T (BLACKWIDOW)", cap: "220 TON" },
-            { name: "ENGEL 220 T (DEADPOOL)", cap: "220 TON" },
-            { name: "ARBURG 200 T (WOLVERINE)", cap: "200 TON" },
-            { name: "FCS 380 T (LOKI)", cap: "380 TON" },
-            { name: "ENGEL 380 T (INHUMANS)", cap: "380 TON" },
-            { name: "ENGEL 380 T (HULK)", cap: "380 TON" },
-            { name: "NPC 400 T (WANDA)", cap: "400 TON" },
-            { name: "ENGEL 280 T (DOCTOR STRANGE)", cap: "280 TON" },
-            { name: "FCS 100 T (ANTMAN)", cap: "100 TON" },
-            { name: "NPC 160 T (WASP)", cap: "160 TON" },
-            { name: "NPC 160 T (WONG)", cap: "160 TON" },
-            { name: "FCS 150 T (ROCKET)", cap: "150 TON" },
-            { name: "FCS 150 T (MANTIS)", cap: "150 TON" },
-            { name: "NPC 160 T (SHANCHI)", cap: "160 TON" },
-            { name: "NPC 260 T (VISION)", cap: "260 TON" },
-            { name: "NPC 200 T (MAGNETO)", cap: "200 TON" },
-            { name: "FCS 100 T (NICK FURRY)", cap: "100 TON" },
-            { name: "FCS 250 T (CYCLOPS)", cap: "250 TON" },
-            { name: "NPC 260 T (HAWKEYE)", cap: "260 TON" },
+            { name: "LIANXIN 80 T (TOAD)", cap: "80 TON" }, { name: "WIBA 270 T (NEBULA)", cap: "270 TON" }, { name: "WIBA 240 T (SPIDERMAN)", cap: "240 TON" },
+            { name: "WIBA 210 T (THOR)", cap: "210 TON" }, { name: "WIBA 350 T (IRON MAN)", cap: "350 TON" }, { name: "ARBURG 320 T (STAR LORD)", cap: "320 TON" },
+            { name: "WIBA 500 T (STEVE ROGERS)", cap: "500 TON" }, { name: "WIBA 500 T (THANOS)", cap: "500 TON" }, { name: "FCS 220 T (BLACKWIDOW)", cap: "220 TON" },
+            { name: "ENGEL 220 T (DEADPOOL)", cap: "220 TON" }, { name: "ARBURG 200 T (WOLVERINE)", cap: "200 TON" }, { name: "FCS 380 T (LOKI)", cap: "380 TON" },
+            { name: "ENGEL 380 T (INHUMANS)", cap: "380 TON" }, { name: "ENGEL 380 T (HULK)", cap: "380 TON" }, { name: "NPC 400 T (WANDA)", cap: "400 TON" },
+            { name: "ENGEL 280 T (DOCTOR STRANGE)", cap: "280 TON" }, { name: "FCS 100 T (ANTMAN)", cap: "100 TON" }, { name: "NPC 160 T (WASP)", cap: "160 TON" },
+            { name: "NPC 160 T (WONG)", cap: "160 TON" }, { name: "FCS 150 T (ROCKET)", cap: "150 TON" }, { name: "FCS 150 T (MANTIS)", cap: "150 TON" },
+            { name: "NPC 160 T (SHANCHI)", cap: "160 TON" }, { name: "NPC 260 T (VISION)", cap: "260 TON" }, { name: "NPC 200 T (MAGNETO)", cap: "200 TON" },
+            { name: "FCS 100 T (NICK FURRY)", cap: "100 TON" }, { name: "FCS 250 T (CYCLOPS)", cap: "250 TON" }, { name: "NPC 260 T (HAWKEYE)", cap: "260 TON" },
             { name: "EXTRUDER", cap: "-" }
         ];
 
@@ -343,6 +351,8 @@
             document.querySelectorAll('.label-merk').forEach(e => e.innerText = tools.toUpperCase());
             document.querySelectorAll('.label-tonage').forEach(e => e.innerText = cap || "-");
 
+            showToast("Mencari data...", "info");
+
             const dateFilter = `${thn}-${bln}`;
             const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
             
@@ -371,6 +381,8 @@
 
             renderTables(dataMap);
             renderSignatures(dataMap);
+            
+            setTimeout(() => { showToast("Data berhasil dimuat!", "success"); }, 500);
         }
 
         function renderTables(dataMap) {
@@ -433,108 +445,106 @@
         }
 
         // ==========================================
-        // SISTEM DOWNLOAD PDF ANTI BLANK (DISABLE CSS MOBILE)
+        // SISTEM FOTO LAPORAN (SCREENSHOT KE GAMBAR)
+        // Solusi Tahan Blokir Aplikasi Web-to-App
         // ==========================================
-        async function downloadPDF() {
+        async function captureScreenshot() {
             if (document.getElementById('tbody-status').innerHTML === "") {
-                alert("Silakan Cari data terlebih dahulu sebelum mendownload PDF.");
+                alert("Silakan Cari data terlebih dahulu sebelum mengambil gambar.");
                 return;
             }
 
             const loadingScreen = document.getElementById('pdf-loading');
             loadingScreen.style.display = 'flex';
             
-            // 1. MATIKAN CSS MOBILE (Agar kembali jadi ukuran Desktop walau di HP)
-            const mobileCss = document.getElementById('mobile-css');
-            if(mobileCss) mobileCss.disabled = true;
+            // 1. MATIKAN CSS MOBILE SECARA PAKSA (Agar hasil foto seperti di PC)
+            const sheets = document.querySelectorAll('.sheet');
+            sheets.forEach(s => s.classList.remove('mobile-active'));
+            document.getElementById('pdf-content').classList.remove('mobile-bg');
             
-            // Kunci scroll
+            // Kunci scroll ke atas
             document.body.style.overflow = 'hidden';
-            
-            // Scroll ke paling atas
             window.scrollTo(0, 0);
 
-            // JEDA WAKTU agak lama (800ms) supaya browser HP selesai menggambar ulang tabel besar
+            // JEDA WAKTU agak lama (800ms) supaya browser HP merender ukuran besar
             await new Promise(resolve => setTimeout(resolve, 800));
 
             const element = document.getElementById('pdf-content');
-            const merk = document.getElementById('input-merk').value.trim() || 'MESIN';
-            const bln = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text || 'BULAN';
-            const thn = document.getElementById('filter-tahun').value || 'TAHUN';
-            const fileName = `Checklist_${merk}_${bln}_${thn}.pdf`;
-
-            // KONFIGURASI PDF
-            const opt = {
-                margin:       0,
-                filename:     fileName,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { 
-                    scale: 2, 
+            
+            try {
+                // 2. FOTO ELEMENT MENJADI CANVAS
+                const canvas = await html2canvas(element, {
+                    scale: 2, // Resolusi tinggi agar tulisan tidak pecah
                     useCORS: true,
                     backgroundColor: '#ffffff',
-                    scrollY: 0,
-                    windowWidth: document.documentElement.scrollWidth // Memaksa baca lebar asli PC
-                },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+                    windowWidth: 1024,
+                    scrollY: 0
+                });
 
-            try {
-                // EKSEKUSI PEMBUATAN PDF
-                const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
-                
-                // 2. NYALAKAN KEMBALI CSS MOBILE SETELAH SELESAI
-                if(mobileCss) mobileCss.disabled = false;
+                // 3. KEMBALIKAN TAMPILAN HP
+                sheets.forEach(s => s.classList.add('mobile-active'));
+                document.getElementById('pdf-content').classList.add('mobile-bg');
                 document.body.style.overflow = '';
                 loadingScreen.style.display = 'none';
 
-                // 3. LOGIKA SHARE (Khusus WebView/App Mobile) ATAU DOWNLOAD NORMAL (PC)
-                if (navigator.share && window.innerWidth <= 768) {
-                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            files: [file],
-                            title: 'Laporan Checklist',
-                            text: 'Berikut Laporan PDF Checklist Mesin.'
-                        });
-                        showToast("PDF Berhasil dibagikan!", "success");
-                        return;
-                    }
-                }
+                // 4. KONVERSI KE GAMBAR (Base64 JPEG)
+                const imgData = canvas.toDataURL('image/jpeg', 0.9);
                 
-                // Jika share dibatalkan / tidak support, pakai sistem konversi Base64
-                fallbackDownloadPDF(pdfBlob, fileName);
+                // 5. TAMPILKAN KE POP-UP MODAL
+                document.getElementById('img-result').src = imgData;
+                document.getElementById('screenshot-modal').style.display = 'flex';
+
+                // 6. SET UP TOMBOL SHARE / DOWNLOAD
+                const btnShare = document.getElementById('btn-share-img');
+                btnShare.onclick = () => {
+                    const merk = document.getElementById('input-merk').value.trim() || 'MESIN';
+                    const bln = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text || 'BULAN';
+                    const thn = document.getElementById('filter-tahun').value || 'TAHUN';
+                    const fileName = `Checklist_${merk}_${bln}_${thn}.jpg`;
+
+                    // Konversi Canvas ke File untuk di-Share (Khusus HP)
+                    canvas.toBlob((blob) => {
+                        const file = new File([blob], fileName, { type: 'image/jpeg' });
+                        if (navigator.canShare && navigator.canShare({ files: [file] }) && window.innerWidth <= 768) {
+                            navigator.share({
+                                files: [file],
+                                title: 'Laporan Checklist',
+                                text: 'Berikut Laporan Gambar Checklist Mesin.'
+                            }).catch(err => {
+                                console.log("Share dibatalkan", err);
+                                // Fallback download normal
+                                downloadURI(imgData, fileName);
+                            });
+                        } else {
+                            // Download Normal (Untuk PC / jika tidak support share)
+                            downloadURI(imgData, fileName);
+                        }
+                    }, 'image/jpeg', 0.9);
+                };
 
             } catch (err) {
-                // JIKA ERROR, PASTIKAN HP KEMBALI SEPERTI SEMULA
-                if(mobileCss) mobileCss.disabled = false;
+                // KEMBALIKAN TAMPILAN JIKA ERROR
+                sheets.forEach(s => s.classList.add('mobile-active'));
+                document.getElementById('pdf-content').classList.add('mobile-bg');
                 document.body.style.overflow = '';
                 loadingScreen.style.display = 'none';
                 console.error(err);
-                alert("Sistem Gagal Memproses PDF. Coba gunakan Google Chrome.");
+                alert("Sistem Gagal Mengambil Gambar. Memori HP mungkin tidak mencukupi.");
             }
         }
 
-        // FUNGSI CADANGAN ANTI-BLOCK (Menggunakan Base64 Data URI)
-        function fallbackDownloadPDF(blob, fileName) {
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = function() {
-                const base64data = reader.result;
-                try {
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = base64data; 
-                    a.download = fileName;
-                    document.body.appendChild(a);
-                    a.click();
-                    setTimeout(() => { 
-                        document.body.removeChild(a);
-                        showToast("PDF Terdownload!", "success");
-                    }, 100);
-                } catch(e) {
-                    alert("Aplikasi HP memblokir unduhan file. Buka website ini lewat Google Chrome.");
-                }
-            }
+        // FUNGSI BANTUAN UNTUK DOWNLOAD LANGSUNG
+        function downloadURI(uri, name) {
+            const a = document.createElement("a");
+            a.style.display = "none";
+            a.href = uri;
+            a.download = name;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                showToast("Gambar terunduh!", "success");
+            }, 100);
         }
 
         window.onload = initMachineList;
