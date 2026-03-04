@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HISTORY CHECKLIST - FIX WEBVIEW</title>
+    <title>HISTORY CHECKLIST - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
@@ -84,18 +83,21 @@
         .loader-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #ea580c; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* MODAL HASIL (GAMBAR DITAMPILKAN DI SINI) */
-        #result-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 999999; justify-content: center; align-items: center; padding: 15px; flex-direction: column; }
-        .result-box { background: white; width: 100%; max-width: 450px; padding: 20px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; max-height: 90vh; }
-        .img-preview-container { flex-grow: 1; overflow-y: auto; background: #f1f5f9; border-radius: 8px; margin-bottom: 15px; border: 2px dashed #cbd5e1; padding: 5px; }
-        .img-preview { width: 100%; height: auto; margin-bottom: 10px; }
+        /* MODAL HASIL GAMBAR */
+        #result-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 999999; justify-content: center; align-items: center; padding: 15px; flex-direction: column; }
+        .result-box { background: white; width: 100%; max-width: 500px; padding: 20px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; max-height: 95vh; }
+        .img-preview-container { flex-grow: 1; overflow-y: auto; background: #f8fafc; border-radius: 8px; margin-bottom: 15px; padding: 10px; border: 1px solid #e2e8f0;}
+        .img-preview { width: 100%; height: auto; border: 1px solid #cbd5e1; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .download-btn { display: block; background: #2563eb; color: white; text-decoration: none; font-weight: 900; padding: 12px; border-radius: 8px; font-size: 13px; text-transform: uppercase; margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); }
 
         @media screen and (max-width: 768px) {
             body { padding: 10px; }
             .ctl-pnl { flex-direction: column; }
-            .inp, .btn { width: 100%; flex: none; }
+            .inp, .btn { width: 100%; flex: none; padding: 15px; }
             .scroll-container { padding: 10px; border-radius: 8px; margin-bottom: 20px; }
+            .mobile-hint { display: block !important; text-align: center; font-size: 11px; color: #64748b; font-weight: bold; margin-bottom: 10px; }
         }
+        .mobile-hint { display: none; }
     </style>
 </head>
 <body>
@@ -104,29 +106,32 @@
     
     <div id="pdf-loading">
         <div class="loader-spinner"></div>
-        <p class="text-sm font-black text-slate-800 mt-2">Menyiapkan Laporan...</p>
-        <p class="text-xs text-slate-500 mt-1">Tolong jangan sentuh layar.</p>
+        <p class="text-sm font-black text-slate-800 mt-2">Memproses Laporan...</p>
+        <p class="text-xs text-slate-500 mt-1">Mengonversi menjadi Gambar agar aman didownload.</p>
     </div>
 
     <div id="result-modal">
         <div class="result-box">
             <h3 class="text-lg font-black text-slate-800 mb-1">Laporan Selesai!</h3>
-            <p class="text-xs text-slate-500 mb-3 font-bold text-rose-500">PENTING: Tekan & Tahan gambar di bawah ini lalu pilih "Simpan Gambar"</p>
+            <p class="text-xs text-slate-500 mb-3 font-bold">Silakan klik tombol biru di bawah gambar untuk menyimpan.</p>
             
-            <div class="img-preview-container">
+            <div class="img-preview-container custom-scroll">
+                <p class="text-left text-xs font-bold text-slate-600 mb-1">HALAMAN 1</p>
                 <img id="preview-page-1" class="img-preview" src="" alt="Halaman 1">
+                <a id="btn-download-1" href="#" download="Laporan_Hal1.jpg" class="download-btn">
+                    📥 SIMPAN GAMBAR HAL. 1
+                </a>
+
+                <p class="text-left text-xs font-bold text-slate-600 mb-1 mt-4">HALAMAN 2</p>
                 <img id="preview-page-2" class="img-preview" src="" alt="Halaman 2">
+                <a id="btn-download-2" href="#" download="Laporan_Hal2.jpg" class="download-btn">
+                    📥 SIMPAN GAMBAR HAL. 2
+                </a>
             </div>
 
-            <div class="flex flex-col gap-2 w-full">
-                <button id="btn-share-pdf" style="background: #2563eb; color: white; font-weight: 900; padding: 12px; border-radius: 10px; border: none; font-size: 13px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
-                    Kirim PDF (Via Share)
-                </button>
-                <button onclick="document.getElementById('result-modal').style.display='none'" style="background: #f1f5f9; color: #ef4444; font-weight: bold; border: 1px solid #cbd5e1; padding: 12px; border-radius: 10px; font-size: 12px; cursor: pointer; text-transform: uppercase;">
-                    Kembali
-                </button>
-            </div>
+            <button onclick="document.getElementById('result-modal').style.display='none'" style="background: #f1f5f9; color: #ef4444; font-weight: bold; border: 1px solid #cbd5e1; padding: 12px; border-radius: 10px; font-size: 12px; cursor: pointer; text-transform: uppercase;">
+                Tutup Jendela Ini
+            </button>
         </div>
     </div>
 
@@ -145,9 +150,11 @@
             <script>for(let y=2024; y<=2030; y++) document.write(`<option value="${y}" ${y===2026?'selected':''}>${y}</option>`);</script>
         </select>
         <button onclick="renderReport(true)" class="btn" style="background:#1e3a8a;">🔍 CARI DATA</button>
-        <button onclick="generateSecurePDF()" class="btn" style="background:#ea580c;">📥 BIKIN LAPORAN</button>
+        <button onclick="captureToImage()" class="btn" style="background:#ea580c;">📸 BIKIN LAPORAN</button>
         <button onclick="window.location.href='dashboard.html'" class="btn" style="background:#4b5563;">🏠 KEMBALI</button>
     </div>
+
+    <p class="mobile-hint no-print">← Geser tabel ke kanan-kiri untuk membaca →</p>
 
     <div class="scroll-container no-print" id="scroll-wrapper">
         <div id="pdf-content">
@@ -245,15 +252,58 @@
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
         const checklistStructure = [
-            { header: "1. STAND LABEL", type: 'head' }, { name: "WIRING", field: "wiring", std: "TIDAK KENDOR" }, { name: "KOMPONEN", field: "komponen", std: "LENGKAP" }, { name: "KERAPIHAN", field: "kerapihan", std: "BERSIH" }, { name: "SENSOR", field: "sensor", std: "BERFUNGSI" }, { name: "TIMING BELT", field: "timing_belt", std: "TIDAK KENDOR" }, { name: "PULLY", field: "pully", std: "TIDAK KENDOR" }, { name: "SERVO MOTOR", field: "servo_motor", std: "BERFUNGSI" }, { name: "LINEAR BEARING", field: "linear_bearing", std: "TIDAK OBLAK" }, { name: "ROTARY ACTUATOR", field: "rotary_actuator", std: "BERFUNGSI" }, { name: "SELENOID VALVE", field: "selenoid_valve", std: "BERFUNGSI" }, { name: "VACUUM EJECTOR", field: "vacuum_ejector", std: "BERFUNGSI" }, { name: "SILINDER PNEUMATIC", field: "silinder_pneumatic", std: "TIDAK BOCOR" }, { name: "NAPPLE", field: "napple", std: "TIDAK KENDOR" }, { name: "VACUUM PAD", field: "vacuum_pad", std: "TIDAK SOBEK" }, { name: "FLANGE", field: "flange", std: "TIDAK KENDOR" }, { name: "VACUUM PAD TAKEOUT", field: "vacuum_pad_takeout", std: "TIDAK SOBEK" },
-            { header: "2. STACKING", type: 'head' }, { name: "WIRING", field: "stacking_wiring", std: "TIDAK KENDOR" }, { name: "SENSOR", field: "stacking_sensor", std: "BERFUNGSI" }, { name: "LINIER", field: "stacking_linier", std: "LANCAR" }, { name: "MECHANICAL PART", field: "stacking_mechanical_part", std: "TIDAK KENDOR" }, { name: "CYLINDER", field: "stacking_cylinder", std: "BERFUNGSI" }, { name: "PNEUMATIC", field: "stacking_pneumatic", std: "TIDAK BOCOR" },
-            { header: "3. CONVEYOR", type: 'head' }, { name: "BELT", field: "conveyor_belt", std: "TIDAK KENDOR" }, { name: "MOTOR", field: "conveyor_motor", std: "BERFUNGSI" }, { name: "RANTAI", field: "conveyor_rantai", std: "TIDAK KENDOR" }, { name: "FRAME", field: "conveyor_frame", std: "KOKOH" }, { name: "INVERTER", field: "conveyor_inverter", std: "BERFUNGSI" },
-            { header: "4. DOSING", type: 'head' }, { name: "ALARM", field: "dosing_alarm", std: "BERFUNGSI" }, { name: "SETTING", field: "dosing_setting", std: "SESUAI STANDAR" },
-            { header: "5. DUMMY", type: 'head' }, { name: "VACUUM", field: "dummy_vacuum", std: "KUAT" }, { name: "KONDISI", field: "dummy_condition", std: "BAIK" }, { name: "FLANGE", field: "dummy_flange", std: "TIDAK KENDOR" }, { name: "INSTALASI", field: "dummy_instalasi", std: "RAPIH" }, { name: "TUBBING", field: "dummy_tubbing", std: "TIDAK BOCOR" }
+            { header: "1. STAND LABEL", type: 'head' },
+            { name: "WIRING", field: "wiring", std: "TIDAK KENDOR" },
+            { name: "KOMPONEN", field: "komponen", std: "LENGKAP" },
+            { name: "KERAPIHAN", field: "kerapihan", std: "BERSIH" },
+            { name: "SENSOR", field: "sensor", std: "BERFUNGSI" },
+            { name: "TIMING BELT", field: "timing_belt", std: "TIDAK KENDOR" },
+            { name: "PULLY", field: "pully", std: "TIDAK KENDOR" },
+            { name: "SERVO MOTOR", field: "servo_motor", std: "BERFUNGSI" },
+            { name: "LINEAR BEARING", field: "linear_bearing", std: "TIDAK OBLAK" },
+            { name: "ROTARY ACTUATOR", field: "rotary_actuator", std: "BERFUNGSI" },
+            { name: "SELENOID VALVE", field: "selenoid_valve", std: "BERFUNGSI" },
+            { name: "VACUUM EJECTOR", field: "vacuum_ejector", std: "BERFUNGSI" },
+            { name: "SILINDER PNEUMATIC", field: "silinder_pneumatic", std: "TIDAK BOCOR" },
+            { name: "NAPPLE", field: "napple", std: "TIDAK KENDOR" },
+            { name: "VACUUM PAD", field: "vacuum_pad", std: "TIDAK SOBEK" },
+            { name: "FLANGE", field: "flange", std: "TIDAK KENDOR" },
+            { name: "VACUUM PAD TAKEOUT", field: "vacuum_pad_takeout", std: "TIDAK SOBEK" },
+            { header: "2. STACKING", type: 'head' },
+            { name: "WIRING", field: "stacking_wiring", std: "TIDAK KENDOR" },
+            { name: "SENSOR", field: "stacking_sensor", std: "BERFUNGSI" },
+            { name: "LINIER", field: "stacking_linier", std: "LANCAR" },
+            { name: "MECHANICAL PART", field: "stacking_mechanical_part", std: "TIDAK KENDOR" },
+            { name: "CYLINDER", field: "stacking_cylinder", std: "BERFUNGSI" },
+            { name: "PNEUMATIC", field: "stacking_pneumatic", std: "TIDAK BOCOR" },
+            { header: "3. CONVEYOR", type: 'head' },
+            { name: "BELT", field: "conveyor_belt", std: "TIDAK KENDOR" },
+            { name: "MOTOR", field: "conveyor_motor", std: "BERFUNGSI" },
+            { name: "RANTAI", field: "conveyor_rantai", std: "TIDAK KENDOR" },
+            { name: "FRAME", field: "conveyor_frame", std: "KOKOH" },
+            { name: "INVERTER", field: "conveyor_inverter", std: "BERFUNGSI" },
+            { header: "4. DOSING", type: 'head' },
+            { name: "ALARM", field: "dosing_alarm", std: "BERFUNGSI" },
+            { name: "SETTING", field: "dosing_setting", std: "SESUAI STANDAR" },
+            { header: "5. DUMMY", type: 'head' },
+            { name: "VACUUM", field: "dummy_vacuum", std: "KUAT" },
+            { name: "KONDISI", field: "dummy_condition", std: "BAIK" },
+            { name: "FLANGE", field: "dummy_flange", std: "TIDAK KENDOR" },
+            { name: "INSTALASI", field: "dummy_instalasi", std: "RAPIH" },
+            { name: "TUBBING", field: "dummy_tubbing", std: "TIDAK BOCOR" }
         ];
 
         const machineData = [
-            { name: "LIANXIN 80 T (TOAD)", cap: "80 TON" }, { name: "WIBA 270 T (NEBULA)", cap: "270 TON" }, { name: "WIBA 240 T (SPIDERMAN)", cap: "240 TON" }, { name: "WIBA 210 T (THOR)", cap: "210 TON" }, { name: "WIBA 350 T (IRON MAN)", cap: "350 TON" }, { name: "ARBURG 320 T (STAR LORD)", cap: "320 TON" }, { name: "WIBA 500 T (STEVE ROGERS)", cap: "500 TON" }, { name: "WIBA 500 T (THANOS)", cap: "500 TON" }, { name: "FCS 220 T (BLACKWIDOW)", cap: "220 TON" }, { name: "ENGEL 220 T (DEADPOOL)", cap: "220 TON" }, { name: "ARBURG 200 T (WOLVERINE)", cap: "200 TON" }, { name: "FCS 380 T (LOKI)", cap: "380 TON" }, { name: "ENGEL 380 T (INHUMANS)", cap: "380 TON" }, { name: "ENGEL 380 T (HULK)", cap: "380 TON" }, { name: "NPC 400 T (WANDA)", cap: "400 TON" }, { name: "ENGEL 280 T (DOCTOR STRANGE)", cap: "280 TON" }, { name: "FCS 100 T (ANTMAN)", cap: "100 TON" }, { name: "NPC 160 T (WASP)", cap: "160 TON" }, { name: "NPC 160 T (WONG)", cap: "160 TON" }, { name: "FCS 150 T (ROCKET)", cap: "150 TON" }, { name: "FCS 150 T (MANTIS)", cap: "150 TON" }, { name: "NPC 160 T (SHANCHI)", cap: "160 TON" }, { name: "NPC 260 T (VISION)", cap: "260 TON" }, { name: "NPC 200 T (MAGNETO)", cap: "200 TON" }, { name: "FCS 100 T (NICK FURRY)", cap: "100 TON" }, { name: "FCS 250 T (CYCLOPS)", cap: "250 TON" }, { name: "NPC 260 T (HAWKEYE)", cap: "260 TON" }, { name: "EXTRUDER", cap: "-" }
+            { name: "LIANXIN 80 T (TOAD)", cap: "80 TON" }, { name: "WIBA 270 T (NEBULA)", cap: "270 TON" }, { name: "WIBA 240 T (SPIDERMAN)", cap: "240 TON" },
+            { name: "WIBA 210 T (THOR)", cap: "210 TON" }, { name: "WIBA 350 T (IRON MAN)", cap: "350 TON" }, { name: "ARBURG 320 T (STAR LORD)", cap: "320 TON" },
+            { name: "WIBA 500 T (STEVE ROGERS)", cap: "500 TON" }, { name: "WIBA 500 T (THANOS)", cap: "500 TON" }, { name: "FCS 220 T (BLACKWIDOW)", cap: "220 TON" },
+            { name: "ENGEL 220 T (DEADPOOL)", cap: "220 TON" }, { name: "ARBURG 200 T (WOLVERINE)", cap: "200 TON" }, { name: "FCS 380 T (LOKI)", cap: "380 TON" },
+            { name: "ENGEL 380 T (INHUMANS)", cap: "380 TON" }, { name: "ENGEL 380 T (HULK)", cap: "380 TON" }, { name: "NPC 400 T (WANDA)", cap: "400 TON" },
+            { name: "ENGEL 280 T (DOCTOR STRANGE)", cap: "280 TON" }, { name: "FCS 100 T (ANTMAN)", cap: "100 TON" }, { name: "NPC 160 T (WASP)", cap: "160 TON" },
+            { name: "NPC 160 T (WONG)", cap: "160 TON" }, { name: "FCS 150 T (ROCKET)", cap: "150 TON" }, { name: "FCS 150 T (MANTIS)", cap: "150 TON" },
+            { name: "NPC 160 T (SHANCHI)", cap: "160 TON" }, { name: "NPC 260 T (VISION)", cap: "260 TON" }, { name: "NPC 200 T (MAGNETO)", cap: "200 TON" },
+            { name: "FCS 100 T (NICK FURRY)", cap: "100 TON" }, { name: "FCS 250 T (CYCLOPS)", cap: "250 TON" }, { name: "NPC 260 T (HAWKEYE)", cap: "260 TON" },
+            { name: "EXTRUDER", cap: "-" }
         ];
 
         function initMachineList() {
@@ -388,91 +438,74 @@
         }
 
         // ==============================================================
-        // SISTEM RENDER PDF DENGAN TAMPILAN POP-UP (MENGATASI BLOKIR WEBVIEW)
+        // SISTEM CAPTURE GAMBAR (ANTI CRASH & ADA TOMBOL DOWNLOAD)
         // ==============================================================
-        async function generateSecurePDF() {
+        async function captureToImage() {
             if (document.getElementById('tbody-status').innerHTML === "") {
-                alert("Silakan Cari data terlebih dahulu sebelum membuat PDF.");
+                alert("Silakan Cari data terlebih dahulu sebelum membuat Laporan.");
                 return;
             }
 
             document.getElementById('pdf-loading').style.display = 'flex';
-            
-            // Arahkan pandangan ke pojok kiri atas biar gak kepotong
             window.scrollTo(0,0);
+            
+            // Geser sedikit agar posisi kamera pas
             const wrapper = document.getElementById('scroll-wrapper');
             if(wrapper) wrapper.scrollLeft = 0;
 
             try {
-                // Konfigurasi Standar / Ringan
-                const canvasOpt = {
-                    scale: 1.5,
-                    useCORS: true,
-                    backgroundColor: '#ffffff'
-                };
-
-                // FOTO KERTAS 1 & 2 SECARA TERPISAH
-                const sheet1 = document.getElementById('sheet-1');
-                const sheet2 = document.getElementById('sheet-2');
+                // 1. Kloning elemen secara rahasia
+                const original = document.getElementById('pdf-content');
+                const clone = original.cloneNode(true);
                 
-                const canvas1 = await html2canvas(sheet1, canvasOpt);
-                const img1 = canvas1.toDataURL('image/jpeg', 0.8);
-                
-                // Tampilkan gambar ke Modal untuk di Tekan & Tahan oleh User HP
-                document.getElementById('preview-page-1').src = img1;
+                clone.style.position = 'absolute';
+                clone.style.top = '0';
+                clone.style.left = '0';
+                clone.style.width = '210mm';
+                clone.style.height = 'auto';
+                clone.style.overflow = 'visible';
+                clone.style.zIndex = '-9999'; 
+                document.body.appendChild(clone);
 
-                const canvas2 = await html2canvas(sheet2, canvasOpt);
-                const img2 = canvas2.toDataURL('image/jpeg', 0.8);
-                
-                document.getElementById('preview-page-2').src = img2;
-
-                // BUAT FILE PDF MENGGUNAKAN JSPDF
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-                
-                pdf.addImage(img1, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-                pdf.addPage();
-                pdf.addImage(img2, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-
-                const pdfBlob = pdf.output('blob');
-
-                // NAMA FILE
                 const merk = document.getElementById('input-merk').value.trim() || 'MESIN';
                 const bln = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text || 'BULAN';
                 const thn = document.getElementById('filter-tahun').value || 'TAHUN';
-                const fileName = `Checklist_${merk}_${bln}_${thn}.pdf`;
+                
+                const sheet1 = clone.querySelector('#sheet-1');
+                const sheet2 = clone.querySelector('#sheet-2');
 
-                // HILANGKAN LOADING & TAMPILKAN MODAL HASIL
+                // FOTO HALAMAN 1 (Scale 1.5 agar jernih tapi ringan)
+                const canvas1 = await html2canvas(sheet1, { scale: 1.5, useCORS: true, backgroundColor: '#ffffff' });
+                const imgData1 = canvas1.toDataURL('image/jpeg', 0.9);
+                
+                // FOTO HALAMAN 2
+                const canvas2 = await html2canvas(sheet2, { scale: 1.5, useCORS: true, backgroundColor: '#ffffff' });
+                const imgData2 = canvas2.toDataURL('image/jpeg', 0.9);
+
+                // Bersihkan kloningan
+                document.body.removeChild(clone);
+
+                // Masukkan ke dalam Modal
+                document.getElementById('preview-page-1').src = imgData1;
+                document.getElementById('preview-page-2').src = imgData2;
+
+                // Setting Tombol Download
+                const btnDl1 = document.getElementById('btn-download-1');
+                btnDl1.href = imgData1;
+                btnDl1.download = `Checklist_${merk}_${bln}_${thn}_Halaman1.jpg`;
+
+                const btnDl2 = document.getElementById('btn-download-2');
+                btnDl2.href = imgData2;
+                btnDl2.download = `Checklist_${merk}_${bln}_${thn}_Halaman2.jpg`;
+
+                // Tampilkan Modal
                 document.getElementById('pdf-loading').style.display = 'none';
                 document.getElementById('result-modal').style.display = 'flex';
 
-                // Fungsi Tombol SHARE (Lempar langsung ke WhatsApp/File Manager)
-                const btnShare = document.getElementById('btn-share-pdf');
-                if (navigator.share) {
-                    btnShare.style.display = 'flex';
-                    btnShare.onclick = async () => {
-                        try {
-                            const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-                            await navigator.share({
-                                files: [file],
-                                title: 'Laporan PDF',
-                                text: 'Laporan Checklist Mesin'
-                            });
-                        } catch (err) {
-                            console.log("Share dibatalkan pengguna");
-                        }
-                    };
-                } else {
-                    // Kalau di PC / HP lama, sembunyikan tombol Share
-                    btnShare.style.display = 'none';
-                }
-
             } catch (err) {
-                document.getElementById('pdf-loading').style.display = 'none';
                 console.error(err);
-                alert("Gagal memproses file PDF. Pastikan internet stabil.");
+                document.getElementById('pdf-loading').style.display = 'none';
+                alert("Gagal memproses gambar. Pastikan internet stabil.");
             }
         }
 
