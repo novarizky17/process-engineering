@@ -152,14 +152,15 @@
                 box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             }
             
-            /* Area tabel bisa scroll di HP */
+            /* Membuat area laporan bisa digeser horizontal di HP */
             .outer-border {
                 overflow-x: auto; 
                 -webkit-overflow-scrolling: touch;
                 padding: 10px;
-                border-width: 1px;
+                border-width: 1px; /* border lebih tipis di HP */
             }
             
+            /* Memaksa lebar agar desain tabel tidak hancur */
             .header-tbl, .info-wrapper, .data-tbl, .super-area {
                 min-width: 700px;
             }
@@ -387,7 +388,7 @@
             const tools = document.getElementById('input-merk').value.trim();
             const cap = document.getElementById('input-tonage').value.trim();
 
-            if (!isSearching || !bln || !tools) { alert("Isi Nama Mesin & Bulan terlebih dahulu!"); return; }
+            if (!isSearching || !bln || !tools) { alert("Isi Nama Mesin & Bulan!"); return; }
 
             document.querySelectorAll('.label-tahun').forEach(e => e.innerText = thn);
             document.querySelectorAll('.label-bulan').forEach(e => e.innerText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text);
@@ -483,64 +484,80 @@
             document.querySelectorAll('.super-name').forEach(e => e.innerText = (latest && latest.nama_superintendent) ? `( ${latest.nama_superintendent} )` : "( ... )");
         }
 
-        // --- SISTEM GENERATE PDF KHUSUS AGAR TIDAK BLANK DI HP ---
-        function downloadPDF() {
-            showToast("Menyiapkan PDF, mohon tunggu...", "info");
+        // --- SISTEM GENERATE PDF FIX ANTI-BLANK UNTUK HP ---
+        async function downloadPDF() {
+            // Validasi: Apakah tabel sudah diisi?
+            if (document.getElementById('tbody-status').innerHTML === "") {
+                alert("Silakan Cari data terlebih dahulu sebelum mendownload PDF.");
+                return;
+            }
+
+            showToast("Memproses PDF... (Mohon jangan sentuh layar)", "info");
             
             const element = document.getElementById('pdf-content');
             const sheets = document.querySelectorAll('.sheet');
             const borders = document.querySelectorAll('.outer-border');
 
-            // 1. Simpan CSS asli
+            // 1. Simpan CSS bawaan HP
             const originalStyles = [];
             sheets.forEach((el, i) => {
-                originalStyles[i] = {
-                    width: el.style.width, margin: el.style.margin, boxShadow: el.style.boxShadow
-                };
-                // 2. PAKSA elemen menjadi ukuran A4 Desktop agar tidak terpotong (Blank)
+                originalStyles[i] = { width: el.style.width, margin: el.style.margin, padding: el.style.padding };
+                // PAKSA JADI UKURAN KERTAS A4 DESKTOP
                 el.style.width = '210mm';
+                el.style.minWidth = '210mm';
+                el.style.padding = '10mm';
                 el.style.margin = '0';
-                el.style.boxShadow = 'none';
             });
-            
             borders.forEach(el => { el.style.overflowX = 'visible'; el.style.overflow = 'visible'; });
 
-            // 3. Scroll ke paling atas agar canvas tidak error
+            // 2. Scroll paksa ke paling atas agar capture HTML2Canvas tidak meleset
             window.scrollTo(0, 0);
+
+            // 3. BERIKAN JEDA 0.5 DETIK AGAR BROWSER HP MENGGAMBAR ULANG (MENCEGAH BLANK PUTIH)
+            await new Promise(resolve => setTimeout(resolve, 500));
 
             const merk = document.getElementById('input-merk').value.trim() || 'MESIN';
             const bln = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text || 'BULAN';
             const thn = document.getElementById('filter-tahun').value || 'TAHUN';
             const fileName = `Checklist_${merk}_${bln}_${thn}.pdf`;
 
+            // 4. Konfigurasi ketat HTML2Canvas agar logo dan teks tidak hilang
             const opt = {
                 margin:       0,
                 filename:     fileName,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, windowWidth: 1024, scrollY: 0 }, // Paksa baca seukuran PC
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true, 
+                    allowTaint: true, // Izin masukkan logo dari web luar
+                    backgroundColor: '#ffffff', // Background paksa putih
+                    windowWidth: 1024, // Membohongi sistem seolah dibuka di PC
+                    scrollY: 0
+                },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // 4. Generate PDF
+            // 5. Eksekusi pembuatan PDF
             html2pdf().set(opt).from(element).output('blob').then(function(blob) {
-                // 5. Kembalikan CSS seperti semula
+                // 6. Kembalikan Tampilan ke versi HP seperti semula
                 sheets.forEach((el, i) => {
                     el.style.width = originalStyles[i].width;
+                    el.style.minWidth = '';
+                    el.style.padding = originalStyles[i].padding;
                     el.style.margin = originalStyles[i].margin;
-                    el.style.boxShadow = originalStyles[i].boxShadow;
                 });
                 borders.forEach(el => { el.style.overflowX = ''; el.style.overflow = ''; });
 
-                // 6. Jalankan Proses Download / Share ke HP
+                // 7. Download / Share
                 if (navigator.share && window.innerWidth <= 768) {
                     const file = new File([blob], fileName, { type: 'application/pdf' });
-                    if (navigator.canShare({ files: [file] })) {
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         navigator.share({
                             files: [file],
                             title: 'Laporan PDF',
                             text: 'Berikut Laporan PDF Checklist Mesin.'
                         }).then(() => {
-                            showToast("PDF siap!", "success");
+                            showToast("PDF siap dibagikan!", "success");
                         }).catch(err => {
                             console.log("Share dibatalkan", err);
                             fallbackDownload(blob, fileName);
@@ -554,13 +571,19 @@
             }).catch(err => {
                 alert("Sistem Gagal Memproses PDF.");
                 console.error(err);
-                // Kembalikan style jika error
-                sheets.forEach(el => el.style.width = '');
-                borders.forEach(el => el.style.overflowX = '');
+                
+                // Jika error, tetap kembalikan tampilan
+                sheets.forEach((el, i) => {
+                    el.style.width = originalStyles[i].width;
+                    el.style.minWidth = '';
+                    el.style.padding = originalStyles[i].padding;
+                    el.style.margin = originalStyles[i].margin;
+                });
+                borders.forEach(el => { el.style.overflowX = ''; el.style.overflow = ''; });
             });
         }
 
-        // FUNGSI DOWNLOAD CADANGAN JIKA SHARE DIBATALKAN
+        // FUNGSI DOWNLOAD CADANGAN JIKA SHARE DIBATALKAN ATAU DI PC
         function fallbackDownload(blob, fileName) {
             try {
                 const url = window.URL.createObjectURL(blob);
