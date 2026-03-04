@@ -2,23 +2,30 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HISTORY CHECKLIST - TOOLING SUPPORT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HISTORY CHECKLIST - FIX WEBVIEW</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #e2e8f0; overflow-x: hidden; }
 
+        /* ==============================================================
+           SETTING PRINT (SANGAT PENTING UNTUK SAVE AS PDF BAWAAN HP)
+           ============================================================== */
         @page { size: A4 portrait; margin: 0; }
         @media print {
             body { padding: 0; background: white; }
             .no-print { display: none !important; }
-            .sheet { margin: 0 !important; box-shadow: none !important; page-break-after: always; }
-            .scroll-container { overflow: visible !important; }
+            #pdf-content { width: 210mm !important; margin: 0 !important; }
+            .sheet { 
+                width: 210mm !important; height: 296mm !important; padding: 10mm !important; 
+                margin: 0 !important; box-shadow: none !important; page-break-after: always; border: none !important;
+            }
+            .scroll-container { overflow: visible !important; padding: 0 !important; }
+            .outer-border { border: 2pt solid black !important; }
         }
 
         .scroll-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 10px; }
@@ -72,6 +79,7 @@
         /* PANEL PENCARIAN */
         .ctl-pnl { width: 100%; max-width: 800px; margin: 0 auto 15px; background: white; padding: 15px; border-radius: 12px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .inp { flex: 1 1 140px; border: 1px solid #ccc; padding: 10px; border-radius: 6px; text-transform: uppercase; font-size: 13px; font-weight: bold; outline: none; }
+        .inp:focus { border-color: #1e3a8a; }
         .btn { flex: 1 1 120px; padding: 12px 15px; border-radius: 6px; cursor: pointer; font-weight: 900; font-size: 13px; color: white; border: none; transition: transform 0.1s; display: flex; justify-content: center; align-items: center; gap: 5px; }
         .btn:active { transform: scale(0.95); }
 
@@ -83,12 +91,15 @@
         .loader-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #ea580c; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* MODAL HASIL GAMBAR */
+        /* MODAL HASIL JALAN TIKUS */
         #result-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 999999; justify-content: center; align-items: center; padding: 15px; flex-direction: column; }
-        .result-box { background: white; width: 100%; max-width: 500px; padding: 20px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; max-height: 95vh; }
-        .img-preview-container { flex-grow: 1; overflow-y: auto; background: #f8fafc; border-radius: 8px; margin-bottom: 15px; padding: 10px; border: 1px solid #e2e8f0;}
-        .img-preview { width: 100%; height: auto; border: 1px solid #cbd5e1; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .download-btn { display: block; background: #2563eb; color: white; text-decoration: none; font-weight: 900; padding: 12px; border-radius: 8px; font-size: 13px; text-transform: uppercase; margin-top: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); }
+        .result-box { background: white; width: 100%; max-width: 400px; padding: 25px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; }
+        
+        /* FULLSCREEN MANUAL SCREENSHOT */
+        #fullscreen-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #e2e8f0; z-index: 9999999; overflow-y: auto; padding-bottom: 80px; }
+        .fs-img-container { width: 100%; display: flex; flex-direction: column; gap: 15px; padding: 10px; }
+        .fs-img { width: 100%; height: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .btn-close-fs { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 12px 30px; border-radius: 30px; font-weight: 900; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 99999999; border: none; font-size: 14px; letter-spacing: 1px; }
 
         @media screen and (max-width: 768px) {
             body { padding: 10px; }
@@ -106,33 +117,40 @@
     
     <div id="pdf-loading">
         <div class="loader-spinner"></div>
-        <p class="text-sm font-black text-slate-800 mt-2">Memproses Laporan...</p>
-        <p class="text-xs text-slate-500 mt-1">Mengonversi menjadi Gambar agar aman didownload.</p>
+        <p class="text-sm font-black text-slate-800 mt-2">Menyiapkan Solusi...</p>
+        <p class="text-xs text-slate-500 mt-1">Harap tunggu sebentar.</p>
     </div>
 
     <div id="result-modal">
         <div class="result-box">
-            <h3 class="text-lg font-black text-slate-800 mb-1">Laporan Selesai!</h3>
-            <p class="text-xs text-slate-500 mb-3 font-bold">Silakan klik tombol biru di bawah gambar untuk menyimpan.</p>
+            <h3 class="text-xl font-black text-slate-800 mb-2">Pilih Metode Simpan</h3>
+            <p class="text-xs text-slate-600 mb-6 px-2 font-medium">Aplikasi Anda mengunci fitur unduh file. Silakan gunakan salah satu jalur alternatif di bawah ini:</p>
             
-            <div class="img-preview-container custom-scroll">
-                <p class="text-left text-xs font-bold text-slate-600 mb-1">HALAMAN 1</p>
-                <img id="preview-page-1" class="img-preview" src="" alt="Halaman 1">
-                <a id="btn-download-1" href="#" download="Laporan_Hal1.jpg" class="download-btn">
-                    📥 SIMPAN GAMBAR HAL. 1
-                </a>
+            <div class="flex flex-col gap-3">
+                <button onclick="triggerNativePrint()" style="background: #2563eb; color: white; font-weight: 900; padding: 16px; border-radius: 12px; border: none; font-size: 13px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);">
+                    🖨️ Cetak / Simpan ke PDF
+                </button>
+                <p class="text-[10px] text-slate-500 mt(-2) mb-2 italic">Akan membuka menu Print HP. Pilih "Simpan sebagai PDF".</p>
 
-                <p class="text-left text-xs font-bold text-slate-600 mb-1 mt-4">HALAMAN 2</p>
-                <img id="preview-page-2" class="img-preview" src="" alt="Halaman 2">
-                <a id="btn-download-2" href="#" download="Laporan_Hal2.jpg" class="download-btn">
-                    📥 SIMPAN GAMBAR HAL. 2
-                </a>
+                <button onclick="showFullscreenImages()" style="background: #ea580c; color: white; font-weight: 900; padding: 16px; border-radius: 12px; border: none; font-size: 13px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 6px rgba(234, 88, 12, 0.3);">
+                    📸 Mode Screenshot Manual
+                </button>
+                <p class="text-[10px] text-slate-500 mt(-2) mb-2 italic">Tampilkan gambar penuh. Anda bisa Screenshot layar HP sendiri.</p>
+
+                <button onclick="document.getElementById('result-modal').style.display='none'" style="background: #f1f5f9; color: #64748b; font-weight: bold; border: 1px solid #cbd5e1; padding: 12px; border-radius: 10px; font-size: 12px; cursor: pointer; text-transform: uppercase; margin-top: 10px;">
+                    Tutup Jendela Ini
+                </button>
             </div>
-
-            <button onclick="document.getElementById('result-modal').style.display='none'" style="background: #f1f5f9; color: #ef4444; font-weight: bold; border: 1px solid #cbd5e1; padding: 12px; border-radius: 10px; font-size: 12px; cursor: pointer; text-transform: uppercase;">
-                Tutup Jendela Ini
-            </button>
         </div>
+    </div>
+
+    <div id="fullscreen-overlay">
+        <div class="fs-img-container">
+            <p class="text-center font-bold text-slate-500 text-xs mt-2">Silakan Screenshot layar HP Anda sekarang (Geser ke bawah untuk hal. 2)</p>
+            <img id="fs-img-1" class="fs-img" src="">
+            <img id="fs-img-2" class="fs-img" src="">
+        </div>
+        <button class="btn-close-fs" onclick="document.getElementById('fullscreen-overlay').style.display='none'">TUTUP MODE SCREENSHOT</button>
     </div>
 
     <div class="ctl-pnl no-print">
@@ -150,7 +168,7 @@
             <script>for(let y=2024; y<=2030; y++) document.write(`<option value="${y}" ${y===2026?'selected':''}>${y}</option>`);</script>
         </select>
         <button onclick="renderReport(true)" class="btn" style="background:#1e3a8a;">🔍 CARI DATA</button>
-        <button onclick="captureToImage()" class="btn" style="background:#ea580c;">📸 BIKIN LAPORAN</button>
+        <button onclick="openSolutionModal()" class="btn" style="background:#ea580c;">📥 EXPORT DATA</button>
         <button onclick="window.location.href='dashboard.html'" class="btn" style="background:#4b5563;">🏠 KEMBALI</button>
     </div>
 
@@ -438,74 +456,58 @@
         }
 
         // ==============================================================
-        // SISTEM CAPTURE GAMBAR (ANTI CRASH & ADA TOMBOL DOWNLOAD)
+        // JURUS 1: NATIVE PRINT (PANGGIL PRINT BAWAAN HP UNTUK SAVE PDF)
         // ==============================================================
-        async function captureToImage() {
+        function openSolutionModal() {
             if (document.getElementById('tbody-status').innerHTML === "") {
-                alert("Silakan Cari data terlebih dahulu sebelum membuat Laporan.");
+                alert("Silakan Cari data terlebih dahulu.");
                 return;
             }
+            document.getElementById('result-modal').style.display = 'flex';
+        }
 
+        function triggerNativePrint() {
+            document.getElementById('result-modal').style.display = 'none';
+            // Panggil sistem Print HP. Jika didukung, akan muncul pilihan "Simpan sebagai PDF"
+            window.print();
+            showToast("Buka menu Print... Pilih 'Simpan sebagai PDF'", "success");
+        }
+
+        // ==============================================================
+        // JURUS 2: SCREENSHOT MANUAL (UBAH KE GAMBAR FULLSCREEN)
+        // ==============================================================
+        async function showFullscreenImages() {
+            document.getElementById('result-modal').style.display = 'none';
             document.getElementById('pdf-loading').style.display = 'flex';
-            window.scrollTo(0,0);
             
-            // Geser sedikit agar posisi kamera pas
+            // Atur posisi
+            window.scrollTo(0,0);
             const wrapper = document.getElementById('scroll-wrapper');
             if(wrapper) wrapper.scrollLeft = 0;
 
             try {
-                // 1. Kloning elemen secara rahasia
-                const original = document.getElementById('pdf-content');
-                const clone = original.cloneNode(true);
-                
-                clone.style.position = 'absolute';
-                clone.style.top = '0';
-                clone.style.left = '0';
-                clone.style.width = '210mm';
-                clone.style.height = 'auto';
-                clone.style.overflow = 'visible';
-                clone.style.zIndex = '-9999'; 
-                document.body.appendChild(clone);
+                const sheet1 = document.getElementById('sheet-1');
+                const sheet2 = document.getElementById('sheet-2');
 
-                const merk = document.getElementById('input-merk').value.trim() || 'MESIN';
-                const bln = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text || 'BULAN';
-                const thn = document.getElementById('filter-tahun').value || 'TAHUN';
-                
-                const sheet1 = clone.querySelector('#sheet-1');
-                const sheet2 = clone.querySelector('#sheet-2');
-
-                // FOTO HALAMAN 1 (Scale 1.5 agar jernih tapi ringan)
+                // Generate Gambar Kualitas Ringan tapi Cukup Jelas (Scale 1.5)
                 const canvas1 = await html2canvas(sheet1, { scale: 1.5, useCORS: true, backgroundColor: '#ffffff' });
-                const imgData1 = canvas1.toDataURL('image/jpeg', 0.9);
+                const img1 = canvas1.toDataURL('image/jpeg', 0.8);
                 
-                // FOTO HALAMAN 2
                 const canvas2 = await html2canvas(sheet2, { scale: 1.5, useCORS: true, backgroundColor: '#ffffff' });
-                const imgData2 = canvas2.toDataURL('image/jpeg', 0.9);
+                const img2 = canvas2.toDataURL('image/jpeg', 0.8);
 
-                // Bersihkan kloningan
-                document.body.removeChild(clone);
+                // Masukkan ke wadah Fullscreen
+                document.getElementById('fs-img-1').src = img1;
+                document.getElementById('fs-img-2').src = img2;
 
-                // Masukkan ke dalam Modal
-                document.getElementById('preview-page-1').src = imgData1;
-                document.getElementById('preview-page-2').src = imgData2;
-
-                // Setting Tombol Download
-                const btnDl1 = document.getElementById('btn-download-1');
-                btnDl1.href = imgData1;
-                btnDl1.download = `Checklist_${merk}_${bln}_${thn}_Halaman1.jpg`;
-
-                const btnDl2 = document.getElementById('btn-download-2');
-                btnDl2.href = imgData2;
-                btnDl2.download = `Checklist_${merk}_${bln}_${thn}_Halaman2.jpg`;
-
-                // Tampilkan Modal
+                // Tampilkan Overlay Fullscreen
                 document.getElementById('pdf-loading').style.display = 'none';
-                document.getElementById('result-modal').style.display = 'flex';
+                document.getElementById('fullscreen-overlay').style.display = 'block';
 
-            } catch (err) {
-                console.error(err);
+            } catch (error) {
+                console.error(error);
                 document.getElementById('pdf-loading').style.display = 'none';
-                alert("Gagal memproses gambar. Pastikan internet stabil.");
+                alert("Gagal merender gambar. RAM HP mungkin tidak cukup.");
             }
         }
 
