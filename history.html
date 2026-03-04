@@ -164,10 +164,18 @@
 
         .btn-zoom:active { transform: scale(0.9); background: #1e40af; }
 
-        /* Sembunyikan panel zoom di Desktop karena bisa pakai Ctrl + Mouse Scroll */
         @media screen and (min-width: 769px) {
             .zoom-panel { display: none; }
         }
+
+        /* CSS MODAL STATISTIK POP-UP */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(3px); }
+        .modal-box { background: white; border-radius: 16px; width: 100%; max-width: 400px; padding: 25px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); animation: zoomIn 0.2s ease-out; }
+        @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .stat-card { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e2e8f0; font-weight: bold; font-size: 14px; }
+        .bg-ok { background: #ecfdf5; color: #047857; border-color: #a1a1aa; }
+        .bg-ng { background: #fef2f2; color: #be123c; border-color: #fca5a5; }
+        .bg-na { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
 
         /* RESPONSIVE MOBILE TWEAKS */
         @media screen and (max-width: 768px) {
@@ -183,15 +191,13 @@
                 box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             }
             
-            /* Membuat area laporan bisa digeser horizontal di HP */
             .outer-border {
                 overflow-x: auto; 
                 -webkit-overflow-scrolling: touch;
                 padding: 10px;
-                border-width: 1px; /* border lebih tipis di HP */
+                border-width: 1px; 
             }
             
-            /* Memaksa lebar agar desain tabel tidak hancur */
             .header-tbl, .info-wrapper, .data-tbl, .super-area {
                 min-width: 700px;
             }
@@ -199,6 +205,8 @@
     </style>
 </head>
 <body>
+
+    <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;"></div>
 
     <div class="ctl-pnl no-print">
         <input type="text" id="input-merk" list="machine-list" placeholder="NAMA MESIN" class="inp" oninput="autoFillCapacity()">
@@ -214,14 +222,47 @@
         <select id="filter-tahun" class="inp">
             <script>for(let y=2024; y<=2030; y++) document.write(`<option value="${y}" ${y===2026?'selected':''}>${y}</option>`);</script>
         </select>
-        <button onclick="renderReport(true)" class="btn" style="background:#1e3a8a;">CARI</button>
-        <button onclick="window.print()" class="btn" style="background:#1f2937;">PRINT PDF</button>
-        <button onclick="window.location.href='dashboard.html'" class="btn" style="background:#4b5563;">KEMBALI</button>
+        <button onclick="renderReport(true)" class="btn" style="background:#1e3a8a;">🔍 CARI</button>
+        <button onclick="openStatsPopup()" class="btn" style="background:#059669;">📊 STATISTIK</button>
+        <button onclick="window.print()" class="btn" style="background:#1f2937;">🖨️ PRINT</button>
+        <button onclick="window.location.href='dashboard.html'" class="btn" style="background:#4b5563;">🏠 KEMBALI</button>
     </div>
 
     <div class="zoom-panel no-print">
         <button class="btn-zoom" onclick="adjustZoom(0.15)">+</button>
         <button class="btn-zoom" onclick="adjustZoom(-0.15)">−</button>
+    </div>
+
+    <div id="stats-modal" class="modal-overlay no-print">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-4 border-b pb-3">
+                <h2 class="text-lg font-black text-slate-800 uppercase tracking-tight">Statistik Pengecekan</h2>
+                <button onclick="closeStatsPopup()" class="text-slate-400 hover:text-red-500 text-2xl leading-none">&times;</button>
+            </div>
+            
+            <p class="text-xs text-slate-500 mb-4 font-medium">Akumulasi status pengecekan mesin berdasarkan data yang ditampilkan.</p>
+
+            <div class="stat-card" style="background: #1e3a8a; color: white; border:none;">
+                <span>Total Aktivitas</span>
+                <span id="stat-total" class="text-xl font-black">0</span>
+            </div>
+            <div class="stat-card bg-ok">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-check-circle"></i> Status OK</span>
+                <span id="stat-ok" class="text-xl font-black">0</span>
+            </div>
+            <div class="stat-card bg-ng">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Status NG (Bermasalah)</span>
+                <span id="stat-ng" class="text-xl font-black">0</span>
+            </div>
+            <div class="stat-card bg-na">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-minus-circle"></i> Status N/A (Skip)</span>
+                <span id="stat-na" class="text-xl font-black">0</span>
+            </div>
+
+            <button onclick="closeStatsPopup()" class="w-full mt-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl border border-slate-300 transition-colors text-sm uppercase tracking-wide">
+                Tutup Panel
+            </button>
+        </div>
     </div>
 
     <div id="pdf-content">
@@ -317,16 +358,15 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
         const _sb = supabase.createClient(SB_URL, SB_KEY);
 
+        // VARIABEL GLOBAL UNTUK MENYIMPAN DATA (Dibutuhkan untuk Pop-up Statistik)
+        window.currentDataMap = {};
+
         // --- SISTEM FITUR ZOOM ---
         let currentZoom = 1;
         function adjustZoom(step) {
             currentZoom += step;
-            // Batas minimal zoom out
             if (currentZoom < 0.4) currentZoom = 0.4; 
-            // Batas maksimal zoom in
             if (currentZoom > 2.5) currentZoom = 2.5; 
-            
-            // Terapkan zoom ke wadah PDF
             document.getElementById('pdf-content').style.zoom = currentZoom;
         }
 
@@ -420,23 +460,46 @@
 
         function numToChar(num) { return String.fromCharCode(96 + num).toUpperCase(); }
 
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const div = document.createElement('div');
+            // Ganti warna sesuai tipe
+            let bgColor = "white";
+            let borderColor = "#10b981"; // Default hijau (info/success)
+            let textColor = "#1e293b";
+            if (type === 'error') {
+                borderColor = "#ef4444"; // Merah untuk error
+                textColor = "#b91c1c";
+            }
+            
+            div.className = `toast`;
+            div.style.borderLeftColor = borderColor;
+            div.innerHTML = `<span style="color: ${textColor}">${msg}</span>`;
+            container.appendChild(div);
+            
+            requestAnimationFrame(() => div.classList.add('show'));
+            setTimeout(() => { div.classList.remove('show'); setTimeout(() => div.remove(), 400); }, 3000);
+        }
+
         async function renderReport(isSearching) {
             const thn = document.getElementById('filter-tahun').value;
             const bln = document.getElementById('filter-bulan').value;
             const tools = document.getElementById('input-merk').value.trim();
             const cap = document.getElementById('input-tonage').value.trim();
 
-            if (!isSearching || !bln || !tools) { alert("Isi Nama Mesin & Bulan!"); return; }
+            if (!isSearching || !bln || !tools) { showToast("Isi Nama Mesin & Bulan!", "error"); return; }
 
             document.querySelectorAll('.label-tahun').forEach(e => e.innerText = thn);
             document.querySelectorAll('.label-bulan').forEach(e => e.innerText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text);
             document.querySelectorAll('.label-merk').forEach(e => e.innerText = tools.toUpperCase());
             document.querySelectorAll('.label-tonage').forEach(e => e.innerText = cap || "-");
 
+            showToast("Mencari data...", "info");
+
             const dateFilter = `${thn}-${bln}`;
             const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
             
-            if (error) { console.error(error); alert("Koneksi Error"); return; }
+            if (error) { console.error(error); showToast("Koneksi Error", "error"); return; }
 
             const filtered = data.filter(item => {
                 if(!item.pelaksana || !item.pelaksana.tanggal_checklist) return false;
@@ -447,9 +510,10 @@
             });
 
             if (filtered.length === 0) {
-                alert("Data tidak ditemukan! Mohon cek kembali Nama Mesin dan Bulan.");
+                showToast("Data tidak ditemukan! Mohon cek kembali.", "error");
                 renderTables({});
                 renderSignatures({});
+                window.currentDataMap = {};
                 return;
             }
 
@@ -458,6 +522,9 @@
                 const w = item.pelaksana.week;
                 if(w>=1 && w<=5) dataMap[w] = item;
             });
+
+            // Simpan data map ke global untuk dipakai Statistik
+            window.currentDataMap = dataMap;
 
             renderTables(dataMap);
             renderSignatures(dataMap);
@@ -496,7 +563,6 @@
             });
         }
 
-        // --- UPDATE: TANDA TANGAN (AUTO APPROVE JADI KOSONG) ---
         function renderSignatures(dataMap) {
             for(let w=1; w<=5; w++) {
                 const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" class="sig-img">` : "";
@@ -504,7 +570,6 @@
                 document.getElementById(`sig-k-w${w}`).innerHTML = img;
             }
             
-            // CARI DATA TERAKHIR YANG APPROVED
             let latest = null;
             for(let w=5; w>=1; w--) { 
                 if(dataMap[w] && dataMap[w].status === 'Approved') { 
@@ -513,20 +578,58 @@
                 } 
             }
             
-            // LOGIKA TANDA TANGAN SUPERINTENDENT
             document.querySelectorAll('.super-sig').forEach(e => {
-                // Jika Manual (ada gambar) -> Tampilkan Gambar
                 if (latest && latest.signature) {
                     e.innerHTML = `<img src="${latest.signature}" class="super-img">`;
-                } 
-                // Jika Auto Approve (gak ada gambar) -> Kosongkan
-                else {
+                } else {
                     e.innerHTML = ""; 
                 }
             });
 
-            // TAMPILKAN NAMA (TETAP MUNCUL WALAUPUN AUTO APPROVE)
             document.querySelectorAll('.super-name').forEach(e => e.innerText = (latest && latest.nama_superintendent) ? `( ${latest.nama_superintendent} )` : "( ... )");
+        }
+
+        // ==========================================
+        // FITUR BARU: POP-UP STATISTIK
+        // ==========================================
+        function openStatsPopup() {
+            if (!window.currentDataMap || Object.keys(window.currentDataMap).length === 0) {
+                showToast("Silakan Cari data terlebih dahulu!", "error");
+                return;
+            }
+
+            let totalOK = 0;
+            let totalNG = 0;
+            let totalNA = 0;
+
+            // Hitung status dari semua item pengecekan di setiap minggu (W1-W5)
+            checklistStructure.forEach(item => {
+                if (item.type !== 'head') {
+                    for(let w=1; w<=5; w++) {
+                        if(window.currentDataMap[w]) {
+                            let status = window.currentDataMap[w][item.field];
+                            if (status === 'OK') totalOK++;
+                            else if (status === 'NG') totalNG++;
+                            else if (status === 'N/A') totalNA++;
+                        }
+                    }
+                }
+            });
+
+            const totalActivity = totalOK + totalNG + totalNA;
+
+            // Update isi Modal
+            document.getElementById('stat-total').innerText = totalActivity;
+            document.getElementById('stat-ok').innerText = totalOK;
+            document.getElementById('stat-ng').innerText = totalNG;
+            document.getElementById('stat-na').innerText = totalNA;
+
+            // Tampilkan Modal
+            document.getElementById('stats-modal').style.display = 'flex';
+        }
+
+        function closeStatsPopup() {
+            document.getElementById('stats-modal').style.display = 'none';
         }
 
         window.onload = initMachineList;
