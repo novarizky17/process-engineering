@@ -74,10 +74,11 @@
         .super-img { max-height: 45px; }
 
         /* PANEL PENCARIAN */
-        .ctl-pnl { width: 100%; max-width: 800px; margin: 0 auto 15px; background: white; padding: 15px; border-radius: 12px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .ctl-pnl { width: 100%; max-width: 800px; margin: 0 auto 15px; background: white; padding: 15px; border-radius: 12px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .inp { flex: 1 1 140px; border: 1px solid #ccc; padding: 10px; border-radius: 6px; text-transform: uppercase; font-size: 13px; font-weight: bold; outline: none; }
         .inp:focus { border-color: #1e3a8a; }
-        .btn { flex: 1 1 100px; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: 900; font-size: 13px; color: white; border: none; }
+        .btn { flex: 1 1 120px; padding: 12px 15px; border-radius: 6px; cursor: pointer; font-weight: 900; font-size: 13px; color: white; border: none; transition: transform 0.1s; display: flex; justify-content: center; align-items: center; gap: 5px; }
+        .btn:active { transform: scale(0.95); }
 
         /* TOAST & LOADING */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
@@ -85,7 +86,7 @@
         .toast.show { transform: translateX(0); }
         
         #pdf-loading { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.9); z-index: 99999; justify-content: center; align-items: center; flex-direction: column; }
-        .loader-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #ea580c; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        .loader-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #ea580c; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* RESPONSIVE MOBILE */
@@ -93,7 +94,8 @@
             body { padding: 10px; }
             .ctl-pnl { flex-direction: column; }
             .inp, .btn { width: 100%; flex: none; padding: 15px; }
-            .mobile-hint { display: block !important; text-align: center; font-size: 11px; color: #64748b; font-weight: bold; margin-bottom: 10px; }
+            .scroll-container { padding: 10px; border-radius: 8px; margin-bottom: 20px; }
+            .mobile-hint { display: block !important; text-align: center; font-size: 11px; color: #64748b; font-weight: bold; margin-bottom: 5px; font-style: italic; }
         }
         .mobile-hint { display: none; }
     </style>
@@ -106,6 +108,30 @@
         <div class="loader-spinner"></div>
         <p class="text-sm font-black text-slate-800 mt-2">Mengekstrak PDF...</p>
         <p class="text-xs text-slate-500 mt-1">Harap tunggu sebentar.</p>
+    </div>
+
+    <div id="result-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 999999; justify-content: center; align-items: center; padding: 20px;">
+        <div style="background: white; width: 100%; max-width: 400px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);">
+            <div style="width:60px; height:60px; background:#dcfce7; color:#16a34a; border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:30px; margin:0 auto 15px;">✓</div>
+            <h3 style="font-size: 1.25rem; font-weight: 900; color: #1e293b; margin-bottom: 0.5rem;">PDF Selesai Dibuat!</h3>
+            <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 1.5rem; line-height: 1.5;">Aplikasi HP biasanya memblokir download otomatis. Pilih cara di bawah ini untuk mengambil file Anda:</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button id="btn-share-pdf" style="background: #2563eb; color: white; font-weight: 900; padding: 15px; border-radius: 12px; border: none; width: 100%; font-size: 14px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                    Kirim ke WhatsApp
+                </button>
+                
+                <a id="btn-download-pdf" href="#" download="Laporan.pdf" style="background: #f1f5f9; color: #334155; font-weight: bold; padding: 15px; border-radius: 12px; border: 1px solid #cbd5e1; text-decoration: none; display: block; font-size: 14px; text-transform: uppercase;">
+                    📥 Buka / Download Manual
+                </a>
+                <p style="font-size: 10px; color: #94a3b8; font-style: italic; margin-top: -5px;">*Jika gagal, <b>tekan & tahan</b> tombol abu-abu di atas lalu pilih "Download Link / Simpan Tautan"</p>
+
+                <button onclick="document.getElementById('result-modal').style.display='none'" style="background: transparent; color: #ef4444; font-weight: bold; border: none; padding: 10px; margin-top: 5px; cursor: pointer; text-decoration: underline;">
+                    Tutup Jendela Ini
+                </button>
+            </div>
+        </div>
     </div>
 
     <div class="ctl-pnl no-print">
@@ -409,7 +435,7 @@
         }
 
         // ==============================================================
-        // SISTEM KLONING SILUMAN (THE ULTIMATE ANTI-BLANK & ANTI-CRASH)
+        // SISTEM KLONING SILUMAN (ANTI-BLANK) + POPUP SHARE (ANTI-BLOCK WebView)
         // ==============================================================
         async function downloadPDFAntiBlank() {
             if (document.getElementById('tbody-status').innerHTML === "") {
@@ -421,7 +447,7 @@
             window.scrollTo(0,0);
 
             try {
-                // 1. Kloning elemen secara rahasia (Tidak merusak tampilan asli)
+                // 1. Kloning elemen secara rahasia 
                 const original = document.getElementById('pdf-content');
                 const clone = original.cloneNode(true);
                 
@@ -432,7 +458,7 @@
                 clone.style.width = '210mm';
                 clone.style.height = 'auto';
                 clone.style.overflow = 'visible';
-                clone.style.zIndex = '-9999'; // Sembunyikan di belakang
+                clone.style.zIndex = '-9999'; 
                 document.body.appendChild(clone);
 
                 const merk = document.getElementById('input-merk').value.trim() || 'MESIN';
@@ -449,46 +475,52 @@
                     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
-                // 3. Eksekusi PDF dari elemen Kloning
-                const pdfBlob = await html2pdf().set(opt).from(clone).output('blob');
+                // 3. Eksekusi PDF dari elemen Kloning menjadi URL Base64
+                const pdfBase64 = await html2pdf().set(opt).from(clone).outputPdf('datauristring');
                 
                 // Bersihkan kloningan dari memori
                 document.body.removeChild(clone);
+                document.getElementById('pdf-loading').style.display = 'none';
 
-                // 4. Logika Share/Download (Khusus Web-To-App)
-                if (navigator.share && window.innerWidth <= 768) {
-                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-                    try {
-                        await navigator.share({
-                            files: [file],
-                            title: 'Laporan Checklist',
-                            text: 'Laporan Checklist PDF'
-                        });
-                        document.getElementById('pdf-loading').style.display = 'none';
-                        showToast("File dibagikan!", "success");
-                        return; // Berhenti jika share sukses
-                    } catch (e) {
-                        console.log("Share batal", e);
-                    }
+                // 4. MUNCULKAN POP-UP ANTI-BLOKIR
+                document.getElementById('result-modal').style.display = 'flex';
+
+                // Siapkan Tombol Share
+                const btnShare = document.getElementById('btn-share-pdf');
+                if (navigator.share) {
+                    btnShare.style.display = 'flex';
+                    btnShare.onclick = async () => {
+                        try {
+                            const arr = pdfBase64.split(',');
+                            const bstr = atob(arr[1]);
+                            let n = bstr.length;
+                            const u8arr = new Uint8Array(n);
+                            while(n--) { u8arr[n] = bstr.charCodeAt(n); }
+                            const blob = new Blob([u8arr], {type: 'application/pdf'});
+                            const file = new File([blob], fileName, { type: 'application/pdf' });
+                            
+                            await navigator.share({
+                                files: [file],
+                                title: 'Laporan PDF',
+                                text: 'Laporan Checklist Mesin'
+                            });
+                        } catch (err) {
+                            console.log("Share dibatalkan", err);
+                        }
+                    };
+                } else {
+                    btnShare.style.display = 'none';
                 }
 
-                // 5. Fallback Download Otomatis
-                const url = window.URL.createObjectURL(pdfBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-                
-                document.getElementById('pdf-loading').style.display = 'none';
-                showToast("Berhasil diunduh!", "success");
+                // Siapkan Tombol Download Manual (Tekan & Tahan)
+                const btnDownload = document.getElementById('btn-download-pdf');
+                btnDownload.href = pdfBase64;
+                btnDownload.download = fileName;
 
             } catch (err) {
                 console.error(err);
                 document.getElementById('pdf-loading').style.display = 'none';
-                alert("Sistem memblokir proses. Coba gunakan browser Chrome.");
+                alert("Sistem memblokir proses pembuat PDF.");
             }
         }
 
