@@ -386,7 +386,6 @@
                 groupedData[name].tasks.push(item);
                 groupedData[name].totalProgress += parseFloat(item.progress_percent || 0);
                 groupedData[name].count += 1;
-                // Menggunakan work_end_time sebagai acuan late
                 if(getDaysLate(item.work_end_time, item.status) > 0) groupedData[name].hasLate = true;
             });
         }
@@ -408,7 +407,7 @@
         function getProgressColor(percent) {
             const p = parseFloat(percent);
             if (p >= 100) return "bg-emerald-500"; 
-            if (p >= 50) return "bg-blue-600";    
+            if (p >= 50) return "bg-blue-600";   
             return "bg-rose-500";                
         }
 
@@ -606,7 +605,7 @@
 
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
-        // --- SISTEM DOWNLOAD EXCEL ANTI-BLOCK/BUG WEBVIEW ---
+        // --- SISTEM DOWNLOAD EXCEL FIX KOLOM LEBAR ---
         function exportToExcel() {
             if (typeof XLSX === 'undefined') {
                 alert("Library Excel belum siap. Pastikan internet stabil.");
@@ -637,21 +636,34 @@
                 }));
 
                 const ws = XLSX.utils.json_to_sheet(exportData);
-                const colWidths = [ { wch: 5 }, { wch: 30 }, { wch: 15 }, { wch: 15 }, { wch: 40 }, { wch: 10 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 20 }, { wch: 20 }, { wch: 25 }, { wch: 25 } ];
+                
+                // MENGUBAH LEBAR KOLOM EXCEL AGAR PAS DENGAN TEKS PANJANG
+                const colWidths = [ 
+                    { wch: 5 },   // No
+                    { wch: 40 },  // Project Name
+                    { wch: 25 },  // Mesin / Item
+                    { wch: 15 },  // PIC
+                    { wch: 60 },  // Task Description (Sangat Lebar)
+                    { wch: 12 },  // Priority
+                    { wch: 20 },  // Kategori
+                    { wch: 15 },  // Status
+                    { wch: 12 },  // Progress (%)
+                    { wch: 15 },  // Start Date
+                    { wch: 15 },  // Finish Date
+                    { wch: 40 },  // Hold Reason (Lebar)
+                    { wch: 50 }   // Worker Comment (Ekstra Lebar)
+                ];
                 ws['!cols'] = colWidths;
 
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "Laporan_Harian");
                 
-                // MENGGUNAKAN METODE BLOB STANDAR (PALING AMAN)
                 const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                 const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
                 const fileName = "Resume_Daily_Report.xlsx";
 
-                // DETEKSI MOBILE / WEBVIEW (Opsional: Jika ada yg mendukung share)
                 if (navigator.share && window.innerWidth <= 768) {
                     const file = new File([blob], fileName, { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-                    // Coba jalankan share (bagikan)
                     navigator.share({
                         files: [file],
                         title: 'Laporan Harian',
@@ -670,7 +682,6 @@
             }
         }
 
-        // FUNGSI DOWNLOAD PENGGANTI BASE64
         function fallbackDownload(blob, fileName) {
             try {
                 const url = window.URL.createObjectURL(blob);
