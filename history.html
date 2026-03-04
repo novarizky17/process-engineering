@@ -9,7 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
-        /* --- PRINT SETTINGS --- */
+        /* --- PRINT & DESKTOP SETTINGS --- */
         * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         html, body { max-width: 100%; overflow-x: hidden; }
         body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #525252; }
@@ -19,101 +19,57 @@
         @media print {
             body { padding: 0; background: white; }
             .no-print { display: none !important; }
-            
             .sheet {
-                width: 210mm !important;
-                height: 296mm !important;
-                padding: 10mm !important;
-                page-break-after: always;
-                position: relative;
-                overflow: visible !important;
-                box-shadow: none !important;
-                margin: 0 !important;
+                width: 210mm !important; height: 296mm !important; padding: 10mm !important;
+                page-break-after: always; position: relative; overflow: visible !important;
+                box-shadow: none !important; margin: 0 !important;
             }
             .sheet:last-child { page-break-after: auto; }
             .outer-border { border: 2pt solid black !important; height: 100%; overflow: visible !important; }
             .header-tbl, .info-wrapper, .data-tbl, .super-area { min-width: 100% !important; }
         }
 
-        /* LAYAR DESKTOP & WADAH PDF */
-        #pdf-content { background: #525252; transition: all 0.3s; }
+        #pdf-content { background: #525252; }
         
-        .sheet {
-            background: white;
-            width: 210mm;
-            height: 297mm;
-            margin: 0 auto 30px auto;
-            padding: 10mm;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            transition: all 0.3s;
-        }
+        .sheet { background: white; width: 210mm; height: 297mm; margin: 0 auto 30px auto; padding: 10mm; box-shadow: 0 0 10px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+        .outer-border { border: 2px solid black; width: 100%; height: 100%; display: flex; flex-direction: column; padding: 5px; }
 
-        .outer-border {
-            border: 2px solid black;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            padding: 5px;
-            transition: all 0.3s;
-        }
-
-        /* HEADER */
         .header-tbl { width: 100%; border-collapse: collapse; margin-bottom: 2px; }
         .header-tbl td { border: 1px solid black; padding: 3px; vertical-align: middle; }
         .logo { width: 70px; display: block; margin: 0 auto; }
-        
         .judul-dok { text-align: center; font-weight: bold; font-size: 14pt; text-transform: uppercase; }
         .meta-txt { font-size: 7pt; font-weight: bold; }
-
-        /* META DATA HEADER */
         .meta-row { display: flex; font-size: 7pt; font-weight: bold; line-height: 1.3; }
         .meta-lbl { width: 80px; flex-shrink: 0; }
         .meta-val { flex-grow: 1; }
 
-        /* INFO */
         .info-wrapper { display: flex; justify-content: space-between; font-size: 8pt; font-weight: bold; margin: 5px 0; text-transform: uppercase; }
         .info-col { width: 48%; }
         .info-row { display: flex; margin-bottom: 2px; }
         .lbl { width: 80px; flex-shrink: 0; }
         .val { border-bottom: 1px solid black; flex-grow: 1; padding-left: 3px; }
 
-        /* TABEL UMUM */
         .data-tbl { width: 100%; border-collapse: collapse; font-size: 7pt; margin-top: 5px; }
         .data-tbl th, .data-tbl td { border: 1px solid black; padding: 1px 2px; text-align: center; vertical-align: middle; height: 14px; }
         .data-tbl th { background: #e5e5e5; font-weight: bold; height: 20px; }
         
-        /* TABEL STATUS (Fixed Width) */
         .tbl-status { table-layout: fixed; }
         .c-no { width: 20px; }
         .c-item { width: 120px; text-align: left !important; padding-left: 3px !important; font-weight: bold; }
         .c-std { width: 70px; text-align: left !important; padding-left: 3px !important; font-size: 6pt; }
         .sec-head { background: #d4d4d4 !important; text-align: left !important; padding-left: 5px !important; font-weight: bold; height: 16px; }
 
-        /* TABEL KETERANGAN (Auto Width) */
         .tbl-notes { table-layout: fixed; }
         .c-note-no { width: 20px; }
         .c-note-item { width: 100px; text-align: left !important; font-weight: bold; padding-left: 3px; }
         .note-col { width: auto; }
 
-        /* CONTENT STYLE */
         .st-ok { color: black; font-weight: bold; }
         .st-ng { color: red; font-weight: bold; }
         .st-na { color: gray; font-style: italic; font-weight: bold; }
         
-        .txt-ket { 
-            font-size: 6pt; 
-            text-align: left !important; 
-            padding: 2px 3px !important; 
-            line-height: 1.1; 
-            word-wrap: break-word;
-            white-space: normal;
-            vertical-align: top;
-        }
+        .txt-ket { font-size: 6pt; text-align: left !important; padding: 2px 3px !important; line-height: 1.1; word-wrap: break-word; white-space: normal; vertical-align: top; }
 
-        /* FOOTER */
         .footer-row { height: 40px; background-color: #f3f4f6; font-weight: bold; }
         .footer-label { text-align: center; font-size: 7pt; }
         .sig-img { max-height: 35px; margin: 0 auto; display: block; }
@@ -123,52 +79,33 @@
         .super-sig-box { border: 1px solid black; height: 50px; margin: 2px auto; display: flex; align-items: center; justify-content: center; }
         .super-img { max-height: 45px; }
 
-        /* UI PANEL */
-        .ctl-pnl { 
-            width: 100%; max-width: 800px; margin: 0 auto 20px; background: white; 
-            padding: 15px; border-radius: 8px; display: flex; gap: 8px; flex-wrap: wrap; 
-            justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-        }
+        .ctl-pnl { width: 100%; max-width: 800px; margin: 0 auto 20px; background: white; padding: 15px; border-radius: 8px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .inp { flex: 1 1 140px; border: 1px solid #ccc; padding: 8px; border-radius: 4px; text-transform: uppercase; font-size: 12px; outline: none; }
         .inp:focus { border-color: #1e3a8a; }
         .btn { flex: 1 1 100px; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; color: white; border: none; transition: transform 0.1s; }
         .btn:active { transform: scale(0.98); }
 
-        /* TOAST NOTIFICATION */
         #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
         .toast { background: white; border-left: 5px solid #2563eb; padding: 15px 20px; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; min-width: 250px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); pointer-events: auto; }
         .toast.show { transform: translateX(0); }
 
-        /* OVERLAY LOADING PDF */
         #pdf-loading { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 99999; justify-content: center; align-items: center; flex-direction: column; }
         .loader-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #1e3a8a; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 
-        /* RESPONSIVE MOBILE TWEAKS */
+    <style id="mobile-css">
         @media screen and (max-width: 768px) {
             body { padding: 10px; }
             .ctl-pnl { flex-direction: column; }
             .inp, .btn { width: 100%; flex: none; padding: 12px; font-size: 14px; }
             
             #pdf-content { background: transparent; }
-            .sheet {
-                width: 100%; 
-                height: auto; 
-                padding: 5px; 
-                margin-bottom: 20px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            }
+            .sheet { width: 100%; height: auto; padding: 5px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
             
-            .outer-border {
-                overflow-x: auto; 
-                -webkit-overflow-scrolling: touch;
-                padding: 10px;
-                border-width: 1px; 
-            }
-            
-            .header-tbl, .info-wrapper, .data-tbl, .super-area {
-                min-width: 700px;
-            }
+            /* Area tabel bisa scroll di HP */
+            .outer-border { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 10px; border-width: 1px; }
+            .header-tbl, .info-wrapper, .data-tbl, .super-area { min-width: 700px; }
         }
     </style>
 </head>
@@ -179,7 +116,7 @@
     <div id="pdf-loading">
         <div class="loader-spinner"></div>
         <p class="text-sm font-bold text-slate-700">Mempersiapkan PDF...</p>
-        <p class="text-xs text-slate-500 mt-1 text-center px-4">Jangan sentuh layar, sedang merender tampilan ke format kertas A4.</p>
+        <p class="text-xs text-slate-500 mt-1 text-center px-4">Mengonversi data ke format A4.</p>
     </div>
 
     <div class="ctl-pnl no-print">
@@ -202,7 +139,7 @@
     </div>
 
     <div id="pdf-content">
-        <div class="sheet" id="sheet-1">
+        <div class="sheet">
             <div class="outer-border">
                 <table class="header-tbl">
                     <tr>
@@ -244,7 +181,7 @@
             </div>
         </div>
 
-        <div class="sheet" id="sheet-2">
+        <div class="sheet">
             <div class="outer-border">
                 <table class="header-tbl">
                     <tr>
@@ -496,8 +433,7 @@
         }
 
         // ==========================================
-        // SISTEM GENERATE PDF - IN PLACE TRANSFORMATION
-        // (Dijamin tidak blank)
+        // SISTEM DOWNLOAD PDF ANTI BLANK (DISABLE CSS MOBILE)
         // ==========================================
         async function downloadPDF() {
             if (document.getElementById('tbody-status').innerHTML === "") {
@@ -505,84 +441,59 @@
                 return;
             }
 
-            // Tampilkan layar loading putih (menutupi perubahan CSS kasar di background)
             const loadingScreen = document.getElementById('pdf-loading');
             loadingScreen.style.display = 'flex';
             
-            // Matikan scroll HP sebentar
+            // 1. MATIKAN CSS MOBILE (Agar kembali jadi ukuran Desktop walau di HP)
+            const mobileCss = document.getElementById('mobile-css');
+            if(mobileCss) mobileCss.disabled = true;
+            
+            // Kunci scroll
             document.body.style.overflow = 'hidden';
-
-            const element = document.getElementById('pdf-content');
-            const sheets = document.querySelectorAll('.sheet');
-            const borders = document.querySelectorAll('.outer-border');
-
-            // 1. Simpan Style Original
-            const originalElementStyle = { width: element.style.width, background: element.style.background };
-            const originalSheetStyles = [];
-            const originalBorderStyles = [];
-
-            // 2. Manipulasi Asli DOM (IN-PLACE) - Ini memaksa WebView merender ulang
-            element.style.width = '210mm';
-            element.style.background = '#ffffff';
-
-            sheets.forEach(el => {
-                originalSheetStyles.push({ width: el.style.width, minWidth: el.style.minWidth, padding: el.style.padding, margin: el.style.margin, boxShadow: el.style.boxShadow, height: el.style.height });
-                el.style.width = '210mm';
-                el.style.minWidth = '210mm';
-                el.style.padding = '10mm';
-                el.style.margin = '0';
-                el.style.boxShadow = 'none';
-                el.style.height = '296mm'; 
-            });
-
-            borders.forEach(el => {
-                originalBorderStyles.push({ overflowX: el.style.overflowX, overflow: el.style.overflow, borderWidth: el.style.borderWidth, width: el.style.width });
-                el.style.overflowX = 'visible';
-                el.style.overflow = 'visible';
-                el.style.borderWidth = '2px';
-                el.style.width = '100%';
-            });
-
-            // Scroll ke atas
+            
+            // Scroll ke paling atas
             window.scrollTo(0, 0);
 
-            // Jeda waktu 800ms agar browser HP benar-benar menggambar ulang layout ukuran besar
+            // JEDA WAKTU agak lama (800ms) supaya browser HP selesai menggambar ulang tabel besar
             await new Promise(resolve => setTimeout(resolve, 800));
 
+            const element = document.getElementById('pdf-content');
             const merk = document.getElementById('input-merk').value.trim() || 'MESIN';
             const bln = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text || 'BULAN';
             const thn = document.getElementById('filter-tahun').value || 'TAHUN';
             const fileName = `Checklist_${merk}_${bln}_${thn}.pdf`;
 
-            // Konfigurasi dengan Scale yang lebih rendah agar RAM WebView tidak nge-hang (Scale 1.5)
+            // KONFIGURASI PDF
             const opt = {
                 margin:       0,
                 filename:     fileName,
-                image:        { type: 'jpeg', quality: 0.95 },
+                image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { 
-                    scale: 1.5, 
+                    scale: 2, 
                     useCORS: true,
                     backgroundColor: '#ffffff',
-                    windowWidth: 1024,
-                    scrollY: 0
+                    scrollY: 0,
+                    windowWidth: document.documentElement.scrollWidth // Memaksa baca lebar asli PC
                 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             try {
-                // Eksekusi Pembuatan PDF
+                // EKSEKUSI PEMBUATAN PDF
                 const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
                 
-                // 3. KEMBALIKAN STYLE KE SEMULA SEBELUM MEMBUKA POPUP SHARE
-                restoreOriginalStyles();
+                // 2. NYALAKAN KEMBALI CSS MOBILE SETELAH SELESAI
+                if(mobileCss) mobileCss.disabled = false;
+                document.body.style.overflow = '';
+                loadingScreen.style.display = 'none';
 
-                // 4. Logika Bagikan (Mobile) / Download (PC)
+                // 3. LOGIKA SHARE (Khusus WebView/App Mobile) ATAU DOWNLOAD NORMAL (PC)
                 if (navigator.share && window.innerWidth <= 768) {
                     const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         await navigator.share({
                             files: [file],
-                            title: 'Laporan PDF',
+                            title: 'Laporan Checklist',
                             text: 'Berikut Laporan PDF Checklist Mesin.'
                         });
                         showToast("PDF Berhasil dibagikan!", "success");
@@ -590,58 +501,39 @@
                     }
                 }
                 
+                // Jika share dibatalkan / tidak support, pakai sistem konversi Base64
                 fallbackDownloadPDF(pdfBlob, fileName);
 
             } catch (err) {
-                console.error("Generate error: ", err);
-                restoreOriginalStyles();
-                alert("Gagal memproses PDF karena batasan memori HP.");
-            }
-
-            // Fungsi pengembali CSS
-            function restoreOriginalStyles() {
+                // JIKA ERROR, PASTIKAN HP KEMBALI SEPERTI SEMULA
+                if(mobileCss) mobileCss.disabled = false;
                 document.body.style.overflow = '';
-                element.style.width = originalElementStyle.width;
-                element.style.background = originalElementStyle.background;
-
-                sheets.forEach((el, i) => {
-                    el.style.width = originalSheetStyles[i].width;
-                    el.style.minWidth = originalSheetStyles[i].minWidth;
-                    el.style.padding = originalSheetStyles[i].padding;
-                    el.style.margin = originalSheetStyles[i].margin;
-                    el.style.boxShadow = originalSheetStyles[i].boxShadow;
-                    el.style.height = originalSheetStyles[i].height;
-                });
-
-                borders.forEach((el, i) => {
-                    el.style.overflowX = originalBorderStyles[i].overflowX;
-                    el.style.overflow = originalBorderStyles[i].overflow;
-                    el.style.borderWidth = originalBorderStyles[i].borderWidth;
-                    el.style.width = originalBorderStyles[i].width;
-                });
-
-                // Tutup layar loading
                 loadingScreen.style.display = 'none';
+                console.error(err);
+                alert("Sistem Gagal Memproses PDF. Coba gunakan Google Chrome.");
             }
         }
 
-        // FUNGSI DOWNLOAD CADANGAN
+        // FUNGSI CADANGAN ANTI-BLOCK (Menggunakan Base64 Data URI)
         function fallbackDownloadPDF(blob, fileName) {
-            try {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(() => { 
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                    showToast("PDF Terdownload!", "success");
-                }, 100);
-            } catch(e) {
-                alert("Aplikasi HP memblokir unduhan. Buka lewat Google Chrome.");
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = function() {
+                const base64data = reader.result;
+                try {
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = base64data; 
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => { 
+                        document.body.removeChild(a);
+                        showToast("PDF Terdownload!", "success");
+                    }, 100);
+                } catch(e) {
+                    alert("Aplikasi HP memblokir unduhan file. Buka website ini lewat Google Chrome.");
+                }
             }
         }
 
