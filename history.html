@@ -6,6 +6,8 @@
     <title>HISTORY CHECKLIST (CLEAN TITLE) - TOOLING SUPPORT</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
         /* --- PRINT SETTINGS --- */
         * { box-sizing: border-box; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -33,7 +35,9 @@
             .header-tbl, .info-wrapper, .data-tbl, .super-area { min-width: 100% !important; }
         }
 
-        /* LAYAR DESKTOP */
+        /* LAYAR DESKTOP & WADAH PDF */
+        #pdf-content { background: #525252; }
+        
         .sheet {
             background: white;
             width: 210mm;
@@ -130,12 +134,18 @@
         .btn { flex: 1 1 100px; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; color: white; border: none; transition: transform 0.1s; }
         .btn:active { transform: scale(0.98); }
 
+        /* TOAST NOTIFICATION */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast { background: white; border-left: 5px solid #2563eb; padding: 15px 20px; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; min-width: 250px; transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); pointer-events: auto; }
+        .toast.show { transform: translateX(0); }
+
         /* RESPONSIVE MOBILE TWEAKS */
         @media screen and (max-width: 768px) {
             body { padding: 10px; }
             .ctl-pnl { flex-direction: column; }
             .inp, .btn { width: 100%; flex: none; padding: 12px; font-size: 14px; }
             
+            #pdf-content { background: transparent; }
             .sheet {
                 width: 100%; 
                 height: auto; 
@@ -161,6 +171,8 @@
 </head>
 <body>
 
+    <div id="toast-container"></div>
+
     <div class="ctl-pnl no-print">
         <input type="text" id="input-merk" list="machine-list" placeholder="NAMA MESIN" class="inp" oninput="autoFillCapacity()">
         <datalist id="machine-list"></datalist>
@@ -176,96 +188,97 @@
             <script>for(let y=2024; y<=2030; y++) document.write(`<option value="${y}" ${y===2026?'selected':''}>${y}</option>`);</script>
         </select>
         <button onclick="renderReport(true)" class="btn" style="background:#1e3a8a;">CARI</button>
-        <button onclick="window.print()" class="btn" style="background:#1f2937;">PRINT PDF</button>
+        <button onclick="downloadPDF()" class="btn" style="background:#1f2937;">DOWNLOAD PDF</button>
         <button onclick="window.location.href='dashboard.html'" class="btn" style="background:#4b5563;">KEMBALI</button>
     </div>
 
-    <div class="sheet">
-        <div class="outer-border">
-            <table class="header-tbl">
-                <tr>
-                    <td width="15%" align="center"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo"></td>
-                    <td width="60%" align="center" class="judul-dok">CHECKLIST MONITORING TOOLING SUPPORT</td>
-                    <td width="25%">
-                        <div class="meta-row"><div class="meta-lbl">NO DOKUMEN</div><div class="meta-val">: </div></div>
-                        <div class="meta-row"><div class="meta-lbl">REVISI</div><div class="meta-val">: </div></div>
-                        <div class="meta-row"><div class="meta-lbl">TGL EFEKTIF</div><div class="meta-val">: </div></div>
-                        <div class="meta-row"><div class="meta-lbl">HALAMAN</div><div class="meta-val">: 1 / 2</div></div>
-                    </td>
-                </tr>
-            </table>
-            <div class="info-wrapper">
-                <div class="info-col"><div class="info-row"><div class="lbl">EQUIPMENT</div>: <div class="val label-merk">-</div></div><div class="info-row"><div class="lbl">CAPACITY</div>: <div class="val label-tonage">-</div></div></div>
-                <div class="info-col"><div class="info-row"><div class="lbl">BULAN</div>: <div class="val label-bulan">-</div></div><div class="info-row"><div class="lbl">TAHUN</div>: <div class="val label-tahun">-</div></div></div>
-            </div>
-            
-            <div style="flex-grow: 1;">
-                <table class="data-tbl tbl-status">
-                    <thead>
-                        <tr>
-                            <th class="c-no">NO</th>
-                            <th class="c-item">JENIS PENGECEKAN</th>
-                            <th class="c-std">STANDAR</th>
-                            <th>W1</th><th>W2</th><th>W3</th><th>W4</th><th>W5</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-status"></tbody>
-                    <tfoot>
-                        <tr class="footer-row">
-                            <td colspan="3" class="footer-label">PARAF PELAKSANA</td>
-                            <td id="sig-s-w1"></td><td id="sig-s-w2"></td><td id="sig-s-w3"></td><td id="sig-s-w4"></td><td id="sig-s-w5"></td>
-                        </tr>
-                    </tfoot>
+    <div id="pdf-content">
+        <div class="sheet">
+            <div class="outer-border">
+                <table class="header-tbl">
+                    <tr>
+                        <td width="15%" align="center"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo" crossorigin="anonymous"></td>
+                        <td width="60%" align="center" class="judul-dok">CHECKLIST MONITORING TOOLING SUPPORT</td>
+                        <td width="25%">
+                            <div class="meta-row"><div class="meta-lbl">NO DOKUMEN</div><div class="meta-val">: </div></div>
+                            <div class="meta-row"><div class="meta-lbl">REVISI</div><div class="meta-val">: </div></div>
+                            <div class="meta-row"><div class="meta-lbl">TGL EFEKTIF</div><div class="meta-val">: </div></div>
+                            <div class="meta-row"><div class="meta-lbl">HALAMAN</div><div class="meta-val">: 1 / 2</div></div>
+                        </td>
+                    </tr>
                 </table>
-            </div>
-            <div class="super-area"><div class="super-box"><div>DIKETAHUI</div><div class="super-sig-box super-sig"></div><div style="border-top:1px solid black;" class="super-name">( ... )</div><div>PROCESS ENG.</div></div></div>
-        </div>
-    </div>
-
-    <div class="sheet">
-        <div class="outer-border">
-            <table class="header-tbl">
-                <tr>
-                    <td width="15%" align="center"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo"></td>
-                    <td width="60%" align="center" class="judul-dok">CHECKLIST MONITORING TOOLING SUPPORT</td>
-                    <td width="25%">
-                        <div class="meta-row"><div class="meta-lbl">NO DOKUMEN</div><div class="meta-val">: </div></div>
-                        <div class="meta-row"><div class="meta-lbl">REVISI</div><div class="meta-val">: </div></div>
-                        <div class="meta-row"><div class="meta-lbl">TGL EFEKTIF</div><div class="meta-val">: </div></div>
-                        <div class="meta-row"><div class="meta-lbl">HALAMAN</div><div class="meta-val">: 2 / 2</div></div>
-                    </td>
-                </tr>
-            </table>
-            <div class="info-wrapper">
-                <div class="info-col"><div class="info-row"><div class="lbl">EQUIPMENT</div>: <div class="val label-merk">-</div></div><div class="info-row"><div class="lbl">CAPACITY</div>: <div class="val label-tonage">-</div></div></div>
-                <div class="info-col"><div class="info-row"><div class="lbl">BULAN</div>: <div class="val label-bulan">-</div></div><div class="info-row"><div class="lbl">TAHUN</div>: <div class="val label-tahun">-</div></div></div>
-            </div>
-
-            <div style="flex-grow: 1;">
-                <table class="data-tbl tbl-notes">
-                    <thead>
-                        <tr>
-                            <th class="c-note-no">NO</th>
-                            <th class="c-note-item">JENIS PENGECEKAN</th>
-                            <th class="note-col">KETERANGAN W1</th>
-                            <th class="note-col">KETERANGAN W2</th>
-                            <th class="note-col">KETERANGAN W3</th>
-                            <th class="note-col">KETERANGAN W4</th>
-                            <th class="note-col">KETERANGAN W5</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-notes"></tbody>
-                    <tfoot>
-                        <tr class="footer-row">
-                            <td colspan="2" class="footer-label">PARAF PELAKSANA</td>
-                            <td id="sig-k-w1"></td><td id="sig-k-w2"></td><td id="sig-k-w3"></td><td id="sig-k-w4"></td><td id="sig-k-w5"></td>
-                        </tr>
-                    </tfoot>
-                </table>
+                <div class="info-wrapper">
+                    <div class="info-col"><div class="info-row"><div class="lbl">EQUIPMENT</div>: <div class="val label-merk">-</div></div><div class="info-row"><div class="lbl">CAPACITY</div>: <div class="val label-tonage">-</div></div></div>
+                    <div class="info-col"><div class="info-row"><div class="lbl">BULAN</div>: <div class="val label-bulan">-</div></div><div class="info-row"><div class="lbl">TAHUN</div>: <div class="val label-tahun">-</div></div></div>
+                </div>
+                
+                <div style="flex-grow: 1;">
+                    <table class="data-tbl tbl-status">
+                        <thead>
+                            <tr>
+                                <th class="c-no">NO</th>
+                                <th class="c-item">JENIS PENGECEKAN</th>
+                                <th class="c-std">STANDAR</th>
+                                <th>W1</th><th>W2</th><th>W3</th><th>W4</th><th>W5</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-status"></tbody>
+                        <tfoot>
+                            <tr class="footer-row">
+                                <td colspan="3" class="footer-label">PARAF PELAKSANA</td>
+                                <td id="sig-s-w1"></td><td id="sig-s-w2"></td><td id="sig-s-w3"></td><td id="sig-s-w4"></td><td id="sig-s-w5"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="super-area"><div class="super-box"><div>DIKETAHUI</div><div class="super-sig-box super-sig"></div><div style="border-top:1px solid black;" class="super-name">( ... )</div><div>PROCESS ENG.</div></div></div>
             </div>
         </div>
-    </div>
 
+        <div class="sheet">
+            <div class="outer-border">
+                <table class="header-tbl">
+                    <tr>
+                        <td width="15%" align="center"><img src="https://amarilyskg.co.id/bootstrap/img/logo.png" class="logo" crossorigin="anonymous"></td>
+                        <td width="60%" align="center" class="judul-dok">CHECKLIST MONITORING TOOLING SUPPORT</td>
+                        <td width="25%">
+                            <div class="meta-row"><div class="meta-lbl">NO DOKUMEN</div><div class="meta-val">: </div></div>
+                            <div class="meta-row"><div class="meta-lbl">REVISI</div><div class="meta-val">: </div></div>
+                            <div class="meta-row"><div class="meta-lbl">TGL EFEKTIF</div><div class="meta-val">: </div></div>
+                            <div class="meta-row"><div class="meta-lbl">HALAMAN</div><div class="meta-val">: 2 / 2</div></div>
+                        </td>
+                    </tr>
+                </table>
+                <div class="info-wrapper">
+                    <div class="info-col"><div class="info-row"><div class="lbl">EQUIPMENT</div>: <div class="val label-merk">-</div></div><div class="info-row"><div class="lbl">CAPACITY</div>: <div class="val label-tonage">-</div></div></div>
+                    <div class="info-col"><div class="info-row"><div class="lbl">BULAN</div>: <div class="val label-bulan">-</div></div><div class="info-row"><div class="lbl">TAHUN</div>: <div class="val label-tahun">-</div></div></div>
+                </div>
+
+                <div style="flex-grow: 1;">
+                    <table class="data-tbl tbl-notes">
+                        <thead>
+                            <tr>
+                                <th class="c-note-no">NO</th>
+                                <th class="c-note-item">JENIS PENGECEKAN</th>
+                                <th class="note-col">KETERANGAN W1</th>
+                                <th class="note-col">KETERANGAN W2</th>
+                                <th class="note-col">KETERANGAN W3</th>
+                                <th class="note-col">KETERANGAN W4</th>
+                                <th class="note-col">KETERANGAN W5</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-notes"></tbody>
+                        <tfoot>
+                            <tr class="footer-row">
+                                <td colspan="2" class="footer-label">PARAF PELAKSANA</td>
+                                <td id="sig-k-w1"></td><td id="sig-k-w2"></td><td id="sig-k-w3"></td><td id="sig-k-w4"></td><td id="sig-k-w5"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         const SB_URL = "https://yutxomhfqodjzqqibewd.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA";
@@ -361,6 +374,19 @@
 
         function numToChar(num) { return String.fromCharCode(96 + num).toUpperCase(); }
 
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const div = document.createElement('div');
+            let icon = 'fa-circle-info';
+            if (type === 'success') icon = 'fa-circle-check';
+            if (type === 'error') icon = 'fa-circle-exclamation';
+            div.className = `toast toast-${type}`;
+            div.innerHTML = `<i class="fa-solid ${icon} text-lg"></i><span class="font-semibold text-slate-700 text-sm">${msg}</span>`;
+            container.appendChild(div);
+            requestAnimationFrame(() => div.classList.add('show'));
+            setTimeout(() => { div.classList.remove('show'); setTimeout(() => div.remove(), 400); }, 3000);
+        }
+
         async function renderReport(isSearching) {
             const thn = document.getElementById('filter-tahun').value;
             const bln = document.getElementById('filter-bulan').value;
@@ -373,6 +399,8 @@
             document.querySelectorAll('.label-bulan').forEach(e => e.innerText = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text);
             document.querySelectorAll('.label-merk').forEach(e => e.innerText = tools.toUpperCase());
             document.querySelectorAll('.label-tonage').forEach(e => e.innerText = cap || "-");
+
+            showToast("Memuat data...", "info");
 
             const dateFilter = `${thn}-${bln}`;
             const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
@@ -402,6 +430,8 @@
 
             renderTables(dataMap);
             renderSignatures(dataMap);
+            
+            setTimeout(() => { showToast("Data berhasil dimuat!", "success"); }, 500);
         }
 
         function renderTables(dataMap) {
@@ -437,15 +467,14 @@
             });
         }
 
-        // --- UPDATE: TANDA TANGAN (AUTO APPROVE JADI KOSONG) ---
         function renderSignatures(dataMap) {
             for(let w=1; w<=5; w++) {
-                const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" class="sig-img">` : "";
+                // Menambahkan crossorigin="anonymous" pada gambar ttd
+                const img = (dataMap[w] && dataMap[w].signature_pelaksana) ? `<img src="${dataMap[w].signature_pelaksana}" class="sig-img" crossorigin="anonymous">` : "";
                 document.getElementById(`sig-s-w${w}`).innerHTML = img;
                 document.getElementById(`sig-k-w${w}`).innerHTML = img;
             }
             
-            // CARI DATA TERAKHIR YANG APPROVED
             let latest = null;
             for(let w=5; w>=1; w--) { 
                 if(dataMap[w] && dataMap[w].status === 'Approved') { 
@@ -454,20 +483,98 @@
                 } 
             }
             
-            // LOGIKA TANDA TANGAN SUPERINTENDENT
             document.querySelectorAll('.super-sig').forEach(e => {
-                // Jika Manual (ada gambar) -> Tampilkan Gambar
                 if (latest && latest.signature) {
-                    e.innerHTML = `<img src="${latest.signature}" class="super-img">`;
-                } 
-                // Jika Auto Approve (gak ada gambar) -> Kosongkan
-                else {
+                    e.innerHTML = `<img src="${latest.signature}" class="super-img" crossorigin="anonymous">`;
+                } else {
                     e.innerHTML = ""; 
                 }
             });
 
-            // TAMPILKAN NAMA (TETAP MUNCUL WALAUPUN AUTO APPROVE)
             document.querySelectorAll('.super-name').forEach(e => e.innerText = (latest && latest.nama_superintendent) ? `( ${latest.nama_superintendent} )` : "( ... )");
+        }
+
+        // --- SISTEM DOWNLOAD PDF ANTI-BLOCK WEBVIEW ---
+        function downloadPDF() {
+            showToast("Menyiapkan PDF, mohon tunggu...", "info");
+            
+            // Atur sementara style untuk PDF (supaya putih bersih & rapih)
+            document.getElementById('pdf-content').style.background = 'white';
+            document.querySelectorAll('.sheet').forEach(el => {
+                el.style.margin = '0';
+                el.style.boxShadow = 'none';
+            });
+
+            const element = document.getElementById('pdf-content');
+            
+            const merk = document.getElementById('input-merk').value.trim() || 'MESIN';
+            const bln = document.getElementById('filter-bulan').options[document.getElementById('filter-bulan').selectedIndex].text || 'BULAN';
+            const thn = document.getElementById('filter-tahun').value || 'TAHUN';
+            const fileName = `Checklist_${merk}_${bln}_${thn}.pdf`;
+
+            const opt = {
+                margin:       0,
+                filename:     fileName,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true }, // useCORS penting agar Logo dan TTD tidak hilang
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Menggunakan output 'blob' agar bisa dikirim ke fitur Share API HP
+            html2pdf().set(opt).from(element).output('blob').then(function(blob) {
+                // Kembalikan style background seperti semula
+                document.getElementById('pdf-content').style.background = '#525252';
+                if(window.innerWidth > 768) {
+                    document.querySelectorAll('.sheet').forEach(el => {
+                        el.style.margin = '0 auto 30px auto';
+                        el.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+                    });
+                }
+
+                // LOGIKA DOWNLOAD (PC) / SHARE (HP Webview)
+                if (navigator.share && window.innerWidth <= 768) {
+                    const file = new File([blob], fileName, { type: 'application/pdf' });
+                    if (navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            files: [file],
+                            title: 'Laporan Checklist Mesin',
+                            text: 'Berikut adalah lampiran PDF Checklist Mesin.'
+                        }).then(() => {
+                            showToast("PDF siap dibagikan/disimpan!", "success");
+                        }).catch(err => {
+                            console.log("Share batal/gagal, menggunakan download fallback", err);
+                            fallbackDownloadPDF(blob, fileName);
+                        });
+                        return;
+                    }
+                }
+                
+                // Fallback Download untuk PC atau jika Share gagal
+                fallbackDownloadPDF(blob, fileName);
+            }).catch(err => {
+                alert("Gagal memproses PDF.");
+                console.error(err);
+            });
+        }
+
+        // FUNGSI STANDAR DOWNLOAD BLOB
+        function fallbackDownloadPDF(blob, fileName) {
+            try {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => { 
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    showToast("PDF Terdownload!", "success");
+                }, 100);
+            } catch(e) {
+                alert("Sistem/Aplikasi HP memblokir unduhan. Silakan buka aplikasi ini di Google Chrome/Safari.");
+            }
         }
 
         window.onload = initMachineList;
