@@ -168,7 +168,7 @@
             .zoom-panel { display: none; }
         }
 
-        /* CSS MODAL STATISTIK POP-UP */
+        /* CSS MODAL STATISTIK POP-UP & LOADING */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(3px); }
         .modal-box { background: white; border-radius: 16px; width: 100%; max-width: 400px; padding: 25px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); animation: zoomIn 0.2s ease-out; }
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -176,6 +176,10 @@
         .bg-ok { background: #ecfdf5; color: #047857; border-color: #a1a1aa; }
         .bg-ng { background: #fef2f2; color: #be123c; border-color: #fca5a5; }
         .bg-na { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+        
+        /* SPINNER LOADING PENCARIAN */
+        .loader-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #1e3a8a; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* RESPONSIVE MOBILE TWEAKS */
         @media screen and (max-width: 768px) {
@@ -191,13 +195,15 @@
                 box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             }
             
+            /* Membuat area laporan bisa digeser horizontal di HP */
             .outer-border {
                 overflow-x: auto; 
                 -webkit-overflow-scrolling: touch;
                 padding: 10px;
-                border-width: 1px; 
+                border-width: 1px; /* border lebih tipis di HP */
             }
             
+            /* Memaksa lebar agar desain tabel tidak hancur */
             .header-tbl, .info-wrapper, .data-tbl, .super-area {
                 min-width: 700px;
             }
@@ -206,7 +212,15 @@
 </head>
 <body>
 
-    <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;"></div>
+    <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;"></div>
+
+    <div id="search-loading-modal" class="modal-overlay no-print" style="z-index: 10000;">
+        <div class="modal-box" style="text-align: center; padding: 30px;">
+            <div class="loader-spinner"></div>
+            <h3 class="text-xl font-black text-slate-800 mb-2 animate-pulse">Mencari Data...</h3>
+            <p class="text-xs text-slate-500 font-medium">Sistem sedang menarik laporan dari server, mohon tunggu sebentar.</p>
+        </div>
+    </div>
 
     <div class="ctl-pnl no-print">
         <input type="text" id="input-merk" list="machine-list" placeholder="NAMA MESIN" class="inp" oninput="autoFillCapacity()">
@@ -463,12 +477,10 @@
         function showToast(msg, type = 'info') {
             const container = document.getElementById('toast-container');
             const div = document.createElement('div');
-            // Ganti warna sesuai tipe
-            let bgColor = "white";
-            let borderColor = "#10b981"; // Default hijau (info/success)
+            let borderColor = "#10b981"; // Hijau
             let textColor = "#1e293b";
             if (type === 'error') {
-                borderColor = "#ef4444"; // Merah untuk error
+                borderColor = "#ef4444"; // Merah
                 textColor = "#b91c1c";
             }
             
@@ -494,40 +506,53 @@
             document.querySelectorAll('.label-merk').forEach(e => e.innerText = tools.toUpperCase());
             document.querySelectorAll('.label-tonage').forEach(e => e.innerText = cap || "-");
 
-            showToast("Mencari data...", "info");
+            // Tampilkan Modal Loading
+            document.getElementById('search-loading-modal').style.display = 'flex';
 
-            const dateFilter = `${thn}-${bln}`;
-            const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
-            
-            if (error) { console.error(error); showToast("Koneksi Error", "error"); return; }
+            try {
+                const dateFilter = `${thn}-${bln}`;
+                const { data, error } = await _sb.from('checklist').select('*, pelaksana(*)').eq('status', 'Approved');
+                
+                if (error) throw error;
 
-            const filtered = data.filter(item => {
-                if(!item.pelaksana || !item.pelaksana.tanggal_checklist) return false;
-                const dMatch = item.pelaksana.tanggal_checklist.startsWith(dateFilter);
-                const dbName = (item.pelaksana.nama_tools || "").toLowerCase();
-                const sName = tools.toLowerCase();
-                return dMatch && (dbName.includes(sName) || sName.includes(dbName));
-            });
+                const filtered = data.filter(item => {
+                    if(!item.pelaksana || !item.pelaksana.tanggal_checklist) return false;
+                    const dMatch = item.pelaksana.tanggal_checklist.startsWith(dateFilter);
+                    const dbName = (item.pelaksana.nama_tools || "").toLowerCase();
+                    const sName = tools.toLowerCase();
+                    return dMatch && (dbName.includes(sName) || sName.includes(dbName));
+                });
 
-            if (filtered.length === 0) {
-                showToast("Data tidak ditemukan! Mohon cek kembali.", "error");
-                renderTables({});
-                renderSignatures({});
-                window.currentDataMap = {};
-                return;
+                if (filtered.length === 0) {
+                    document.getElementById('search-loading-modal').style.display = 'none';
+                    showToast("Data tidak ditemukan! Mohon cek kembali.", "error");
+                    renderTables({});
+                    renderSignatures({});
+                    window.currentDataMap = {};
+                    return;
+                }
+
+                const dataMap = {};
+                filtered.forEach(item => {
+                    const w = item.pelaksana.week;
+                    if(w>=1 && w<=5) dataMap[w] = item;
+                });
+
+                // Simpan data map ke global untuk dipakai Statistik
+                window.currentDataMap = dataMap;
+
+                renderTables(dataMap);
+                renderSignatures(dataMap);
+                
+                // Tutup Loading & Beri info sukses
+                document.getElementById('search-loading-modal').style.display = 'none';
+                showToast("Data berhasil dimuat!", "success");
+
+            } catch(err) {
+                console.error(err);
+                document.getElementById('search-loading-modal').style.display = 'none';
+                showToast("Koneksi Error. Gagal mengambil data.", "error");
             }
-
-            const dataMap = {};
-            filtered.forEach(item => {
-                const w = item.pelaksana.week;
-                if(w>=1 && w<=5) dataMap[w] = item;
-            });
-
-            // Simpan data map ke global untuk dipakai Statistik
-            window.currentDataMap = dataMap;
-
-            renderTables(dataMap);
-            renderSignatures(dataMap);
         }
 
         function renderTables(dataMap) {
@@ -602,7 +627,6 @@
             let totalNG = 0;
             let totalNA = 0;
 
-            // Hitung status dari semua item pengecekan di setiap minggu (W1-W5)
             checklistStructure.forEach(item => {
                 if (item.type !== 'head') {
                     for(let w=1; w<=5; w++) {
@@ -618,13 +642,11 @@
 
             const totalActivity = totalOK + totalNG + totalNA;
 
-            // Update isi Modal
             document.getElementById('stat-total').innerText = totalActivity;
             document.getElementById('stat-ok').innerText = totalOK;
             document.getElementById('stat-ng').innerText = totalNG;
             document.getElementById('stat-na').innerText = totalNA;
 
-            // Tampilkan Modal
             document.getElementById('stats-modal').style.display = 'flex';
         }
 
