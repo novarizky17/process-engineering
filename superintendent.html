@@ -71,6 +71,7 @@
         .btn-warning { background: #ffc107; color: #212529; box-shadow: 0 3px 5px rgba(255, 193, 7, 0.3); }
         .btn-excel { background: #207245; color: white; margin-left: auto; }
         .btn-back { background: rgba(255, 255, 255, 0.1); color: white; border: 1px solid rgba(255, 255, 255, 0.4); }
+        .btn-info { background: #0dcaf0; color: #000; font-weight: bold; } /* Tombol Info TTD */
 
         /* --- CSS TABEL UTAMA (DASHBOARD) --- */
         .card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
@@ -280,9 +281,13 @@
         
         .super-note-box { background: #e3f2fd; border: 1px solid #90caf9; padding: 15px; border-radius: 8px; margin-bottom: 20px; color: #0d47a1; }
         
-        .sig-area { border: 2px dashed #ccc; margin: 15px 0; background: #fafafa; border-radius: 8px; height: 160px; position: relative; }
+        textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; padding: 12px; font-family: inherit; font-size: 14px; }
+        
+        /* UPDATE: CSS AREA TANDA TANGAN HYBRID */
+        .sig-area { border: 2px dashed #ccc; margin: 15px auto; background: #fafafa; border-radius: 8px; height: 160px; position: relative; max-width: 600px; overflow: hidden; }
         canvas { width: 100%; height: 100%; cursor: crosshair; display: block; touch-action: none; }
-        textarea, input.input-nama { width: 100%; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; padding: 12px; font-family: inherit; }
+        #saved-sig-preview { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; background: #e8f4f8; flex-direction: column; }
+        #saved-sig-preview img { max-height: 80%; mix-blend-mode: multiply; }
         
         #historySection { display: none; text-align: center; }
         #historySigArea { margin-top: 15px; display: flex; justify-content: center; width: 100%; }
@@ -342,15 +347,26 @@
                     <input type="text" id="namaSuperintendent" class="input-nama" list="list-super" placeholder="Ketik nama..." value="A. Rizki Mubarok K">
                     <datalist id="list-super"><option value="A. Rizki Mubarok K"></option></datalist>
                     
-                    <label style="color:#003366; margin-top:15px;"><strong>Catatan / Keterangan:</strong></label>
+                    <label style="color:#003366; margin-top:15px; display:block;"><strong>Catatan / Keterangan:</strong></label>
                     <textarea id="keteranganSuper" rows="3" placeholder="Tuliskan komentar..."></textarea>
                 </div>
 
-                <p><strong>Tanda Tangan (Manual):</strong></p>
-                <div class="sig-area" style="max-width: 600px; margin: 0 auto 15px auto;"><canvas id="sig-canvas"></canvas></div>
-                <button class="btn" style="background:#6c757d; color:white; margin-bottom:25px;" onclick="window.clearSig()">Hapus TTD</button>
+                <p style="margin-bottom:10px;"><strong>Tanda Tangan:</strong></p>
                 
-                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap:wrap;">
+                <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom: 10px;">
+                    <button class="btn btn-info" onclick="window.useSavedSignature()">📝 Gunakan TTD Digital</button>
+                    <button class="btn" style="background:#6c757d; color:white;" onclick="window.clearSig()">🧹 Manual / Hapus</button>
+                </div>
+
+                <div class="sig-area">
+                    <canvas id="sig-canvas"></canvas>
+                    <div id="saved-sig-preview">
+                        <img src="" id="img-preview" alt="Tanda Tangan Tersimpan">
+                        <span style="font-size:10px; color:#0284c7; font-weight:bold; margin-top:5px;">Menggunakan TTD Digital</span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap:wrap; margin-top: 25px;">
                     <button class="btn btn-success" style="width: 150px; padding:12px;" onclick="window.confirmManualAction('Approved')">✅ APPROVE</button>
                     <button class="btn btn-danger" style="width: 150px; padding:12px;" onclick="window.confirmManualAction('Rejected')">❌ REJECT</button>
                 </div>
@@ -385,6 +401,10 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1dHhvbWhmcW9kanpxcWliZXdkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNjMxODcsImV4cCI6MjA4MTkzOTE4N30.FWmgcuo517KhN0ujLNEZnYZlZ-vbo-jXz3HJjiEJ1tA';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+    // KUNCI URL TANDA TANGAN 
+    const TTD_SUPERINTENDENT_URL = "https://yutxomhfqodjzqqibewd.supabase.co/storage/v1/object/public/signatures/Screenshot%202026-03-05%20114054.png";
+    let isUsingSavedSignature = false; // Penanda mode tanda tangan
+
     const rutinGroups = [
         { title: "1. STAND LABEL", subs: [ { sub: "ELECTRICAL", items: ["wiring", "komponen", "kerapihan", "sensor"] }, { sub: "MOTION", items: ["timing_belt", "pully", "servo_motor", "linear_bearing", "rotary_actuator"] }, { sub: "PNEUMATIC", items: ["selenoid_valve", "vacuum_ejector", "silinder_pneumatic", "napple", "vacuum_pad"] }, { sub: "TAKE OUT PRODUK", items: ["flange", "vacuum_pad_takeout"] } ] },
         { title: "2. STACKING", subs: [ { sub: "ELECTRICAL", items: ["stacking_wiring", "stacking_sensor"] }, { sub: "MOTION", items: ["stacking_linier", "stacking_mechanical_part"] }, { sub: "PNEUMATIC", items: ["stacking_cylinder", "stacking_pneumatic"] } ] },
@@ -397,6 +417,7 @@
     let isProcessingAuto = false; 
     let pendingAction = null;
 
+    // --- CANVAS TANDA TANGAN MANUAL LOGIC ---
     const canvas = document.getElementById('sig-canvas');
     const ctx = canvas.getContext('2d');
     
@@ -411,16 +432,6 @@
     }
     window.addEventListener('resize', resizeCanvas);
 
-    window.switchTab = function(tab) {
-        currentTab = tab;
-        isProcessingAuto = false; 
-        document.getElementById('tabRutin').classList.toggle('active', tab === 'rutin');
-        document.getElementById('tabTrial').classList.toggle('active', tab === 'trial');
-        document.getElementById('filterLabel').innerText = tab === 'rutin' ? 'Cari Tgl Checklist:' : 'Cari Tgl Trial:';
-        document.getElementById('searchDate').value = '';
-        loadData();
-    }
-
     let drawing = false;
     function getP(e) {
         const r = canvas.getBoundingClientRect();
@@ -431,7 +442,33 @@
     window.onmouseup = () => drawing=false;
     canvas.ontouchstart = (e) => { e.preventDefault(); drawing=true; ctx.beginPath(); ctx.moveTo(getP(e).x, getP(e).y); };
     canvas.ontouchmove = (e) => { e.preventDefault(); if(!drawing) return; ctx.lineTo(getP(e).x, getP(e).y); ctx.stroke(); };
-    function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); }
+    
+    // Fungsi Hapus TTD & Kembali ke Manual
+    window.clearSig = function() { 
+        ctx.clearRect(0,0,canvas.width,canvas.height); 
+        isUsingSavedSignature = false;
+        document.getElementById('sig-canvas').style.display = 'block';
+        document.getElementById('saved-sig-preview').style.display = 'none';
+    }
+
+    // Fungsi Pakai TTD Digital
+    window.useSavedSignature = function() {
+        isUsingSavedSignature = true;
+        document.getElementById('sig-canvas').style.display = 'none';
+        document.getElementById('img-preview').src = TTD_SUPERINTENDENT_URL;
+        document.getElementById('saved-sig-preview').style.display = 'flex';
+    }
+
+    window.switchTab = function(tab) {
+        currentTab = tab;
+        isProcessingAuto = false; 
+        document.getElementById('tabRutin').classList.toggle('active', tab === 'rutin');
+        document.getElementById('tabTrial').classList.toggle('active', tab === 'trial');
+        document.getElementById('filterLabel').innerText = tab === 'rutin' ? 'Cari Tgl Checklist:' : 'Cari Tgl Trial:';
+        document.getElementById('searchDate').value = '';
+        loadData();
+    }
+
     function refreshData() { loadData(); }
 
     function isRowNG(row) {
@@ -465,7 +502,6 @@
         }
     }
 
-    // --- POP-UP MODAL LOGIC ---
     window.showConfirmModal = function(title, text, icon, actionCallback) {
         document.getElementById('confirmTitle').innerText = title;
         document.getElementById('confirmText').innerText = text;
@@ -529,7 +565,7 @@
 
         window.showConfirmModal(
             "Auto Approve", 
-            `Ditemukan ${safePendingRows.length} data AMAN (OK/NA).\nApprove semuanya sekaligus?`, 
+            `Ditemukan ${safePendingRows.length} data AMAN (OK/NA).\nTanda Tangan A. Rizki Mubarok K akan otomatis dilampirkan.`, 
             "✨",
             async function() {
                 isProcessingAuto = true;
@@ -548,8 +584,10 @@
 
                     if (currentTab === 'rutin') {
                         updateData.keterangan = "Approved Automatically (OK)";
+                        updateData.signature = TTD_SUPERINTENDENT_URL; // Otomatis URL
                     } else {
                         updateData.keterangan_superintendent = "Approved Automatically (OK)";
+                        updateData.signature_superintendent = TTD_SUPERINTENDENT_URL; // Otomatis URL
                     }
                     
                     await _supabase.from(tableName).update(updateData).eq('id', row.id);
@@ -569,7 +607,7 @@
 
         const icon = status === 'Approved' ? "✅" : "❌";
         const text = status === 'Approved' 
-            ? "Anda akan MENYETUJUI (Approve) checklist ini." 
+            ? (isUsingSavedSignature ? "Anda menyetujui dokumen ini dengan TTD Digital." : "Anda menyetujui dokumen ini dengan Coretan Manual.") 
             : "Anda akan MENOLAK (Reject) checklist ini.";
 
         window.showConfirmModal(
@@ -582,7 +620,6 @@
         );
     }
 
-    // --- TRIGGER DELETE (POP-UP) ---
     window.deleteItem = function(id) {
         window.showConfirmModal(
             "Hapus Data",
@@ -851,15 +888,22 @@
         if(!isReviewable) {
             document.getElementById('historyLabel').innerText = row.status;
             document.getElementById('historyNamaSuper').innerText = row.nama_superintendent;
+            
             const sigUrl = currentTab === 'rutin' ? row.signature : row.signature_superintendent;
-            document.getElementById('historySigImg').src = sigUrl || '';
-            document.getElementById('historySigImg').style.display = sigUrl ? 'block' : 'none';
-            document.getElementById('historyNoSig').style.display = sigUrl ? 'none' : 'block';
+            if (sigUrl) {
+                document.getElementById('historySigImg').src = sigUrl;
+                document.getElementById('historySigImg').style.display = 'block';
+                document.getElementById('historyNoSig').style.display = 'none';
+            } else {
+                document.getElementById('historySigImg').style.display = 'none';
+                document.getElementById('historyNoSig').style.display = 'block';
+            }
         } else {
             document.getElementById('namaSuperintendent').value = "A. Rizki Mubarok K";
-            window.clearSig();
-            resizeCanvas(); // Resize canvas saat modal dibuka
+            window.clearSig(); // Reset ke corat-coret manual tiap buka pop-up
+            resizeCanvas();
         }
+        
         document.getElementById('modal').style.display = 'block';
     }
 
@@ -877,10 +921,18 @@
         else update.keterangan_superintendent = ketInput;
 
         if(st === 'Approved') {
-            const manualSig = canvas.toDataURL();
-            if (manualSig.length > 3000) { 
-                 if (currentTab === 'rutin') update.signature = manualSig;
-                 else update.signature_superintendent = manualSig;
+            // Cek user mau pakai TTD yg mana
+            if (isUsingSavedSignature) {
+                // Pakai Link URL
+                if (currentTab === 'rutin') update.signature = TTD_SUPERINTENDENT_URL;
+                else update.signature_superintendent = TTD_SUPERINTENDENT_URL;
+            } else {
+                // Pakai Corat-coret
+                const manualSig = canvas.toDataURL();
+                if (manualSig.length > 3000) { 
+                    if (currentTab === 'rutin') update.signature = manualSig;
+                    else update.signature_superintendent = manualSig;
+                }
             }
         }
 
@@ -892,7 +944,6 @@
     }
 
     window.closeModal = function() { document.getElementById('modal').style.display = 'none'; }
-    window.clearSig = function() { ctx.clearRect(0,0,canvas.width,canvas.height); }
     window.onload = loadData;
 </script>
 </body>
