@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Resume Daily Report - Responsive</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -137,7 +137,7 @@
                 <p class="text-orange-100 text-xs md:text-sm mt-1 font-medium tracking-wide">Monitoring Progres & Analisis Data</p>
             </div>
             <div class="flex header-buttons w-full md:w-auto gap-3">
-                <button onclick="downloadExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase border border-emerald-500 transition-all shadow-lg flex items-center justify-center gap-2">
+                <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase border border-emerald-500 transition-all shadow-lg flex items-center justify-center gap-2">
                     <i class="fa-solid fa-file-excel"></i> Download Excel
                 </button>
                 <a href="management_tracker.html" class="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white px-6 py-3 rounded-xl font-bold text-xs uppercase border border-white/20 transition-all flex items-center justify-center gap-2">
@@ -605,67 +605,100 @@
 
         function closeProjectAggregateModal() { document.getElementById('projectAggregateModal').style.display = 'none'; }
 
-        // --- SISTEM EXCEL (AUTO-FIT LEBAR KOLOM) ---
-        function downloadExcel() {
-            const selectedDate = document.getElementById('searchDate').value;
-            let dataToDownload = selectedDate ? filteredData : rawData;
-
-            if (!dataToDownload || dataToDownload.length === 0) {
-                alert("Tidak ada data untuk diunduh!");
+        // --- SISTEM DOWNLOAD EXCEL FIX KOLOM LEBAR ---
+        function exportToExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert("Library Excel belum siap. Pastikan internet stabil.");
                 return;
             }
-            let dataToExport = [];
-            
-            if (currentTab === 'rutin') {
-                dataToExport = dataToDownload.map(row => ({
-                    "Pelaksana": row.pelaksana?.nama_pelaksana || '-',
-                    "Superintendent": row.nama_superintendent || '-',
-                    "Equipment": row.pelaksana?.nama_tools || '-',
-                    "Capacity": row.pelaksana?.capacity || '-',
-                    "Tanggal": formatDate(row.pelaksana?.tanggal_checklist),
-                    "Week": row.pelaksana?.week || '-',
-                    "Status Approval": row.status,
-                    "Keterangan": row.keterangan || '-'
-                }));
-            } else {
-                dataToExport = dataToDownload.map(row => ({
-                    "PIC Trial": row.pic_trial || '-',
-                    "Superintendent": row.nama_superintendent || '-',
-                    "Mesin": row.machine_name || '-',
-                    "Project": row.project_name || '-',
-                    "Kode Mold": row.mold_code || '-',
-                    "Nama Mold": row.mold_name || '-',
-                    "Tanggal Trial": formatDate(row.trial_date),
-                    "Status Approval": row.status
-                }));
+            if (!rawData || rawData.length === 0) {
+                alert("Tidak ada data untuk di-export!");
+                return;
             }
             
-            const ws = XLSX.utils.json_to_sheet(dataToExport);
-            
-            // AUTO-FIT COLUMN WIDTHS
-            const columnWidths = [];
-            const keys = Object.keys(dataToExport[0]);
-            
-            keys.forEach(key => {
-                let maxLen = key.length; 
-                dataToExport.forEach(row => {
-                    const cellValue = row[key] ? String(row[key]) : "";
-                    const lines = cellValue.split('\n');
-                    lines.forEach(line => {
-                        if (line.length > maxLen) {
-                            maxLen = line.length;
-                        }
-                    });
-                });
-                // Tambah padding +5, max 150 karakter
-                columnWidths.push({ wch: Math.min(maxLen + 5, 150) });
-            });
-            
-            ws['!cols'] = columnWidths;
+            showToast("Memproses file Excel...", "info");
 
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Data");
-            XLSX.writeFile(wb, `Report_Filter_NG_${currentTab}.xlsx`);
+            try {
+                const exportData = rawData.map((parent, index) => ({
+                    'No': index + 1,
+                    'Project Name': (parent.project_name || "-").toUpperCase(),
+                    'Mesin / Item': parent.machine_name || "-",
+                    'PIC': (parent.assigned_to || "-").toUpperCase(),
+                    'Task Description': parent.task_desc || "-",
+                    'Priority': parent.priority || "Mid", 
+                    'Kategori': parent.job_type || "-",
+                    'Status': parent.status || "-",
+                    'Progress (%)': parent.progress_percent || 0,
+                    'Start Date': formatDateTimeClean(parent.work_start_time),
+                    'Finish Date': formatDateTimeClean(parent.work_end_time),
+                    'Hold Reason': parent.hold_reason || "-",
+                    'Worker Comment': parent.worker_comment || "-"
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(exportData);
+                
+                // MENGUBAH LEBAR KOLOM EXCEL AGAR PAS DENGAN TEKS PANJANG
+                const colWidths = [ 
+                    { wch: 5 },   // No
+                    { wch: 40 },  // Project Name
+                    { wch: 25 },  // Mesin / Item
+                    { wch: 15 },  // PIC
+                    { wch: 60 },  // Task Description (Sangat Lebar)
+                    { wch: 12 },  // Priority
+                    { wch: 20 },  // Kategori
+                    { wch: 15 },  // Status
+                    { wch: 12 },  // Progress (%)
+                    { wch: 15 },  // Start Date
+                    { wch: 15 },  // Finish Date
+                    { wch: 40 },  // Hold Reason (Lebar)
+                    { wch: 50 }   // Worker Comment (Ekstra Lebar)
+                ];
+                ws['!cols'] = colWidths;
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Laporan_Harian");
+                
+                const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+                const fileName = "Resume_Daily_Report.xlsx";
+
+                if (navigator.share && window.innerWidth <= 768) {
+                    const file = new File([blob], fileName, { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+                    navigator.share({
+                        files: [file],
+                        title: 'Laporan Harian',
+                        text: 'File Laporan Harian Terlampir.'
+                    }).catch((e) => {
+                        console.log("Share batal/gagal, mencoba download standar.", e);
+                        fallbackDownload(blob, fileName);
+                    });
+                } else {
+                    fallbackDownload(blob, fileName);
+                }
+
+            } catch (err) {
+                console.error("Kesalahan proses Excel:", err);
+                alert("Sistem gagal memproses file.");
+            }
+        }
+
+        function fallbackDownload(blob, fileName) {
+            try {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => { 
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    showToast("Download berhasil!", "success");
+                }, 100);
+            } catch (e) {
+                alert("Aplikasi HP (WebView) menolak proses unduhan. Harap buka aplikasi lewat Google Chrome.");
+            }
         }
 
         function switchChart(type) {
